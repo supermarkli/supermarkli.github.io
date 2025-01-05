@@ -104,6 +104,135 @@
       </tags>
   </entry>
   <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
+<span id="more"></span>
+
+<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p>发现可以正常读取了</p>
+<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>influxdb</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>前端浏览器缓存机制</title>
+    <url>/posts/50ac740b/</url>
+    <content><![CDATA[<h2 id="前端浏览器缓存机制"><a href="#前端浏览器缓存机制" class="headerlink" title="前端浏览器缓存机制"></a>前端浏览器缓存机制</h2><p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
+<span id="more"></span>
+
+<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
+<h4 id="1-强缓存（Strong-Caching）"><a href="#1-强缓存（Strong-Caching）" class="headerlink" title="1. 强缓存（Strong Caching）"></a>1. 强缓存（Strong Caching）</h4><p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
+<ul>
+<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p>
+</li>
+<li><p><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：</p>
+<ul>
+<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
+<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
+<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
+<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
+</ul>
+</li>
+</ul>
+<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
+<h4 id="2-协商缓存（Negotiation-Caching）"><a href="#2-协商缓存（Negotiation-Caching）" class="headerlink" title="2. 协商缓存（Negotiation Caching）"></a>2. 协商缓存（Negotiation Caching）</h4><p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
+<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
+<ul>
+<li><p><strong>Last-Modified &amp; If-Modified-Since</strong>: </p>
+<ul>
+<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
+<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
+</ul>
+</li>
+<li><p><strong>ETag &amp; If-None-Match</strong>:</p>
+<ul>
+<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
+<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
+</ul>
+</li>
+</ul>
+<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
+<h4 id="3-哈希与缓存（Hash）"><a href="#3-哈希与缓存（Hash）" class="headerlink" title="3. 哈希与缓存（Hash）"></a>3. 哈希与缓存（Hash）</h4><p>**哈希（Hash）**与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
+<p><strong>典型用法</strong>：</p>
+<ul>
+<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
+<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
+</ul>
+<p><strong>总结</strong>：</p>
+<ul>
+<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
+<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
+<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
+</ul>
+<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
+<h3 id="什么是CDN（内容分发网络）"><a href="#什么是CDN（内容分发网络）" class="headerlink" title="什么是CDN（内容分发网络）"></a>什么是CDN（内容分发网络）</h3><p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
+<h4 id="CDN的工作原理"><a href="#CDN的工作原理" class="headerlink" title="CDN的工作原理"></a>CDN的工作原理</h4><ol>
+<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p>
+</li>
+<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p>
+</li>
+<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p>
+</li>
+<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p>
+</li>
+</ol>
+<h4 id="CDN的主要优势"><a href="#CDN的主要优势" class="headerlink" title="CDN的主要优势"></a>CDN的主要优势</h4><ol>
+<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p>
+</li>
+<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p>
+</li>
+<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p>
+</li>
+<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p>
+</li>
+<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p>
+</li>
+</ol>
+<h4 id="CDN的使用场景"><a href="#CDN的使用场景" class="headerlink" title="CDN的使用场景"></a>CDN的使用场景</h4><ul>
+<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
+<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
+<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
+</ul>
+<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TDX Note</title>
     <url>/posts/cbeff3a9/</url>
     <content><![CDATA[<h2 id="Intel-TDX-Demystified-A-Top-Down-Approach"><a href="#Intel-TDX-Demystified-A-Top-Down-Approach" class="headerlink" title="Intel TDX Demystified: A Top-Down Approach"></a>Intel TDX Demystified: A Top-Down Approach</h2><p><strong>摘要</strong>：Intel Trust Domain Extensions (TDX) 是一种在第四代 Intel Xeon Scalable 处理器中引入的架构扩展，支持保密计算。TDX 允许在安全仲裁模式 (SEAM) 中部署虚拟机 (VM)，提供加密的 CPU 状态和内存、完整性保护以及远程认证。</p>
@@ -409,135 +538,6 @@
       <tags>
         <tag>TDX</tag>
         <tag>Intel</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
-<span id="more"></span>
-
-<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p>发现可以正常读取了</p>
-<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-
-<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
-]]></content>
-      <categories>
-        <category>Database</category>
-      </categories>
-      <tags>
-        <tag>influxdb</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端浏览器缓存机制</title>
-    <url>/posts/50ac740b/</url>
-    <content><![CDATA[<h2 id="前端浏览器缓存机制"><a href="#前端浏览器缓存机制" class="headerlink" title="前端浏览器缓存机制"></a>前端浏览器缓存机制</h2><p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
-<span id="more"></span>
-
-<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，**哈希(hash)**也是一种与缓存相关的优化手段。</p>
-<h4 id="1-强缓存（Strong-Caching）"><a href="#1-强缓存（Strong-Caching）" class="headerlink" title="1. 强缓存（Strong Caching）"></a>1. 强缓存（Strong Caching）</h4><p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
-<ul>
-<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p>
-</li>
-<li><p><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：</p>
-<ul>
-<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
-<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
-<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
-<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
-</ul>
-</li>
-</ul>
-<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
-<h4 id="2-协商缓存（Negotiation-Caching）"><a href="#2-协商缓存（Negotiation-Caching）" class="headerlink" title="2. 协商缓存（Negotiation Caching）"></a>2. 协商缓存（Negotiation Caching）</h4><p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
-<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
-<ul>
-<li><p><strong>Last-Modified &amp; If-Modified-Since</strong>: </p>
-<ul>
-<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
-<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
-</ul>
-</li>
-<li><p><strong>ETag &amp; If-None-Match</strong>:</p>
-<ul>
-<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
-<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
-</ul>
-</li>
-</ul>
-<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
-<h4 id="3-哈希与缓存（Hash）"><a href="#3-哈希与缓存（Hash）" class="headerlink" title="3. 哈希与缓存（Hash）"></a>3. 哈希与缓存（Hash）</h4><p>**哈希（Hash）**与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
-<p><strong>典型用法</strong>：</p>
-<ul>
-<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
-<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
-</ul>
-<p><strong>总结</strong>：</p>
-<ul>
-<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
-<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
-<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
-</ul>
-<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
-<h3 id="什么是CDN（内容分发网络）"><a href="#什么是CDN（内容分发网络）" class="headerlink" title="什么是CDN（内容分发网络）"></a>什么是CDN（内容分发网络）</h3><p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
-<h4 id="CDN的工作原理"><a href="#CDN的工作原理" class="headerlink" title="CDN的工作原理"></a>CDN的工作原理</h4><ol>
-<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p>
-</li>
-<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p>
-</li>
-<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p>
-</li>
-<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p>
-</li>
-</ol>
-<h4 id="CDN的主要优势"><a href="#CDN的主要优势" class="headerlink" title="CDN的主要优势"></a>CDN的主要优势</h4><ol>
-<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p>
-</li>
-<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p>
-</li>
-<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p>
-</li>
-<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p>
-</li>
-<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p>
-</li>
-</ol>
-<h4 id="CDN的使用场景"><a href="#CDN的使用场景" class="headerlink" title="CDN的使用场景"></a>CDN的使用场景</h4><ul>
-<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
-<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
-<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
-</ul>
-<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
       </tags>
   </entry>
 </search>
