@@ -20,10 +20,10 @@
   --btn-default-hover-bg: #222;
   --btn-default-hover-color: #fff;
   --btn-default-hover-border-color: #222;
-  --highlight-background: #222;
-  --highlight-foreground: #aaa;
-  --highlight-gutter-background: #2f2f2f;
-  --highlight-gutter-foreground: #9c9c9c;
+  --highlight-background: #333;
+  --highlight-foreground: #fff;
+  --highlight-gutter-background: #474747;
+  --highlight-gutter-foreground: #eaeaea;
   color-scheme: light;
 }
 html {
@@ -376,63 +376,124 @@ pre code.hljs {
 code.hljs {
   padding: 3px 5px
 }
-/*
-Date: 17.V.2011
-Author: pumbur <pumbur@pumbur.net>
+/*!
+   Theme: Agate
+   Author: (c) Taufik Nurrohman <hi@taufik-nurrohman.com>
+   Maintainer: @taufik-nurrohman
+   Updated: 2021-04-24
+
+   #333
+   #62c8f3
+   #7bd694
+   #888
+   #a2fca2
+   #ade5fc
+   #b8d8a2
+   #c6b4f0
+   #d36363
+   #fc9b9b
+   #fcc28c
+   #ffa
+   #fff
 */
 .hljs {
-  background: #222;
-  color: #aaa
-}
-.hljs-subst {
-  color: #aaa
-}
-.hljs-section {
+  background: #333;
   color: #fff
 }
-.hljs-comment,
-.hljs-quote,
-.hljs-meta {
-  color: #444
-}
-.hljs-string,
-.hljs-symbol,
-.hljs-bullet,
-.hljs-regexp {
-  color: #ffcc33
-}
-.hljs-number,
-.hljs-addition {
-  color: #00cc66
-}
-.hljs-built_in,
-.hljs-literal,
-.hljs-type,
-.hljs-template-variable,
-.hljs-attribute,
-.hljs-link {
-  color: #32aaee
-}
-.hljs-keyword,
-.hljs-selector-tag,
-.hljs-name,
-.hljs-selector-id,
-.hljs-selector-class {
-  color: #6644aa
-}
-.hljs-title,
-.hljs-variable,
-.hljs-deletion,
-.hljs-template-tag {
-  color: #bb1166
-}
-.hljs-section,
 .hljs-doctag,
+.hljs-meta-keyword,
+.hljs-name,
 .hljs-strong {
   font-weight: bold
 }
+.hljs-code,
 .hljs-emphasis {
   font-style: italic
+}
+.hljs-section,
+.hljs-tag {
+  color: #62c8f3
+}
+.hljs-selector-class,
+.hljs-selector-id,
+.hljs-template-variable,
+.hljs-variable {
+  color: #ade5fc
+}
+.hljs-meta-string,
+.hljs-string {
+  color: #a2fca2
+}
+.hljs-attr,
+.hljs-quote,
+.hljs-selector-attr {
+  color: #7bd694
+}
+.hljs-tag .hljs-attr {
+  color: inherit
+}
+.hljs-attribute,
+.hljs-title,
+.hljs-type {
+  color: #ffa
+}
+.hljs-number,
+.hljs-symbol {
+  color: #d36363
+}
+.hljs-bullet,
+.hljs-template-tag {
+  color: #b8d8a2
+}
+.hljs-built_in,
+.hljs-keyword,
+.hljs-literal,
+.hljs-selector-tag {
+  color: #fcc28c
+}
+.hljs-code,
+.hljs-comment,
+.hljs-formula {
+  color: #888
+}
+.hljs-link,
+.hljs-selector-pseudo,
+.hljs-regexp {
+  color: #c6b4f0
+}
+.hljs-meta {
+  color: #fc9b9b
+}
+.hljs-deletion {
+  background: #fc9b9b;
+  color: #333
+}
+.hljs-addition {
+  background: #a2fca2;
+  color: #333
+}
+/* Purposely ignored */
+.hljs-operator,
+.hljs-params,
+.hljs-property,
+.hljs-punctuation {
+  
+}
+.hljs-subst {
+  color: #fff
+}
+/* This applies only if HTML auto-merging plugin is enabled by user (#2889) */
+.hljs a {
+  color: inherit
+}
+.hljs a:focus,
+.hljs a:hover {
+  color: inherit;
+  text-decoration: underline
+}
+.hljs mark {
+  background: #555;
+  color: inherit
 }
 .highlight:hover .copy-btn,
 .code-container:hover .copy-btn {
@@ -1196,7 +1257,7 @@ pre code {
     vertical-align: middle;
   }
   .links-of-author a::before {
-    background: #d22ee2;
+    background: #f461ff;
     display: inline-block;
     margin-right: 3px;
     transform: translateY(-2px);
