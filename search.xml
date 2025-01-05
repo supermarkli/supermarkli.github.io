@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>CSS note</title>
+    <title>CSS Note</title>
     <url>/posts/752f9918/</url>
     <content><![CDATA[<h2 id="CSS心得"><a href="#CSS心得" class="headerlink" title="CSS心得"></a>CSS心得</h2><p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
 <span id="more"></span>
@@ -15,8 +15,7 @@
 <h3 id="常见flex属性"><a href="#常见flex属性" class="headerlink" title="常见flex属性"></a>常见flex属性</h3><p>flex: 1；可以搭配overflow：hidden；使用</p>
 <figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
 
-<p>技巧：可以搭配js实现宽度变化</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="技巧：可以搭配js实现宽度变化"><a href="#技巧：可以搭配js实现宽度变化" class="headerlink" title="技巧：可以搭配js实现宽度变化"></a>技巧：可以搭配js实现宽度变化</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
 
@@ -51,7 +50,7 @@
       </tags>
   </entry>
   <entry>
-    <title>TDX note</title>
+    <title>TDX Note</title>
     <url>/posts/cbeff3a9/</url>
     <content><![CDATA[<h2 id="Intel-TDX-Demystified-A-Top-Down-Approach"><a href="#Intel-TDX-Demystified-A-Top-Down-Approach" class="headerlink" title="Intel TDX Demystified: A Top-Down Approach"></a>Intel TDX Demystified: A Top-Down Approach</h2><p><strong>摘要</strong>：Intel Trust Domain Extensions (TDX) 是一种在第四代 Intel Xeon Scalable 处理器中引入的架构扩展，支持保密计算。TDX 允许在安全仲裁模式 (SEAM) 中部署虚拟机 (VM)，提供加密的 CPU 状态和内存、完整性保护以及远程认证。</p>
 <span id="more"></span>
