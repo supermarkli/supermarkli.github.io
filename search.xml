@@ -13,7 +13,7 @@
 <p>保密计算旨在通过最小化处理器及其供应商的信任根来提供端到端的保护。所有数据必须在整个生命周期中受到保护，从离开其所有者的设备到进入<strong>经过认证的 CPU 封装</strong>。</p>
 <p>TDX 的威胁模型假设特权软件（如<strong>虚拟机管理程序或主机操作系统</strong>）可能是不可信的或具有对抗性的。</p>
 <hr>
-<h2 id="1-TDX-的概述"><a href="#1-TDX-的概述" class="headerlink" title="1. TDX 的概述"></a>1. TDX 的概述</h2><h3 id="1-1-TDX-的概述"><a href="#1-1-TDX-的概述" class="headerlink" title="1.1 TDX 的概述"></a>1.1 TDX 的概述</h3><p>TDX 的目标是保护指定信任域 (TD) 的 CPU 状态和内存的机密性和完整性，并使 TD 所有者能够验证远程平台的真实性。</p>
+<h2 id="TDX-的概述"><a href="#TDX-的概述" class="headerlink" title="TDX 的概述"></a>TDX 的概述</h2><p>TDX 的目标是保护指定信任域 (TD) 的 CPU 状态和内存的机密性和完整性，并使 TD 所有者能够验证远程平台的真实性。</p>
 <p>TDX 基于一系列技术构建，包括虚拟化技术 (VT)、<strong>多密钥全内存加密 (MKTME)</strong> 和 TDX 模块 (TDX Module)。TDX 还依赖于软件保护扩展 (SGX) 和<strong>数据中心认证原语 (DCAP)</strong> 来进行远程认证。</p>
 <blockquote>
 <ul>
@@ -21,7 +21,7 @@
 <li>DCAP 提供了一种机制，使得远程用户或服务可以验证 TDX 环境的可信状态。</li>
 </ul>
 </blockquote>
-<h2 id="2-安全原则"><a href="#2-安全原则" class="headerlink" title="2. 安全原则"></a>2. 安全原则</h2><p>消除了对不可信&#x2F;特权主机软件的层级依赖，并<strong>将虚拟机管理程序和云操作员排除在可信计算基 (TCB) 之外</strong>，从而允许租户以信任的方式安全部署和运行其计算任务。</p>
+<h2 id="安全原则"><a href="#安全原则" class="headerlink" title="安全原则"></a>安全原则</h2><p>消除了对不可信&#x2F;特权主机软件的层级依赖，并<strong>将虚拟机管理程序和云操作员排除在可信计算基 (TCB) 之外</strong>，从而允许租户以信任的方式安全部署和运行其计算任务。</p>
 <p>TDX 保障 TD 的内存和虚拟 CPU 状态的机密性和完整性，确保这些数据不会被同一台机器上运行的其他安全域访问或篡改。它通过以下机制来实现这一点：</p>
 <ol>
 <li><strong>内存访问控制</strong></li>
@@ -29,31 +29,31 @@
 <li><strong>由 Intel 签署的 TDX 模块，负责处理涉及安全敏感的 TD 管理操作</strong></li>
 </ol>
 <p>此外，远程认证为租户提供了 TD 在真实的 TDX 支持的 Intel 处理器上运行的证明。</p>
-<h3 id="2-1-内存机密性"><a href="#2-1-内存机密性" class="headerlink" title="2.1 内存机密性"></a>2.1 内存机密性</h3><p>TD 的数据在处理器封装内以明文形式存储，但当数据从处理器卸载到主存储器时，处理器使用<strong>仅处理器已知的 TD 专用密钥</strong>对其进行加密。</p>
+<h3 id="内存机密性"><a href="#内存机密性" class="headerlink" title="内存机密性"></a>内存机密性</h3><p>TD 的数据在处理器封装内以明文形式存储，但当数据从处理器卸载到主存储器时，处理器使用<strong>仅处理器已知的 TD 专用密钥</strong>对其进行加密。</p>
 <p>加密操作在<strong>缓存行粒度</strong>上执行，这使得外围设备无法读取或篡改 TD 的私有内存而不被检测到。当处理器从主存储器加载数据时，处理器<strong>可以检测到任何篡改行为</strong>。</p>
 <blockquote>
 <p>一个缓存行是 CPU 从主存储器<strong>读取或写入数据的基本单位</strong>，通常为 64 字节。这样做是为了提高加密和解密操作的效率，因为 CPU 的数据处理与缓存行的操作直接相关。</p>
 </blockquote>
-<h3 id="2-2-CPU-状态机密性"><a href="#2-2-CPU-状态机密性" class="headerlink" title="2.2 CPU 状态机密性"></a>2.2 CPU 状态机密性</h3><p>TDX 通过在安全域之间进行上下文切换时<strong>管理 TD 的虚拟 CPU 状态</strong>来保护并发进程的机密性。</p>
+<h3 id="CPU-状态机密性"><a href="#CPU-状态机密性" class="headerlink" title="CPU 状态机密性"></a>CPU 状态机密性</h3><p>TDX 通过在安全域之间进行上下文切换时<strong>管理 TD 的虚拟 CPU 状态</strong>来保护并发进程的机密性。</p>
 <p>这些状态存储在 <strong>TD 的元数据</strong>中，并在主存储器中通过 TD 的密钥进行保护。上下文切换期间，TDX 会清除或隔离处理器内部的与 TD 相关的特定状态，如翻译后援缓冲 (TLB) 条目或分支预测缓冲，以保持 TD 信息的保护。</p>
 <blockquote>
 <p><strong>元数据（Metadata）</strong> 是指描述数据的数据。它提供了有关某一数据的结构、属性、特征等信息，帮助我们理解、组织和管理这些数据。</p>
 </blockquote>
-<h3 id="2-3-执行完整性"><a href="#2-3-执行完整性" class="headerlink" title="2.3 执行完整性"></a>2.3 执行完整性</h3><p>TDX 保护 TD 执行的完整性，防止主机干扰，确保在预期的状态下恢复 TD 的计算。它能够检测到虚拟 CPU 状态中的恶意变化，以及位于私有内存中的指令的插入、修改或删除。</p>
+<h3 id="执行完整性"><a href="#执行完整性" class="headerlink" title="执行完整性"></a>执行完整性</h3><p>TDX 保护 TD 执行的完整性，防止主机干扰，确保在预期的状态下恢复 TD 的计算。它能够检测到虚拟 CPU 状态中的恶意变化，以及位于私有内存中的指令的插入、修改或删除。</p>
 <p>然而，TDX 不提供额外的控制流完整性保证。</p>
 <p>TD 所有者有责任使用现有的基于编译或硬件辅助的控制流完整性执行技术，例如控制流强制技术 (CET)。</p>
 <blockquote>
 <p>意味着，如果 TD 的<strong>代码本身有漏洞</strong>，攻击者仍然可以通过某种方式来影响其控制流。</p>
 <p>CET 是一种由英特尔提供的硬件安全特性，用于检测和阻止控制流劫持攻击。</p>
 </blockquote>
-<h3 id="2-4-I-O-保护"><a href="#2-4-I-O-保护" class="headerlink" title="2.4 I&#x2F;O 保护"></a>2.4 I&#x2F;O 保护</h3><p>外围设备或加速器位于 TD 信任边界之外，不应被允许访问 TD 的私有内存。为了支持虚拟化 I&#x2F;O，TD 可以选择<strong>显式共享内存</strong>以进行数据传输。</p>
+<h3 id="I-O-保护"><a href="#I-O-保护" class="headerlink" title="I&#x2F;O 保护"></a>I&#x2F;O 保护</h3><p>外围设备或加速器位于 TD 信任边界之外，不应被允许访问 TD 的私有内存。为了支持虚拟化 I&#x2F;O，TD 可以选择<strong>显式共享内存</strong>以进行数据传输。</p>
 <p>但是，TDX <strong>不对位于共享内存区域中的数据提供机密性和完整性保护</strong>。TD 所有者有责任实现适当的机制，例如使用传输层安全协议 (TLS) 等安全通信通道，<strong>以保护离开 TD 信任边界的数据</strong>。</p>
 <p>在未来，TDX 2.0 计划包括 TDX Connect 以解决受信 I&#x2F;O 问题。</p>
 <blockquote>
 <p><strong>TLS（Transport Layer Security）</strong> 是一种用于在计算机网络上提供安全通信的加密协议。它通过加密、数据完整性验证和身份认证来保护数据的传输，防止信息泄露和篡改。</p>
 </blockquote>
 <hr>
-<h2 id="3-威胁模型"><a href="#3-威胁模型" class="headerlink" title="3. 威胁模型"></a>3. 威胁模型</h2><p>TDX 假设对手可能具有<strong>物理或远程访问计算机</strong>的能力，并能够<strong>控制启动固件、系统管理模式 (SMM)、主机操作系统 (OS)、虚拟机管理程序 (Hypervisor) 和外围设备</strong>。</p>
+<h2 id="威胁模型"><a href="#威胁模型" class="headerlink" title="威胁模型"></a>威胁模型</h2><p>TDX 假设对手可能具有<strong>物理或远程访问计算机</strong>的能力，并能够<strong>控制启动固件、系统管理模式 (SMM)、主机操作系统 (OS)、虚拟机管理程序 (Hypervisor) 和外围设备</strong>。</p>
 <p>这些对手的主要目标是获取机密数据或干扰 TD 的执行。需要注意的是，TDX 不能保证可用性，因为对手<strong>可以控制分配给 TD 的所有计算资源</strong>，并发起拒绝服务 (DoS) 攻击。</p>
 <blockquote>
 <p>这里的”可用性”是指虚拟机（TD）能够可靠、持续地执行和运行的能力</p>
@@ -65,39 +65,39 @@
 <p>对手可以操纵 TD 的输入数据，包括高级配置和电源接口 (ACPI) 表、外围组件互连 (PCI) 配置、特定型号寄存器 (MSR)、内存映射输入&#x2F;输出 (MMIO)、直接内存访问 (DMA)、模拟设备、主机处理的超调用、随机源和时间概念。</p>
 <p>对手可以进行物理和硬件攻击，例如通过探测总线或通过恶意 DMA 访问主存储器。对于回滚任意内存区域的物理攻击，没有防御措施。然而，<strong>对手不可能提取嵌入处理器芯片中的密钥材料</strong>。威胁模型不包括故障注入或侧信道攻击，如电源扰动、时序和电力分析。</p>
 <p>攻击 TDX 认证在模型范围之内，因为它破坏了信任模型，并可能使对手伪造虚假的 TEE，以从租户处收集机密信息。</p>
-<h3 id="3-1-可信计算基-TCB"><a href="#3-1-可信计算基-TCB" class="headerlink" title="3.1 可信计算基 (TCB)"></a>3.1 可信计算基 (TCB)</h3><p>TDX 的 TCB 由<strong>支持 TDX 的 Intel 处理器</strong>及其内置技术（如 VT、MKTME 和 SGX）组成。TCB 还包括由 Intel 签署的软件模块，如 TDX 模块、NP&#x2F;P-SEAM 加载器，以及用于远程认证的 SGX 架构飞地 (enclaves)。</p>
+<h3 id="可信计算基-TCB"><a href="#可信计算基-TCB" class="headerlink" title="可信计算基 (TCB)"></a>可信计算基 (TCB)</h3><p>TDX 的 TCB 由<strong>支持 TDX 的 Intel 处理器</strong>及其内置技术（如 VT、MKTME 和 SGX）组成。TCB 还包括由 Intel 签署的软件模块，如 TDX 模块、NP&#x2F;P-SEAM 加载器，以及用于远程认证的 SGX 架构飞地 (enclaves)。</p>
 <p>在 TD 内运行的软件栈由租户拥有，并被视为 TCB 的一部分。TDX 中使用的加密原语被认为是可靠的，其实现也是安全的，包括随机数的生成和侧信道攻击（如时间攻击）的防护。</p>
 <p>租户必须信任处理器制造商 Intel，以开发、制造、构建和签署用于 TDX 的硬件&#x2F;软件组件。TDX 模块、NP&#x2F;P-SEAM 加载器以及 DCAP 的源代码是公开可审计的，允许租户评估其可信度。然而，租户还必须信任 Intel 签署的版本与他们审查的版本一致，这涉及在编译过程中对供应链攻击的保护。</p>
 <p>此外，租户还需要信任 Intel 的供应证书服务 (PCS) 进行远程认证。PCS 最初支持 SGX 认证，现已扩展至包括检索供应证书密钥 (PCK) 证书、撤销列表和 TCB 信息。</p>
 <hr>
-<h2 id="4-保密计算技术的比较"><a href="#4-保密计算技术的比较" class="headerlink" title="4. 保密计算技术的比较"></a>4. 保密计算技术的比较</h2><p>保密计算技术的共同目标是保护在不可信第三方基础设施上托管的敏感数据和计算，防止未授权访问、篡改和披露。</p>
+<h2 id="保密计算技术的比较"><a href="#保密计算技术的比较" class="headerlink" title="保密计算技术的比较"></a>保密计算技术的比较</h2><p>保密计算技术的共同目标是保护在不可信第三方基础设施上托管的敏感数据和计算，防止未授权访问、篡改和披露。</p>
 <p>主要处理器供应商正在竞争将保密计算功能集成到其芯片中。尽管在实现和术语上存在差异，但这些技术共享基本的安全原则，并具有类似的系统设计，如引入新的执行模式或特权级别，将虚拟机管理功能迁移到经过认证的固件&#x2F;软件中，确保受信或测量的可信组件的启动，实施内存访问控制，并提供内存加密保护。</p>
 <p>除了 Intel TDX 外，我们还简要介绍了来自其他供应商的保密计算技术，包括 AMD 安全加密虚拟化 (SEV)、IBM 安全执行和受保护执行设施 (PEF)、Arm 保密计算架构 (CCA) 和 RISC-V 保密虚拟机扩展 (CoVE)。</p>
 <p><img src="/assets/1111.png" alt="已上传的图片"></p>
-<h3 id="4-1-AMD-SEV"><a href="#4-1-AMD-SEV" class="headerlink" title="4.1 AMD SEV"></a>4.1 AMD SEV</h3><p>SEV（安全加密虚拟化）是 AMD EPYC 处理器中的一项保密计算功能。它通过在多租户云环境中对虚拟机（VM）内存进行加密来保护敏感数据，防止特权软件或管理员的访问。</p>
+<h3 id="AMD-SEV"><a href="#AMD-SEV" class="headerlink" title="AMD SEV"></a>AMD SEV</h3><p>SEV（安全加密虚拟化）是 AMD EPYC 处理器中的一项保密计算功能。它通过在多租户云环境中对虚拟机（VM）内存进行加密来保护敏感数据，防止特权软件或管理员的访问。</p>
 <p>SEV 依赖于 AMD 安全内存加密 (SME) 和 AMD 虚拟化 (AMD-V) 技术，通过强制执行 VM 与虚拟机管理程序之间的加密隔离来确保安全。每个 VM 都分配有一个唯一的临时高级加密标准（AES）密钥，用于运行时的内存加密。</p>
 <p>内存控制器上的 AES 引擎负责加密或解密写入或读取主存储器的数据。每个 VM 的密钥由 <strong>AMD 平台安全处理器 (PSP) 管理</strong>，该处理器是集成在 AMD 系统芯片 (SoC) 内的 32 位 Arm Cortex-A5 微控制器。物理地址的 C 位（第 47 位）决定了内存页面的加密。</p>
 <p>SEV 还提供了远程认证机制，允许 VM 所有者验证 VM 启动测量的可信度及 SEV 平台的可靠性。PSP 生成由 AMD 认证密钥签名的认证报告。VM 所有者可以验证认证报告的真实性及其嵌入的平台&#x2F;来宾测量信息。</p>
 <p>AMD 已经发布了 SEV 的三代版本。第一代 SEV 仅保护 VM 内存的机密性。第二代 SEV-ES（加密状态）增加了在虚拟机管理程序切换期间对 CPU 寄存器状态的保护，而第三代 SEV-SNP（安全嵌套分页）增加了完整性保护，以防止内存篡改、重放和重映射攻击。</p>
 <p>特别是，SEV-SNP 使用反向映射表 (RMP) 进行内存完整性保护。RMP 追踪每个页面的所有权和权限，以防止未经授权的访问。SEV-SNP 还通过将来宾地址空间划分为四个级别并在 VM 内部提供额外的安全隔离，来引入<strong>虚拟机权限级别 (VMPL)</strong> 功能。</p>
-<h3 id="4-2-IBM-保密计算"><a href="#4-2-IBM-保密计算" class="headerlink" title="4.2 IBM 保密计算"></a>4.2 IBM 保密计算</h3><p>IBM 对保密计算的早期探索可以追溯到对 SecureBlue++ 的研究，该研究在 Mambo CPU 模拟器上运行了一个模拟的 POWER 处理器。今天，IBM 系统支持两种架构的保密计算：IBM Z 和 LinuxONE 上提供的安全执行 (Secure Execution) 以及 OpenPOWER 系统上发布的受保护执行设施 (PEF)。</p>
+<h3 id="IBM-保密计算"><a href="#IBM-保密计算" class="headerlink" title="IBM 保密计算"></a>IBM 保密计算</h3><p>IBM 对保密计算的早期探索可以追溯到对 SecureBlue++ 的研究，该研究在 Mambo CPU 模拟器上运行了一个模拟的 POWER 处理器。今天，IBM 系统支持两种架构的保密计算：IBM Z 和 LinuxONE 上提供的安全执行 (Secure Execution) 以及 OpenPOWER 系统上发布的受保护执行设施 (PEF)。</p>
 <p><strong>IBM 安全执行 (Secure Execution)</strong><br>IBM 安全执行自 IBM Z15 和 LinuxONE III 以来提供了对在隔离 TEE 中运行的安全虚拟机 (SVM) 的支持。</p>
 <p>安全执行保护 SVM 中代码和数据的机密性、完整性和真实性，防止任何未经授权的访问和篡改。安全执行利用被称为 Ultravisor 的可信固件执行安全敏感任务来引导和运行 SVM。Ultravisor 在上下文切换期间保护 SVM 的内存和状态，并防止潜在的恶意虚拟机管理程序的入侵。</p>
 <p><strong>IBM PEF (受保护执行设施)</strong><br>PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TEE。PEF 固件、用于准备 SVM 的工具和操作系统扩展都是作为开源软件发布的。</p>
 <p>为了保护敏感数据和代码，PEF 引入了一个受信固件——受保护执行 Ultravisor（Ultravisor），该固件通过 CPU 架构变化来屏蔽 SVM 执行并强制执行安全保障。PEF 依赖于系统的安全和受信启动，并在一个新的、最高特权的 CPU 状态（称为 Secure State）中执行 Ultravisor。</p>
 <p>虚拟机管理程序启动 VM，然后调用 Ultravisor 来切换到 SVM。Ultravisor 通过将其移动到受保护的内存来将 VM 转换为 SVM，从而确保这些内存对于不受信任的代码是不可访问的。</p>
-<h3 id="4-3-Arm-CCA"><a href="#4-3-Arm-CCA" class="headerlink" title="4.3 Arm CCA"></a>4.3 Arm CCA</h3><p>CCA（保密计算架构）是 Armv9 架构中引入的一项技术。传统上，Arm TrustZone 通过将”普通世界”（Normal World）和”安全世界”（Secure World）分隔开来，实现了安全执行。TrustZone 防止普通世界的软件访问安全世界中的数据。</p>
+<h3 id="Arm-CCA"><a href="#Arm-CCA" class="headerlink" title="Arm CCA"></a>Arm CCA</h3><p>CCA（保密计算架构）是 Armv9 架构中引入的一项技术。传统上，Arm TrustZone 通过将”普通世界”（Normal World）和”安全世界”（Secure World）分隔开来，实现了安全执行。TrustZone 防止普通世界的软件访问安全世界中的数据。</p>
 <p>CCA 引入了”领域管理扩展”（Realm Management Extension，RME），通过添加两个新的世界：领域世界（Realm World）和根世界（Root World），进一步扩展了这种分隔。</p>
 <p>领域世界（Realm World）为保密虚拟机（Confidential VMs）提供了相互不信任的执行环境，隔离工作负载，使其不受其他安全域（包括主机操作系统、虚拟机管理程序、其他领域和 TrustZone）的干扰。</p>
 <p>为了实施地址空间的隔离，CCA 使用了一种扩展的页面表结构——“粒度保护表”（Granule Protection Table，GPT），该结构用于跟踪每个页面的所有权，并将其归属于不同的世界。</p>
 <p>根世界（Root World）中的”监控器”（Monitor）负责创建和管理 GPT，防止虚拟机管理程序或操作系统直接更改它。监控器可以通过更新 GPT 动态地在不同世界之间移动物理内存。CCA 还支持对 CCA 平台及其领域的初始状态进行认证，以确保其安全性。</p>
-<h3 id="4-4-RISC-V-CoVE"><a href="#4-4-RISC-V-CoVE" class="headerlink" title="4.4 RISC-V CoVE"></a>4.4 RISC-V CoVE</h3><p>CoVE（保密虚拟机扩展）是 RISC-V 的一个参考保密计算架构，其受保护的实例被称为 TEE 虚拟机（TVM）。该架构引入了 TEE 安全管理器（TSM）驱动，这是一个 M 模式（RISC-V 中的最高特权级别）固件组件，用于在保密环境和非保密环境之间切换。TSM 驱动通过内存跟踪表（Memory Tracking Table，MTT）跟踪 TVM 的内存页面分配。</p>
+<h3 id="RISC-V-CoVE"><a href="#RISC-V-CoVE" class="headerlink" title="RISC-V CoVE"></a>RISC-V CoVE</h3><p>CoVE（保密虚拟机扩展）是 RISC-V 的一个参考保密计算架构，其受保护的实例被称为 TEE 虚拟机（TVM）。该架构引入了 TEE 安全管理器（TSM）驱动，这是一个 M 模式（RISC-V 中的最高特权级别）固件组件，用于在保密环境和非保密环境之间切换。TSM 驱动通过内存跟踪表（Memory Tracking Table，MTT）跟踪 TVM 的内存页面分配。</p>
 <p>TSM 驱动测量并加载 TSM，它是虚拟机管理程序与 TVM 之间的受信中介。CoVE 定义了一个应用程序二进制接口（ABI），供虚拟机管理程序从 TSM 请求虚拟机管理服务。</p>
 <p>CoVE 采用分层认证架构，从硬件开始，逐层向上加载、测量并认证 TSM 驱动、TSM 和 TVM。每一层都由上一层加载、测量并签署认证。这种方法提供了一个安全的信任链，可以用于验证系统的完整性。TVM 可以从 TSM 获取一个包含从硬件根源认证的证书，为 TVM 和其所运行的软件的真实性验证提供了机制。</p>
 <hr>
-<h2 id="5-TDX-的构建模块"><a href="#5-TDX-的构建模块" class="headerlink" title="5. TDX 的构建模块"></a>5. TDX 的构建模块</h2><p>TDX 依赖于一系列现有的 Intel 技术，包括虚拟化技术 (VT)、全内存加密 (TME)&#x2F;多密钥全内存加密 (MKTME) 和软件保护扩展 (SGX)。</p>
+<h2 id="TDX-的构建模块"><a href="#TDX-的构建模块" class="headerlink" title="TDX 的构建模块"></a>TDX 的构建模块</h2><p>TDX 依赖于一系列现有的 Intel 技术，包括虚拟化技术 (VT)、全内存加密 (TME)&#x2F;多密钥全内存加密 (MKTME) 和软件保护扩展 (SGX)。</p>
 <p><img src="/assets/QQ_1730016861906.png" alt="QQ_1730016861906"></p>
-<h3 id="5-1-Intel-VT"><a href="#5-1-Intel-VT" class="headerlink" title="5.1 Intel VT"></a>5.1 Intel VT</h3><p>Intel VT（虚拟化技术）是一组由 Intel 处理器提供的<strong>硬件辅助虚拟化</strong>功能。使用 VT，虚拟机监控程序（VMM）或虚拟机管理程序可以获得比基于软件的虚拟化更好的性能、隔离和安全性。Intel 的 VT 产品组合包括 CPU、内存和 I&#x2F;O 的虚拟化。</p>
+<h3 id="Intel-VT"><a href="#Intel-VT" class="headerlink" title="Intel VT"></a>Intel VT</h3><p>Intel VT（虚拟化技术）是一组由 Intel 处理器提供的<strong>硬件辅助虚拟化</strong>功能。使用 VT，虚拟机监控程序（VMM）或虚拟机管理程序可以获得比基于软件的虚拟化更好的性能、隔离和安全性。Intel 的 VT 产品组合包括 CPU、内存和 I&#x2F;O 的虚拟化。</p>
 <p>支持 VT-x 技术的处理器具有一组称为虚拟机扩展（VMX）的特殊指令集，它可以控制虚拟化功能的实现。支持 VT-x 的处理器可以在两种模式下运行：VMX 根模式和 VMX 非根模式。</p>
 <p>虚拟机管理程序运行在 VMX 根模式，而来宾 VM 运行在 VMX 非根模式。VT-x 定义了两种新转换方式：虚拟机进入（VM Entry）和虚拟机退出（VM Exit），用于在来宾和虚拟机管理程序之间切换。</p>
 <p>VMX 的切换信息存储在虚拟机控制结构（VMCS）中，用于记录来宾和主机的状态信息，并控制哪些来宾操作可能引发 VM 退出。</p>
@@ -107,14 +107,14 @@
 <p><strong>VT 与 TDX 的关系</strong>  </p>
 <p>TDX 是一个基于 VM 的 TEE。它依赖 VT 提供信任域（TD）之间的隔离。在新的威胁模型中，虚拟机管理程序不再被信任，因此管理 TD 的功能被封装在 TDX 模块中。TDX 模块和 TD 运行在新的 SEAM VMX 根&#x2F;非根模式下，并增加了额外的保护。TDX 仍然依赖 EPT 来管理 GPA 到 HPA 的映射，但<strong>目前为每个 TD 维护两个 EPT</strong>，一个用于私有（加密）内存，另一个用于共享（未加密）内存。</p>
 <p>需要注意的是，<strong>目前 TDX 1.0 中不支持嵌套虚拟化</strong>，这意味着在 TD 中运行虚拟机是不可行的。在 TD 中使用 VMX 指令会导致未定义指令（UD）异常。但根据 TD 分区架构规范草案，TDX 1.5 版本将来可能支持嵌套虚拟化。</p>
-<h3 id="5-2-Intel-TME-MKTME"><a href="#5-2-Intel-TME-MKTME" class="headerlink" title="5.2 Intel TME&#x2F;MKTME"></a>5.2 Intel TME&#x2F;MKTME</h3><p>TME 首次在第 11 代 Intel Core vPro 移动处理器中引入。该功能旨在防止攻击者通过物理访问计算机内存窃取数据。</p>
+<h3 id="Intel-TME-MKTME"><a href="#Intel-TME-MKTME" class="headerlink" title="Intel TME&#x2F;MKTME"></a>Intel TME&#x2F;MKTME</h3><p>TME 首次在第 11 代 Intel Core vPro 移动处理器中引入。该功能旨在防止攻击者通过物理访问计算机内存窃取数据。</p>
 <p><strong>TME 使用单一的瞬时密钥加密整个计算机的内存</strong>。该密钥通过硬件随机数生成器和系统芯片组中的安全措施在启动时生成。内存加密由每个内存控制器上的加密引擎执行。加密过程使用 NIST 标准的 AES-XTS 算法，密钥长度可以是 128 位或 256 位。</p>
 <p>MKTME 是 TME 的扩展，<strong>支持多密钥加密和按页面粒度的内存加密</strong>。对于每个内存事务，MKTME 从物理内存地址中提取<strong>主机密钥标识符（HKID）</strong>，并选择相应的密钥进行内存加密&#x2F;解密。</p>
 <p>HKID 占据物理地址的高位比特，范围由 BIOS 在系统启动时设置。MKTME 允许软件提供的密钥，并引入了一个新的指令 PCONFIG，用于编程与特定 HKID 关联的密钥和加密模式。这些 HKID-密钥对存储在每个 MKTME 加密引擎的密钥加密表（KET）中。<strong>KET 中的密钥永不离开处理器，也不会暴露给软件。</strong></p>
 <p>MKTME 可以在本地和虚拟化环境中使用。在虚拟化环境中，虚拟机管理程序通过将 HKID 附加到 EPT 中的 VM 物理地址来控制不同虚拟机的内存加密。</p>
 <p><strong>MKTME 与 TDX 的关系</strong> </p>
 <p>在虚拟化环境中使用 MKTME 时，虚拟机管理程序必须被信任来控制内存加密，这与保密计算的新威胁模型相冲突。因此，在 TDX 中，<strong>由 TDX 模块负责控制 TD 的内存加密</strong>。HKID 空间被划分为私有 HKID 和共享 HKID。<strong>TDX 模块确保每个 TD 分配一个唯一的私有 HKID</strong>。因此，该 HKID 可以用于表示特定 TD 的身份。私有 HKID 只能用于加密 TD 的私有内存。TDX 模块仍然依赖 MKTME 来保护 TD 的内存。</p>
-<h3 id="5-3-Intel-SGX"><a href="#5-3-Intel-SGX" class="headerlink" title="5.3 Intel SGX"></a>5.3 Intel SGX</h3><p>Intel 在 2015 年推出了 SGX（软件保护扩展），与第六代 Core 处理器一起发布，旨在防止内存总线监听和冷启动攻击。它允许开发人员将应用程序划分为不同的部分，并保护选定的代码和数据在飞地（enclaves）内。飞地的内存只能被授权代码访问。SGX 使用基于硬件的内存加密来保护飞地的内容。任何未经授权的访问或篡改飞地内存的行为都会触发异常。</p>
+<h3 id="Intel-SGX"><a href="#Intel-SGX" class="headerlink" title="Intel SGX"></a>Intel SGX</h3><p>Intel 在 2015 年推出了 SGX（软件保护扩展），与第六代 Core 处理器一起发布，旨在防止内存总线监听和冷启动攻击。它允许开发人员将应用程序划分为不同的部分，并保护选定的代码和数据在飞地（enclaves）内。飞地的内存只能被授权代码访问。SGX 使用基于硬件的内存加密来保护飞地的内容。任何未经授权的访问或篡改飞地内存的行为都会触发异常。</p>
 <p>SGX 向 Intel 的指令集架构（ISA）中添加了 18 条新指令，并使开发人员能够将计算安全地外包到不可信的主机环境中（包括主机应用程序、主机内核、SMM 和外围设备）。SGX 的安全性最终取决于实现其功能的固件和微代码的安全性。</p>
 <p><strong>飞地页面缓存 (EPC)</strong> 是一个特殊的内存区域，用于存放飞地的代码和数据。每一页都使用内存加密引擎（MEE）加密。飞地页面缓存映射（EPCM）存储页面的元数据，例如配置、权限和页面类型。在启动时，会生成密钥，并用于解密 CPU 内部的加密页面内容。密钥由 MEE 控制，不向外部泄露。因此，<strong>只有特定的 CPU 能够解密内存，CPU 会在内部存储这些密钥，防止任何软件访问它们</strong>。此外，特权软件（非飞地）不允许读取或写入 EPC 或 EPCM 页面。</p>
 <p>SGX 提供本地认证和远程认证，用于验证飞地的完整性和真实性。  </p>
@@ -129,8 +129,8 @@
 <p>SGX 和 TDX 在同一平台上保护内存的粒度不同。但在同一平台上，TDX 和 SGX 属于同一可信计算基（TCB），因此它们可以相互进行本地认证。TDX 利用了由 SGX 提供的远程认证机制。TDX 平台的认证报告可以在引用飞地（QE）中验证并签署。</p>
 <p>需要注意的是，<strong>目前在 TD 中运行 SGX 飞地是不被允许的</strong>，因为在 TD 中调用 ENCLS &#x2F; ENCLV 指令会导致未定义指令（UD）异常。</p>
 <hr>
-<h2 id="6-TDX-概述"><a href="#6-TDX-概述" class="headerlink" title="6. TDX 概述"></a>6. TDX 概述</h2><p>在本节中，我们将概述 TDX，讨论其系统架构、内存保护机制、I&#x2F;O 模型、认证以及未来计划的功能。</p>
-<h3 id="6-1-TDX-系统架构"><a href="#6-1-TDX-系统架构" class="headerlink" title="6.1 TDX 系统架构"></a>6.1 TDX 系统架构</h3><p><img src="/assets/QQ_1730016896233.png" alt="QQ_1730016896233"></p>
+<h2 id="TDX-概述"><a href="#TDX-概述" class="headerlink" title="TDX 概述"></a>TDX 概述</h2><p>在本节中，我们将概述 TDX，讨论其系统架构、内存保护机制、I&#x2F;O 模型、认证以及未来计划的功能。</p>
+<h3 id="TDX-系统架构"><a href="#TDX-系统架构" class="headerlink" title="TDX 系统架构"></a>TDX 系统架构</h3><p><img src="/assets/QQ_1730016896233.png" alt="QQ_1730016896233"></p>
 <p>图 1 显示了 TDX 的运行时架构。它由两个关键组件组成：  </p>
 <ol>
 <li><strong>TDX 支持的处理器</strong>：提供架构功能，如硬件辅助虚拟化、内存加密&#x2F;完整性保护，以及认证 TEE 平台的能力。  </li>
@@ -141,7 +141,7 @@
 <p>另一方面，TD（信任域）在 SEAM VMX 非根模式下运行。TDX 支持在 TD 中执行未经修改的用户级应用程序，类似于在标准虚拟机中执行的方式。然而，TD 的来宾操作系统内核（在图 1 中显示为 TDX 友好操作系统）需要进行一些修改，以适应底层 TDX 平台，并符合其架构范式和安全要求。这些修改包括处理新的 TDX 异常（通过来宾虚拟化异常（VE）处理程序）、实现类似于超调用的机制以便 TD 与 TDX 模块通信、为 I&#x2F;O 操作转换内存页面（从私有到共享），以及集成认证支持。具体实现细节可能因操作系统类型而异。例如，经过增强的来宾 Linux 内核的详细实现已在内核文档中进行了描述。</p>
 <p>TD 通过 TD 退出或调用 TDCALL 指令陷入 TDX 模块的上下文中。两种情况下，逻辑处理器 (LP) 都会从 SEAM VMX 非根模式转换到 SEAM VMX 根模式，并开始在 TDX 模块上下文中执行。处理 TDCALL 的来宾侧接口函数以 “TDG” 开头。有关 TDX 上下文切换的详细信息，可以参见第 7.5 节。</p>
 <p>保密计算带来的机密性保障使其成为研究侧信道信息泄漏的主要目标。近年来，CPU 推测执行的系列微架构攻击暴露了一个令人担忧的问题：在架构状态中强制执行的安全域隔离可能与微架构状态不一致。随着 TDX 在市场上变得更加普及，它预计将吸引更多安全研究人员的关注。我们主要着重于审查已集成到 TDX 模块中的现有防御措施，以应对已知的攻击向量。详细信息请参见第 7.8 节。</p>
-<h3 id="6-2-TDX-内存保护"><a href="#6-2-TDX-内存保护" class="headerlink" title="6.2 TDX 内存保护"></a>6.2 TDX 内存保护</h3><p>TDX 利用 VMX 强制执行对 TD 的内存隔离。类似于传统虚拟机，TD 无法访问其他安全域的内存，如 SMM、虚拟机管理程序、TDX 模块和其他虚拟机&#x2F;TD。使用 VMX，虚拟机管理程序维护扩展页表（EPT）来强制实施内存隔离。然而，由于虚拟机管理程序不再被信任，<strong>TDX 已将内存管理任务转移至 TDX 模块，TDX 模块控制 TD 私有内存的地址转换</strong>。</p>
+<h3 id="TDX-内存保护"><a href="#TDX-内存保护" class="headerlink" title="TDX 内存保护"></a>TDX 内存保护</h3><p>TDX 利用 VMX 强制执行对 TD 的内存隔离。类似于传统虚拟机，TD 无法访问其他安全域的内存，如 SMM、虚拟机管理程序、TDX 模块和其他虚拟机&#x2F;TD。使用 VMX，虚拟机管理程序维护扩展页表（EPT）来强制实施内存隔离。然而，由于虚拟机管理程序不再被信任，<strong>TDX 已将内存管理任务转移至 TDX 模块，TDX 模块控制 TD 私有内存的地址转换</strong>。</p>
 <p>TDX 的安全模型中最引人注目的部分是其防护 TD 内存免受特权软件、损坏的设备和主机上不良管理员的攻击。TDX 通过<strong>访问控制</strong>和<strong>加密隔离</strong>来实现这一点。访问控制防止同一台计算机上的其他安全域访问 TD 的数据。加密隔离则防止恶意 DMA 设备或拥有物理访问权限的对手直接读取或篡改 TD 的私有内存。</p>
 <p><strong>内存分区</strong> </p>
 <p>启用 TDX 后，整个物理内存空间将被分为两部分：普通内存和安全内存。TD 的敏感数据，包括私有内存、虚拟 CPU 状态及其相关的元数据，都应存储在安全内存中。TD 还可以指定一些内存区域作为共享内存进行 I&#x2F;O 操作，这些共享区域不会通过 TDX 得到保护，因此属于普通内存。</p>
@@ -164,13 +164,13 @@
 <li><p><strong>加密完整性 (Ci)</strong> 是一个更高级的机制，它解决了 Li 的局限性。除了 TD 所有者位之外，Ci 还在缓存行被写回内存时计算一个<strong>消息认证码 (MAC)</strong>。MAC 使用在系统初始化期间生成的 128 位 MAC 密钥进行计算，并作为内存元数据的一部分在写回时存储。当内存被读取时，MAC 会重新计算。如果内存内容被篡改，则重新计算的 MAC 将与存储的元数据不匹配，从而触发完整性检查。然而，无论是 Li 还是 Ci 都无法检测到内存回放攻击（如果对手能够回滚内存内容和元数据）。我们将在第 8.2 节中提供更多有关内存完整性保护的技术细节。</p>
 </li>
 </ul>
-<h3 id="6-3-TDX-I-O-模型"><a href="#6-3-TDX-I-O-模型" class="headerlink" title="6.3 TDX I&#x2F;O 模型"></a>6.3 TDX I&#x2F;O 模型</h3><p>根据 TDX 的威胁模型，虚拟机管理程序和外围设备被认为是不可信的，不允许直接访问 TD 的私有内存。TD 及其所有者有责任在 I&#x2F;O 数据离开信任边界之前对其进行保护。这需要通过将 I&#x2F;O 数据缓冲区封装到共享内存中来完成，共享内存在 GPA 中由共享位标识。虚拟机管理程序或外围设备随后可以将数据进出共享内存。这一模型需要对来宾内核进行修改，以支持该 I&#x2F;O 模型。此外，传输到 TD 的所有 I&#x2F;O 数据必须经过仔细检查和验证，因为它们不再被视为可信。</p>
+<h3 id="TDX-I-O-模型"><a href="#TDX-I-O-模型" class="headerlink" title="TDX I&#x2F;O 模型"></a>TDX I&#x2F;O 模型</h3><p>根据 TDX 的威胁模型，虚拟机管理程序和外围设备被认为是不可信的，不允许直接访问 TD 的私有内存。TD 及其所有者有责任在 I&#x2F;O 数据离开信任边界之前对其进行保护。这需要通过将 I&#x2F;O 数据缓冲区封装到共享内存中来完成，共享内存在 GPA 中由共享位标识。虚拟机管理程序或外围设备随后可以将数据进出共享内存。这一模型需要对来宾内核进行修改，以支持该 I&#x2F;O 模型。此外，传输到 TD 的所有 I&#x2F;O 数据必须经过仔细检查和验证，因为它们不再被视为可信。</p>
 <p>在 Linux 客户端对 TDX 的支持中，所有 MMIO 区域和 DMA 缓冲区都映射为 TD 中的共享内存。Linux 来宾强制使用 SWIOTLB（软件 I&#x2F;O 转换缓冲区）在统一的位置分配和转换 DMA 缓冲区。为了防止 I&#x2F;O 输入中的恶意行为，<strong>只允许有限数量的经过强化的驱动程序在 TD 中运行</strong>。</p>
-<h3 id="6-4-TDX-认证"><a href="#6-4-TDX-认证" class="headerlink" title="6.4 TDX 认证"></a>6.4 TDX 认证</h3><p>远程认证是一种验证可信执行环境（TEE）身份和可信度的方法。认证方（attester）可以向质询方（challenger）提供证明，以表明计算正在受保护的环境中执行。质询方通过<strong>检查数字签名和比较测量值</strong>来验证证据。</p>
+<h3 id="TDX-认证"><a href="#TDX-认证" class="headerlink" title="TDX 认证"></a>TDX 认证</h3><p>远程认证是一种验证可信执行环境（TEE）身份和可信度的方法。认证方（attester）可以向质询方（challenger）提供证明，以表明计算正在受保护的环境中执行。质询方通过<strong>检查数字签名和比较测量值</strong>来验证证据。</p>
 <p>在支持 TDX 的机器上，认证方在 TD 内运行，负责处理远程认证请求。当收到质询方（如租户）的请求时，认证方通过生成一个 TD 引用（TD Quote）来提供 TD 正确实例化的证据。</p>
 <p>这个引用由 TDX 模块生成，并由引用飞地（Quoting Enclave）签名。它包含 TDX 的可信计算基（TCB）和 TD 中加载的软件组件的测量值。引用还包括由 Intel 颁发的证书链作为信任根。</p>
 <p>在收到引用后，质询方通过检查引用的真实性来验证其可信性，确保认证方在真实的 TDX 平台上运行，并确认 TD 具有预期的软件测量值。如果引用验证成功，质询方可以继续与认证方建立安全通道，或向认证方释放密钥。我们将在第 9 节中详细讨论远程认证的技术细节。</p>
-<h3 id="6-5-未来功能"><a href="#6-5-未来功能" class="headerlink" title="6.5 未来功能"></a>6.5 未来功能</h3><p>对于保密虚拟机来说，<strong>实时迁移和可信 I&#x2F;O</strong> 是至关重要的功能，但目前在 TDX 1.0 中尚未得到支持。然而，根据相关文档，Intel 计划在 TDX 1.5 中支持实时迁移，并在 TDX 2.0 中支持可信 I&#x2F;O。这些计划正在进行中，可能会在未来发生变化。以下我们简要介绍这两个功能的设计。</p>
+<h3 id="未来功能"><a href="#未来功能" class="headerlink" title="未来功能"></a>未来功能</h3><p>对于保密虚拟机来说，<strong>实时迁移和可信 I&#x2F;O</strong> 是至关重要的功能，但目前在 TDX 1.0 中尚未得到支持。然而，根据相关文档，Intel 计划在 TDX 1.5 中支持实时迁移，并在 TDX 2.0 中支持可信 I&#x2F;O。这些计划正在进行中，可能会在未来发生变化。以下我们简要介绍这两个功能的设计。</p>
 <p><strong>实时迁移</strong> </p>
 <p>实时迁移是云服务提供商的一项重要功能，因为它可以让他们在不中断服务的情况下，<strong>将运行中的虚拟机从一台物理主机迁移到另一台物理主机</strong>。这一功能对于硬件升级、软件修补和负载均衡等维护任务至关重要。</p>
 <p>然而，由于保密计算的安全要求，迁移 TD 比迁移传统虚拟机更加复杂。由于虚拟机管理程序被视为不可信，因此它不能直接访问和传输源平台上的 TD 的 CPU 状态和私有内存。此外，租户应能够定义和强制执行迁移策略。例如，如果目标平台未满足策略中规定的 TCB 要求，则应取消迁移。</p>
@@ -180,8 +180,8 @@
 <p><strong>可信 I&#x2F;O</strong> </p>
 <p>计算机由各种功能组件组成。然而，保密计算从概念上打破了统一的信任模型。因此，由不同供应商制造的每个组件之间不能再相互信任，这对高效 I&#x2F;O 造成了严重障碍，因为不可信的设备无法读取和写入 TEE 的私有内存。为了解决这一问题，Intel 提出了 TDX 2.0 中的 <strong>TDX Connect</strong>，旨在将 TD 的信任扩展到外部设备。这需要对设备和 TDX 平台进行更改，以使用兼容的协议来建立相互信任，并启用安全的通信通道。关键原则是，<strong>TD 和设备应能够安全地交换和验证彼此的身份和测量值</strong>。此外，TD 和设备之间的数据路径并不受信任，可能会受到攻击者的拦截。因此，必须建立端到端的安全通道来保护 TD 和设备之间传输的数据。有关 TDX Connect 的详细协议，可以在相关提案中找到。</p>
 <hr>
-<h2 id="7-TDX-模块"><a href="#7-TDX-模块" class="headerlink" title="7. TDX 模块"></a>7. TDX 模块</h2><p>本节对 TDX 模块进行了深入分析。我们首先在第 7.1 节讨论其加载过程，接着在第 7.2 节中解释其物理和线性内存布局。随后，我们在第 7.4 节中描述 TDX 模块用于管理 TD 的元数据，并在第 7.5 节中探讨不同安全域之间的上下文切换过程。此外，我们还介绍了 TDX 模块的 Keyhole 结构（第 7.6 节）及其内存管理（第 7.7 节）。</p>
-<h3 id="7-1-加载-TDX-模块"><a href="#7-1-加载-TDX-模块" class="headerlink" title="7.1 加载 TDX 模块"></a>7.1 加载 TDX 模块</h3><p><img src="/assets/QQ_1730018837399.png" alt="QQ_1730018837399"></p>
+<h2 id="TDX-模块"><a href="#TDX-模块" class="headerlink" title="TDX 模块"></a>TDX 模块</h2><p>本节对 TDX 模块进行了深入分析。我们首先在第 7.1 节讨论其加载过程，接着在第 7.2 节中解释其物理和线性内存布局。随后，我们在第 7.4 节中描述 TDX 模块用于管理 TD 的元数据，并在第 7.5 节中探讨不同安全域之间的上下文切换过程。此外，我们还介绍了 TDX 模块的 Keyhole 结构（第 7.6 节）及其内存管理（第 7.7 节）。</p>
+<h3 id="加载-TDX-模块"><a href="#加载-TDX-模块" class="headerlink" title="加载 TDX 模块"></a>加载 TDX 模块</h3><p><img src="/assets/QQ_1730018837399.png" alt="QQ_1730018837399"></p>
 <p>图 2 展示了 TDX 模块的两阶段加载过程。该过程始于加载 Intel 的非持久 SEAM 加载器（NP-SEAM Loader），这是一种 Intel 认证代码模块（ACM）。ACM 是由 Intel 签名的模块，运行在处理器的内部 RAM 中。NP-SEAM Loader 通过 Intel 可信执行技术（TXT）中的 GETSEC[ENTERACCS] 函数进行<strong>身份验证并加载</strong>。NP-SEAM Loader 包含了 Intel 的持久 SEAM（P-SEAM）加载器的镜像，后者会被 NP-SEAM Loader 验证并加载。接着，<strong>P-SEAM 加载器负责安装或更新 TDX 模块</strong>。</p>
 <p>需要注意的是，P-SEAM 加载器和 TDX 模块都被加载到 SEAM 范围（SEAM Range）内，这是<strong>由 UEFI&#x2F;BIOS 保留的一部分系统内存</strong>。范围的基地址和大小通过 IA32_SEAMRR_PHYS_BASE 和 IA32_SEAMRR_PHYS_MASK MSR（模型特定寄存器）来指定。此范围被划分为模块范围（Module_Range）用于 TDX 模块，以及 P_Seamldr_Range 用于 P-SEAM 加载器。<strong>两个模块都在 SEAM VMX 根模式下运行，并使用 SEAMCALL &#x2F; SEAMRET 来与外部软件交互</strong>。NP-SEAM 加载器、P-SEAM 加载器和 TDX 模块均由 Intel 提供并签名，形成了用于启动 TDX 模块的信任链。</p>
 <p>P-SEAM 加载器提供了一个 SEAMCALL 接口函数 seamldr_install 用于加载 TDX 模块。TDX 模块的镜像被预加载到一个内存缓冲区（不在 SEAM 范围内）。缓冲区的物理地址和 seam_sigstruct（TDX 模块的签名）被作为参数传递给 seamldr_install。seam_sigstruct 包含 TDX 模块的哈希值和安全版本号 (SVN)、每个逻辑处理器的堆栈页面数量、每个逻辑处理器的数据页面数量，以及全局数据页面的数量。seamldr_install 使用这些数字来确定 TDX 模块的各个内存区域的物理&#x2F;线性地址和大小。</p>
