@@ -145,94 +145,6 @@
       </tags>
   </entry>
   <entry>
-    <title>前端浏览器缓存机制</title>
-    <url>/posts/50ac740b/</url>
-    <content><![CDATA[<h2 id="前端浏览器缓存机制"><a href="#前端浏览器缓存机制" class="headerlink" title="前端浏览器缓存机制"></a>前端浏览器缓存机制</h2><p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
-<span id="more"></span>
-
-<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，**哈希（hash）**也是一种与缓存相关的优化手段。</p>
-<h4 id="1-强缓存（Strong-Caching）"><a href="#1-强缓存（Strong-Caching）" class="headerlink" title="1. 强缓存（Strong Caching）"></a>1. 强缓存（Strong Caching）</h4><p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
-<ul>
-<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p>
-</li>
-<li><p><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：</p>
-<ul>
-<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
-<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
-<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
-<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
-</ul>
-</li>
-</ul>
-<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
-<h4 id="2-协商缓存（Negotiation-Caching）"><a href="#2-协商缓存（Negotiation-Caching）" class="headerlink" title="2. 协商缓存（Negotiation Caching）"></a>2. 协商缓存（Negotiation Caching）</h4><p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
-<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
-<ul>
-<li><p><strong>Last-Modified &amp; If-Modified-Since</strong>: </p>
-<ul>
-<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
-<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
-</ul>
-</li>
-<li><p><strong>ETag &amp; If-None-Match</strong>:</p>
-<ul>
-<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
-<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
-</ul>
-</li>
-</ul>
-<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
-<h4 id="3-哈希与缓存（Hash）"><a href="#3-哈希与缓存（Hash）" class="headerlink" title="3. 哈希与缓存（Hash）"></a>3. 哈希与缓存（Hash）</h4><p>**哈希（Hash）**与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
-<p><strong>典型用法</strong>：</p>
-<ul>
-<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
-<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
-</ul>
-<p><strong>总结</strong>：</p>
-<ul>
-<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
-<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
-<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
-</ul>
-<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
-<h3 id="什么是CDN（内容分发网络）"><a href="#什么是CDN（内容分发网络）" class="headerlink" title="什么是CDN（内容分发网络）"></a>什么是CDN（内容分发网络）</h3><p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
-<h4 id="CDN的工作原理"><a href="#CDN的工作原理" class="headerlink" title="CDN的工作原理"></a>CDN的工作原理</h4><ol>
-<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p>
-</li>
-<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p>
-</li>
-<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p>
-</li>
-<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p>
-</li>
-</ol>
-<h4 id="CDN的主要优势"><a href="#CDN的主要优势" class="headerlink" title="CDN的主要优势"></a>CDN的主要优势</h4><ol>
-<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p>
-</li>
-<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p>
-</li>
-<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p>
-</li>
-<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p>
-</li>
-<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p>
-</li>
-</ol>
-<h4 id="CDN的使用场景"><a href="#CDN的使用场景" class="headerlink" title="CDN的使用场景"></a>CDN的使用场景</h4><ul>
-<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
-<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
-<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
-</ul>
-<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>TDX Note</title>
     <url>/posts/cbeff3a9/</url>
     <content><![CDATA[<h2 id="Intel-TDX-Demystified-A-Top-Down-Approach"><a href="#Intel-TDX-Demystified-A-Top-Down-Approach" class="headerlink" title="Intel TDX Demystified: A Top-Down Approach"></a>Intel TDX Demystified: A Top-Down Approach</h2><p><strong>摘要</strong>：Intel Trust Domain Extensions (TDX) 是一种在第四代 Intel Xeon Scalable 处理器中引入的架构扩展，支持保密计算。TDX 允许在安全仲裁模式 (SEAM) 中部署虚拟机 (VM)，提供加密的 CPU 状态和内存、完整性保护以及远程认证。</p>
@@ -538,6 +450,94 @@
       <tags>
         <tag>TDX</tag>
         <tag>Intel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>前端浏览器缓存机制</title>
+    <url>/posts/50ac740b/</url>
+    <content><![CDATA[<h2 id="前端浏览器缓存机制"><a href="#前端浏览器缓存机制" class="headerlink" title="前端浏览器缓存机制"></a>前端浏览器缓存机制</h2><p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
+<span id="more"></span>
+
+<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，**哈希（hash）**也是一种与缓存相关的优化手段。</p>
+<h4 id="1-强缓存（Strong-Caching）"><a href="#1-强缓存（Strong-Caching）" class="headerlink" title="1. 强缓存（Strong Caching）"></a>1. 强缓存（Strong Caching）</h4><p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
+<ul>
+<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p>
+</li>
+<li><p><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：</p>
+<ul>
+<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
+<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
+<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
+<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
+</ul>
+</li>
+</ul>
+<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
+<h4 id="2-协商缓存（Negotiation-Caching）"><a href="#2-协商缓存（Negotiation-Caching）" class="headerlink" title="2. 协商缓存（Negotiation Caching）"></a>2. 协商缓存（Negotiation Caching）</h4><p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
+<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
+<ul>
+<li><p><strong>Last-Modified &amp; If-Modified-Since</strong>: </p>
+<ul>
+<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
+<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
+</ul>
+</li>
+<li><p><strong>ETag &amp; If-None-Match</strong>:</p>
+<ul>
+<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
+<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
+</ul>
+</li>
+</ul>
+<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
+<h4 id="3-哈希与缓存（Hash）"><a href="#3-哈希与缓存（Hash）" class="headerlink" title="3. 哈希与缓存（Hash）"></a>3. 哈希与缓存（Hash）</h4><p>**哈希（Hash）**与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
+<p><strong>典型用法</strong>：</p>
+<ul>
+<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
+<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
+</ul>
+<p><strong>总结</strong>：</p>
+<ul>
+<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
+<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
+<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
+</ul>
+<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
+<h3 id="什么是CDN（内容分发网络）"><a href="#什么是CDN（内容分发网络）" class="headerlink" title="什么是CDN（内容分发网络）"></a>什么是CDN（内容分发网络）</h3><p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
+<h4 id="CDN的工作原理"><a href="#CDN的工作原理" class="headerlink" title="CDN的工作原理"></a>CDN的工作原理</h4><ol>
+<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p>
+</li>
+<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p>
+</li>
+<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p>
+</li>
+<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p>
+</li>
+</ol>
+<h4 id="CDN的主要优势"><a href="#CDN的主要优势" class="headerlink" title="CDN的主要优势"></a>CDN的主要优势</h4><ol>
+<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p>
+</li>
+<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p>
+</li>
+<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p>
+</li>
+<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p>
+</li>
+<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p>
+</li>
+</ol>
+<h4 id="CDN的使用场景"><a href="#CDN的使用场景" class="headerlink" title="CDN的使用场景"></a>CDN的使用场景</h4><ul>
+<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
+<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
+<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
+</ul>
+<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
       </tags>
   </entry>
 </search>
