@@ -55,138 +55,6 @@
       </tags>
   </entry>
   <entry>
-    <title>NFC Note</title>
-    <url>/posts/78289205/</url>
-    <content><![CDATA[<h2 id="什么是NFC？"><a href="#什么是NFC？" class="headerlink" title="什么是NFC？"></a>什么是NFC？</h2><p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
-<span id="more"></span>
-
-<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
-<h3 id="NFC是怎么工作的？"><a href="#NFC是怎么工作的？" class="headerlink" title="NFC是怎么工作的？"></a>NFC是怎么工作的？</h3><p>想象一下磁铁，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
-<ol>
-<li><p><strong>基本原理</strong></p>
-<ul>
-<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
-<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
-<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
-<li>数据传输速率可达424Kbps</li>
-</ul>
-</li>
-<li><p><strong>为什么要靠得这么近？</strong></p>
-<ul>
-<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
-<li>近场通信使用感应耦合（而不是电磁波传播）</li>
-<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
-</ul>
-</li>
-</ol>
-<blockquote>
-<p><strong>调制解调技术简介</strong></p>
-<p>想象你在用手电筒给远处的朋友发信号：</p>
-<ol>
-<li><p><strong>什么是调制？</strong></p>
-<ul>
-<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
-<li>NFC中主要使用两种调制方式：<ul>
-<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
-<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>为什么要调制？</strong></p>
-<ul>
-<li>原始数据（比如1和0）不能直接传输</li>
-<li>需要把数据”搭载”在13.56MHz的载波信号上</li>
-<li>就像把信息写在纸飞机上才能传递给别人</li>
-</ul>
-</li>
-<li><p><strong>解调是什么？</strong></p>
-<ul>
-<li>接收方需要从收到的信号中”提取”出原始数据</li>
-<li>就像接收方要从纸飞机上读取信息</li>
-<li>或者从手电筒的闪烁中理解传递的含义</li>
-</ul>
-</li>
-</ol>
-</blockquote>
-<h3 id="NFC能做什么？"><a href="#NFC能做什么？" class="headerlink" title="NFC能做什么？"></a>NFC能做什么？</h3><p>NFC有三种常见的使用方式：</p>
-<ol>
-<li><p><strong>读写模式</strong></p>
-<ul>
-<li>就像用手机碰一碰地铁站的时刻表海报</li>
-<li>或者用手机读取商品上的电子标签</li>
-</ul>
-</li>
-<li><p><strong>手机支付模式</strong></p>
-<ul>
-<li>手机变身成公交卡、银行卡</li>
-<li>碰一碰就能付款</li>
-</ul>
-</li>
-<li><p><strong>设备互联模式</strong></p>
-<ul>
-<li>两个手机之间传照片</li>
-<li>新耳机和手机快速配对</li>
-</ul>
-</li>
-</ol>
-<h3 id="NFC的特点"><a href="#NFC的特点" class="headerlink" title="NFC的特点"></a>NFC的特点</h3><ol>
-<li><p><strong>超级方便</strong></p>
-<ul>
-<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
-<li>支持双向通信，设备可以自动切换读写角色</li>
-</ul>
-</li>
-<li><p><strong>很安全</strong></p>
-<ul>
-<li>物理层：通信距离限制</li>
-<li>协议层：支持AES-128等加密算法</li>
-<li>应用层：可集成安全单元（SE）存储敏感数据</li>
-</ul>
-</li>
-<li><p><strong>省电</strong></p>
-<ul>
-<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
-<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
-<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
-</ul>
-</li>
-</ol>
-<h3 id="生活中的NFC应用"><a href="#生活中的NFC应用" class="headerlink" title="生活中的NFC应用"></a>生活中的NFC应用</h3><ol>
-<li><p><strong>支付场景</strong></p>
-<ul>
-<li>手机付款（Apple Pay、微信&#x2F;支付宝碰一碰）</li>
-<li>刷公交地铁</li>
-<li>超市购物</li>
-</ul>
-</li>
-<li><p><strong>智能家居</strong></p>
-<ul>
-<li>碰一碰开门</li>
-<li>碰一碰控制家电</li>
-<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
-</ul>
-</li>
-<li><p><strong>便捷生活</strong></p>
-<ul>
-<li>门禁卡</li>
-<li>打卡签到</li>
-<li>快速连接蓝牙设备</li>
-</ul>
-</li>
-</ol>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
-]]></content>
-      <categories>
-        <category>通信协议</category>
-      </categories>
-      <tags>
-        <tag>NFC</tag>
-        <tag>RFID</tag>
-        <tag>无线通信</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CSS Note</title>
     <url>/posts/752f9918/</url>
     <content><![CDATA[<h2 id="CSS心得"><a href="#CSS心得" class="headerlink" title="CSS心得"></a>CSS心得</h2><p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
@@ -233,6 +101,47 @@
       </categories>
       <tags>
         <tag>CSS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
+<span id="more"></span>
+
+<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p>发现可以正常读取了</p>
+<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>influxdb</tag>
       </tags>
   </entry>
   <entry>
@@ -544,44 +453,136 @@
       </tags>
   </entry>
   <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
+    <title>NFC Note</title>
+    <url>/posts/78289205/</url>
+    <content><![CDATA[<h2 id="什么是NFC？"><a href="#什么是NFC？" class="headerlink" title="什么是NFC？"></a>什么是NFC？</h2><p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
 <span id="more"></span>
 
-<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p>发现可以正常读取了</p>
-<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-
-<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
+<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
+<p><img src="/assets/NFC-image.png" alt="alt text"></p>
+<h3 id="NFC是怎么工作的？"><a href="#NFC是怎么工作的？" class="headerlink" title="NFC是怎么工作的？"></a>NFC是怎么工作的？</h3><p>想象一下磁铁，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
+<ol>
+<li><p><strong>基本原理</strong></p>
+<ul>
+<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
+<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
+<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
+<li>数据传输速率可达424Kbps</li>
+</ul>
+</li>
+<li><p><strong>为什么要靠得这么近？</strong></p>
+<ul>
+<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
+<li>近场通信使用感应耦合（而不是电磁波传播）</li>
+<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p><strong>调制解调技术</strong></p>
+<p>想象你在用手电筒给远处的朋友发信号：</p>
+<ol>
+<li><p><strong>什么是调制？</strong></p>
+<ul>
+<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
+<li>NFC中主要使用两种调制方式：<ul>
+<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
+<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>为什么要调制？</strong></p>
+<ul>
+<li>原始数据（比如1和0）不能直接传输</li>
+<li>需要把数据”搭载”在13.56MHz的载波信号上</li>
+<li>就像把信息写在纸飞机上才能传递给别人</li>
+</ul>
+</li>
+<li><p><strong>解调是什么？</strong></p>
+<ul>
+<li>接收方需要从收到的信号中”提取”出原始数据</li>
+<li>就像接收方要从纸飞机上读取信息</li>
+<li>或者从手电筒的闪烁中理解传递的含义</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<h3 id="NFC能做什么？"><a href="#NFC能做什么？" class="headerlink" title="NFC能做什么？"></a>NFC能做什么？</h3><p>NFC有三种常见的使用方式：</p>
+<ol>
+<li><p><strong>读写模式</strong></p>
+<ul>
+<li>就像用手机碰一碰地铁站的时刻表海报</li>
+<li>或者用手机读取商品上的电子标签</li>
+</ul>
+</li>
+<li><p><strong>手机支付模式</strong></p>
+<ul>
+<li>手机变身成公交卡、银行卡</li>
+<li>碰一碰就能付款</li>
+</ul>
+</li>
+<li><p><strong>设备互联模式</strong></p>
+<ul>
+<li>两个手机之间传照片</li>
+<li>新耳机和手机快速配对</li>
+</ul>
+</li>
+</ol>
+<h3 id="NFC的特点"><a href="#NFC的特点" class="headerlink" title="NFC的特点"></a>NFC的特点</h3><ol>
+<li><p><strong>超级方便</strong></p>
+<ul>
+<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
+<li>支持双向通信，设备可以自动切换读写角色</li>
+</ul>
+</li>
+<li><p><strong>很安全</strong></p>
+<ul>
+<li>物理层：通信距离限制</li>
+<li>协议层：支持AES-128等加密算法</li>
+<li>应用层：可集成安全单元（SE）存储敏感数据</li>
+</ul>
+</li>
+<li><p><strong>省电</strong></p>
+<ul>
+<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
+<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
+<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
+</ul>
+</li>
+</ol>
+<h3 id="生活中的NFC应用"><a href="#生活中的NFC应用" class="headerlink" title="生活中的NFC应用"></a>生活中的NFC应用</h3><ol>
+<li><p><strong>支付场景</strong></p>
+<ul>
+<li>手机付款（Apple Pay、微信&#x2F;支付宝碰一碰）</li>
+<li>刷公交地铁</li>
+<li>超市购物</li>
+</ul>
+</li>
+<li><p><strong>智能家居</strong></p>
+<ul>
+<li>碰一碰开门</li>
+<li>碰一碰控制家电</li>
+<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
+</ul>
+</li>
+<li><p><strong>便捷生活</strong></p>
+<ul>
+<li>门禁卡</li>
+<li>打卡签到</li>
+<li>快速连接蓝牙设备</li>
+</ul>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
 ]]></content>
       <categories>
-        <category>Database</category>
+        <category>通信协议</category>
       </categories>
       <tags>
-        <tag>influxdb</tag>
+        <tag>NFC</tag>
+        <tag>RFID</tag>
+        <tag>无线通信</tag>
       </tags>
   </entry>
   <entry>
