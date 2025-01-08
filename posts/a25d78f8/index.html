@@ -21,28 +21,31 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="AnacondaAnaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。">
+    <meta name="description" content="什么是2.4G无线通信？之前嵌入式project的通信中用到了2.4G模块，借此机会来了解一下这项技术。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Anaconda Note">
-<meta property="og:url" content="https://supermarkli.github.io/posts/7066aaf6/index.html">
+<meta property="og:title" content="2.4G 无线通信笔记">
+<meta property="og:url" content="https://supermarkli.github.io/posts/a25d78f8/index.html">
 <meta property="og:site_name" content="吃糠咽菜">
-<meta property="og:description" content="AnacondaAnaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。">
+<meta property="og:description" content="什么是2.4G无线通信？之前嵌入式project的通信中用到了2.4G模块，借此机会来了解一下这项技术。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-01-05T14:41:08.000Z">
-<meta property="article:modified_time" content="2025-01-05T14:52:29.308Z">
+<meta property="og:image" content="https://supermarkli.github.io/assets/2.4G-image.png">
+<meta property="article:published_time" content="2025-01-08T10:44:31.000Z">
+<meta property="article:modified_time" content="2025-01-08T10:52:57.382Z">
 <meta property="article:author" content="吃糠咽菜">
-<meta property="article:tag" content="conda">
-<meta property="article:tag" content="Python">
+<meta property="article:tag" content="2.4G">
+<meta property="article:tag" content="无线通信">
+<meta property="article:tag" content="WiFi">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supermarkli.github.io/assets/2.4G-image.png">
 
 
-<link rel="canonical" href="https://supermarkli.github.io/posts/7066aaf6/">
+<link rel="canonical" href="https://supermarkli.github.io/posts/a25d78f8/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/7066aaf6/","path":"posts/7066aaf6/","title":"Anaconda Note"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/a25d78f8/","path":"posts/a25d78f8/","title":"2.4G 无线通信笔记"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Anaconda Note | 吃糠咽菜</title>
+<title>2.4G 无线通信笔记 | 吃糠咽菜</title>
   
 
 
@@ -143,7 +146,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Anaconda"><span class="nav-number">1.</span> <span class="nav-text">Anaconda</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.</span> <span class="nav-text">基本命令</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF2-4G%E6%97%A0%E7%BA%BF%E9%80%9A%E4%BF%A1%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是2.4G无线通信？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4G%E6%98%AF%E6%80%8E%E4%B9%88%E5%B7%A5%E4%BD%9C%E7%9A%84%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">2.4G是怎么工作的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4G%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">2.4G能做什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4G%E4%B8%8EWiFi%E3%80%81%E8%93%9D%E7%89%99%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.3.</span> <span class="nav-text">2.4G与WiFi、蓝牙的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4G%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">1.4.</span> <span class="nav-text">2.4G的特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -204,7 +207,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/7066aaf6/">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/a25d78f8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/aq.png">
@@ -217,12 +220,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="Anaconda Note | 吃糠咽菜">
+      <meta itemprop="name" content="2.4G 无线通信笔记 | 吃糠咽菜">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Anaconda Note
+          2.4G 无线通信笔记
         </h1>
 
         <div class="post-meta-container">
@@ -234,7 +237,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-01-05 22:41:08 / 修改时间：22:52:29" itemprop="dateCreated datePublished" datetime="2025-01-05T22:41:08+08:00">2025-01-05</time>
+      <time title="创建时间：2025-01-08 18:44:31 / 修改时间：18:52:57" itemprop="dateCreated datePublished" datetime="2025-01-08T18:44:31+08:00">2025-01-08</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -242,7 +245,7 @@
       </span>
       <span class="post-meta-item-text">分类于</span>
         <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+          <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" itemprop="url" rel="index"><span itemprop="name">通信协议</span></a>
         </span>
     </span>
 
@@ -260,14 +263,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>890</span>
+      <span>1.5k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>2 分钟</span>
+      <span>3 分钟</span>
     </span>
 </div>
 
@@ -277,48 +280,238 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h2 id="Anaconda"><a href="#Anaconda" class="headerlink" title="Anaconda"></a>Anaconda</h2><p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
+    <div class="post-body" itemprop="articleBody"><h2 id="什么是2-4G无线通信？"><a href="#什么是2-4G无线通信？" class="headerlink" title="什么是2.4G无线通信？"></a>什么是2.4G无线通信？</h2><p>之前嵌入式project的通信中用到了2.4G模块，借此机会来了解一下这项技术。</p>
 <span id="more"></span>
 
-<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
+<p>2.4G无线通信是一种工作在2.4GHz频段的无线通信技术，具体频率范围是2.400GHz到2.4835GHz。这个频段属于ISM（工业、科学、医疗）频段，全球免授权使用，因此成为了各类无线通信技术的”必争之地”。</p>
+<p><img src="/assets/2.4G-image.png" alt="alt text"></p>
+<h3 id="2-4G是怎么工作的？"><a href="#2-4G是怎么工作的？" class="headerlink" title="2.4G是怎么工作的？"></a>2.4G是怎么工作的？</h3><p>想象一下收音机调频的过程，2.4G通信的原理也类似：</p>
 <ol>
-<li><strong>Python</strong>:<ul>
-<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
+<li><p><strong>基本原理</strong></p>
+<ul>
+<li>发射端将数据调制到2.4GHz的载波信号上</li>
+<li>通过天线将调制后的射频信号发射出去</li>
+<li>接收端捕获射频信号并解调出原始数据</li>
+<li>数据传输速率可达几Mbps到几百Mbps不等</li>
 </ul>
 </li>
-<li><strong>Conda</strong>:<ul>
-<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
-<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
-</ul>
-</li>
-<li><strong>Anaconda</strong>:<ul>
-<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
-<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
-</ul>
-</li>
-</ol>
-<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a><strong>基本命令</strong></h3><ol>
-<li><strong>创建和管理环境</strong>：<ul>
-<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
-<li>激活环境：<code>conda activate myenv</code></li>
-<li>退出环境：<code>conda deactivate</code></li>
-<li>列出环境：<code>conda env list</code></li>
-<li>删除环境：<code>conda remove --name myenv --all</code></li>
-</ul>
-</li>
-<li><strong>包管理</strong>：<ul>
-<li>安装包：<code>conda install package_name</code></li>
-<li>更新包：<code>conda update package_name</code></li>
-<li>卸载包：<code>conda remove package_name</code></li>
-<li>列出安装的包：<code>conda list</code></li>
-</ul>
-</li>
-<li><strong>环境导出和导入</strong>：<ul>
-<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
-<li>导入环境：<code>conda env create -f environment.yml</code></li>
+<li><p><strong>为什么选择2.4GHz？</strong></p>
+<ul>
+<li>频率较高，可实现较大带宽</li>
+<li>天线尺寸合适，适合便携设备</li>
+<li>全球统一免费频段，使用成本低</li>
+<li>穿透能力和传输距离较为均衡</li>
 </ul>
 </li>
 </ol>
+<blockquote>
+<p><strong>调制技术详解</strong></p>
+<p>就像把声音变成无线电波传输：</p>
+<ol>
+<li><p><strong>常用调制方式</strong></p>
+<ul>
+<li>GFSK：高斯频移键控，常用于蓝牙</li>
+<li>O-QPSK：正交相移键控，用于ZigBee</li>
+<li>OFDM：正交频分复用，WiFi采用</li>
+</ul>
+</li>
+<li><p><strong>为什么需要不同调制方式？</strong></p>
+<ul>
+<li>不同应用场景对速率要求不同</li>
+<li>需要在抗干扰和功耗间权衡</li>
+<li>复杂调制提供更高速率但耗电更多</li>
+</ul>
+</li>
+<li><p><strong>信道划分</strong></p>
+<ul>
+<li>2.4G频段通常分为多个信道</li>
+<li>WiFi使用11个主要信道</li>
+<li>蓝牙采用跳频技术使用79个信道</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<h3 id="2-4G能做什么？"><a href="#2-4G能做什么？" class="headerlink" title="2.4G能做什么？"></a>2.4G能做什么？</h3><p>2.4G无线通信有多种协议和应用场景：</p>
+<ol>
+<li><p><strong>WiFi（IEEE 802.11）</strong></p>
+<ul>
+<li>高速无线网络接入</li>
+<li>视频流传输</li>
+<li>智能家居网络</li>
+</ul>
+</li>
+<li><p><strong>蓝牙（Bluetooth）</strong></p>
+<ul>
+<li>音频传输</li>
+<li>外设连接</li>
+<li>低功耗数据传输</li>
+</ul>
+</li>
+<li><p><strong>ZigBee</strong></p>
+<ul>
+<li>传感器网络</li>
+<li>智能照明</li>
+<li>家庭自动化</li>
+</ul>
+</li>
+<li><p><strong>私有协议</strong></p>
+<ul>
+<li>遥控玩具</li>
+<li>无线鼠标键盘</li>
+<li>工业控制</li>
+</ul>
+</li>
+</ol>
+<h3 id="2-4G与WiFi、蓝牙的区别"><a href="#2-4G与WiFi、蓝牙的区别" class="headerlink" title="2.4G与WiFi、蓝牙的区别"></a>2.4G与WiFi、蓝牙的区别</h3><p>想象2.4G频段就像一条高速公路，WiFi和蓝牙就像在这条公路上行驶的不同类型的车辆。让我们从几个方面来理解它们的区别和关系：</p>
+<ol>
+<li><p><strong>基础概念关系</strong></p>
+<ul>
+<li><p><strong>2.4G是物理层概念</strong>：</p>
+<ul>
+<li>就像高速公路本身</li>
+<li>只代表通信使用的频率范围（2.400GHz-2.4835GHz）</li>
+<li>是最基础的物理传输媒介</li>
+</ul>
+</li>
+<li><p><strong>WiFi&#x2F;蓝牙是协议层概念</strong>：</p>
+<ul>
+<li>就像高速公路上的不同交通规则</li>
+<li>在2.4G频段上构建的完整通信协议</li>
+<li>包含了更复杂的通信规则和机制</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>协议标准差异</strong></p>
+<ul>
+<li><p><strong>WiFi</strong>：</p>
+<ul>
+<li>IEEE 802.11标准</li>
+<li>面向高速数据传输</li>
+<li>典型速率：几十Mbps到几Gbps</li>
+</ul>
+</li>
+<li><p><strong>蓝牙</strong>：</p>
+<ul>
+<li>IEEE 802.15.1标准</li>
+<li>面向低功耗短距离通信</li>
+<li>典型速率：1-3Mbps（经典蓝牙）</li>
+</ul>
+</li>
+<li><p><strong>普通2.4G</strong>：</p>
+<ul>
+<li>私有协议（如nRF24L01）</li>
+<li>简单灵活的协议栈</li>
+<li>典型速率：250Kbps-2Mbps</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>技术特点对比</strong></p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>WiFi</th>
+<th>蓝牙</th>
+<th>普通2.4G</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>功耗</td>
+<td>高</td>
+<td>低（特别是BLE）</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>距离</td>
+<td>50-100m</td>
+<td>10-50m</td>
+<td>10-100m</td>
+</tr>
+<tr>
+<td>组网</td>
+<td>星型</td>
+<td>点对点&#x2F;微微网</td>
+<td>灵活多样</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>较高</td>
+<td>中等</td>
+<td>较低</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>较高</td>
+<td>中等</td>
+<td>较低</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>应用场景对比</strong></p>
+<ul>
+<li><p><strong>WiFi适合</strong>：</p>
+<ul>
+<li>高速网络接入</li>
+<li>视频流传输</li>
+<li>智能家居网络</li>
+</ul>
+</li>
+<li><p><strong>蓝牙适合</strong>：</p>
+<ul>
+<li>音频传输</li>
+<li>可穿戴设备</li>
+<li>低功耗设备连接</li>
+</ul>
+</li>
+<li><p><strong>普通2.4G适合</strong>：</p>
+<ul>
+<li>遥控遥测</li>
+<li>实时控制</li>
+<li>简单数据传输</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p><strong>技术选型建议</strong></p>
+<p>根据实际需求选择合适的技术：</p>
+<ol>
+<li>需要接入互联网 → 选择WiFi</li>
+<li>追求低功耗 → 选择蓝牙（特别是BLE）</li>
+<li>要求低延迟、简单可靠 → 选择普通2.4G</li>
+<li>成本敏感 → 普通2.4G最经济</li>
+</ol>
+</blockquote>
+<h3 id="2-4G的特点"><a href="#2-4G的特点" class="headerlink" title="2.4G的特点"></a>2.4G的特点</h3><ol>
+<li><p><strong>优势</strong></p>
+<ul>
+<li>全球通用免费频段</li>
+<li>硬件成本低</li>
+<li>技术成熟可靠</li>
+<li>应用生态丰富</li>
+</ul>
+</li>
+<li><p><strong>局限性</strong></p>
+<ul>
+<li>频段拥挤，易受干扰</li>
+<li>穿墙能力一般</li>
+<li>功耗相对较高</li>
+<li>安全性需要额外保障</li>
+</ul>
+</li>
+<li><p><strong>关键技术指标</strong></p>
+<ul>
+<li>传输距离：室内10-100米</li>
+<li>功耗：mW到W级别</li>
+<li>速率：几Kbps到几百Mbps</li>
+<li>延迟：ms级别</li>
+</ul>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>2.4G无线通信凭借其免授权、低成本、技术成熟等优势，已经成为目前最普及的短距离无线通信技术之一。尽管面临着日益拥挤的频谱环境，但通过合理的系统设计和优化，仍然可以实现稳定可靠的无线通信。随着物联网的发展，2.4G技术将继续在各类应用场景中发挥重要作用。</p>
 
     </div>
 
@@ -328,22 +521,20 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/conda/" rel="tag"># conda</a>
-              <a href="/tags/Python/" rel="tag"># Python</a>
+              <a href="/tags/2-4G/" rel="tag"># 2.4G</a>
+              <a href="/tags/%E6%97%A0%E7%BA%BF%E9%80%9A%E4%BF%A1/" rel="tag"># 无线通信</a>
+              <a href="/tags/WiFi/" rel="tag"># WiFi</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/posts/752f9918/" rel="prev" title="CSS Note">
-                  <i class="fa fa-angle-left"></i> CSS Note
+                <a href="/posts/78289205/" rel="prev" title="NFC Note">
+                  <i class="fa fa-angle-left"></i> NFC Note
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/posts/dbeb2432/" rel="next" title="influxdb Connection Problem">
-                  influxdb Connection Problem <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
