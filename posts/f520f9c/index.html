@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="你有没有想过,当你点击一个网页链接的时候,背后发生了什么?数据是如何在互联网上传输的?今天让我们一起揭开计算机通信的神秘面纱,看看数据是如何从一台计算机到达另一台计算机的。 计算机通信的层次就像一个大型组织需要不同部门各司其职一样,计算机通信也被划分为不同的层次。每一层负责特定的工作,共同配合完成数据传输的任务。 网络分层模型理论上有OSI七层模型,但在实际应用中我们更常用TCP&#x2F;IP四">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算机网络通信漫谈 - 从TCP&#x2F;IP到gRPC">
+<meta property="og:url" content="https://supermarkli.github.io/posts/f520f9c/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="你有没有想过,当你点击一个网页链接的时候,背后发生了什么?数据是如何在互联网上传输的?今天让我们一起揭开计算机通信的神秘面纱,看看数据是如何从一台计算机到达另一台计算机的。 计算机通信的层次就像一个大型组织需要不同部门各司其职一样,计算机通信也被划分为不同的层次。每一层负责特定的工作,共同配合完成数据传输的任务。 网络分层模型理论上有OSI七层模型,但在实际应用中我们更常用TCP&#x2F;IP四">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-01-10T02:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-11T02:19:06.666Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="网络协议">
+<meta property="article:tag" content="gRPC">
+<meta property="article:tag" content="TLS">
+<meta property="article:tag" content="HTTP">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/f520f9c/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/f520f9c/","path":"posts/f520f9c/","title":"计算机网络通信漫谈 - 从TCP/IP到gRPC"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>计算机网络通信漫谈 - 从TCP/IP到gRPC | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">观我旧往，同我仰春</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%80%9A%E4%BF%A1%E7%9A%84%E5%B1%82%E6%AC%A1"><span class="nav-number">1.</span> <span class="nav-text">计算机通信的层次</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">网络分层模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E7%9A%84%E4%BF%9D%E9%95%96-%E4%BC%A0%E8%BE%93%E5%B1%82%E5%8D%8F%E8%AE%AE"><span class="nav-number">2.</span> <span class="nav-text">数据传输的保镖 - 传输层协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP-%E5%8F%AF%E9%9D%A0%E4%BD%86%E2%80%9D%E5%95%B0%E5%97%A6%E2%80%9D%E7%9A%84%E4%BF%9D%E9%95%96"><span class="nav-number">2.1.</span> <span class="nav-text">TCP - 可靠但”啰嗦”的保镖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP-%E5%BF%AB%E9%80%9F%E4%BD%86%E2%80%9D%E4%BB%BB%E6%80%A7%E2%80%9D%E7%9A%84%E9%85%8D%E9%80%81%E5%91%98"><span class="nav-number">2.2.</span> <span class="nav-text">UDP - 快速但”任性”的配送员</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93%E7%9A%84%E4%BF%9D%E9%99%A9%E7%AE%B1-TLS"><span class="nav-number">3.</span> <span class="nav-text">数据传输的保险箱 - TLS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%B0%E4%BB%A3%E9%80%9A%E4%BF%A1%E7%9A%84%E6%96%B0%E7%A7%80-gRPC"><span class="nav-number">4.</span> <span class="nav-text">现代通信的新秀 - gRPC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gRPC%E7%9A%84%E5%9B%9B%E7%A7%8D%E9%80%9A%E4%BF%A1%E6%A8%A1%E5%BC%8F"><span class="nav-number">4.1.</span> <span class="nav-text">gRPC的四种通信模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E7%BB%8F%E9%AA%8C%E5%88%86%E4%BA%AB"><span class="nav-number">5.</span> <span class="nav-text">实战经验分享</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/aq.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/f520f9c/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aq.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="计算机网络通信漫谈 - 从TCP/IP到gRPC | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          计算机网络通信漫谈 - 从TCP/IP到gRPC
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-01-10 10:00:00" itemprop="dateCreated datePublished" datetime="2025-01-10T10:00:00+08:00">2025-01-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-11 10:19:06" itemprop="dateModified" datetime="2025-01-11T10:19:06+08:00">2025-01-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" itemprop="url" rel="index"><span itemprop="name">通信协议</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>954</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>你有没有想过,当你点击一个网页链接的时候,背后发生了什么?数据是如何在互联网上传输的?今天让我们一起揭开计算机通信的神秘面纱,看看数据是如何从一台计算机到达另一台计算机的。</p>
+<h2 id="计算机通信的层次"><a href="#计算机通信的层次" class="headerlink" title="计算机通信的层次"></a>计算机通信的层次</h2><p>就像一个大型组织需要不同部门各司其职一样,计算机通信也被划分为不同的层次。每一层负责特定的工作,共同配合完成数据传输的任务。</p>
+<h3 id="网络分层模型"><a href="#网络分层模型" class="headerlink" title="网络分层模型"></a>网络分层模型</h3><p>理论上有OSI七层模型,但在实际应用中我们更常用TCP&#x2F;IP四层模型:</p>
+<ul>
+<li>应用层:负责具体应用程序的通信,比如网页浏览、收发邮件</li>
+<li>传输层:负责端到端的数据传输,就像快递公司的配送系统</li>
+<li>网络层:负责数据包的路由,就像快递的分拣中心</li>
+<li>网络接口层:负责最基础的数据传输,就像快递员实际投递包裹</li>
+</ul>
+<h2 id="数据传输的保镖-传输层协议"><a href="#数据传输的保镖-传输层协议" class="headerlink" title="数据传输的保镖 - 传输层协议"></a>数据传输的保镖 - 传输层协议</h2><h3 id="TCP-可靠但”啰嗦”的保镖"><a href="#TCP-可靠但”啰嗦”的保镖" class="headerlink" title="TCP - 可靠但”啰嗦”的保镖"></a>TCP - 可靠但”啰嗦”的保镖</h3><p>TCP就像一个认真负责的快递员:</p>
+<ul>
+<li>每个包裹都要签收确认</li>
+<li>如果包裹丢失会重新投递  </li>
+<li>发现收件人很忙时会放慢投递速度</li>
+<li>但是这些保障措施会带来一些延迟</li>
+</ul>
+<h3 id="UDP-快速但”任性”的配送员"><a href="#UDP-快速但”任性”的配送员" class="headerlink" title="UDP - 快速但”任性”的配送员"></a>UDP - 快速但”任性”的配送员</h3><p>UDP则像一个追求效率的外卖小哥:</p>
+<ul>
+<li>直接把外卖放门口就走</li>
+<li>不管客户是否收到</li>
+<li>送得特别快</li>
+<li>但可能偶尔会出现送错或漏送</li>
+</ul>
+<h2 id="数据传输的保险箱-TLS"><a href="#数据传输的保险箱-TLS" class="headerlink" title="数据传输的保险箱 - TLS"></a>数据传输的保险箱 - TLS</h2><p>说到网络安全,就不得不提TLS。它就像数据传输的保险箱:</p>
+<ul>
+<li>给数据加上密码锁(加密)</li>
+<li>确保数据没被篡改(完整性校验) </li>
+<li>验证通信双方身份(身份认证)</li>
+</ul>
+<h2 id="现代通信的新秀-gRPC"><a href="#现代通信的新秀-gRPC" class="headerlink" title="现代通信的新秀 - gRPC"></a>现代通信的新秀 - gRPC</h2><p>如果说HTTP是通信界的普通话,那么gRPC就是一门更高效的新语言:</p>
+<ul>
+<li>基于HTTP&#x2F;2,性能更好</li>
+<li>支持流式通信,就像视频通话一样流畅</li>
+<li>多语言支持,打破了语言障碍</li>
+<li>自带”安全带”(TLS集成)</li>
+</ul>
+<h3 id="gRPC的四种通信模式"><a href="#gRPC的四种通信模式" class="headerlink" title="gRPC的四种通信模式"></a>gRPC的四种通信模式</h3><ol>
+<li>一元RPC: 类似普通的电话通话</li>
+<li>服务器流式RPC: 像看视频直播</li>
+<li>客户端流式RPC: 像上传视频</li>
+<li>双向流式RPC: 像视频通话</li>
+</ol>
+<h2 id="实战经验分享"><a href="#实战经验分享" class="headerlink" title="实战经验分享"></a>实战经验分享</h2><p>在我的实践中,发现以下几点特别重要:</p>
+<ol>
+<li><p>选择合适的协议</p>
+<ul>
+<li>实时性要求高的场景(如游戏)选UDP</li>
+<li>需要可靠传输的场景(如支付)选TCP</li>
+</ul>
+</li>
+<li><p>性能优化技巧</p>
+<ul>
+<li>善用连接池</li>
+<li>合理配置超时时间</li>
+<li>适当的重试策略</li>
+</ul>
+</li>
+<li><p>安全注意事项</p>
+<ul>
+<li>必要场景启用TLS</li>
+<li>定期更新证书</li>
+<li>谨慎处理敏感数据</li>
+</ul>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>计算机通信就像一个精密的运输系统,每个环节都很重要。理解这些基础知识,对于我们开发高质量的网络应用至关重要。</p>
+<p>你在实际开发中遇到过哪些通信相关的问题呢?欢迎在评论区分享你的经验!</p>
+<blockquote>
+<p>本文首发于我的博客,转载请注明出处。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/" rel="tag"># 网络协议</a>
+              <a href="/tags/gRPC/" rel="tag"># gRPC</a>
+              <a href="/tags/TLS/" rel="tag"># TLS</a>
+              <a href="/tags/HTTP/" rel="tag"># HTTP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/32f5e233/" rel="prev" title="TLS Note">
+                  <i class="fa fa-angle-left"></i> TLS Note
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/0/" rel="next" title="">
+                   <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">49k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:29</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
