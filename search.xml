@@ -1,6 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Anaconda Note</title>
+    <url>/posts/7066aaf6/</url>
+    <content><![CDATA[<h2 id="Anaconda"><a href="#Anaconda" class="headerlink" title="Anaconda"></a>Anaconda</h2><p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
+<span id="more"></span>
+
+<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
+<ol>
+<li><strong>Python</strong>:<ul>
+<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
+</ul>
+</li>
+<li><strong>Conda</strong>:<ul>
+<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
+<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
+</ul>
+</li>
+<li><strong>Anaconda</strong>:<ul>
+<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
+<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
+</ul>
+</li>
+</ol>
+<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a><strong>基本命令</strong></h3><ol>
+<li><strong>创建和管理环境</strong>：<ul>
+<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
+<li>激活环境：<code>conda activate myenv</code></li>
+<li>退出环境：<code>conda deactivate</code></li>
+<li>列出环境：<code>conda env list</code></li>
+<li>删除环境：<code>conda remove --name myenv --all</code></li>
+</ul>
+</li>
+<li><strong>包管理</strong>：<ul>
+<li>安装包：<code>conda install package_name</code></li>
+<li>更新包：<code>conda update package_name</code></li>
+<li>卸载包：<code>conda remove package_name</code></li>
+<li>列出安装的包：<code>conda list</code></li>
+</ul>
+</li>
+<li><strong>环境导出和导入</strong>：<ul>
+<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
+<li>导入环境：<code>conda env create -f environment.yml</code></li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>conda</tag>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>2.4G 无线通信笔记</title>
     <url>/posts/a25d78f8/</url>
     <content><![CDATA[<h2 id="什么是2-4G无线通信？"><a href="#什么是2-4G无线通信？" class="headerlink" title="什么是2.4G无线通信？"></a>什么是2.4G无线通信？</h2><p>之前嵌入式project的通信中用到了2.4G模块，借此机会来了解一下这项技术。</p>
@@ -295,6 +349,124 @@
       </tags>
   </entry>
   <entry>
+    <title>TLS Note</title>
+    <url>/posts/32f5e233/</url>
+    <content><![CDATA[<h2 id="1-什么是TLS"><a href="#1-什么是TLS" class="headerlink" title="1. 什么是TLS"></a>1. 什么是TLS</h2><p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
+<span id="more"></span>
+
+<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
+<h2 id="2-TLS的主要功能"><a href="#2-TLS的主要功能" class="headerlink" title="2. TLS的主要功能"></a>2. TLS的主要功能</h2><p>TLS提供以下三个主要的安全服务：</p>
+<h3 id="2-1-身份认证"><a href="#2-1-身份认证" class="headerlink" title="2.1 身份认证"></a>2.1 身份认证</h3><p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
+<h3 id="2-2-数据加密"><a href="#2-2-数据加密" class="headerlink" title="2.2 数据加密"></a>2.2 数据加密</h3><p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
+<h3 id="2-3-完整性校验"><a href="#2-3-完整性校验" class="headerlink" title="2.3 完整性校验"></a>2.3 完整性校验</h3><p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
+<h2 id="3-TLS的版本演进"><a href="#3-TLS的版本演进" class="headerlink" title="3. TLS的版本演进"></a>3. TLS的版本演进</h2><p>TLS协议经历了多个版本的演进：</p>
+<ul>
+<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
+<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
+<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
+<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
+<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
+<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
+</ul>
+<h2 id="4-TLS的密码学原理"><a href="#4-TLS的密码学原理" class="headerlink" title="4. TLS的密码学原理"></a>4. TLS的密码学原理</h2><h3 id="4-1-对称加密"><a href="#4-1-对称加密" class="headerlink" title="4.1 对称加密"></a>4.1 对称加密</h3><ul>
+<li>使用相同的密钥进行加密和解密</li>
+<li>常用算法：AES、ChaCha20</li>
+<li>用于加密传输的数据</li>
+</ul>
+<h3 id="4-2-非对称加密"><a href="#4-2-非对称加密" class="headerlink" title="4.2 非对称加密"></a>4.2 非对称加密</h3><ul>
+<li>使用公钥加密，私钥解密</li>
+<li>常用算法：RSA、ECDSA</li>
+<li>用于密钥交换和身份认证</li>
+</ul>
+<h3 id="4-3-数字证书"><a href="#4-3-数字证书" class="headerlink" title="4.3 数字证书"></a>4.3 数字证书</h3><ul>
+<li>X.509格式证书</li>
+<li>包含服务器的公钥和身份信息</li>
+<li>由CA机构签名认证</li>
+</ul>
+<h3 id="4-4-消息认证码"><a href="#4-4-消息认证码" class="headerlink" title="4.4 消息认证码"></a>4.4 消息认证码</h3><ul>
+<li>HMAC算法</li>
+<li>确保消息完整性</li>
+<li>防止数据被篡改</li>
+</ul>
+<h2 id="5-TLS握手过程"><a href="#5-TLS握手过程" class="headerlink" title="5. TLS握手过程"></a>5. TLS握手过程</h2><p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
+<h3 id="5-1-Client-Hello"><a href="#5-1-Client-Hello" class="headerlink" title="5.1 Client Hello"></a>5.1 Client Hello</h3><ul>
+<li>客户端发送支持的TLS版本</li>
+<li>支持的加密套件列表</li>
+<li>随机数（Client Random）</li>
+<li>会话ID（如果是恢复会话）</li>
+</ul>
+<h3 id="5-2-Server-Hello"><a href="#5-2-Server-Hello" class="headerlink" title="5.2 Server Hello"></a>5.2 Server Hello</h3><ul>
+<li>服务器选择TLS版本</li>
+<li>选择加密套件</li>
+<li>随机数（Server Random）</li>
+<li>服务器证书</li>
+</ul>
+<h3 id="5-3-密钥交换"><a href="#5-3-密钥交换" class="headerlink" title="5.3 密钥交换"></a>5.3 密钥交换</h3><ul>
+<li>客户端验证服务器证书</li>
+<li>生成预主密钥（Pre-master Secret）</li>
+<li>使用服务器公钥加密预主密钥</li>
+<li>计算主密钥（Master Secret）</li>
+</ul>
+<h3 id="5-4-完成握手"><a href="#5-4-完成握手" class="headerlink" title="5.4 完成握手"></a>5.4 完成握手</h3><ul>
+<li>切换到加密通信</li>
+<li>验证握手消息的完整性</li>
+<li>开始安全数据传输</li>
+</ul>
+<h2 id="6-TLS的应用场景"><a href="#6-TLS的应用场景" class="headerlink" title="6. TLS的应用场景"></a>6. TLS的应用场景</h2><h3 id="6-1-HTTPS"><a href="#6-1-HTTPS" class="headerlink" title="6.1 HTTPS"></a>6.1 HTTPS</h3><ul>
+<li>最常见的TLS应用</li>
+<li>为HTTP提供安全传输</li>
+<li>网站必备的安全保障</li>
+</ul>
+<h3 id="6-2-安全邮件"><a href="#6-2-安全邮件" class="headerlink" title="6.2 安全邮件"></a>6.2 安全邮件</h3><ul>
+<li>SMTPS</li>
+<li>IMAPS</li>
+<li>POP3S</li>
+</ul>
+<h3 id="6-3-VPN"><a href="#6-3-VPN" class="headerlink" title="6.3 VPN"></a>6.3 VPN</h3><ul>
+<li>OpenVPN</li>
+<li>其他基于TLS的VPN协议</li>
+</ul>
+<h2 id="7-常见攻击与防范"><a href="#7-常见攻击与防范" class="headerlink" title="7. 常见攻击与防范"></a>7. 常见攻击与防范</h2><h3 id="7-1-中间人攻击"><a href="#7-1-中间人攻击" class="headerlink" title="7.1 中间人攻击"></a>7.1 中间人攻击</h3><ul>
+<li>攻击者冒充服务器</li>
+<li>通过证书验证防范</li>
+<li>使用可信CA签发的证书</li>
+</ul>
+<h3 id="7-2-降级攻击"><a href="#7-2-降级攻击" class="headerlink" title="7.2 降级攻击"></a>7.2 降级攻击</h3><ul>
+<li>强制使用低版本协议</li>
+<li>禁用不安全的协议版本</li>
+<li>启用降级保护机制</li>
+</ul>
+<h3 id="7-3-重放攻击"><a href="#7-3-重放攻击" class="headerlink" title="7.3 重放攻击"></a>7.3 重放攻击</h3><ul>
+<li>重放已捕获的数据包</li>
+<li>使用随机数和时间戳</li>
+<li>会话标识符唯一性</li>
+</ul>
+<h2 id="8-最佳实践"><a href="#8-最佳实践" class="headerlink" title="8. 最佳实践"></a>8. 最佳实践</h2><h3 id="8-1-协议配置"><a href="#8-1-协议配置" class="headerlink" title="8.1 协议配置"></a>8.1 协议配置</h3><ul>
+<li>仅启用TLS 1.2及以上版本</li>
+<li>使用强加密套件</li>
+<li>启用前向保密</li>
+</ul>
+<h3 id="8-2-证书管理"><a href="#8-2-证书管理" class="headerlink" title="8.2 证书管理"></a>8.2 证书管理</h3><ul>
+<li>及时更新证书</li>
+<li>使用适当的密钥长度</li>
+<li>正确配置证书链</li>
+</ul>
+<h3 id="8-3-安全监控"><a href="#8-3-安全监控" class="headerlink" title="8.3 安全监控"></a>8.3 安全监控</h3><ul>
+<li>记录TLS错误日志</li>
+<li>监控证书有效期</li>
+<li>定期安全评估</li>
+</ul>
+]]></content>
+      <categories>
+        <category>通信协议</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>加密</tag>
+        <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NFC Note</title>
     <url>/posts/78289205/</url>
     <content><![CDATA[<h2 id="什么是NFC？"><a href="#什么是NFC？" class="headerlink" title="什么是NFC？"></a>什么是NFC？</h2><p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
@@ -426,65 +598,6 @@
         <tag>NFC</tag>
         <tag>RFID</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Anaconda Note</title>
-    <url>/posts/7066aaf6/</url>
-    <content><![CDATA[<h2 id="Anaconda"><a href="#Anaconda" class="headerlink" title="Anaconda"></a>Anaconda</h2><p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
-<span id="more"></span>
-
-<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
-<ol>
-<li><strong>Python</strong>:<ul>
-<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
-</ul>
-</li>
-<li><strong>Conda</strong>:<ul>
-<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
-<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
-</ul>
-</li>
-<li><strong>Anaconda</strong>:<ul>
-<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
-<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
-</ul>
-</li>
-</ol>
-<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a><strong>基本命令</strong></h3><ol>
-<li><strong>创建和管理环境</strong>：<ul>
-<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
-<li>激活环境：<code>conda activate myenv</code></li>
-<li>退出环境：<code>conda deactivate</code></li>
-<li>列出环境：<code>conda env list</code></li>
-<li>删除环境：<code>conda remove --name myenv --all</code></li>
-</ul>
-</li>
-<li><strong>包管理</strong>：<ul>
-<li>安装包：<code>conda install package_name</code></li>
-<li>更新包：<code>conda update package_name</code></li>
-<li>卸载包：<code>conda remove package_name</code></li>
-<li>列出安装的包：<code>conda list</code></li>
-</ul>
-</li>
-<li><strong>环境导出和导入</strong>：<ul>
-<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
-<li>导入环境：<code>conda env create -f environment.yml</code></li>
-</ul>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Python</category>
-      </categories>
-      <tags>
-        <tag>conda</tag>
-        <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/posts/0/</url>
-    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>TDX Note</title>
@@ -792,165 +905,6 @@
       <tags>
         <tag>TDX</tag>
         <tag>Intel</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TLS Note</title>
-    <url>/posts/32f5e233/</url>
-    <content><![CDATA[<h2 id="1-什么是TLS"><a href="#1-什么是TLS" class="headerlink" title="1. 什么是TLS"></a>1. 什么是TLS</h2><p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
-<span id="more"></span>
-
-<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
-<h2 id="2-TLS的主要功能"><a href="#2-TLS的主要功能" class="headerlink" title="2. TLS的主要功能"></a>2. TLS的主要功能</h2><p>TLS提供以下三个主要的安全服务：</p>
-<h3 id="2-1-身份认证"><a href="#2-1-身份认证" class="headerlink" title="2.1 身份认证"></a>2.1 身份认证</h3><p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
-<h3 id="2-2-数据加密"><a href="#2-2-数据加密" class="headerlink" title="2.2 数据加密"></a>2.2 数据加密</h3><p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
-<h3 id="2-3-完整性校验"><a href="#2-3-完整性校验" class="headerlink" title="2.3 完整性校验"></a>2.3 完整性校验</h3><p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
-<h2 id="3-TLS的版本演进"><a href="#3-TLS的版本演进" class="headerlink" title="3. TLS的版本演进"></a>3. TLS的版本演进</h2><p>TLS协议经历了多个版本的演进：</p>
-<ul>
-<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
-<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
-<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
-<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
-<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
-<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
-</ul>
-<h2 id="4-TLS的密码学原理"><a href="#4-TLS的密码学原理" class="headerlink" title="4. TLS的密码学原理"></a>4. TLS的密码学原理</h2><h3 id="4-1-对称加密"><a href="#4-1-对称加密" class="headerlink" title="4.1 对称加密"></a>4.1 对称加密</h3><ul>
-<li>使用相同的密钥进行加密和解密</li>
-<li>常用算法：AES、ChaCha20</li>
-<li>用于加密传输的数据</li>
-</ul>
-<h3 id="4-2-非对称加密"><a href="#4-2-非对称加密" class="headerlink" title="4.2 非对称加密"></a>4.2 非对称加密</h3><ul>
-<li>使用公钥加密，私钥解密</li>
-<li>常用算法：RSA、ECDSA</li>
-<li>用于密钥交换和身份认证</li>
-</ul>
-<h3 id="4-3-数字证书"><a href="#4-3-数字证书" class="headerlink" title="4.3 数字证书"></a>4.3 数字证书</h3><ul>
-<li>X.509格式证书</li>
-<li>包含服务器的公钥和身份信息</li>
-<li>由CA机构签名认证</li>
-</ul>
-<h3 id="4-4-消息认证码"><a href="#4-4-消息认证码" class="headerlink" title="4.4 消息认证码"></a>4.4 消息认证码</h3><ul>
-<li>HMAC算法</li>
-<li>确保消息完整性</li>
-<li>防止数据被篡改</li>
-</ul>
-<h2 id="5-TLS握手过程"><a href="#5-TLS握手过程" class="headerlink" title="5. TLS握手过程"></a>5. TLS握手过程</h2><p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
-<h3 id="5-1-Client-Hello"><a href="#5-1-Client-Hello" class="headerlink" title="5.1 Client Hello"></a>5.1 Client Hello</h3><ul>
-<li>客户端发送支持的TLS版本</li>
-<li>支持的加密套件列表</li>
-<li>随机数（Client Random）</li>
-<li>会话ID（如果是恢复会话）</li>
-</ul>
-<h3 id="5-2-Server-Hello"><a href="#5-2-Server-Hello" class="headerlink" title="5.2 Server Hello"></a>5.2 Server Hello</h3><ul>
-<li>服务器选择TLS版本</li>
-<li>选择加密套件</li>
-<li>随机数（Server Random）</li>
-<li>服务器证书</li>
-</ul>
-<h3 id="5-3-密钥交换"><a href="#5-3-密钥交换" class="headerlink" title="5.3 密钥交换"></a>5.3 密钥交换</h3><ul>
-<li>客户端验证服务器证书</li>
-<li>生成预主密钥（Pre-master Secret）</li>
-<li>使用服务器公钥加密预主密钥</li>
-<li>计算主密钥（Master Secret）</li>
-</ul>
-<h3 id="5-4-完成握手"><a href="#5-4-完成握手" class="headerlink" title="5.4 完成握手"></a>5.4 完成握手</h3><ul>
-<li>切换到加密通信</li>
-<li>验证握手消息的完整性</li>
-<li>开始安全数据传输</li>
-</ul>
-<h2 id="6-TLS的应用场景"><a href="#6-TLS的应用场景" class="headerlink" title="6. TLS的应用场景"></a>6. TLS的应用场景</h2><h3 id="6-1-HTTPS"><a href="#6-1-HTTPS" class="headerlink" title="6.1 HTTPS"></a>6.1 HTTPS</h3><ul>
-<li>最常见的TLS应用</li>
-<li>为HTTP提供安全传输</li>
-<li>网站必备的安全保障</li>
-</ul>
-<h3 id="6-2-安全邮件"><a href="#6-2-安全邮件" class="headerlink" title="6.2 安全邮件"></a>6.2 安全邮件</h3><ul>
-<li>SMTPS</li>
-<li>IMAPS</li>
-<li>POP3S</li>
-</ul>
-<h3 id="6-3-VPN"><a href="#6-3-VPN" class="headerlink" title="6.3 VPN"></a>6.3 VPN</h3><ul>
-<li>OpenVPN</li>
-<li>其他基于TLS的VPN协议</li>
-</ul>
-<h2 id="7-常见攻击与防范"><a href="#7-常见攻击与防范" class="headerlink" title="7. 常见攻击与防范"></a>7. 常见攻击与防范</h2><h3 id="7-1-中间人攻击"><a href="#7-1-中间人攻击" class="headerlink" title="7.1 中间人攻击"></a>7.1 中间人攻击</h3><ul>
-<li>攻击者冒充服务器</li>
-<li>通过证书验证防范</li>
-<li>使用可信CA签发的证书</li>
-</ul>
-<h3 id="7-2-降级攻击"><a href="#7-2-降级攻击" class="headerlink" title="7.2 降级攻击"></a>7.2 降级攻击</h3><ul>
-<li>强制使用低版本协议</li>
-<li>禁用不安全的协议版本</li>
-<li>启用降级保护机制</li>
-</ul>
-<h3 id="7-3-重放攻击"><a href="#7-3-重放攻击" class="headerlink" title="7.3 重放攻击"></a>7.3 重放攻击</h3><ul>
-<li>重放已捕获的数据包</li>
-<li>使用随机数和时间戳</li>
-<li>会话标识符唯一性</li>
-</ul>
-<h2 id="8-最佳实践"><a href="#8-最佳实践" class="headerlink" title="8. 最佳实践"></a>8. 最佳实践</h2><h3 id="8-1-协议配置"><a href="#8-1-协议配置" class="headerlink" title="8.1 协议配置"></a>8.1 协议配置</h3><ul>
-<li>仅启用TLS 1.2及以上版本</li>
-<li>使用强加密套件</li>
-<li>启用前向保密</li>
-</ul>
-<h3 id="8-2-证书管理"><a href="#8-2-证书管理" class="headerlink" title="8.2 证书管理"></a>8.2 证书管理</h3><ul>
-<li>及时更新证书</li>
-<li>使用适当的密钥长度</li>
-<li>正确配置证书链</li>
-</ul>
-<h3 id="8-3-安全监控"><a href="#8-3-安全监控" class="headerlink" title="8.3 安全监控"></a>8.3 安全监控</h3><ul>
-<li>记录TLS错误日志</li>
-<li>监控证书有效期</li>
-<li>定期安全评估</li>
-</ul>
-]]></content>
-      <categories>
-        <category>通信协议</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>加密</tag>
-        <tag>HTTPS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
-<span id="more"></span>
-
-<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p>发现可以正常读取了</p>
-<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-
-<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
-]]></content>
-      <categories>
-        <category>Database</category>
-      </categories>
-      <tags>
-        <tag>influxdb</tag>
       </tags>
   </entry>
   <entry>
@@ -1605,6 +1559,47 @@
       </tags>
   </entry>
   <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
+<span id="more"></span>
+
+<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p>发现可以正常读取了</p>
+<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>influxdb</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>前端浏览器缓存机制</title>
     <url>/posts/50ac740b/</url>
     <content><![CDATA[<h2 id="前端浏览器缓存机制"><a href="#前端浏览器缓存机制" class="headerlink" title="前端浏览器缓存机制"></a>前端浏览器缓存机制</h2><p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
@@ -1899,76 +1894,98 @@
   <entry>
     <title>计算机网络通信漫谈 - 从TCP/IP到gRPC</title>
     <url>/posts/f520f9c/</url>
-    <content><![CDATA[<p>你有没有想过,当你点击一个网页链接的时候,背后发生了什么?数据是如何在互联网上传输的?今天让我们一起揭开计算机通信的神秘面纱,看看数据是如何从一台计算机到达另一台计算机的。</p>
-<h2 id="计算机通信的层次"><a href="#计算机通信的层次" class="headerlink" title="计算机通信的层次"></a>计算机通信的层次</h2><p>就像一个大型组织需要不同部门各司其职一样,计算机通信也被划分为不同的层次。每一层负责特定的工作,共同配合完成数据传输的任务。</p>
+    <content><![CDATA[<h2 id="计算机通信的层次"><a href="#计算机通信的层次" class="headerlink" title="计算机通信的层次"></a>计算机通信的层次</h2><p>计算机通信是计算机网络形成的基础，这篇博客我们来简单了解一下现有的计算机网络通信协议。</p>
 <h3 id="网络分层模型"><a href="#网络分层模型" class="headerlink" title="网络分层模型"></a>网络分层模型</h3><p>理论上有OSI七层模型,但在实际应用中我们更常用TCP&#x2F;IP四层模型:</p>
 <ul>
-<li>应用层:负责具体应用程序的通信,比如网页浏览、收发邮件</li>
-<li>传输层:负责端到端的数据传输,就像快递公司的配送系统</li>
-<li>网络层:负责数据包的路由,就像快递的分拣中心</li>
-<li>网络接口层:负责最基础的数据传输,就像快递员实际投递包裹</li>
+<li>应用层:HTTP、FTP、SMTP、gRPC等应用协议</li>
+<li>传输层:TCP、UDP等传输控制协议</li>
+<li>网络层:IP、ICMP等网络协议</li>
+<li>网络接口层:以太网、WiFi等物理传输协议</li>
 </ul>
-<h2 id="数据传输的保镖-传输层协议"><a href="#数据传输的保镖-传输层协议" class="headerlink" title="数据传输的保镖 - 传输层协议"></a>数据传输的保镖 - 传输层协议</h2><h3 id="TCP-可靠但”啰嗦”的保镖"><a href="#TCP-可靠但”啰嗦”的保镖" class="headerlink" title="TCP - 可靠但”啰嗦”的保镖"></a>TCP - 可靠但”啰嗦”的保镖</h3><p>TCP就像一个认真负责的快递员:</p>
+<p>这种分层设计让我们可以在不改变其他层的情况下优化或替换某一层的实现。就像我们可以在同样的TCP协议上开发HTTP、FTP等不同的应用协议,也可以用WiFi或网线作为物理传输介质。</p>
+<h2 id="协议栈的演进"><a href="#协议栈的演进" class="headerlink" title="协议栈的演进"></a>协议栈的演进</h2><h3 id="基础传输层-TCP与UDP"><a href="#基础传输层-TCP与UDP" class="headerlink" title="基础传输层 - TCP与UDP"></a>基础传输层 - TCP与UDP</h3><p>传输层是整个协议栈的核心,提供了两种主要的传输服务:</p>
+<p>TCP(传输控制协议):</p>
 <ul>
-<li>每个包裹都要签收确认</li>
-<li>如果包裹丢失会重新投递  </li>
-<li>发现收件人很忙时会放慢投递速度</li>
-<li>但是这些保障措施会带来一些延迟</li>
+<li>面向连接:通信前需要建立连接(三次握手)</li>
+<li>可靠传输:使用确认机制和重传机制保证数据可靠到达</li>
+<li>流量控制:根据接收方处理能力调整发送速率</li>
+<li>拥塞控制:根据网络状况调整发送速率</li>
+<li>适用场景:文件传输、网页访问等对可靠性要求高的应用</li>
 </ul>
-<h3 id="UDP-快速但”任性”的配送员"><a href="#UDP-快速但”任性”的配送员" class="headerlink" title="UDP - 快速但”任性”的配送员"></a>UDP - 快速但”任性”的配送员</h3><p>UDP则像一个追求效率的外卖小哥:</p>
+<p>UDP(用户数据报协议):</p>
 <ul>
-<li>直接把外卖放门口就走</li>
-<li>不管客户是否收到</li>
-<li>送得特别快</li>
-<li>但可能偶尔会出现送错或漏送</li>
+<li>无连接:不需要建立连接即可传输数据</li>
+<li>不可靠:不保证数据一定送达</li>
+<li>无流量控制和拥塞控制</li>
+<li>开销小、延迟低</li>
+<li>适用场景:视频直播、游戏等对实时性要求高的应用</li>
 </ul>
-<h2 id="数据传输的保险箱-TLS"><a href="#数据传输的保险箱-TLS" class="headerlink" title="数据传输的保险箱 - TLS"></a>数据传输的保险箱 - TLS</h2><p>说到网络安全,就不得不提TLS。它就像数据传输的保险箱:</p>
+<h3 id="应用层的发展"><a href="#应用层的发展" class="headerlink" title="应用层的发展"></a>应用层的发展</h3><h4 id="HTTP-互联网的通用语言"><a href="#HTTP-互联网的通用语言" class="headerlink" title="HTTP - 互联网的通用语言"></a>HTTP - 互联网的通用语言</h4><p>HTTP协议构建在TCP之上,经历了几个重要版本:</p>
+<p>HTTP&#x2F;1.1:</p>
 <ul>
-<li>给数据加上密码锁(加密)</li>
-<li>确保数据没被篡改(完整性校验) </li>
-<li>验证通信双方身份(身份认证)</li>
+<li>持久连接:复用TCP连接</li>
+<li>管道化请求:支持多个请求排队</li>
+<li>但存在队头阻塞问题</li>
 </ul>
-<h2 id="现代通信的新秀-gRPC"><a href="#现代通信的新秀-gRPC" class="headerlink" title="现代通信的新秀 - gRPC"></a>现代通信的新秀 - gRPC</h2><p>如果说HTTP是通信界的普通话,那么gRPC就是一门更高效的新语言:</p>
+<p>HTTP&#x2F;2:</p>
 <ul>
-<li>基于HTTP&#x2F;2,性能更好</li>
-<li>支持流式通信,就像视频通话一样流畅</li>
-<li>多语言支持,打破了语言障碍</li>
-<li>自带”安全带”(TLS集成)</li>
+<li>多路复用:在同一连接上并发处理多个请求</li>
+<li>头部压缩:减少传输开销</li>
+<li>服务器推送:主动推送相关资源</li>
+<li>二进制分帧:更高效的数据传输</li>
 </ul>
-<h3 id="gRPC的四种通信模式"><a href="#gRPC的四种通信模式" class="headerlink" title="gRPC的四种通信模式"></a>gRPC的四种通信模式</h3><ol>
-<li>一元RPC: 类似普通的电话通话</li>
-<li>服务器流式RPC: 像看视频直播</li>
-<li>客户端流式RPC: 像上传视频</li>
-<li>双向流式RPC: 像视频通话</li>
-</ol>
-<h2 id="实战经验分享"><a href="#实战经验分享" class="headerlink" title="实战经验分享"></a>实战经验分享</h2><p>在我的实践中,发现以下几点特别重要:</p>
+<h4 id="gRPC-现代分布式系统的新选择"><a href="#gRPC-现代分布式系统的新选择" class="headerlink" title="gRPC - 现代分布式系统的新选择"></a>gRPC - 现代分布式系统的新选择</h4><p>gRPC是基于HTTP&#x2F;2构建的高性能RPC框架:</p>
+<ul>
+<li>协议层次:<ul>
+<li>应用层:gRPC API</li>
+<li>中间层:HTTP&#x2F;2</li>
+<li>传输层:TCP</li>
+<li>安全层:TLS(可选)</li>
+</ul>
+</li>
+</ul>
+<p>四种通信模式:</p>
 <ol>
-<li><p>选择合适的协议</p>
+<li><p>一元RPC(Unary):</p>
 <ul>
-<li>实时性要求高的场景(如游戏)选UDP</li>
-<li>需要可靠传输的场景(如支付)选TCP</li>
+<li>类似HTTP&#x2F;1.1的请求-响应模式</li>
+<li>适用于传统的客户端-服务器交互</li>
 </ul>
 </li>
-<li><p>性能优化技巧</p>
+<li><p>服务器流式RPC(Server Streaming):</p>
 <ul>
-<li>善用连接池</li>
-<li>合理配置超时时间</li>
-<li>适当的重试策略</li>
+<li>客户端发送一个请求,服务器返回数据流</li>
+<li>适用于服务器推送场景,如订阅更新</li>
 </ul>
 </li>
-<li><p>安全注意事项</p>
+<li><p>客户端流式RPC(Client Streaming):</p>
 <ul>
-<li>必要场景启用TLS</li>
-<li>定期更新证书</li>
-<li>谨慎处理敏感数据</li>
+<li>客户端发送数据流,服务器返回一个响应</li>
+<li>适用于数据上传场景</li>
+</ul>
+</li>
+<li><p>双向流式RPC(Bidirectional Streaming):</p>
+<ul>
+<li>客户端和服务器同时收发数据流</li>
+<li>适用于实时通信场景,如在线游戏</li>
 </ul>
 </li>
 </ol>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>计算机通信就像一个精密的运输系统,每个环节都很重要。理解这些基础知识,对于我们开发高质量的网络应用至关重要。</p>
-<p>你在实际开发中遇到过哪些通信相关的问题呢?欢迎在评论区分享你的经验!</p>
-<blockquote>
-<p>本文首发于我的博客,转载请注明出处。</p>
-</blockquote>
+<p>gRPC的优势:</p>
+<ul>
+<li>基于HTTP&#x2F;2的高性能</li>
+<li>Protocol Buffers的高效序列化</li>
+<li>强类型接口定义</li>
+<li>跨语言支持</li>
+<li>内置流控和安全机制</li>
+</ul>
+<h2 id="安全传输-TLS的重要性"><a href="#安全传输-TLS的重要性" class="headerlink" title="安全传输 - TLS的重要性"></a>安全传输 - TLS的重要性</h2><p>TLS在传输层和应用层之间提供了安全保障:</p>
+<ul>
+<li>加密:保护数据不被窃听</li>
+<li>认证:验证通信双方身份</li>
+<li>完整性:确保数据不被篡改</li>
+</ul>
+<p>现代应用如HTTPS和gRPC都默认集成了TLS,为应用提供端到端的安全保障。</p>
 ]]></content>
       <categories>
         <category>通信协议</category>
