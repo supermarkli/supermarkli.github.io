@@ -154,7 +154,13 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-Regression"><span class="nav-number">1.</span> <span class="nav-text">线性回归(Linear Regression)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E6%96%B9%E7%A8%8B-Linear-Regression-Equation"><span class="nav-number">1.1.</span> <span class="nav-text">线性回归方程(Linear Regression Equation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E6%9C%89%E5%A4%9A%E4%B8%AA%E7%89%B9%E5%BE%81%E7%9A%84%E6%A8%A1%E5%9E%8B-Models-with-Multiple-Features"><span class="nav-number">1.2.</span> <span class="nav-text">具有多个特征的模型(Models with Multiple Features)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%8D%9F%E5%A4%B1-Loss"><span class="nav-number">1.3.</span> <span class="nav-text">线性回归：损失(Loss)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%B7%9D%E7%A6%BB-Loss-Distance"><span class="nav-number">1.3.1.</span> <span class="nav-text">损失距离(Loss Distance)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">损失类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%AE%A1%E7%AE%97%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.3.3.</span> <span class="nav-text">损失计算示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0-Choosing-Loss-Functions"><span class="nav-number">1.3.4.</span> <span class="nav-text">选择损失函数(Choosing Loss Functions)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%BB%E7%BE%A4%E5%80%BC%E5%A4%84%E7%90%86"><span class="nav-number">1.3.5.</span> <span class="nav-text">离群值处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">1.3.6.</span> <span class="nav-text">损失函数的选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D-Gradient-Descent"><span class="nav-number">1.4.</span> <span class="nav-text">线性回归：梯度下降(Gradient Descent)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">梯度下降实例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">1.4.2.</span> <span class="nav-text">示例数据集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.4.3.</span> <span class="nav-text">梯度下降步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">1. 初始化模型参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E8%AE%A1%E7%AE%97%E5%88%9D%E5%A7%8B%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">2. 计算初始损失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E8%AE%A1%E7%AE%97%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">3. 计算梯度</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%83%E9%87%8D%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.1.</span> <span class="nav-text">权重的梯度</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%81%8F%E5%B7%AE%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.2.</span> <span class="nav-text">偏差的梯度</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">4. 更新参数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.4.</span> <span class="nav-text">迭代结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B6%E6%95%9B%E8%BF%87%E7%A8%8B"><span class="nav-number">1.4.5.</span> <span class="nav-text">收敛过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E6%9B%B2%E7%BA%BF"><span class="nav-number">1.4.6.</span> <span class="nav-text">损失曲线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%B8%E5%87%BD%E6%95%B0%E4%B8%8E%E6%9C%80%E5%B0%8F%E5%80%BC"><span class="nav-number">1.4.7.</span> <span class="nav-text">凸函数与最小值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E8%B6%85%E5%8F%82%E6%95%B0-Hyperparameters"><span class="nav-number">1.5.</span> <span class="nav-text">线性回归：超参数(Hyperparameters)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E9%80%9F%E7%8E%87-Learning-Rate"><span class="nav-number">1.5.1.</span> <span class="nav-text">学习速率(Learning Rate)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%A4%A7%E5%B0%8F-Batch-Size"><span class="nav-number">1.5.2.</span> <span class="nav-text">批量大小 (Batch Size)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-SGD-Stochastic-Gradient-Descent"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">随机梯度下降法 (SGD, Stochastic Gradient Descent)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B0%8F%E6%89%B9%E9%87%8F%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-mini-batch-SGD"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">小批量随机梯度下降法 (mini-batch SGD)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%AA%E5%85%83-Epoch"><span class="nav-number">1.5.3.</span> <span class="nav-text">纪元 (Epoch)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0"><span class="nav-number">1.6.</span> <span class="nav-text">线性回归：编程练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-1-Setup-Exercise"><span class="nav-number">1.6.1.</span> <span class="nav-text">Part 1 - Setup Exercise</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%BA%93"><span class="nav-number">1.6.1.1.</span> <span class="nav-text">数据处理库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%BA%93"><span class="nav-number">1.6.1.2.</span> <span class="nav-text">机器学习库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%93"><span class="nav-number">1.6.1.3.</span> <span class="nav-text">数据可视化库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE"><span class="nav-number">1.6.1.4.</span> <span class="nav-text">加载数据</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E7%89%B9%E5%AE%9A%E5%88%97"><span class="nav-number">1.6.1.5.</span> <span class="nav-text">选择特定列</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E4%BF%A1%E6%81%AF"><span class="nav-number">1.6.1.6.</span> <span class="nav-text">查看数据信息</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-2-Dataset-Exploration"><span class="nav-number">1.6.2.</span> <span class="nav-text">Part 2 - Dataset Exploration</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF%EF%BC%9A"><span class="nav-number">1.6.2.1.</span> <span class="nav-text">基本统计信息：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BC%BA%E5%A4%B1%E5%80%BC%E6%A3%80%E6%9F%A5%EF%BC%9A"><span class="nav-number">1.6.2.2.</span> <span class="nav-text">缺失值检查：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E5%8F%98%E9%87%8F%E5%88%86%E6%9E%90%EF%BC%9A"><span class="nav-number">1.6.2.3.</span> <span class="nav-text">分类变量分析：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%80%A7%E5%88%86%E6%9E%90%EF%BC%9A"><span class="nav-number">1.6.2.4.</span> <span class="nav-text">相关性分析：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-3-Train-Model"><span class="nav-number">1.6.3.</span> <span class="nav-text">Part 3 - Train Model</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8F%AF%E8%A7%86%E5%8C%96%E5%87%BD%E6%95%B0%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.7.</span> <span class="nav-text">1. 可视化函数实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E5%87%BD%E6%95%B0%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.7.0.1.</span> <span class="nav-text">模型训练函数实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E8%AE%AD%E7%BB%83%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.7.0.2.</span> <span class="nav-text">运行训练实验</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-4-Validate-Model"><span class="nav-number">1.7.1.</span> <span class="nav-text">Part 4 - Validate Model</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9E%8B%E9%A2%84%E6%B5%8B"><span class="nav-number">1.7.1.1.</span> <span class="nav-text">执行模型预测</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92linear-regression"><span class="nav-number">1.</span> <span class="nav-text">线性回归(Linear Regression)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E6%96%B9%E7%A8%8Blinear-regression-equation"><span class="nav-number">1.1.</span> <span class="nav-text">线性回归方程(Linear
+Regression Equation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E6%9C%89%E5%A4%9A%E4%B8%AA%E7%89%B9%E5%BE%81%E7%9A%84%E6%A8%A1%E5%9E%8Bmodels-with-multiple-features"><span class="nav-number">1.2.</span> <span class="nav-text">具有多个特征的模型(Models
+with Multiple Features)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E6%8D%9F%E5%A4%B1loss"><span class="nav-number">1.3.</span> <span class="nav-text">线性回归：损失(Loss)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%B7%9D%E7%A6%BBloss-distance"><span class="nav-number">1.3.1.</span> <span class="nav-text">损失距离(Loss Distance)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">损失类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%AE%A1%E7%AE%97%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.3.3.</span> <span class="nav-text">损失计算示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0choosing-loss-functions"><span class="nav-number">1.3.4.</span> <span class="nav-text">选择损失函数(Choosing Loss
+Functions)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%BB%E7%BE%A4%E5%80%BC%E5%A4%84%E7%90%86"><span class="nav-number">1.3.5.</span> <span class="nav-text">离群值处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">1.3.6.</span> <span class="nav-text">损失函数的选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8Dgradient-descent"><span class="nav-number">1.4.</span> <span class="nav-text">线性回归：梯度下降(Gradient
+Descent)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">梯度下降实例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">1.4.2.</span> <span class="nav-text">示例数据集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.4.3.</span> <span class="nav-text">梯度下降步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">1. 初始化模型参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%88%9D%E5%A7%8B%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">2. 计算初始损失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">3. 计算梯度</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%83%E9%87%8D%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.1.</span> <span class="nav-text">权重的梯度</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%81%8F%E5%B7%AE%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.2.</span> <span class="nav-text">偏差的梯度</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">4. 更新参数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.4.</span> <span class="nav-text">迭代结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B6%E6%95%9B%E8%BF%87%E7%A8%8B"><span class="nav-number">1.4.5.</span> <span class="nav-text">收敛过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E6%9B%B2%E7%BA%BF"><span class="nav-number">1.4.6.</span> <span class="nav-text">损失曲线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%B8%E5%87%BD%E6%95%B0%E4%B8%8E%E6%9C%80%E5%B0%8F%E5%80%BC"><span class="nav-number">1.4.7.</span> <span class="nav-text">凸函数与最小值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E8%B6%85%E5%8F%82%E6%95%B0hyperparameters"><span class="nav-number">1.5.</span> <span class="nav-text">线性回归：超参数(Hyperparameters)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E9%80%9F%E7%8E%87learning-rate"><span class="nav-number">1.5.1.</span> <span class="nav-text">学习速率(Learning Rate)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%A4%A7%E5%B0%8F-batch-size"><span class="nav-number">1.5.2.</span> <span class="nav-text">批量大小 (Batch Size)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-sgd-stochastic-gradient-descent"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">随机梯度下降法
+(SGD, Stochastic Gradient Descent)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B0%8F%E6%89%B9%E9%87%8F%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-mini-batch-sgd"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">小批量随机梯度下降法
+(mini-batch SGD)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%AA%E5%85%83-epoch"><span class="nav-number">1.5.3.</span> <span class="nav-text">纪元 (Epoch)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0"><span class="nav-number">1.6.</span> <span class="nav-text">线性回归：编程练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#part-1---setup-exercise"><span class="nav-number">1.6.1.</span> <span class="nav-text">Part 1 - Setup Exercise</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%BA%93"><span class="nav-number">1.6.1.1.</span> <span class="nav-text">数据处理库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%BA%93"><span class="nav-number">1.6.1.2.</span> <span class="nav-text">机器学习库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%93"><span class="nav-number">1.6.1.3.</span> <span class="nav-text">数据可视化库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE"><span class="nav-number">1.6.1.4.</span> <span class="nav-text">加载数据</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E7%89%B9%E5%AE%9A%E5%88%97"><span class="nav-number">1.6.1.5.</span> <span class="nav-text">选择特定列</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E4%BF%A1%E6%81%AF"><span class="nav-number">1.6.1.6.</span> <span class="nav-text">查看数据信息</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#part-2---dataset-exploration"><span class="nav-number">1.6.2.</span> <span class="nav-text">Part 2 - Dataset Exploration</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF"><span class="nav-number">1.6.2.1.</span> <span class="nav-text">基本统计信息：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BC%BA%E5%A4%B1%E5%80%BC%E6%A3%80%E6%9F%A5"><span class="nav-number">1.6.2.2.</span> <span class="nav-text">缺失值检查：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E5%8F%98%E9%87%8F%E5%88%86%E6%9E%90"><span class="nav-number">1.6.2.3.</span> <span class="nav-text">分类变量分析：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%80%A7%E5%88%86%E6%9E%90"><span class="nav-number">1.6.2.4.</span> <span class="nav-text">相关性分析：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#part-3---train-model"><span class="nav-number">1.6.3.</span> <span class="nav-text">Part 3 - Train Model</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96%E5%87%BD%E6%95%B0%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.7.</span> <span class="nav-text">1. 可视化函数实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E5%87%BD%E6%95%B0%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.7.0.1.</span> <span class="nav-text">模型训练函数实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E8%AE%AD%E7%BB%83%E5%AE%9E%E9%AA%8C"><span class="nav-number">1.7.0.2.</span> <span class="nav-text">运行训练实验</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#part-4---validate-model"><span class="nav-number">1.7.1.</span> <span class="nav-text">Part 4 - Validate Model</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9E%8B%E9%A2%84%E6%B5%8B"><span class="nav-number">1.7.1.1.</span> <span class="nav-text">执行模型预测</span></a></li></ol></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -279,19 +285,22 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>今天继续进行机器学习的入门，主题是线性回归。</p>
-<span id="more"></span>
-
-<h2 id="线性回归-Linear-Regression"><a href="#线性回归-Linear-Regression" class="headerlink" title="线性回归(Linear Regression)"></a>线性回归(Linear Regression)</h2><p>线性回归是一种 用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出 功能和 label 之间的关联。</p>
-<p>例如，假设我们要预测汽车的燃油效率（以英里&#x2F;英里为单位） 根据汽车的重量确定加仑，我们有以下数据集：</p>
+    <div class="post-body" itemprop="articleBody"><p>今天继续进行机器学习的入门，主题是线性回归。 <span id="more"></span></p>
+<h2 id="线性回归linear-regression">线性回归(Linear Regression)</h2>
+<p>线性回归是一种
+用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出
+功能和 label 之间的关联。</p>
+<p>例如，假设我们要预测汽车的燃油效率（以英里/英里为单位）
+根据汽车的重量确定加仑，我们有以下数据集：</p>
 <table>
 <thead>
 <tr>
 <th>干磷(功能)</th>
-<th>英里&#x2F;加仑(标签)</th>
+<th>英里/加仑(标签)</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>3.5</td>
 <td>18</td>
 </tr>
@@ -319,124 +328,153 @@
 <td>2.37</td>
 <td>24</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <p>如果我们绘制这些点，通过这些点绘制一条最适合的直线来创建自己的模型,就会得到以下图表：</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A803.png" alt="alt text"></p>
-<h3 id="线性回归方程-Linear-Regression-Equation"><a href="#线性回归方程-Linear-Regression-Equation" class="headerlink" title="线性回归方程(Linear Regression Equation)"></a>线性回归方程(Linear Regression Equation)</h3><p>用代数术语来说，模型的定义为：</p>
-<p>$$y &#x3D; mx + b$$</p>
-<p>其中：</p>
-<ul>
-<li>y 表示每加仑英里数，即我们想要预测的值</li>
-<li>m 是直线的斜率</li>
-<li>x 是磷，即我们的输入值</li>
-<li>b 为 y 轴截距</li>
-</ul>
+<figure>
+<img src="/assets/机器学习入门03.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<h3 id="线性回归方程linear-regression-equation">线性回归方程(Linear
+Regression Equation)</h3>
+<p>用代数术语来说，模型的定义为：</p>
+<p><span class="math display">\[y = mx + b\]</span></p>
+<p>其中： - y 表示每加仑英里数，即我们想要预测的值 - m 是直线的斜率 - x
+是磷，即我们的输入值 - b 为 y 轴截距</p>
 <p>在机器学习中，我们编写线性回归模型的方程式如下所示：</p>
-<p>$$y’ &#x3D; b + w_1x_1$$</p>
-<p>其中：</p>
-<ul>
-<li>y’ 是预测标签，即输出</li>
-<li>b 是偏差(Bias)模型。偏差与代数中y截距的概念相同直线方程。在机器学习中，偏差有时称为 w₀。偏差是一个模型的参数，而且是在训练期间计算的</li>
-<li>w₁ 是权重(Weight)功能。权重与代数中斜率 m 的概念相同直线方程。权重为参数，是在训练期间计算的</li>
-<li>x₁ 是一项特征(Feature)，即输入</li>
-</ul>
+<p><span class="math display">\[y&#39; = b + w_1x_1\]</span></p>
+<p>其中： - y' 是预测标签，即输出 - b
+是偏差(Bias)模型。偏差与代数中y截距的概念相同直线方程。在机器学习中，偏差有时称为
+w₀。偏差是一个模型的参数，而且是在训练期间计算的 - w₁
+是权重(Weight)功能。权重与代数中斜率 m
+的概念相同直线方程。权重为参数，是在训练期间计算的 - x₁
+是一项特征(Feature)，即输入</p>
 <p>在训练期间，模型会计算可产生最佳结果的权重和偏差模型。</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A804.png" alt="alt text"></p>
-<p>在我们的示例中，通过终止的线性计算得到：</p>
-<ul>
-<li>偏差为 30 (对应 y 轴截距)</li>
-<li>权重为 -3.6 (直线的斜率)</li>
-</ul>
+<figure>
+<img src="/assets/机器学习入门04.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<p>在我们的示例中，通过终止的线性计算得到： - 偏差为 30 (对应 y 轴截距)
+- 权重为 -3.6 (直线的斜率)</p>
 <p>因此，我们的模型可以表示为：</p>
-<p>$$y’ &#x3D; 30 + (-3.6)(x_1)$$</p>
-<p>现在我们就可以用这个模型进行预测了。例如，对于一辆重量为 4000 磷的汽车，我们可以预测其燃油效率：</p>
-<p>$$y’ &#x3D; 30 + (-3.6)(4.0) &#x3D; 30 - 14.4 &#x3D; 15.6$$</p>
+<p><span class="math display">\[y&#39; = 30 + (-3.6)(x_1)\]</span></p>
+<p>现在我们就可以用这个模型进行预测了。例如，对于一辆重量为 4000
+磷的汽车，我们可以预测其燃油效率：</p>
+<p><span class="math display">\[y&#39; = 30 + (-3.6)(4.0) = 30 - 14.4 =
+15.6\]</span></p>
 <p>预测结果表明这辆汽车的燃油效率约为每加仑15.6英里。</p>
-<h3 id="具有多个特征的模型-Models-with-Multiple-Features"><a href="#具有多个特征的模型-Models-with-Multiple-Features" class="headerlink" title="具有多个特征的模型(Models with Multiple Features)"></a>具有多个特征的模型(Models with Multiple Features)</h3><p>虽然本文中的示例仅使用了一项功能（即重量级汽车的特征），但更复杂的模型可能依赖于多种特征，每个特征都有单独的权重(w₁、w₂ 等)。例如，一个模型可以写为：</p>
-<p>$$y’ &#x3D; b + w_1x_1 + w_2x_2 + w_3x_3 + w_4x_4 + w_5x_5$$</p>
-<p>例如，预测汽油里程的模型可以额外使用特征如：</p>
-<ul>
-<li>发动机排量 (Displacement)</li>
-<li>加速性能 (Acceleration)</li>
-<li>汽缸数 (Number of cylinders)</li>
-<li>马力 (Horsepower)</li>
-</ul>
+<h3
+id="具有多个特征的模型models-with-multiple-features">具有多个特征的模型(Models
+with Multiple Features)</h3>
+<p>虽然本文中的示例仅使用了一项功能（即重量级汽车的特征），但更复杂的模型可能依赖于多种特征，每个特征都有单独的权重(w₁、w₂
+等)。例如，一个模型可以写为：</p>
+<p><span class="math display">\[y&#39; = b + w_1x_1 + w_2x_2 + w_3x_3 +
+w_4x_4 + w_5x_5\]</span></p>
+<p>例如，预测汽油里程的模型可以额外使用特征如： - 发动机排量
+(Displacement) - 加速性能 (Acceleration) - 汽缸数 (Number of cylinders)
+- 马力 (Horsepower)</p>
 <p>此模型的编写方式如下图所示：</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A805.png" alt="alt text"></p>
-<p>在这个模型中：</p>
-<ul>
-<li>x₁ 代表重量 (Pounds)</li>
-<li>x₂ 代表排量 (Displacement)</li>
-<li>x₃ 代表加速性能 (Acceleration)</li>
-<li>x₄ 代表汽缸数 (Number of cylinders)</li>
-<li>x₅ 代表马力 (Horsepower)</li>
-</ul>
+<figure>
+<img src="/assets/机器学习入门05.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<p>在这个模型中： - x₁ 代表重量 (Pounds) - x₂ 代表排量 (Displacement) -
+x₃ 代表加速性能 (Acceleration) - x₄ 代表汽缸数 (Number of cylinders) -
+x₅ 代表马力 (Horsepower)</p>
 <p>每个特征(x)都有其对应的权重(w)，这些权重在训练过程中被优化，以获得最准确的预测结果。</p>
-<h3 id="线性回归：损失-Loss"><a href="#线性回归：损失-Loss" class="headerlink" title="线性回归：损失(Loss)"></a>线性回归：损失(Loss)</h3><p>损失是一个数值指标，用于描述模型的预测有多大偏差。损失函数用于衡量模型预测与实际标签之间的距离。训练模型的目标是尽可能降低损失，将其降至最低值。</p>
+<h3 id="线性回归损失loss">线性回归：损失(Loss)</h3>
+<p>损失是一个数值指标，用于描述模型的预测有多大偏差。损失函数用于衡量模型预测与实际标签之间的距离。训练模型的目标是尽可能降低损失，将其降至最低值。</p>
 <p>在下图中，可以将损失可视化为从数据点指向模型的箭头。箭头表示模型的预测结果与实际值之间的差距。</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A806.png" alt="alt text"></p>
-<h4 id="损失距离-Loss-Distance"><a href="#损失距离-Loss-Distance" class="headerlink" title="损失距离(Loss Distance)"></a>损失距离(Loss Distance)</h4><p>在统计学和机器学习中，损失函数用于衡量预测值与实际值之间的差异。损失函数侧重于值之间的距离，而不是方向。例如，如果模型预测值为 2，但实际值为 5，我们并不关心损失为负值（5 - 2 &#x3D; -3）。我们关心的是这两个值之间的距离为 3。因此，所有用于计算损失的方法都会移除符号。</p>
+<figure>
+<img src="/assets/机器学习入门06.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<h4 id="损失距离loss-distance">损失距离(Loss Distance)</h4>
+<p>在统计学和机器学习中，损失函数用于衡量预测值与实际值之间的差异。损失函数侧重于值之间的距离，而不是方向。例如，如果模型预测值为
+2，但实际值为 5，我们并不关心损失为负值（5 - 2 =
+-3）。我们关心的是这两个值之间的距离为
+3。因此，所有用于计算损失的方法都会移除符号。</p>
 <p>移除此标记的两种最常用方法如下：</p>
-<ol>
-<li><p>计算实际值与预测值之间的差值的绝对值：<br>$$L1 &#x3D; |y - y’|$$</p>
-</li>
-<li><p>将实际值与预测值之间的差值平方：<br>$$L2 &#x3D; (y - y’)^2$$</p>
-</li>
+<ol type="1">
+<li><p>计算实际值与预测值之间的差值的绝对值： <span
+class="math display">\[L1 = |y - y&#39;|\]</span></p></li>
+<li><p>将实际值与预测值之间的差值平方： <span class="math display">\[L2
+= (y - y&#39;)^2\]</span></p></li>
 </ol>
-<h4 id="损失类型"><a href="#损失类型" class="headerlink" title="损失类型"></a>损失类型</h4><p>在线性回归中，有四种主要的损失函数，如下表所示。</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A807.png" alt="alt text"></p>
-<p>L₁ 损失函数和 L₂ 损失函数（或 MAE 和 MSE）之间的功能差异在于平方。当预测值与标签之间的差异较大时，平方会使损失变得更大。当差异较小（小于 1）时，平方会使损失更小。</p>
-<p>当处理多个示例时，我们通常会对所有示例的损失进行平均，无论是使用 MAE 还是 MSE。</p>
+<h4 id="损失类型">损失类型</h4>
+<p>在线性回归中，有四种主要的损失函数，如下表所示。</p>
+<figure>
+<img src="/assets/机器学习入门07.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<p>L₁ 损失函数和 L₂ 损失函数（或 MAE 和
+MSE）之间的功能差异在于平方。当预测值与标签之间的差异较大时，平方会使损失变得更大。当差异较小（小于
+1）时，平方会使损失更小。</p>
+<p>当处理多个示例时，我们通常会对所有示例的损失进行平均，无论是使用 MAE
+还是 MSE。</p>
 <blockquote>
 <ul>
 <li>MSE (Mean Square Error)：均方误差</li>
-<li>计算公式：MSE &#x3D; (Σ(预测值 - 实际值)²) &#x2F; n</li>
+<li>计算公式：MSE = (Σ(预测值 - 实际值)²) / n</li>
 <li>RMSE (Root Mean Square Error)：均方根误差</li>
-<li>计算公式：RMSE &#x3D; √MSE</li>
+<li>计算公式：RMSE = √MSE</li>
 <li>即MSE开平方根</li>
 </ul>
 </blockquote>
-<h4 id="损失计算示例"><a href="#损失计算示例" class="headerlink" title="损失计算示例"></a>损失计算示例</h4><p>使用之前的最佳拟合直线，我们将计算单个示例的 L₂ 损失。从最优拟合直线中，我们得到了权重和偏差的以下值：</p>
+<h4 id="损失计算示例">损失计算示例</h4>
+<p>使用之前的最佳拟合直线，我们将计算单个示例的 L₂
+损失。从最优拟合直线中，我们得到了权重和偏差的以下值：</p>
 <ul>
 <li>Weight: -3.6</li>
 <li>Bias: 30</li>
 </ul>
-<p>如果模型预测重 2,370 磅的汽车每加仑可行驶 21.5 英里，但实际每加仑可行驶 24 英里，我们将按如下方式计算 L₂ 损失：</p>
-<p>$$L_2 &#x3D; (y - y’)^2 &#x3D; (24 - 21.5)^2 &#x3D; (2.5)^2 &#x3D; 6.25$$</p>
+<p>如果模型预测重 2,370 磅的汽车每加仑可行驶 21.5
+英里，但实际每加仑可行驶 24 英里，我们将按如下方式计算 L₂ 损失：</p>
+<p><span class="math display">\[L_2 = (y - y&#39;)^2 = (24 - 21.5)^2 =
+(2.5)^2 = 6.25\]</span></p>
 <p>在此示例中，该单个数据点的 L₂ 损失为 6.25。</p>
-<h4 id="选择损失函数-Choosing-Loss-Functions"><a href="#选择损失函数-Choosing-Loss-Functions" class="headerlink" title="选择损失函数(Choosing Loss Functions)"></a>选择损失函数(Choosing Loss Functions)</h4><p>确定使用 MAE 还是 MSE 可能取决于数据集以及希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：</p>
-<ul>
-<li>汽车通常在 2,000 到 5,000 磅之间</li>
-<li>每加仑汽油能行驶的英里数介于 8 到 50 英里之间</li>
-<li>重 8,000 磅的汽车或每加仑汽油能行驶 100 英里的汽车都超出了典型范围，会被视为离群值(Outliers)</li>
-</ul>
-<h4 id="离群值处理"><a href="#离群值处理" class="headerlink" title="离群值处理"></a>离群值处理</h4><p>离群值还可以指模型的预测与真实值之间的差距。例如：</p>
-<ul>
-<li>3,000 磅的车重属于典型的车重范围</li>
-<li>每加仑 40 英里的油耗属于典型的油耗范围</li>
-<li>但是，对于每加仑 40 英里的 3,000 磅汽车，如果模型预测每加仑能行驶 18 到 20 英里，这个预测结果会认为是离群值</li>
-</ul>
-<h4 id="损失函数的选择"><a href="#损失函数的选择" class="headerlink" title="损失函数的选择"></a>损失函数的选择</h4><p>选择最佳损失函数时，考虑希望模型如何处理离群值：</p>
-<ul>
-<li>MSE 会使模型更接近离群值</li>
-<li>MAE 则不会</li>
-<li>与 L₁ 损失函数相比，L₂ 损失函数对离群值的惩罚更高</li>
-</ul>
-<p>例如，下图片显示了使用 MAE 训练的模型和使用 MSE 训练的模型的比较。红线表示将用于进行预测的完全训练好的模型：</p>
-<ul>
-<li>离群值更接近使用 MSE 训练的模型</li>
-<li>离群值对使用 MAE 训练的模型影响较小</li>
-</ul>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A808.png" alt="alt text"></p>
-<h3 id="线性回归：梯度下降-Gradient-Descent"><a href="#线性回归：梯度下降-Gradient-Descent" class="headerlink" title="线性回归：梯度下降(Gradient Descent)"></a>线性回归：梯度下降(Gradient Descent)</h3><p>梯度下降法是一种数学技术，能够以迭代方式找出权重和偏差，从而生成损失最低的模型。梯度下降法会针对用户指定的多次迭代重复以下过程，以找到最佳权重和偏差。</p>
+<h4 id="选择损失函数choosing-loss-functions">选择损失函数(Choosing Loss
+Functions)</h4>
+<p>确定使用 MAE 还是 MSE
+可能取决于数据集以及希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：
+- 汽车通常在 2,000 到 5,000 磅之间 - 每加仑汽油能行驶的英里数介于 8 到
+50 英里之间 - 重 8,000 磅的汽车或每加仑汽油能行驶 100
+英里的汽车都超出了典型范围，会被视为离群值(Outliers)</p>
+<h4 id="离群值处理">离群值处理</h4>
+<p>离群值还可以指模型的预测与真实值之间的差距。例如： - 3,000
+磅的车重属于典型的车重范围 - 每加仑 40 英里的油耗属于典型的油耗范围 -
+但是，对于每加仑 40 英里的 3,000 磅汽车，如果模型预测每加仑能行驶 18 到
+20 英里，这个预测结果会认为是离群值</p>
+<h4 id="损失函数的选择">损失函数的选择</h4>
+<p>选择最佳损失函数时，考虑希望模型如何处理离群值： - MSE
+会使模型更接近离群值 - MAE 则不会 - 与 L₁ 损失函数相比，L₂
+损失函数对离群值的惩罚更高</p>
+<p>例如，下图片显示了使用 MAE 训练的模型和使用 MSE
+训练的模型的比较。红线表示将用于进行预测的完全训练好的模型： -
+离群值更接近使用 MSE 训练的模型 - 离群值对使用 MAE
+训练的模型影响较小</p>
+<figure>
+<img src="/assets/机器学习入门08.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<h3 id="线性回归梯度下降gradient-descent">线性回归：梯度下降(Gradient
+Descent)</h3>
+<p>梯度下降法是一种数学技术，能够以迭代方式找出权重和偏差，从而生成损失最低的模型。梯度下降法会针对用户指定的多次迭代重复以下过程，以找到最佳权重和偏差。</p>
 <p>模型开始训练时使用接近于零的随机权重和偏差，然后重复以下步骤：</p>
 <p>使用当前权重和偏差计算损失。</p>
 <p>确定用于减少损失的权重和偏差的移动方向。</p>
 <p>将权重和偏差值在可减少损失的方向上稍微移动。</p>
 <p>返回第 1 步并重复此过程，直到模型无法进一步降低损失。</p>
 <p>下图概述了梯度下降法为找出损失最低的模型权重和偏差所执行的迭代步骤。</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A809.png" alt="alt text"></p>
-<h4 id="梯度下降实例"><a href="#梯度下降实例" class="headerlink" title="梯度下降实例"></a>梯度下降实例</h4><h4 id="示例数据集"><a href="#示例数据集" class="headerlink" title="示例数据集"></a>示例数据集</h4><p>我们使用一个包含 7 个示例的小型数据集来演示梯度下降，这些示例分别对应汽车的重量(以磅为单位) 和每加仑行驶里程数：</p>
+<figure>
+<img src="/assets/机器学习入门09.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<h4 id="梯度下降实例">梯度下降实例</h4>
+<h4 id="示例数据集">示例数据集</h4>
+<p>我们使用一个包含 7
+个示例的小型数据集来演示梯度下降，这些示例分别对应汽车的重量(以磅为单位)
+和每加仑行驶里程数：</p>
 <table>
 <thead>
 <tr>
@@ -444,7 +482,8 @@
 <th>每加仑英里 (标签)</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>3.5</td>
 <td>18</td>
 </tr>
@@ -472,23 +511,48 @@
 <td>2.37</td>
 <td>24</td>
 </tr>
-</tbody></table>
-<h4 id="梯度下降步骤"><a href="#梯度下降步骤" class="headerlink" title="梯度下降步骤"></a>梯度下降步骤</h4><h5 id="1-初始化模型参数"><a href="#1-初始化模型参数" class="headerlink" title="1. 初始化模型参数"></a>1. 初始化模型参数</h5><p>模型会先将权重和偏差设为零，然后开始训练：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Weight: 0</span><br><span class="line">Bias: 0</span><br><span class="line">y = 0 + 0(x₁)</span><br></pre></td></tr></table></figure>
-
-<h5 id="2-计算初始损失"><a href="#2-计算初始损失" class="headerlink" title="2. 计算初始损失"></a>2. 计算初始损失</h5><p>使用当前的模型参数计算 MSE 损失：<br>$$Loss &#x3D; \frac{(18-0)^2 + (15-0)^2 + (18-0)^2 + (16-0)^2 + (15-0)^2 + (14-0)^2 + (24-0)^2}{7}$$<br>$$Loss &#x3D; 303.71$$</p>
-<h5 id="3-计算梯度"><a href="#3-计算梯度" class="headerlink" title="3. 计算梯度"></a>3. 计算梯度</h5><p>我们需要计算损失函数相对于权重和偏差的导数。预测函数定义为：<br>$$f_{w,b}(x) &#x3D; (w * x) + b$$</p>
-<p>MSE 损失函数为：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$<br>其中 $i$ 表示第 $i$ 个训练示例，$M$ 表示示例数量。</p>
-<h6 id="权重的梯度"><a href="#权重的梯度" class="headerlink" title="权重的梯度"></a>权重的梯度</h6><p>权重的导数计算：<br>$$\frac{\partial}{\partial w} \frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$</p>
-<p>求值结果：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)}) * 2x_{(i)}$$</p>
+</tbody>
+</table>
+<h4 id="梯度下降步骤">梯度下降步骤</h4>
+<h5 id="初始化模型参数">1. 初始化模型参数</h5>
+<p>模型会先将权重和偏差设为零，然后开始训练： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Weight: 0</span><br><span class="line">Bias: 0</span><br><span class="line">y = 0 + 0(x₁)</span><br></pre></td></tr></table></figure></p>
+<h5 id="计算初始损失">2. 计算初始损失</h5>
+<p>使用当前的模型参数计算 MSE 损失： <span class="math display">\[Loss =
+\frac{(18-0)^2 + (15-0)^2 + (18-0)^2 + (16-0)^2 + (15-0)^2 + (14-0)^2 +
+(24-0)^2}{7}\]</span> <span class="math display">\[Loss =
+303.71\]</span></p>
+<h5 id="计算梯度">3. 计算梯度</h5>
+<p>我们需要计算损失函数相对于权重和偏差的导数。预测函数定义为： <span
+class="math display">\[f_{w,b}(x) = (w * x) + b\]</span></p>
+<p>MSE 损失函数为： <span class="math display">\[\frac{1}{M}
+\sum_{i=1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2\]</span> 其中 <span
+class="math inline">\(i\)</span> 表示第 <span
+class="math inline">\(i\)</span> 个训练示例，<span
+class="math inline">\(M\)</span> 表示示例数量。</p>
+<h6 id="权重的梯度">权重的梯度</h6>
+<p>权重的导数计算： <span
+class="math display">\[\frac{\partial}{\partial w} \frac{1}{M}
+\sum_{i=1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2\]</span></p>
+<p>求值结果： <span class="math display">\[\frac{1}{M} \sum_{i=1}^M
+(f_{w,b}(x_{(i)}) - y_{(i)}) * 2x_{(i)}\]</span></p>
 <p>当权重和偏差为零时，计算得到斜率为 -119.7。</p>
-<h6 id="偏差的梯度"><a href="#偏差的梯度" class="headerlink" title="偏差的梯度"></a>偏差的梯度</h6><p>偏差的导数计算：<br>$$\frac{\partial}{\partial b} \frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$</p>
-<p>求值结果：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)}) * 2$$</p>
+<h6 id="偏差的梯度">偏差的梯度</h6>
+<p>偏差的导数计算： <span
+class="math display">\[\frac{\partial}{\partial b} \frac{1}{M}
+\sum_{i=1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2\]</span></p>
+<p>求值结果： <span class="math display">\[\frac{1}{M} \sum_{i=1}^M
+(f_{w,b}(x_{(i)}) - y_{(i)}) * 2\]</span></p>
 <p>当权重和偏差为零时，计算得到斜率为 -34.3。</p>
-<h5 id="4-更新参数"><a href="#4-更新参数" class="headerlink" title="4. 更新参数"></a>4. 更新参数</h5><p>向负斜率方向移动一小步（学习率设为 0.01）：</p>
-<p>$$New\ weight &#x3D; old\ weight - (0.01 * weight\ slope)$$<br>$$New\ bias &#x3D; old\ bias - (0.01 * bias\ slope)$$</p>
-<p>第一次迭代的计算：<br>$$New\ weight &#x3D; 0 - (0.01) * (-119.7) &#x3D; 1.2$$<br>$$New\ bias &#x3D; 0 - (0.01) * (-34.3) &#x3D; 0.34$$</p>
-<h4 id="迭代结果"><a href="#迭代结果" class="headerlink" title="迭代结果"></a>迭代结果</h4><p>重复上述步骤六次后，得到以下结果：</p>
+<h5 id="更新参数">4. 更新参数</h5>
+<p>向负斜率方向移动一小步（学习率设为 0.01）：</p>
+<p><span class="math display">\[New\ weight = old\ weight - (0.01 *
+weight\ slope)\]</span> <span class="math display">\[New\ bias = old\
+bias - (0.01 * bias\ slope)\]</span></p>
+<p>第一次迭代的计算： <span class="math display">\[New\ weight = 0 -
+(0.01) * (-119.7) = 1.2\]</span> <span class="math display">\[New\ bias
+= 0 - (0.01) * (-34.3) = 0.34\]</span></p>
+<h4 id="迭代结果">迭代结果</h4>
+<p>重复上述步骤六次后，得到以下结果：</p>
 <table>
 <thead>
 <tr>
@@ -498,7 +562,8 @@
 <th>损失 (MSE)</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>0</td>
 <td>0</td>
@@ -534,113 +599,122 @@
 <td>0.9</td>
 <td>37.74</td>
 </tr>
-</tbody></table>
-<h4 id="收敛过程"><a href="#收敛过程" class="headerlink" title="收敛过程"></a>收敛过程</h4><p>在训练过程中,损失值会随着迭代次数的增加而不断降低。当损失值趋于稳定,不再显著下降时,我们就说模型达到了收敛状态。此时继续训练,损失值可能会出现小幅波动,但整体保持稳定。</p>
-<h4 id="损失曲线"><a href="#损失曲线" class="headerlink" title="损失曲线"></a>损失曲线</h4><p>损失曲线是观察模型收敛情况的重要工具。它展示了损失值随迭代次数的变化趋势:</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A810.png" alt="alt text"></p>
-<p>典型的损失曲线有以下特点:</p>
-<ul>
-<li>初期阶段: 损失值快速下降</li>
-<li>中期阶段: 下降速度逐渐放缓</li>
-<li>后期阶段: 趋于平稳,表明模型接近收敛</li>
-</ul>
-<h4 id="凸函数与最小值"><a href="#凸函数与最小值" class="headerlink" title="凸函数与最小值"></a>凸函数与最小值</h4><p>线性回归模型的损失函数是一个凸函数,这意味着它只有一个全局最小值。下图展示了一个单特征模型的损失函数表面:</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A811.png" alt="alt text"></p>
+</tbody>
+</table>
+<h4 id="收敛过程">收敛过程</h4>
+<p>在训练过程中,损失值会随着迭代次数的增加而不断降低。当损失值趋于稳定,不再显著下降时,我们就说模型达到了收敛状态。此时继续训练,损失值可能会出现小幅波动,但整体保持稳定。</p>
+<h4 id="损失曲线">损失曲线</h4>
+<p>损失曲线是观察模型收敛情况的重要工具。它展示了损失值随迭代次数的变化趋势:</p>
+<figure>
+<img src="/assets/机器学习入门10.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<p>典型的损失曲线有以下特点: - 初期阶段: 损失值快速下降 - 中期阶段:
+下降速度逐渐放缓 - 后期阶段: 趋于平稳,表明模型接近收敛</p>
+<h4 id="凸函数与最小值">凸函数与最小值</h4>
+<p>线性回归模型的损失函数是一个凸函数,这意味着它只有一个全局最小值。下图展示了一个单特征模型的损失函数表面:</p>
+<figure>
+<img src="/assets/机器学习入门11.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
 <ul>
 <li>x轴: 权重 (Weight)</li>
 <li>y轴: 偏差 (Bias)</li>
 <li>z轴: 损失值 (Loss)</li>
 </ul>
-<p>这种凸形状保证了:</p>
-<ol>
-<li>梯度下降一定能找到最小损失点</li>
-<li>不会陷入局部最小值</li>
-</ol>
-<p>需要注意的是:</p>
-<ul>
-<li>模型通常找到的是接近最小值的点,而不是精确的最小值</li>
-<li>最小损失点并不意味着零损失,而是在当前数据下能达到的最优解</li>
-</ul>
-<h3 id="线性回归：超参数-Hyperparameters"><a href="#线性回归：超参数-Hyperparameters" class="headerlink" title="线性回归：超参数(Hyperparameters)"></a>线性回归：超参数(Hyperparameters)</h3><p>超参数是用于控制训练过程的变量。常见的超参数包括：</p>
+<p>这种凸形状保证了: 1. 梯度下降一定能找到最小损失点 2.
+不会陷入局部最小值</p>
+<p>需要注意的是: - 模型通常找到的是接近最小值的点,而不是精确的最小值 -
+最小损失点并不意味着零损失,而是在当前数据下能达到的最优解</p>
+<h3
+id="线性回归超参数hyperparameters">线性回归：超参数(Hyperparameters)</h3>
+<p>超参数是用于控制训练过程的变量。常见的超参数包括：</p>
 <ul>
 <li>学习速率 (Learning Rate)</li>
 <li>批量大小 (Batch Size)</li>
 <li>纪元 (Epoch)</li>
 </ul>
 <p>与模型参数(如权重和偏差)不同，超参数是在训练前设置的控制值，而不是在训练过程中学习得到的值。</p>
-<h4 id="学习速率-Learning-Rate"><a href="#学习速率-Learning-Rate" class="headerlink" title="学习速率(Learning Rate)"></a>学习速率(Learning Rate)</h4><p>学习速率决定了每次梯度下降时模型参数的调整步长。它直接影响模型的训练效果：</p>
+<h4 id="学习速率learning-rate">学习速率(Learning Rate)</h4>
+<p>学习速率决定了每次梯度下降时模型参数的调整步长。它直接影响模型的训练效果：</p>
 <ul>
-<li><p>学习速率过低：</p>
+<li>学习速率过低：
 <ul>
 <li>模型收敛速度慢</li>
 <li>需要更多迭代才能达到最优解</li>
 <li>训练时间较长</li>
-</ul>
-</li>
-<li><p>学习速率过高：</p>
+</ul></li>
+<li>学习速率过高：
 <ul>
 <li>可能导致模型无法收敛</li>
 <li>参数更新幅度过大，在最优解附近来回震荡</li>
 <li>难以找到最优解</li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<p>选择合适的学习速率很重要：</p>
-<ul>
-<li>需要在训练速度和稳定性之间取得平衡</li>
-<li>通常从一个较小的值开始尝试（如0.01）</li>
-<li>根据训练效果进行调整</li>
-</ul>
+<p>选择合适的学习速率很重要： - 需要在训练速度和稳定性之间取得平衡 -
+通常从一个较小的值开始尝试（如0.01） - 根据训练效果进行调整</p>
 <p>例如：如果梯度为2.5，学习速率为0.01，则参数的更新步长为0.025。理想的学习速率应该使模型在合理的迭代次数内收敛。</p>
 <blockquote>
-<p>将学习速率翻倍可能会减慢训练速度。<br>此声明是正确的。将学习率翻倍可能会导致学习率过大，从而导致权重”跳来跳去”，增加收敛所需的时间。</p>
+<p>将学习速率翻倍可能会减慢训练速度。
+此声明是正确的。将学习率翻倍可能会导致学习率过大，从而导致权重"跳来跳去"，增加收敛所需的时间。</p>
 </blockquote>
-<h4 id="批量大小-Batch-Size"><a href="#批量大小-Batch-Size" class="headerlink" title="批量大小 (Batch Size)"></a>批量大小 (Batch Size)</h4><p>批量大小是一个超参数，表示每次更新模型参数时使用的训练样本数量。虽然理论上可以在每次迭代时使用所有训练样本，但当数据集很大时（如包含数十万至数百万个样本），这种方法在计算上是不实际的。</p>
+<h4 id="批量大小-batch-size">批量大小 (Batch Size)</h4>
+<p>批量大小是一个超参数，表示每次更新模型参数时使用的训练样本数量。虽然理论上可以在每次迭代时使用所有训练样本，但当数据集很大时（如包含数十万至数百万个样本），这种方法在计算上是不实际的。</p>
 <p>为了解决这个问题，有两种常用的梯度下降方法：</p>
-<h5 id="随机梯度下降法-SGD-Stochastic-Gradient-Descent"><a href="#随机梯度下降法-SGD-Stochastic-Gradient-Descent" class="headerlink" title="随机梯度下降法 (SGD, Stochastic Gradient Descent)"></a>随机梯度下降法 (SGD, Stochastic Gradient Descent)</h5><ul>
+<h5 id="随机梯度下降法-sgd-stochastic-gradient-descent">随机梯度下降法
+(SGD, Stochastic Gradient Descent)</h5>
+<ul>
 <li>每次迭代只使用一个随机样本（批量大小为1）</li>
-<li>优点：<ul>
+<li>优点：
+<ul>
 <li>计算速度快</li>
 <li>能够跳出局部最优解</li>
-</ul>
-</li>
-<li>缺点：<ul>
+</ul></li>
+<li>缺点：
+<ul>
 <li>参数更新波动较大</li>
 <li>收敛过程不稳定</li>
-</ul>
-</li>
+</ul></li>
 </ul>
 <p>下图展示了使用SGD训练时的损失曲线：</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A812.png" alt="alt text"></p>
+<figure>
+<img src="/assets/机器学习入门12.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
 <p>可以看到，虽然整体趋势是下降的，但曲线呈现出明显的波动。这种波动不仅出现在训练初期，在接近收敛时也会存在。</p>
-<h5 id="小批量随机梯度下降法-mini-batch-SGD"><a href="#小批量随机梯度下降法-mini-batch-SGD" class="headerlink" title="小批量随机梯度下降法 (mini-batch SGD)"></a>小批量随机梯度下降法 (mini-batch SGD)</h5><ul>
+<h5 id="小批量随机梯度下降法-mini-batch-sgd">小批量随机梯度下降法
+(mini-batch SGD)</h5>
+<ul>
 <li>是完整批量梯度下降和SGD的折中方案</li>
 <li>每次使用一小批样本（批量大小通常在1到N之间，N为总样本数）</li>
-<li>特点：<ul>
+<li>特点：
+<ul>
 <li>对每个批次计算平均梯度</li>
 <li>参数更新更稳定</li>
 <li>计算效率较高</li>
+</ul></li>
 </ul>
-</li>
-</ul>
-<p>批量大小的选择：</p>
-<ul>
-<li>批量较小时：行为类似于SGD，更新波动大但计算快</li>
-<li>批量较大时：行为类似于完整批量梯度下降，更新稳定但计算慢</li>
-<li>需要在计算效率和训练稳定性之间找到平衡</li>
-</ul>
+<p>批量大小的选择： - 批量较小时：行为类似于SGD，更新波动大但计算快 -
+批量较大时：行为类似于完整批量梯度下降，更新稳定但计算慢 -
+需要在计算效率和训练稳定性之间找到平衡</p>
 <p>在训练模型时，噪声并不总是不良特征。适当的噪声可以帮助模型更好地泛化，这一点在神经网络的权重和偏差优化中尤为重要。</p>
-<h4 id="纪元-Epoch"><a href="#纪元-Epoch" class="headerlink" title="纪元 (Epoch)"></a>纪元 (Epoch)</h4><p>纪元表示模型完整处理训练集一次的过程。例如，对于包含1,000个样本的训练集，如果批量大小为100，则需要10次迭代(iterations)才能完成一个纪元。</p>
+<h4 id="纪元-epoch">纪元 (Epoch)</h4>
+<p>纪元表示模型完整处理训练集一次的过程。例如，对于包含1,000个样本的训练集，如果批量大小为100，则需要10次迭代(iterations)才能完成一个纪元。</p>
 <p>训练通常需要多个纪元，因为模型需要多次处理训练集中的所有样本才能达到较好的效果。纪元数是在训练开始前设置的超参数。一般来说，纪元数越多，模型拟合得越好，但训练时间也越长。</p>
 <p>下表比较了不同批处理方式对参数更新次数的影响：</p>
 <table>
+<colgroup>
+<col style="width: 47%" />
+<col style="width: 52%" />
+</colgroup>
 <thead>
 <tr>
 <th>批处理类型</th>
 <th>参数更新频率</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>完整批次</td>
 <td>每个纪元更新一次。例如：1000个样本，训练20个纪元，总共更新20次</td>
 </tr>
@@ -652,136 +726,112 @@
 <td>小批量梯度下降</td>
 <td>每个批次更新一次。例如：1000个样本，批量大小100，训练20个纪元，总共更新200次</td>
 </tr>
-</tbody></table>
-<p>从上表可以看出：</p>
-<ul>
-<li>完整批次：参数更新最少，但每次计算量大</li>
-<li>随机梯度下降：参数更新最频繁，但可能不稳定</li>
-<li>小批量梯度下降：在更新频率和计算效率之间取得平衡</li>
-</ul>
-<h3 id="线性回归：编程练习"><a href="#线性回归：编程练习" class="headerlink" title="线性回归：编程练习"></a>线性回归：编程练习</h3><h4 id="Part-1-Setup-Exercise"><a href="#Part-1-Setup-Exercise" class="headerlink" title="Part 1 - Setup Exercise"></a>Part 1 - Setup Exercise</h4><p>在机器学习项目中，通常需要以下几类Python库来帮助我们完成不同的任务：</p>
-<h5 id="数据处理库"><a href="#数据处理库" class="headerlink" title="数据处理库"></a>数据处理库</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np  <span class="comment"># 数值计算</span></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment"># 数据分析</span></span><br></pre></td></tr></table></figure>
-
-<ol>
+</tbody>
+</table>
+<p>从上表可以看出： - 完整批次：参数更新最少，但每次计算量大 -
+随机梯度下降：参数更新最频繁，但可能不稳定 -
+小批量梯度下降：在更新频率和计算效率之间取得平衡</p>
+<h3 id="线性回归编程练习">线性回归：编程练习</h3>
+<h4 id="part-1---setup-exercise">Part 1 - Setup Exercise</h4>
+<p>在机器学习项目中，通常需要以下几类Python库来帮助我们完成不同的任务：</p>
+<h5 id="数据处理库">数据处理库</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np  <span class="comment"># 数值计算</span></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment"># 数据分析</span></span><br></pre></td></tr></table></figure>
+<ol type="1">
 <li><strong>NumPy</strong> (np)</li>
 </ol>
 <ul>
 <li>用于处理数值数据的基础库</li>
 <li>提供高效的数组操作</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建数组</span></span><br><span class="line">arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br><span class="line"><span class="comment"># 基本运算</span></span><br><span class="line">arr + <span class="number">1</span>  <span class="comment"># [2, 3, 4, 5, 6]</span></span><br><span class="line">arr * <span class="number">2</span>  <span class="comment"># [2, 4, 6, 8, 10]</span></span><br><span class="line"><span class="comment"># 统计运算</span></span><br><span class="line">arr.mean()  <span class="comment"># 平均值</span></span><br><span class="line">arr.<span class="built_in">max</span>()   <span class="comment"># 最大值</span></span><br></pre></td></tr></table></figure></li>
+<li>常用功能示例： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建数组</span></span><br><span class="line">arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br><span class="line"><span class="comment"># 基本运算</span></span><br><span class="line">arr + <span class="number">1</span>  <span class="comment"># [2, 3, 4, 5, 6]</span></span><br><span class="line">arr * <span class="number">2</span>  <span class="comment"># [2, 4, 6, 8, 10]</span></span><br><span class="line"><span class="comment"># 统计运算</span></span><br><span class="line">arr.mean()  <span class="comment"># 平均值</span></span><br><span class="line">arr.<span class="built_in">max</span>()   <span class="comment"># 最大值</span></span><br></pre></td></tr></table></figure></li>
 </ul>
-<ol start="2">
+<ol start="2" type="1">
 <li><strong>Pandas</strong> (pd)</li>
 </ol>
 <ul>
 <li>用于处理表格数据的高级库</li>
 <li>提供DataFrame数据结构（类似Excel表格）</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建数据表</span></span><br><span class="line">df = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&#x27;重量&#x27;</span>: [<span class="number">2.0</span>, <span class="number">2.4</span>, <span class="number">1.5</span>],</span><br><span class="line">    <span class="string">&#x27;里程&#x27;</span>: [<span class="number">18</span>, <span class="number">15</span>, <span class="number">18</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment"># 读取CSV文件</span></span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;data.csv&#x27;</span>)</span><br><span class="line"><span class="comment"># 基本统计</span></span><br><span class="line">df.describe()  <span class="comment"># 显示统计信息</span></span><br></pre></td></tr></table></figure></li>
+<li>常用功能示例： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建数据表</span></span><br><span class="line">df = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&#x27;重量&#x27;</span>: [<span class="number">2.0</span>, <span class="number">2.4</span>, <span class="number">1.5</span>],</span><br><span class="line">    <span class="string">&#x27;里程&#x27;</span>: [<span class="number">18</span>, <span class="number">15</span>, <span class="number">18</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment"># 读取CSV文件</span></span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;data.csv&#x27;</span>)</span><br><span class="line"><span class="comment"># 基本统计</span></span><br><span class="line">df.describe()  <span class="comment"># 显示统计信息</span></span><br></pre></td></tr></table></figure></li>
 </ul>
-<h5 id="机器学习库"><a href="#机器学习库" class="headerlink" title="机器学习库"></a>机器学习库</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> keras  <span class="comment"># 深度学习框架</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>Keras</strong></p>
-<ul>
-<li>用于构建和训练深度学习模型的高级框架</li>
-<li>提供简单易用的API</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构建简单的神经网络</span></span><br><span class="line">model = keras.Sequential([</span><br><span class="line">    keras.layers.Dense(<span class="number">1</span>, input_shape=[<span class="number">1</span>])</span><br><span class="line">])</span><br><span class="line"><span class="comment"># 编译模型</span></span><br><span class="line">model.<span class="built_in">compile</span>(optimizer=<span class="string">&#x27;sgd&#x27;</span>, loss=<span class="string">&#x27;mse&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h5 id="数据可视化库"><a href="#数据可视化库" class="headerlink" title="数据可视化库"></a>数据可视化库</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> plotly.express <span class="keyword">as</span> px</span><br><span class="line"><span class="keyword">import</span> plotly.graph_objects <span class="keyword">as</span> go</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br></pre></td></tr></table></figure>
-
-<ol>
+<h5 id="机器学习库">机器学习库</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> keras  <span class="comment"># 深度学习框架</span></span><br></pre></td></tr></table></figure>
+<p><strong>Keras</strong> - 用于构建和训练深度学习模型的高级框架 -
+提供简单易用的API - 常用功能示例： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构建简单的神经网络</span></span><br><span class="line">model = keras.Sequential([</span><br><span class="line">    keras.layers.Dense(<span class="number">1</span>, input_shape=[<span class="number">1</span>])</span><br><span class="line">])</span><br><span class="line"><span class="comment"># 编译模型</span></span><br><span class="line">model.<span class="built_in">compile</span>(optimizer=<span class="string">&#x27;sgd&#x27;</span>, loss=<span class="string">&#x27;mse&#x27;</span>)</span><br></pre></td></tr></table></figure></p>
+<h5 id="数据可视化库">数据可视化库</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> plotly.express <span class="keyword">as</span> px</span><br><span class="line"><span class="keyword">import</span> plotly.graph_objects <span class="keyword">as</span> go</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br></pre></td></tr></table></figure>
+<ol type="1">
 <li><strong>Plotly</strong> (px, go)</li>
 </ol>
 <ul>
 <li>用于创建交互式图表</li>
 <li>支持多种图表类型</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">fig = px.scatter(df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br><span class="line"><span class="comment"># 显示图表</span></span><br><span class="line">fig.show()</span><br></pre></td></tr></table></figure></li>
+<li>常用功能示例： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">fig = px.scatter(df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br><span class="line"><span class="comment"># 显示图表</span></span><br><span class="line">fig.show()</span><br></pre></td></tr></table></figure></li>
 </ul>
-<ol start="2">
+<ol start="2" type="1">
 <li><strong>Seaborn</strong> (sns)</li>
 </ol>
 <ul>
 <li>基于Matplotlib的统计可视化库</li>
 <li>提供美观的默认样式</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">sns.scatterplot(data=df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
+<li>常用功能示例： <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">sns.scatterplot(data=df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
 </ul>
-<p>在实际项目中，这些库通常会一起使用：</p>
-<ol>
-<li>使用Pandas读取和处理数据</li>
-<li>用NumPy进行数值计算</li>
-<li>使用Keras构建和训练模型</li>
-<li>用Plotly或Seaborn可视化结果</li>
-</ol>
-<h5 id="加载数据"><a href="#加载数据" class="headerlink" title="加载数据"></a>加载数据</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从网络加载芝加哥出租车数据集</span></span><br><span class="line">chicago_taxi_dataset = pd.read_csv(<span class="string">&quot;https://download.mlcc.google.com/mledu-datasets/chicago_taxi_train.csv&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>在实际项目中，这些库通常会一起使用： 1. 使用Pandas读取和处理数据 2.
+用NumPy进行数值计算 3. 使用Keras构建和训练模型 4.
+用Plotly或Seaborn可视化结果</p>
+<h5 id="加载数据">加载数据</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从网络加载芝加哥出租车数据集</span></span><br><span class="line">chicago_taxi_dataset = pd.read_csv(<span class="string">&quot;https://download.mlcc.google.com/mledu-datasets/chicago_taxi_train.csv&quot;</span>)</span><br></pre></td></tr></table></figure>
 <p>这行代码使用pandas的<code>read_csv()</code>函数从网络下载并读取CSV文件。这个数据集包含了芝加哥出租车的行程信息。</p>
-<h5 id="选择特定列"><a href="#选择特定列" class="headerlink" title="选择特定列"></a>选择特定列</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 选择需要的列创建新的DataFrame</span></span><br><span class="line">training_df = chicago_taxi_dataset[[<span class="string">&#x27;TRIP_MILES&#x27;</span>,    <span class="comment"># 行程里程</span></span><br><span class="line">                                  <span class="string">&#x27;TRIP_SECONDS&#x27;</span>,    <span class="comment"># 行程时间（秒）</span></span><br><span class="line">                                  <span class="string">&#x27;FARE&#x27;</span>,            <span class="comment"># 车费</span></span><br><span class="line">                                  <span class="string">&#x27;COMPANY&#x27;</span>,         <span class="comment"># 出租车公司</span></span><br><span class="line">                                  <span class="string">&#x27;PAYMENT_TYPE&#x27;</span>,    <span class="comment"># 支付方式</span></span><br><span class="line">                                  <span class="string">&#x27;TIP_RATE&#x27;</span>]]       <span class="comment"># 小费率</span></span><br></pre></td></tr></table></figure>
-<p>这里我们从原始数据集中选择了6个重要特征：</p>
-<ul>
-<li>TRIP_MILES：行程距离</li>
-<li>TRIP_SECONDS：行程时长</li>
-<li>FARE：车费金额</li>
-<li>COMPANY：出租车公司</li>
-<li>PAYMENT_TYPE：支付方式</li>
-<li>TIP_RATE：小费比例</li>
-</ul>
-<h5 id="查看数据信息"><a href="#查看数据信息" class="headerlink" title="查看数据信息"></a>查看数据信息</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打印数据集基本信息</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Read dataset completed successfully.&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Total number of rows: &#123;0&#125;\n\n&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(training_df.index)))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示前200行数据</span></span><br><span class="line">training_df.head(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
-<p>这段代码做了两件事：</p>
-<ol>
-<li>打印数据集的总行数</li>
-<li>显示数据集的前200行，帮助我们了解数据的基本结构</li>
-</ol>
-<h4 id="Part-2-Dataset-Exploration"><a href="#Part-2-Dataset-Exploration" class="headerlink" title="Part 2 - Dataset Exploration"></a>Part 2 - Dataset Exploration</h4><h5 id="基本统计信息："><a href="#基本统计信息：" class="headerlink" title="基本统计信息："></a>基本统计信息：</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看数值列的统计信息</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.describe())</span><br></pre></td></tr></table></figure>
-<p>输出结果类似：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">       TRIP_MILES        FARE</span><br><span class="line">count         4.0         5.0    # 非空值数量</span><br><span class="line">mean          2.75       13.0    # 平均值</span><br><span class="line">std           1.04        4.7    # 标准差</span><br><span class="line">min           1.50        8.0    # 最小值</span><br><span class="line">25%           2.25       10.0    # 25%分位数</span><br><span class="line">50%           2.75       12.0    # 中位数</span><br><span class="line">75%           3.25       15.0    # 75%分位数</span><br><span class="line">max           4.00       20.0    # 最大值</span><br></pre></td></tr></table></figure>
-
+<h5 id="选择特定列">选择特定列</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 选择需要的列创建新的DataFrame</span></span><br><span class="line">training_df = chicago_taxi_dataset[[<span class="string">&#x27;TRIP_MILES&#x27;</span>,    <span class="comment"># 行程里程</span></span><br><span class="line">                                  <span class="string">&#x27;TRIP_SECONDS&#x27;</span>,    <span class="comment"># 行程时间（秒）</span></span><br><span class="line">                                  <span class="string">&#x27;FARE&#x27;</span>,            <span class="comment"># 车费</span></span><br><span class="line">                                  <span class="string">&#x27;COMPANY&#x27;</span>,         <span class="comment"># 出租车公司</span></span><br><span class="line">                                  <span class="string">&#x27;PAYMENT_TYPE&#x27;</span>,    <span class="comment"># 支付方式</span></span><br><span class="line">                                  <span class="string">&#x27;TIP_RATE&#x27;</span>]]       <span class="comment"># 小费率</span></span><br></pre></td></tr></table></figure>
+<p>这里我们从原始数据集中选择了6个重要特征： - TRIP_MILES：行程距离 -
+TRIP_SECONDS：行程时长 - FARE：车费金额 - COMPANY：出租车公司 -
+PAYMENT_TYPE：支付方式 - TIP_RATE：小费比例</p>
+<h5 id="查看数据信息">查看数据信息</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打印数据集基本信息</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Read dataset completed successfully.&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Total number of rows: &#123;0&#125;\n\n&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(training_df.index)))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示前200行数据</span></span><br><span class="line">training_df.head(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
+<p>这段代码做了两件事： 1. 打印数据集的总行数 2.
+显示数据集的前200行，帮助我们了解数据的基本结构</p>
+<h4 id="part-2---dataset-exploration">Part 2 - Dataset Exploration</h4>
+<h5 id="基本统计信息">基本统计信息：</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看数值列的统计信息</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.describe())</span><br></pre></td></tr></table></figure>
+<p>输出结果类似： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">       TRIP_MILES        FARE</span><br><span class="line">count         4.0         5.0    # 非空值数量</span><br><span class="line">mean          2.75       13.0    # 平均值</span><br><span class="line">std           1.04        4.7    # 标准差</span><br><span class="line">min           1.50        8.0    # 最小值</span><br><span class="line">25%           2.25       10.0    # 25%分位数</span><br><span class="line">50%           2.75       12.0    # 中位数</span><br><span class="line">75%           3.25       15.0    # 75%分位数</span><br><span class="line">max           4.00       20.0    # 最大值</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看数据类型</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.info())</span><br></pre></td></tr></table></figure>
-<p>输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Data columns (total 4 columns):</span><br><span class="line"> #   Column        Non-Null Count  Dtype  </span><br><span class="line">---  ------        --------------  -----  </span><br><span class="line"> 0   TRIP_MILES    4 non-null     float64   # 4条非空数据，浮点型</span><br><span class="line"> 1   FARE          5 non-null     int64     # 5条非空数据，整数型</span><br><span class="line"> 2   PAYMENT_TYPE  5 non-null     object    # 5条非空数据，字符串型</span><br><span class="line"> 3   COMPANY       5 non-null     object    # 5条非空数据，字符串型</span><br></pre></td></tr></table></figure>
-
-
-<h5 id="缺失值检查："><a href="#缺失值检查：" class="headerlink" title="缺失值检查："></a>缺失值检查：</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查缺失值</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.isnull().<span class="built_in">sum</span>())</span><br></pre></td></tr></table></figure>
-<p>输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TRIP_MILES     1    # TRIP_MILES列有1个缺失值</span><br><span class="line">FARE           0    # FARE列没有缺失值</span><br><span class="line">PAYMENT_TYPE   0    # PAYMENT_TYPE列没有缺失值</span><br><span class="line">COMPANY        0    # COMPANY列没有缺失值</span><br></pre></td></tr></table></figure>
-
-<h5 id="分类变量分析："><a href="#分类变量分析：" class="headerlink" title="分类变量分析："></a>分类变量分析：</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看支付方式的种类</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;支付方式类型:&quot;</span>, taxi_data[<span class="string">&#x27;PAYMENT_TYPE&#x27;</span>].unique())</span><br><span class="line"><span class="comment"># 输出: [&#x27;信用卡&#x27;, &#x27;现金&#x27;, &#x27;支付宝&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 统计每个公司的订单数量</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data[<span class="string">&#x27;COMPANY&#x27;</span>].value_counts())</span><br><span class="line"><span class="comment"># 输出:</span></span><br><span class="line"><span class="comment"># A公司    2</span></span><br><span class="line"><span class="comment"># B公司    2</span></span><br><span class="line"><span class="comment"># C公司    1</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="相关性分析："><a href="#相关性分析：" class="headerlink" title="相关性分析："></a>相关性分析：</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 计算行程里程和车费的相关性</span></span><br><span class="line">correlation = taxi_data[[<span class="string">&#x27;TRIP_MILES&#x27;</span>, <span class="string">&#x27;FARE&#x27;</span>]].corr()</span><br><span class="line"><span class="built_in">print</span>(correlation)</span><br></pre></td></tr></table></figure>
-<p>输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">            TRIP_MILES      FARE</span><br><span class="line">TRIP_MILES    1.000000   0.850123  # 正相关，说明里程越长，费用越高</span><br><span class="line">FARE          0.850123   1.000000</span><br></pre></td></tr></table></figure>
-
-<p>在这一步中，我们将使用相关矩阵（Correlation Matrix）来识别与标签值相关性良好的特征。相关值具有以下含义：</p>
-<ol>
-<li>完全正相关（Perfect Positive Correlation）：1.0<ul>
-<li>定义：当一个属性（attribute）上升时，另一个属性也上升</li>
-<li>例如：学习时间与考试成绩的关系</li>
-</ul>
-</li>
-<li>完全负相关（Perfect Negative Correlation）：-1.0<ul>
-<li>定义：当一个属性上升时，另一个属性下降</li>
-<li>例如：商品价格与销售量的关系</li>
-</ul>
-</li>
-<li>无相关性（No Correlation）：0.0<ul>
-<li>定义：两列之间不存在线性关系（Linear Relationship）</li>
-<li>例如：学生的身高与考试成绩的关系</li>
-</ul>
-</li>
-</ol>
-<p>一般来说，相关值（Correlation Value）的绝对值越大，该特征（Feature）的预测能力就越强</p>
+<p>输出结果： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Data columns (total 4 columns):</span><br><span class="line"> #   Column        Non-Null Count  Dtype  </span><br><span class="line">---  ------        --------------  -----  </span><br><span class="line"> 0   TRIP_MILES    4 non-null     float64   # 4条非空数据，浮点型</span><br><span class="line"> 1   FARE          5 non-null     int64     # 5条非空数据，整数型</span><br><span class="line"> 2   PAYMENT_TYPE  5 non-null     object    # 5条非空数据，字符串型</span><br><span class="line"> 3   COMPANY       5 non-null     object    # 5条非空数据，字符串型</span><br></pre></td></tr></table></figure></p>
+<h5 id="缺失值检查">缺失值检查：</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查缺失值</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.isnull().<span class="built_in">sum</span>())</span><br></pre></td></tr></table></figure>
+<p>输出结果： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TRIP_MILES     1    # TRIP_MILES列有1个缺失值</span><br><span class="line">FARE           0    # FARE列没有缺失值</span><br><span class="line">PAYMENT_TYPE   0    # PAYMENT_TYPE列没有缺失值</span><br><span class="line">COMPANY        0    # COMPANY列没有缺失值</span><br></pre></td></tr></table></figure></p>
+<h5 id="分类变量分析">分类变量分析：</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看支付方式的种类</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;支付方式类型:&quot;</span>, taxi_data[<span class="string">&#x27;PAYMENT_TYPE&#x27;</span>].unique())</span><br><span class="line"><span class="comment"># 输出: [&#x27;信用卡&#x27;, &#x27;现金&#x27;, &#x27;支付宝&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 统计每个公司的订单数量</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data[<span class="string">&#x27;COMPANY&#x27;</span>].value_counts())</span><br><span class="line"><span class="comment"># 输出:</span></span><br><span class="line"><span class="comment"># A公司    2</span></span><br><span class="line"><span class="comment"># B公司    2</span></span><br><span class="line"><span class="comment"># C公司    1</span></span><br></pre></td></tr></table></figure>
+<h5 id="相关性分析">相关性分析：</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 计算行程里程和车费的相关性</span></span><br><span class="line">correlation = taxi_data[[<span class="string">&#x27;TRIP_MILES&#x27;</span>, <span class="string">&#x27;FARE&#x27;</span>]].corr()</span><br><span class="line"><span class="built_in">print</span>(correlation)</span><br></pre></td></tr></table></figure>
+<p>输出结果： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">            TRIP_MILES      FARE</span><br><span class="line">TRIP_MILES    1.000000   0.850123  # 正相关，说明里程越长，费用越高</span><br><span class="line">FARE          0.850123   1.000000</span><br></pre></td></tr></table></figure></p>
+<p>在这一步中，我们将使用相关矩阵（Correlation
+Matrix）来识别与标签值相关性良好的特征。相关值具有以下含义： 1.
+完全正相关（Perfect Positive Correlation）：1.0 -
+定义：当一个属性（attribute）上升时，另一个属性也上升 -
+例如：学习时间与考试成绩的关系 2. 完全负相关（Perfect Negative
+Correlation）：-1.0 - 定义：当一个属性上升时，另一个属性下降 -
+例如：商品价格与销售量的关系 3. 无相关性（No Correlation）：0.0 -
+定义：两列之间不存在线性关系（Linear Relationship） -
+例如：学生的身高与考试成绩的关系</p>
+<p>一般来说，相关值（Correlation
+Value）的绝对值越大，该特征（Feature）的预测能力就越强</p>
 <p>使用pairplot进行多变量关系可视化，这段代码将创建一个3x3的图表矩阵：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sns.pairplot(training_df, </span><br><span class="line">             x_vars=[<span class="string">&quot;FARE&quot;</span>, <span class="string">&quot;TRIP_MILES&quot;</span>, <span class="string">&quot;TRIP_SECONDS&quot;</span>],</span><br><span class="line">             y_vars=[<span class="string">&quot;FARE&quot;</span>, <span class="string">&quot;TRIP_MILES&quot;</span>, <span class="string">&quot;TRIP_SECONDS&quot;</span>])</span><br></pre></td></tr></table></figure>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A813.png" alt="alt text"></p>
-<h4 id="Part-3-Train-Model"><a href="#Part-3-Train-Model" class="headerlink" title="Part 3 - Train Model"></a>Part 3 - Train Model</h4><p>在这部分，我们将实现一组用于模型训练和可视化的函数。这些函数可以帮助我们可视化训练过程、展示模型预测结果和分析模型性能。</p>
-<h3 id="1-可视化函数实现"><a href="#1-可视化函数实现" class="headerlink" title="1. 可视化函数实现"></a>1. 可视化函数实现</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_plots</span>(<span class="params">df, feature_names, label_name, model_output, sample_size=<span class="number">200</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;主函数：创建模型训练的可视化图表</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 创建包含损失曲线和模型预测的双图表</span></span><br><span class="line"><span class="string">    - 支持1D和2D特征的可视化</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        model_output: tuple，模型输出(weights, bias, epochs, rmse)</span></span><br><span class="line"><span class="string">        sample_size: int，采样大小，默认200</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 获取随机样本</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确定是2D还是3D图</span></span><br><span class="line">    is_2d_plot = <span class="built_in">len</span>(feature_names) == <span class="number">1</span></span><br><span class="line">    model_plot_type = <span class="string">&quot;scatter&quot;</span> <span class="keyword">if</span> is_2d_plot <span class="keyword">else</span> <span class="string">&quot;surface&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 创建子图</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制数据和模型</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_loss_curve</span>(<span class="params">epochs, rmse, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制损失曲线</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 展示训练过程中的损失变化</span></span><br><span class="line"><span class="string">    - 使用红色线条表示</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        epochs: array，训练轮数</span></span><br><span class="line"><span class="string">        rmse: array，均方根误差</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_data</span>(<span class="params">df, features, label, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制原始数据散点图</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 支持1D特征的2D散点图</span></span><br><span class="line"><span class="string">    - 支持2D特征的3D散点图</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        label: str，标签名</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_model</span>(<span class="params">df, features, weights, bias, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制模型预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 1D特征：显示预测线</span></span><br><span class="line"><span class="string">    - 2D特征：显示预测平面</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        weights: array，特征权重</span></span><br><span class="line"><span class="string">        bias: float，偏置值</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 计算预测值</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制预测线或预测面</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_info</span>(<span class="params">feature_names, label_name, model_output</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;生成模型信息摘要</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 显示特征权重</span></span><br><span class="line"><span class="string">    - 显示偏置值</span></span><br><span class="line"><span class="string">    - 生成预测方程</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        model_output: tuple，模型输出(weights, bias, epochs, rmse)</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        str，格式化的模型信息字符串</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 生成模型方程</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-
-<h5 id="模型训练函数实现"><a href="#模型训练函数实现" class="headerlink" title="模型训练函数实现"></a>模型训练函数实现</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_model</span>(<span class="params">my_learning_rate, num_features</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;创建并编译简单的线性回归模型</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 创建具有单个Dense层的Keras模型</span></span><br><span class="line"><span class="string">    - 配置优化器和损失函数</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        my_learning_rate: float，学习率</span></span><br><span class="line"><span class="string">        num_features: int，特征数量</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        model: keras.Model，编译好的模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 描述模型结构</span></span><br><span class="line">    <span class="comment"># 简单线性回归模型由单层单节点组成</span></span><br><span class="line">    inputs = keras.Input(shape=(num_features,))</span><br><span class="line">    outputs = keras.layers.Dense(units=<span class="number">1</span>)(inputs)</span><br><span class="line">    model = keras.Model(inputs=inputs, outputs=outputs)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 编译模型，配置优化器和损失函数</span></span><br><span class="line">    model.<span class="built_in">compile</span>(optimizer=keras.optimizers.RMSprop(learning_rate=my_learning_rate),</span><br><span class="line">                 loss=<span class="string">&quot;mean_squared_error&quot;</span>,</span><br><span class="line">                 metrics=[keras.metrics.RootMeanSquaredError()])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">train_model</span>(<span class="params">model, df, features, label, epochs, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;训练模型</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 使用数据训练模型</span></span><br><span class="line"><span class="string">    - 获取训练后的权重和偏置</span></span><br><span class="line"><span class="string">    - 记录训练过程中的误差</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        model: keras.Model，待训练的模型</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        features: array，特征数据</span></span><br><span class="line"><span class="string">        label: array，标签数据</span></span><br><span class="line"><span class="string">        epochs: int，训练轮数</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        tuple，包含(trained_weight, trained_bias, epochs, rmse)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 训练模型</span></span><br><span class="line">    history = model.fit(x=features,</span><br><span class="line">                       y=label,</span><br><span class="line">                       batch_size=batch_size,</span><br><span class="line">                       epochs=epochs)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取训练后的权重和偏置</span></span><br><span class="line">    trained_weight = model.get_weights()[<span class="number">0</span>]</span><br><span class="line">    trained_bias = model.get_weights()[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取训练历史</span></span><br><span class="line">    epochs = history.epoch</span><br><span class="line">    hist = pd.DataFrame(history.history)</span><br><span class="line">    rmse = hist[<span class="string">&quot;root_mean_squared_error&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> trained_weight, trained_bias, epochs, rmse</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">run_experiment</span>(<span class="params">df, feature_names, label_name, learning_rate, epochs, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;运行完整的训练实验</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 准备训练数据</span></span><br><span class="line"><span class="string">    - 构建并训练模型</span></span><br><span class="line"><span class="string">    - 可视化训练结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        learning_rate: float，学习率</span></span><br><span class="line"><span class="string">        epochs: int，训练轮数</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        model: keras.Model，训练好的模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;INFO: starting training experiment with features=&#123;&#125; and label=&#123;&#125;\n&#x27;</span>.<span class="built_in">format</span>(</span><br><span class="line">        feature_names, label_name))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 准备数据</span></span><br><span class="line">    num_features = <span class="built_in">len</span>(feature_names)</span><br><span class="line">    features = df.loc[:, feature_names].values</span><br><span class="line">    label = df[label_name].values</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 构建并训练模型</span></span><br><span class="line">    model = build_model(learning_rate, num_features)</span><br><span class="line">    model_output = train_model(model, df, features, label, epochs, batch_size)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 输出结果</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;\nSUCCESS: training experiment complete\n&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(model_info(feature_names, label_name, model_output)))</span><br><span class="line">    make_plots(df, feature_names, label_name, model_output)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;SUCCESS: defining linear regression functions complete.&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-<h5 id="运行训练实验"><a href="#运行训练实验" class="headerlink" title="运行训练实验"></a>运行训练实验</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置超参数</span></span><br><span class="line">learning_rate = <span class="number">0.001</span>  <span class="comment"># 学习率</span></span><br><span class="line">epochs = <span class="number">20</span>           <span class="comment"># 训练轮数</span></span><br><span class="line">batch_size = <span class="number">50</span>      <span class="comment"># 批次大小</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据预处理 - 将秒转换为分钟</span></span><br><span class="line">training_df.loc[:, <span class="string">&#x27;TRIP_MINUTES&#x27;</span>] = training_df[<span class="string">&#x27;TRIP_SECONDS&#x27;</span>]/<span class="number">60</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义特征和标签</span></span><br><span class="line">features = [<span class="string">&#x27;TRIP_MILES&#x27;</span>, <span class="string">&#x27;TRIP_MINUTES&#x27;</span>]  <span class="comment"># 使用里程和时间作为特征</span></span><br><span class="line">label = <span class="string">&#x27;FARE&#x27;</span>                             <span class="comment"># 预测出租车费用</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行训练实验</span></span><br><span class="line">model_2 = run_experiment(training_df, features, label, learning_rate, epochs, batch_size)</span><br></pre></td></tr></table></figure>
-
-<h4 id="Part-4-Validate-Model"><a href="#Part-4-Validate-Model" class="headerlink" title="Part 4 - Validate Model"></a>Part 4 - Validate Model</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">format_currency</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;格式化金额为美元形式</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        x: float，待格式化的金额</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        str，格式化后的金额字符串，如&quot;$12.34&quot;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;$&#123;:.2f&#125;&quot;</span>.<span class="built_in">format</span>(x)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_batch</span>(<span class="params">df, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;构建预测用的数据批次</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 从数据集中随机抽样</span></span><br><span class="line"><span class="string">    - 重置索引</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，源数据集</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        DataFrame，构建好的批次数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    batch = df.sample(n=batch_size).copy()</span><br><span class="line">    batch.set_index(np.arange(batch_size), inplace=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">return</span> batch</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">predict_fare</span>(<span class="params">model, df, features, label, batch_size=<span class="number">50</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;使用模型预测车费</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 构建预测批次</span></span><br><span class="line"><span class="string">    - 进行批量预测</span></span><br><span class="line"><span class="string">    - 计算预测误差</span></span><br><span class="line"><span class="string">    - 整理预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        model: keras.Model，训练好的模型</span></span><br><span class="line"><span class="string">        df: DataFrame，预测数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        label: str，标签名</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小，默认50</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        DataFrame，包含预测结果的数据框</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    batch = build_batch(df, batch_size)</span><br><span class="line">    predicted_values = model.predict_on_batch(x=batch.loc[:, features].values)</span><br><span class="line"></span><br><span class="line">    data = &#123;<span class="string">&quot;PREDICTED_FARE&quot;</span>: [], <span class="string">&quot;OBSERVED_FARE&quot;</span>: [], <span class="string">&quot;L1_LOSS&quot;</span>: [],</span><br><span class="line">            features[<span class="number">0</span>]: [], features[<span class="number">1</span>]: []&#125;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">        predicted = predicted_values[i][<span class="number">0</span>]</span><br><span class="line">        observed = batch.at[i, label]</span><br><span class="line">        data[<span class="string">&quot;PREDICTED_FARE&quot;</span>].append(format_currency(predicted))</span><br><span class="line">        data[<span class="string">&quot;OBSERVED_FARE&quot;</span>].append(format_currency(observed))</span><br><span class="line">        data[<span class="string">&quot;L1_LOSS&quot;</span>].append(format_currency(<span class="built_in">abs</span>(observed - predicted)))</span><br><span class="line">        data[features[<span class="number">0</span>]].append(batch.at[i, features[<span class="number">0</span>]])</span><br><span class="line">        data[features[<span class="number">1</span>]].append(<span class="string">&quot;&#123;:.2f&#125;&quot;</span>.<span class="built_in">format</span>(batch.at[i, features[<span class="number">1</span>]]))</span><br><span class="line"></span><br><span class="line">    output_df = pd.DataFrame(data)</span><br><span class="line">    <span class="keyword">return</span> output_df</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">show_predictions</span>(<span class="params">output</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;展示预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 添加表头装饰</span></span><br><span class="line"><span class="string">    - 打印预测结果表格</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        output: DataFrame，预测结果数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    header = <span class="string">&quot;-&quot;</span> * <span class="number">80</span></span><br><span class="line">    banner = header + <span class="string">&quot;\n&quot;</span> + <span class="string">&quot;|&quot;</span> + <span class="string">&quot;PREDICTIONS&quot;</span>.center(<span class="number">78</span>) + <span class="string">&quot;|&quot;</span> + <span class="string">&quot;\n&quot;</span> + header</span><br><span class="line">    <span class="built_in">print</span>(banner)</span><br><span class="line">    <span class="built_in">print</span>(output)</span><br><span class="line">    <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
-<h5 id="执行模型预测"><a href="#执行模型预测" class="headerlink" title="执行模型预测"></a>执行模型预测</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用训练好的模型进行预测</span></span><br><span class="line">output = predict_fare(model_2, training_df, features, label)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 展示预测结果</span></span><br><span class="line">show_predictions(output)</span><br></pre></td></tr></table></figure>
-
-
-
+<figure>
+<img src="/assets/机器学习入门13.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<h4 id="part-3---train-model">Part 3 - Train Model</h4>
+<p>在这部分，我们将实现一组用于模型训练和可视化的函数。这些函数可以帮助我们可视化训练过程、展示模型预测结果和分析模型性能。</p>
+<h3 id="可视化函数实现">1. 可视化函数实现</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_plots</span>(<span class="params">df, feature_names, label_name, model_output, sample_size=<span class="number">200</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;主函数：创建模型训练的可视化图表</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 创建包含损失曲线和模型预测的双图表</span></span><br><span class="line"><span class="string">    - 支持1D和2D特征的可视化</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        model_output: tuple，模型输出(weights, bias, epochs, rmse)</span></span><br><span class="line"><span class="string">        sample_size: int，采样大小，默认200</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 获取随机样本</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确定是2D还是3D图</span></span><br><span class="line">    is_2d_plot = <span class="built_in">len</span>(feature_names) == <span class="number">1</span></span><br><span class="line">    model_plot_type = <span class="string">&quot;scatter&quot;</span> <span class="keyword">if</span> is_2d_plot <span class="keyword">else</span> <span class="string">&quot;surface&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 创建子图</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制数据和模型</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_loss_curve</span>(<span class="params">epochs, rmse, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制损失曲线</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 展示训练过程中的损失变化</span></span><br><span class="line"><span class="string">    - 使用红色线条表示</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        epochs: array，训练轮数</span></span><br><span class="line"><span class="string">        rmse: array，均方根误差</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_data</span>(<span class="params">df, features, label, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制原始数据散点图</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 支持1D特征的2D散点图</span></span><br><span class="line"><span class="string">    - 支持2D特征的3D散点图</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        label: str，标签名</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_model</span>(<span class="params">df, features, weights, bias, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制模型预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 1D特征：显示预测线</span></span><br><span class="line"><span class="string">    - 2D特征：显示预测平面</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        weights: array，特征权重</span></span><br><span class="line"><span class="string">        bias: float，偏置值</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 计算预测值</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制预测线或预测面</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_info</span>(<span class="params">feature_names, label_name, model_output</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;生成模型信息摘要</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 显示特征权重</span></span><br><span class="line"><span class="string">    - 显示偏置值</span></span><br><span class="line"><span class="string">    - 生成预测方程</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        model_output: tuple，模型输出(weights, bias, epochs, rmse)</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        str，格式化的模型信息字符串</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 生成模型方程</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<h5 id="模型训练函数实现">模型训练函数实现</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_model</span>(<span class="params">my_learning_rate, num_features</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;创建并编译简单的线性回归模型</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 创建具有单个Dense层的Keras模型</span></span><br><span class="line"><span class="string">    - 配置优化器和损失函数</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        my_learning_rate: float，学习率</span></span><br><span class="line"><span class="string">        num_features: int，特征数量</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        model: keras.Model，编译好的模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 描述模型结构</span></span><br><span class="line">    <span class="comment"># 简单线性回归模型由单层单节点组成</span></span><br><span class="line">    inputs = keras.Input(shape=(num_features,))</span><br><span class="line">    outputs = keras.layers.Dense(units=<span class="number">1</span>)(inputs)</span><br><span class="line">    model = keras.Model(inputs=inputs, outputs=outputs)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 编译模型，配置优化器和损失函数</span></span><br><span class="line">    model.<span class="built_in">compile</span>(optimizer=keras.optimizers.RMSprop(learning_rate=my_learning_rate),</span><br><span class="line">                 loss=<span class="string">&quot;mean_squared_error&quot;</span>,</span><br><span class="line">                 metrics=[keras.metrics.RootMeanSquaredError()])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">train_model</span>(<span class="params">model, df, features, label, epochs, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;训练模型</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 使用数据训练模型</span></span><br><span class="line"><span class="string">    - 获取训练后的权重和偏置</span></span><br><span class="line"><span class="string">    - 记录训练过程中的误差</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        model: keras.Model，待训练的模型</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        features: array，特征数据</span></span><br><span class="line"><span class="string">        label: array，标签数据</span></span><br><span class="line"><span class="string">        epochs: int，训练轮数</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        tuple，包含(trained_weight, trained_bias, epochs, rmse)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 训练模型</span></span><br><span class="line">    history = model.fit(x=features,</span><br><span class="line">                       y=label,</span><br><span class="line">                       batch_size=batch_size,</span><br><span class="line">                       epochs=epochs)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取训练后的权重和偏置</span></span><br><span class="line">    trained_weight = model.get_weights()[<span class="number">0</span>]</span><br><span class="line">    trained_bias = model.get_weights()[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取训练历史</span></span><br><span class="line">    epochs = history.epoch</span><br><span class="line">    hist = pd.DataFrame(history.history)</span><br><span class="line">    rmse = hist[<span class="string">&quot;root_mean_squared_error&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> trained_weight, trained_bias, epochs, rmse</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">run_experiment</span>(<span class="params">df, feature_names, label_name, learning_rate, epochs, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;运行完整的训练实验</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 准备训练数据</span></span><br><span class="line"><span class="string">    - 构建并训练模型</span></span><br><span class="line"><span class="string">    - 可视化训练结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        learning_rate: float，学习率</span></span><br><span class="line"><span class="string">        epochs: int，训练轮数</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        model: keras.Model，训练好的模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;INFO: starting training experiment with features=&#123;&#125; and label=&#123;&#125;\n&#x27;</span>.<span class="built_in">format</span>(</span><br><span class="line">        feature_names, label_name))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 准备数据</span></span><br><span class="line">    num_features = <span class="built_in">len</span>(feature_names)</span><br><span class="line">    features = df.loc[:, feature_names].values</span><br><span class="line">    label = df[label_name].values</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 构建并训练模型</span></span><br><span class="line">    model = build_model(learning_rate, num_features)</span><br><span class="line">    model_output = train_model(model, df, features, label, epochs, batch_size)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 输出结果</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;\nSUCCESS: training experiment complete\n&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(model_info(feature_names, label_name, model_output)))</span><br><span class="line">    make_plots(df, feature_names, label_name, model_output)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;SUCCESS: defining linear regression functions complete.&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h5 id="运行训练实验">运行训练实验</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置超参数</span></span><br><span class="line">learning_rate = <span class="number">0.001</span>  <span class="comment"># 学习率</span></span><br><span class="line">epochs = <span class="number">20</span>           <span class="comment"># 训练轮数</span></span><br><span class="line">batch_size = <span class="number">50</span>      <span class="comment"># 批次大小</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据预处理 - 将秒转换为分钟</span></span><br><span class="line">training_df.loc[:, <span class="string">&#x27;TRIP_MINUTES&#x27;</span>] = training_df[<span class="string">&#x27;TRIP_SECONDS&#x27;</span>]/<span class="number">60</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义特征和标签</span></span><br><span class="line">features = [<span class="string">&#x27;TRIP_MILES&#x27;</span>, <span class="string">&#x27;TRIP_MINUTES&#x27;</span>]  <span class="comment"># 使用里程和时间作为特征</span></span><br><span class="line">label = <span class="string">&#x27;FARE&#x27;</span>                             <span class="comment"># 预测出租车费用</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行训练实验</span></span><br><span class="line">model_2 = run_experiment(training_df, features, label, learning_rate, epochs, batch_size)</span><br></pre></td></tr></table></figure>
+<h4 id="part-4---validate-model">Part 4 - Validate Model</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">format_currency</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;格式化金额为美元形式</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        x: float，待格式化的金额</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        str，格式化后的金额字符串，如&quot;$12.34&quot;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;$&#123;:.2f&#125;&quot;</span>.<span class="built_in">format</span>(x)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_batch</span>(<span class="params">df, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;构建预测用的数据批次</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 从数据集中随机抽样</span></span><br><span class="line"><span class="string">    - 重置索引</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，源数据集</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        DataFrame，构建好的批次数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    batch = df.sample(n=batch_size).copy()</span><br><span class="line">    batch.set_index(np.arange(batch_size), inplace=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">return</span> batch</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">predict_fare</span>(<span class="params">model, df, features, label, batch_size=<span class="number">50</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;使用模型预测车费</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 构建预测批次</span></span><br><span class="line"><span class="string">    - 进行批量预测</span></span><br><span class="line"><span class="string">    - 计算预测误差</span></span><br><span class="line"><span class="string">    - 整理预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        model: keras.Model，训练好的模型</span></span><br><span class="line"><span class="string">        df: DataFrame，预测数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        label: str，标签名</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小，默认50</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        DataFrame，包含预测结果的数据框</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    batch = build_batch(df, batch_size)</span><br><span class="line">    predicted_values = model.predict_on_batch(x=batch.loc[:, features].values)</span><br><span class="line"></span><br><span class="line">    data = &#123;<span class="string">&quot;PREDICTED_FARE&quot;</span>: [], <span class="string">&quot;OBSERVED_FARE&quot;</span>: [], <span class="string">&quot;L1_LOSS&quot;</span>: [],</span><br><span class="line">            features[<span class="number">0</span>]: [], features[<span class="number">1</span>]: []&#125;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">        predicted = predicted_values[i][<span class="number">0</span>]</span><br><span class="line">        observed = batch.at[i, label]</span><br><span class="line">        data[<span class="string">&quot;PREDICTED_FARE&quot;</span>].append(format_currency(predicted))</span><br><span class="line">        data[<span class="string">&quot;OBSERVED_FARE&quot;</span>].append(format_currency(observed))</span><br><span class="line">        data[<span class="string">&quot;L1_LOSS&quot;</span>].append(format_currency(<span class="built_in">abs</span>(observed - predicted)))</span><br><span class="line">        data[features[<span class="number">0</span>]].append(batch.at[i, features[<span class="number">0</span>]])</span><br><span class="line">        data[features[<span class="number">1</span>]].append(<span class="string">&quot;&#123;:.2f&#125;&quot;</span>.<span class="built_in">format</span>(batch.at[i, features[<span class="number">1</span>]]))</span><br><span class="line"></span><br><span class="line">    output_df = pd.DataFrame(data)</span><br><span class="line">    <span class="keyword">return</span> output_df</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">show_predictions</span>(<span class="params">output</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;展示预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 添加表头装饰</span></span><br><span class="line"><span class="string">    - 打印预测结果表格</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        output: DataFrame，预测结果数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    header = <span class="string">&quot;-&quot;</span> * <span class="number">80</span></span><br><span class="line">    banner = header + <span class="string">&quot;\n&quot;</span> + <span class="string">&quot;|&quot;</span> + <span class="string">&quot;PREDICTIONS&quot;</span>.center(<span class="number">78</span>) + <span class="string">&quot;|&quot;</span> + <span class="string">&quot;\n&quot;</span> + header</span><br><span class="line">    <span class="built_in">print</span>(banner)</span><br><span class="line">    <span class="built_in">print</span>(output)</span><br><span class="line">    <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
+<h5 id="执行模型预测">执行模型预测</h5>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用训练好的模型进行预测</span></span><br><span class="line">output = predict_fare(model_2, training_df, features, label)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 展示预测结果</span></span><br><span class="line">show_predictions(output)</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -899,6 +949,12 @@
   <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
 
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
 
 
 
