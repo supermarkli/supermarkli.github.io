@@ -39,7 +39,7 @@
 <meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A811.png">
 <meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A812.png">
 <meta property="article:published_time" content="2025-02-17T02:03:12.000Z">
-<meta property="article:modified_time" content="2025-02-17T06:55:28.203Z">
+<meta property="article:modified_time" content="2025-02-17T07:13:16.812Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="机器学习">
 <meta name="twitter:card" content="summary">
@@ -153,7 +153,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-Regression"><span class="nav-number">1.</span> <span class="nav-text">线性回归(Linear Regression)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E6%96%B9%E7%A8%8B-Linear-Regression-Equation"><span class="nav-number">1.1.</span> <span class="nav-text">线性回归方程(Linear Regression Equation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E6%9C%89%E5%A4%9A%E4%B8%AA%E7%89%B9%E5%BE%81%E7%9A%84%E6%A8%A1%E5%9E%8B-Models-with-Multiple-Features"><span class="nav-number">1.2.</span> <span class="nav-text">具有多个特征的模型(Models with Multiple Features)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%8D%9F%E5%A4%B1-Loss"><span class="nav-number">1.3.</span> <span class="nav-text">线性回归：损失(Loss)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%B7%9D%E7%A6%BB-Loss-Distance"><span class="nav-number">1.3.1.</span> <span class="nav-text">损失距离(Loss Distance)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">损失类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%AE%A1%E7%AE%97%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.3.3.</span> <span class="nav-text">损失计算示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0-Choosing-Loss-Functions"><span class="nav-number">1.3.4.</span> <span class="nav-text">选择损失函数(Choosing Loss Functions)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%BB%E7%BE%A4%E5%80%BC%E5%A4%84%E7%90%86"><span class="nav-number">1.3.5.</span> <span class="nav-text">离群值处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">1.3.6.</span> <span class="nav-text">损失函数的选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D-Gradient-Descent"><span class="nav-number">1.4.</span> <span class="nav-text">线性回归：梯度下降(Gradient Descent)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">梯度下降实例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">1.4.2.</span> <span class="nav-text">示例数据集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.4.3.</span> <span class="nav-text">梯度下降步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">1. 初始化模型参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E8%AE%A1%E7%AE%97%E5%88%9D%E5%A7%8B%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">2. 计算初始损失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E8%AE%A1%E7%AE%97%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">3. 计算梯度</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%83%E9%87%8D%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.1.</span> <span class="nav-text">权重的梯度</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%81%8F%E5%B7%AE%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.2.</span> <span class="nav-text">偏差的梯度</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">4. 更新参数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.4.</span> <span class="nav-text">迭代结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B6%E6%95%9B%E8%BF%87%E7%A8%8B"><span class="nav-number">1.4.5.</span> <span class="nav-text">收敛过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E6%9B%B2%E7%BA%BF"><span class="nav-number">1.4.6.</span> <span class="nav-text">损失曲线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%B8%E5%87%BD%E6%95%B0%E4%B8%8E%E6%9C%80%E5%B0%8F%E5%80%BC"><span class="nav-number">1.4.7.</span> <span class="nav-text">凸函数与最小值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E8%B6%85%E5%8F%82%E6%95%B0-Hyperparameters"><span class="nav-number">1.5.</span> <span class="nav-text">线性回归：超参数(Hyperparameters)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E9%80%9F%E7%8E%87-Learning-Rate"><span class="nav-number">1.5.1.</span> <span class="nav-text">学习速率(Learning Rate)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%A4%A7%E5%B0%8F-Batch-Size"><span class="nav-number">1.5.2.</span> <span class="nav-text">批量大小 (Batch Size)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-SGD-Stochastic-Gradient-Descent"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">随机梯度下降法 (SGD, Stochastic Gradient Descent)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B0%8F%E6%89%B9%E9%87%8F%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-mini-batch-SGD"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">小批量随机梯度下降法 (mini-batch SGD)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%AA%E5%85%83-Epoch"><span class="nav-number">1.5.3.</span> <span class="nav-text">纪元 (Epoch)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0"><span class="nav-number">1.6.</span> <span class="nav-text">线性回归：编程练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%BA%93"><span class="nav-number">1.6.1.</span> <span class="nav-text">数据处理库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%BA%93"><span class="nav-number">1.6.2.</span> <span class="nav-text">机器学习库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%93"><span class="nav-number">1.6.3.</span> <span class="nav-text">数据可视化库</span></a></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-Regression"><span class="nav-number">1.</span> <span class="nav-text">线性回归(Linear Regression)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E6%96%B9%E7%A8%8B-Linear-Regression-Equation"><span class="nav-number">1.1.</span> <span class="nav-text">线性回归方程(Linear Regression Equation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E6%9C%89%E5%A4%9A%E4%B8%AA%E7%89%B9%E5%BE%81%E7%9A%84%E6%A8%A1%E5%9E%8B-Models-with-Multiple-Features"><span class="nav-number">1.2.</span> <span class="nav-text">具有多个特征的模型(Models with Multiple Features)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%8D%9F%E5%A4%B1-Loss"><span class="nav-number">1.3.</span> <span class="nav-text">线性回归：损失(Loss)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%B7%9D%E7%A6%BB-Loss-Distance"><span class="nav-number">1.3.1.</span> <span class="nav-text">损失距离(Loss Distance)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">损失类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%AE%A1%E7%AE%97%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.3.3.</span> <span class="nav-text">损失计算示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0-Choosing-Loss-Functions"><span class="nav-number">1.3.4.</span> <span class="nav-text">选择损失函数(Choosing Loss Functions)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%BB%E7%BE%A4%E5%80%BC%E5%A4%84%E7%90%86"><span class="nav-number">1.3.5.</span> <span class="nav-text">离群值处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">1.3.6.</span> <span class="nav-text">损失函数的选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D-Gradient-Descent"><span class="nav-number">1.4.</span> <span class="nav-text">线性回归：梯度下降(Gradient Descent)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">梯度下降实例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">1.4.2.</span> <span class="nav-text">示例数据集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.4.3.</span> <span class="nav-text">梯度下降步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">1. 初始化模型参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E8%AE%A1%E7%AE%97%E5%88%9D%E5%A7%8B%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">2. 计算初始损失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E8%AE%A1%E7%AE%97%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">3. 计算梯度</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%83%E9%87%8D%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.1.</span> <span class="nav-text">权重的梯度</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%81%8F%E5%B7%AE%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.2.</span> <span class="nav-text">偏差的梯度</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">4. 更新参数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.4.</span> <span class="nav-text">迭代结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B6%E6%95%9B%E8%BF%87%E7%A8%8B"><span class="nav-number">1.4.5.</span> <span class="nav-text">收敛过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E6%9B%B2%E7%BA%BF"><span class="nav-number">1.4.6.</span> <span class="nav-text">损失曲线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%B8%E5%87%BD%E6%95%B0%E4%B8%8E%E6%9C%80%E5%B0%8F%E5%80%BC"><span class="nav-number">1.4.7.</span> <span class="nav-text">凸函数与最小值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E8%B6%85%E5%8F%82%E6%95%B0-Hyperparameters"><span class="nav-number">1.5.</span> <span class="nav-text">线性回归：超参数(Hyperparameters)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E9%80%9F%E7%8E%87-Learning-Rate"><span class="nav-number">1.5.1.</span> <span class="nav-text">学习速率(Learning Rate)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%A4%A7%E5%B0%8F-Batch-Size"><span class="nav-number">1.5.2.</span> <span class="nav-text">批量大小 (Batch Size)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-SGD-Stochastic-Gradient-Descent"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">随机梯度下降法 (SGD, Stochastic Gradient Descent)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B0%8F%E6%89%B9%E9%87%8F%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-mini-batch-SGD"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">小批量随机梯度下降法 (mini-batch SGD)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%AA%E5%85%83-Epoch"><span class="nav-number">1.5.3.</span> <span class="nav-text">纪元 (Epoch)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0"><span class="nav-number">1.6.</span> <span class="nav-text">线性回归：编程练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%BA%93"><span class="nav-number">1.6.1.</span> <span class="nav-text">数据处理库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%BA%93"><span class="nav-number">1.6.2.</span> <span class="nav-text">机器学习库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%93"><span class="nav-number">1.6.3.</span> <span class="nav-text">数据可视化库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE"><span class="nav-number">1.6.4.</span> <span class="nav-text">1. 加载数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%80%89%E6%8B%A9%E7%89%B9%E5%AE%9A%E5%88%97"><span class="nav-number">1.6.5.</span> <span class="nav-text">2. 选择特定列</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E4%BF%A1%E6%81%AF"><span class="nav-number">1.6.6.</span> <span class="nav-text">3. 查看数据信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%8E%A2%E7%B4%A2%E5%BB%BA%E8%AE%AE"><span class="nav-number">1.6.7.</span> <span class="nav-text">数据探索建议</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -244,7 +244,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-02-17 10:03:12 / 修改时间：14:55:28" itemprop="dateCreated datePublished" datetime="2025-02-17T10:03:12+08:00">2025-02-17</time>
+      <time title="创建时间：2025-02-17 10:03:12 / 修改时间：15:13:16" itemprop="dateCreated datePublished" datetime="2025-02-17T10:03:12+08:00">2025-02-17</time>
     </span>
 
   
@@ -261,14 +261,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>6.8k</span>
+      <span>8.9k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>12 分钟</span>
+      <span>16 分钟</span>
     </span>
 </div>
 
@@ -583,7 +583,7 @@
 </ul>
 <p>例如：如果梯度为2.5，学习速率为0.01，则参数的更新步长为0.025。理想的学习速率应该使模型在合理的迭代次数内收敛。</p>
 <blockquote>
-<p>将学习速率翻倍可能会减慢训练速度。<br>此声明是正确的。将学习率翻倍可能会导致学习率过大，从而导致权重“跳来跳去”，增加收敛所需的时间。</p>
+<p>将学习速率翻倍可能会减慢训练速度。<br>此声明是正确的。将学习率翻倍可能会导致学习率过大，从而导致权重”跳来跳去”，增加收敛所需的时间。</p>
 </blockquote>
 <h4 id="批量大小-Batch-Size"><a href="#批量大小-Batch-Size" class="headerlink" title="批量大小 (Batch Size)"></a>批量大小 (Batch Size)</h4><p>批量大小是一个超参数，表示每次更新模型参数时使用的训练样本数量。虽然理论上可以在每次迭代时使用所有训练样本，但当数据集很大时（如包含数十万至数百万个样本），这种方法在计算上是不实际的。</p>
 <p>为了解决这个问题，有两种常用的梯度下降方法：</p>
@@ -694,12 +694,6 @@
 <li>提供美观的默认样式</li>
 <li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">sns.scatterplot(data=df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
 </ul>
-<p>这些库各有特点：</p>
-<ul>
-<li>NumPy和Pandas主要用于数据处理和分析</li>
-<li>Keras用于构建机器学习模型</li>
-<li>Plotly和Seaborn用于数据可视化，帮助我们理解数据和展示结果</li>
-</ul>
 <p>在实际项目中，这些库通常会一起使用：</p>
 <ol>
 <li>使用Pandas读取和处理数据</li>
@@ -707,6 +701,74 @@
 <li>使用Keras构建和训练模型</li>
 <li>用Plotly或Seaborn可视化结果</li>
 </ol>
+<h4 id="1-加载数据"><a href="#1-加载数据" class="headerlink" title="1. 加载数据"></a>1. 加载数据</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 从网络加载芝加哥出租车数据集</span></span><br><span class="line">chicago_taxi_dataset = pd.read_csv(<span class="string">&quot;https://download.mlcc.google.com/mledu-datasets/chicago_taxi_train.csv&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>这行代码使用pandas的<code>read_csv()</code>函数从网络下载并读取CSV文件。这个数据集包含了芝加哥出租车的行程信息。</p>
+<h4 id="2-选择特定列"><a href="#2-选择特定列" class="headerlink" title="2. 选择特定列"></a>2. 选择特定列</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 选择需要的列创建新的DataFrame</span></span><br><span class="line">training_df = chicago_taxi_dataset[[<span class="string">&#x27;TRIP_MILES&#x27;</span>,    <span class="comment"># 行程里程</span></span><br><span class="line">                                  <span class="string">&#x27;TRIP_SECONDS&#x27;</span>,    <span class="comment"># 行程时间（秒）</span></span><br><span class="line">                                  <span class="string">&#x27;FARE&#x27;</span>,            <span class="comment"># 车费</span></span><br><span class="line">                                  <span class="string">&#x27;COMPANY&#x27;</span>,         <span class="comment"># 出租车公司</span></span><br><span class="line">                                  <span class="string">&#x27;PAYMENT_TYPE&#x27;</span>,    <span class="comment"># 支付方式</span></span><br><span class="line">                                  <span class="string">&#x27;TIP_RATE&#x27;</span>]]       <span class="comment"># 小费率</span></span><br></pre></td></tr></table></figure>
+<p>这里我们从原始数据集中选择了6个重要特征：</p>
+<ul>
+<li>TRIP_MILES：行程距离</li>
+<li>TRIP_SECONDS：行程时长</li>
+<li>FARE：车费金额</li>
+<li>COMPANY：出租车公司</li>
+<li>PAYMENT_TYPE：支付方式</li>
+<li>TIP_RATE：小费比例</li>
+</ul>
+<h4 id="3-查看数据信息"><a href="#3-查看数据信息" class="headerlink" title="3. 查看数据信息"></a>3. 查看数据信息</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打印数据集基本信息</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Read dataset completed successfully.&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Total number of rows: &#123;0&#125;\n\n&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(training_df.index)))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示前200行数据</span></span><br><span class="line">training_df.head(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
+<p>这段代码做了两件事：</p>
+<ol>
+<li>打印数据集的总行数</li>
+<li>显示数据集的前200行，帮助我们了解数据的基本结构</li>
+</ol>
+<h4 id="数据探索建议"><a href="#数据探索建议" class="headerlink" title="数据探索建议"></a>数据探索建议</h4><ol>
+<li>基本统计信息：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看数值列的统计信息</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.describe())</span><br></pre></td></tr></table></figure>
+<p>输出结果类似：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">       TRIP_MILES        FARE</span><br><span class="line">count         4.0         5.0    # 非空值数量</span><br><span class="line">mean          2.75       13.0    # 平均值</span><br><span class="line">std           1.04        4.7    # 标准差</span><br><span class="line">min           1.50        8.0    # 最小值</span><br><span class="line">25%           2.25       10.0    # 25%分位数</span><br><span class="line">50%           2.75       12.0    # 中位数</span><br><span class="line">75%           3.25       15.0    # 75%分位数</span><br><span class="line">max           4.00       20.0    # 最大值</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看数据类型</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.info())</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Data columns (total 4 columns):</span><br><span class="line"> #   Column        Non-Null Count  Dtype  </span><br><span class="line">---  ------        --------------  -----  </span><br><span class="line"> 0   TRIP_MILES    4 non-null     float64   # 4条非空数据，浮点型</span><br><span class="line"> 1   FARE          5 non-null     int64     # 5条非空数据，整数型</span><br><span class="line"> 2   PAYMENT_TYPE  5 non-null     object    # 5条非空数据，字符串型</span><br><span class="line"> 3   COMPANY       5 non-null     object    # 5条非空数据，字符串型</span><br></pre></td></tr></table></figure>
+
+
+<ol start="2">
+<li>缺失值检查：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 检查缺失值</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.isnull().<span class="built_in">sum</span>())</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TRIP_MILES     1    # TRIP_MILES列有1个缺失值</span><br><span class="line">FARE           0    # FARE列没有缺失值</span><br><span class="line">PAYMENT_TYPE   0    # PAYMENT_TYPE列没有缺失值</span><br><span class="line">COMPANY        0    # COMPANY列没有缺失值</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>分类变量分析：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看支付方式的种类</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;支付方式类型:&quot;</span>, taxi_data[<span class="string">&#x27;PAYMENT_TYPE&#x27;</span>].unique())</span><br><span class="line"><span class="comment"># 输出: [&#x27;信用卡&#x27;, &#x27;现金&#x27;, &#x27;支付宝&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 统计每个公司的订单数量</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data[<span class="string">&#x27;COMPANY&#x27;</span>].value_counts())</span><br><span class="line"><span class="comment"># 输出:</span></span><br><span class="line"><span class="comment"># A公司    2</span></span><br><span class="line"><span class="comment"># B公司    2</span></span><br><span class="line"><span class="comment"># C公司    1</span></span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>相关性分析：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 计算行程里程和车费的相关性</span></span><br><span class="line">correlation = taxi_data[[<span class="string">&#x27;TRIP_MILES&#x27;</span>, <span class="string">&#x27;FARE&#x27;</span>]].corr()</span><br><span class="line"><span class="built_in">print</span>(correlation)</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">            TRIP_MILES      FARE</span><br><span class="line">TRIP_MILES    1.000000   0.850123  # 正相关，说明里程越长，费用越高</span><br><span class="line">FARE          0.850123   1.000000</span><br></pre></td></tr></table></figure>
+
+<p>在这一步中，我们将使用相关矩阵（Correlation Matrix）来识别与标签值相关性良好的特征。相关值具有以下含义：</p>
+<ol>
+<li>完全正相关（Perfect Positive Correlation）：1.0<ul>
+<li>定义：当一个属性（attribute）上升时，另一个属性也上升</li>
+<li>例如：学习时间与考试成绩的关系</li>
+</ul>
+</li>
+<li>完全负相关（Perfect Negative Correlation）：-1.0<ul>
+<li>定义：当一个属性上升时，另一个属性下降</li>
+<li>例如：商品价格与销售量的关系</li>
+</ul>
+</li>
+<li>无相关性（No Correlation）：0.0<ul>
+<li>定义：两列之间不存在线性关系（Linear Relationship）</li>
+<li>例如：学生的身高与考试成绩的关系</li>
+</ul>
+</li>
+</ol>
+<p>一般来说，相关值（Correlation Value）的绝对值越大，该特征（Feature）的预测能力就越强</p>
 
     </div>
 
@@ -758,13 +820,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">60k</span>
+    <span title="站点总字数">62k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:48</span>
+    <span title="站点阅读时长">1:52</span>
   </span>
 </div>
 <div class="busuanzi-count">
