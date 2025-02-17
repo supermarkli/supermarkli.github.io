@@ -1,55 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>CSS Note</title>
-    <url>/posts/752f9918/</url>
-    <content><![CDATA[<h2 id="CSS心得"><a href="#CSS心得" class="headerlink" title="CSS心得"></a>CSS心得</h2><p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
-<span id="more"></span>
-
-<p>body最好设为**overflow:hidden;**这样就不会出现最大页面的滑动框</p>
-<p>color才是字体颜色</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="常见css"><a href="#常见css" class="headerlink" title="常见css"></a>常见css</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="常见flex属性"><a href="#常见flex属性" class="headerlink" title="常见flex属性"></a>常见flex属性</h3><p>flex: 1；可以搭配overflow：hidden；使用</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="技巧：可以搭配js实现宽度变化"><a href="#技巧：可以搭配js实现宽度变化" class="headerlink" title="技巧：可以搭配js实现宽度变化"></a>技巧：可以搭配js实现宽度变化</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
-
-<h3 id="技巧：改变列宽"><a href="#技巧：改变列宽" class="headerlink" title="技巧：改变列宽"></a>技巧：改变列宽</h3><p>将单元格设为如下</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
-
-<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
-<ol>
-<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
-<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
-</ol>
-<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
-<p>这里的技巧是color:white;这样不会影响表格的美观</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="技巧：表格置顶"><a href="#技巧：表格置顶" class="headerlink" title="技巧：表格置顶"></a>技巧：表格置顶</h3><p>outline是为了修复滑动时失去边界的bug</p>
-<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
-<ul>
-<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
-<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
-</ul>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <categories>
-        <category>CSS</category>
-      </categories>
-      <tags>
-        <tag>CSS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>2.4G 无线通信笔记</title>
     <url>/posts/a25d78f8/</url>
     <content><![CDATA[<h2 id="什么是2-4G无线通信？"><a href="#什么是2-4G无线通信？" class="headerlink" title="什么是2.4G无线通信？"></a>什么是2.4G无线通信？</h2><p>之前嵌入式project的通信中用到了2.4G模块，借此机会来了解一下这项技术。</p>
@@ -295,178 +246,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Anaconda Note</title>
-    <url>/posts/7066aaf6/</url>
-    <content><![CDATA[<h2 id="Anaconda"><a href="#Anaconda" class="headerlink" title="Anaconda"></a>Anaconda</h2><p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
-<span id="more"></span>
-
-<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
-<ol>
-<li><strong>Python</strong>:<ul>
-<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
-</ul>
-</li>
-<li><strong>Conda</strong>:<ul>
-<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
-<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
-</ul>
-</li>
-<li><strong>Anaconda</strong>:<ul>
-<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
-<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
-</ul>
-</li>
-</ol>
-<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a><strong>基本命令</strong></h3><ol>
-<li><strong>创建和管理环境</strong>：<ul>
-<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
-<li>激活环境：<code>conda activate myenv</code></li>
-<li>退出环境：<code>conda deactivate</code></li>
-<li>列出环境：<code>conda env list</code></li>
-<li>删除环境：<code>conda remove --name myenv --all</code></li>
-</ul>
-</li>
-<li><strong>包管理</strong>：<ul>
-<li>安装包：<code>conda install package_name</code></li>
-<li>更新包：<code>conda update package_name</code></li>
-<li>卸载包：<code>conda remove package_name</code></li>
-<li>列出安装的包：<code>conda list</code></li>
-</ul>
-</li>
-<li><strong>环境导出和导入</strong>：<ul>
-<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
-<li>导入环境：<code>conda env create -f environment.yml</code></li>
-</ul>
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>Python</category>
-      </categories>
-      <tags>
-        <tag>conda</tag>
-        <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TLS Note</title>
-    <url>/posts/32f5e233/</url>
-    <content><![CDATA[<h2 id="1-什么是TLS"><a href="#1-什么是TLS" class="headerlink" title="1. 什么是TLS"></a>1. 什么是TLS</h2><p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
-<span id="more"></span>
-
-<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
-<h2 id="2-TLS的主要功能"><a href="#2-TLS的主要功能" class="headerlink" title="2. TLS的主要功能"></a>2. TLS的主要功能</h2><p>TLS提供以下三个主要的安全服务：</p>
-<h3 id="2-1-身份认证"><a href="#2-1-身份认证" class="headerlink" title="2.1 身份认证"></a>2.1 身份认证</h3><p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
-<h3 id="2-2-数据加密"><a href="#2-2-数据加密" class="headerlink" title="2.2 数据加密"></a>2.2 数据加密</h3><p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
-<h3 id="2-3-完整性校验"><a href="#2-3-完整性校验" class="headerlink" title="2.3 完整性校验"></a>2.3 完整性校验</h3><p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
-<h2 id="3-TLS的版本演进"><a href="#3-TLS的版本演进" class="headerlink" title="3. TLS的版本演进"></a>3. TLS的版本演进</h2><p>TLS协议经历了多个版本的演进：</p>
-<ul>
-<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
-<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
-<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
-<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
-<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
-<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
-</ul>
-<h2 id="4-TLS的密码学原理"><a href="#4-TLS的密码学原理" class="headerlink" title="4. TLS的密码学原理"></a>4. TLS的密码学原理</h2><h3 id="4-1-对称加密"><a href="#4-1-对称加密" class="headerlink" title="4.1 对称加密"></a>4.1 对称加密</h3><ul>
-<li>使用相同的密钥进行加密和解密</li>
-<li>常用算法：AES、ChaCha20</li>
-<li>用于加密传输的数据</li>
-</ul>
-<h3 id="4-2-非对称加密"><a href="#4-2-非对称加密" class="headerlink" title="4.2 非对称加密"></a>4.2 非对称加密</h3><ul>
-<li>使用公钥加密，私钥解密</li>
-<li>常用算法：RSA、ECDSA</li>
-<li>用于密钥交换和身份认证</li>
-</ul>
-<h3 id="4-3-数字证书"><a href="#4-3-数字证书" class="headerlink" title="4.3 数字证书"></a>4.3 数字证书</h3><ul>
-<li>X.509格式证书</li>
-<li>包含服务器的公钥和身份信息</li>
-<li>由CA机构签名认证</li>
-</ul>
-<h3 id="4-4-消息认证码"><a href="#4-4-消息认证码" class="headerlink" title="4.4 消息认证码"></a>4.4 消息认证码</h3><ul>
-<li>HMAC算法</li>
-<li>确保消息完整性</li>
-<li>防止数据被篡改</li>
-</ul>
-<h2 id="5-TLS握手过程"><a href="#5-TLS握手过程" class="headerlink" title="5. TLS握手过程"></a>5. TLS握手过程</h2><p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
-<h3 id="5-1-Client-Hello"><a href="#5-1-Client-Hello" class="headerlink" title="5.1 Client Hello"></a>5.1 Client Hello</h3><ul>
-<li>客户端发送支持的TLS版本</li>
-<li>支持的加密套件列表</li>
-<li>随机数（Client Random）</li>
-<li>会话ID（如果是恢复会话）</li>
-</ul>
-<h3 id="5-2-Server-Hello"><a href="#5-2-Server-Hello" class="headerlink" title="5.2 Server Hello"></a>5.2 Server Hello</h3><ul>
-<li>服务器选择TLS版本</li>
-<li>选择加密套件</li>
-<li>随机数（Server Random）</li>
-<li>服务器证书</li>
-</ul>
-<h3 id="5-3-密钥交换"><a href="#5-3-密钥交换" class="headerlink" title="5.3 密钥交换"></a>5.3 密钥交换</h3><ul>
-<li>客户端验证服务器证书</li>
-<li>生成预主密钥（Pre-master Secret）</li>
-<li>使用服务器公钥加密预主密钥</li>
-<li>计算主密钥（Master Secret）</li>
-</ul>
-<h3 id="5-4-完成握手"><a href="#5-4-完成握手" class="headerlink" title="5.4 完成握手"></a>5.4 完成握手</h3><ul>
-<li>切换到加密通信</li>
-<li>验证握手消息的完整性</li>
-<li>开始安全数据传输</li>
-</ul>
-<h2 id="6-TLS的应用场景"><a href="#6-TLS的应用场景" class="headerlink" title="6. TLS的应用场景"></a>6. TLS的应用场景</h2><h3 id="6-1-HTTPS"><a href="#6-1-HTTPS" class="headerlink" title="6.1 HTTPS"></a>6.1 HTTPS</h3><ul>
-<li>最常见的TLS应用</li>
-<li>为HTTP提供安全传输</li>
-<li>网站必备的安全保障</li>
-</ul>
-<h3 id="6-2-安全邮件"><a href="#6-2-安全邮件" class="headerlink" title="6.2 安全邮件"></a>6.2 安全邮件</h3><ul>
-<li>SMTPS</li>
-<li>IMAPS</li>
-<li>POP3S</li>
-</ul>
-<h3 id="6-3-VPN"><a href="#6-3-VPN" class="headerlink" title="6.3 VPN"></a>6.3 VPN</h3><ul>
-<li>OpenVPN</li>
-<li>其他基于TLS的VPN协议</li>
-</ul>
-<h2 id="7-常见攻击与防范"><a href="#7-常见攻击与防范" class="headerlink" title="7. 常见攻击与防范"></a>7. 常见攻击与防范</h2><h3 id="7-1-中间人攻击"><a href="#7-1-中间人攻击" class="headerlink" title="7.1 中间人攻击"></a>7.1 中间人攻击</h3><ul>
-<li>攻击者冒充服务器</li>
-<li>通过证书验证防范</li>
-<li>使用可信CA签发的证书</li>
-</ul>
-<h3 id="7-2-降级攻击"><a href="#7-2-降级攻击" class="headerlink" title="7.2 降级攻击"></a>7.2 降级攻击</h3><ul>
-<li>强制使用低版本协议</li>
-<li>禁用不安全的协议版本</li>
-<li>启用降级保护机制</li>
-</ul>
-<h3 id="7-3-重放攻击"><a href="#7-3-重放攻击" class="headerlink" title="7.3 重放攻击"></a>7.3 重放攻击</h3><ul>
-<li>重放已捕获的数据包</li>
-<li>使用随机数和时间戳</li>
-<li>会话标识符唯一性</li>
-</ul>
-<h2 id="8-最佳实践"><a href="#8-最佳实践" class="headerlink" title="8. 最佳实践"></a>8. 最佳实践</h2><h3 id="8-1-协议配置"><a href="#8-1-协议配置" class="headerlink" title="8.1 协议配置"></a>8.1 协议配置</h3><ul>
-<li>仅启用TLS 1.2及以上版本</li>
-<li>使用强加密套件</li>
-<li>启用前向保密</li>
-</ul>
-<h3 id="8-2-证书管理"><a href="#8-2-证书管理" class="headerlink" title="8.2 证书管理"></a>8.2 证书管理</h3><ul>
-<li>及时更新证书</li>
-<li>使用适当的密钥长度</li>
-<li>正确配置证书链</li>
-</ul>
-<h3 id="8-3-安全监控"><a href="#8-3-安全监控" class="headerlink" title="8.3 安全监控"></a>8.3 安全监控</h3><ul>
-<li>记录TLS错误日志</li>
-<li>监控证书有效期</li>
-<li>定期安全评估</li>
-</ul>
-]]></content>
-      <categories>
-        <category>通信协议</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>加密</tag>
-        <tag>HTTPS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NFC Note</title>
     <url>/posts/78289205/</url>
     <content><![CDATA[<h2 id="什么是NFC？"><a href="#什么是NFC？" class="headerlink" title="什么是NFC？"></a>什么是NFC？</h2><p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
@@ -597,6 +376,828 @@
         <tag>无线通信</tag>
         <tag>NFC</tag>
         <tag>RFID</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Anaconda Note</title>
+    <url>/posts/7066aaf6/</url>
+    <content><![CDATA[<h2 id="Anaconda"><a href="#Anaconda" class="headerlink" title="Anaconda"></a>Anaconda</h2><p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
+<span id="more"></span>
+
+<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
+<ol>
+<li><strong>Python</strong>:<ul>
+<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
+</ul>
+</li>
+<li><strong>Conda</strong>:<ul>
+<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
+<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
+</ul>
+</li>
+<li><strong>Anaconda</strong>:<ul>
+<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
+<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
+</ul>
+</li>
+</ol>
+<h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a><strong>基本命令</strong></h3><ol>
+<li><strong>创建和管理环境</strong>：<ul>
+<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
+<li>激活环境：<code>conda activate myenv</code></li>
+<li>退出环境：<code>conda deactivate</code></li>
+<li>列出环境：<code>conda env list</code></li>
+<li>删除环境：<code>conda remove --name myenv --all</code></li>
+</ul>
+</li>
+<li><strong>包管理</strong>：<ul>
+<li>安装包：<code>conda install package_name</code></li>
+<li>更新包：<code>conda update package_name</code></li>
+<li>卸载包：<code>conda remove package_name</code></li>
+<li>列出安装的包：<code>conda list</code></li>
+</ul>
+</li>
+<li><strong>环境导出和导入</strong>：<ul>
+<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
+<li>导入环境：<code>conda env create -f environment.yml</code></li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>conda</tag>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CSS Note</title>
+    <url>/posts/752f9918/</url>
+    <content><![CDATA[<h2 id="CSS心得"><a href="#CSS心得" class="headerlink" title="CSS心得"></a>CSS心得</h2><p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
+<span id="more"></span>
+
+<p>body最好设为**overflow:hidden;**这样就不会出现最大页面的滑动框</p>
+<p>color才是字体颜色</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="常见css"><a href="#常见css" class="headerlink" title="常见css"></a>常见css</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常见flex属性"><a href="#常见flex属性" class="headerlink" title="常见flex属性"></a>常见flex属性</h3><p>flex: 1；可以搭配overflow：hidden；使用</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="技巧：可以搭配js实现宽度变化"><a href="#技巧：可以搭配js实现宽度变化" class="headerlink" title="技巧：可以搭配js实现宽度变化"></a>技巧：可以搭配js实现宽度变化</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="技巧：改变列宽"><a href="#技巧：改变列宽" class="headerlink" title="技巧：改变列宽"></a>技巧：改变列宽</h3><p>将单元格设为如下</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
+
+<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
+<ol>
+<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
+<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
+</ol>
+<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
+<p>这里的技巧是color:white;这样不会影响表格的美观</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="技巧：表格置顶"><a href="#技巧：表格置顶" class="headerlink" title="技巧：表格置顶"></a>技巧：表格置顶</h3><p>outline是为了修复滑动时失去边界的bug</p>
+<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
+<ul>
+<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
+<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>CSS</category>
+      </categories>
+      <tags>
+        <tag>CSS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
+<span id="more"></span>
+
+<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p>发现可以正常读取了</p>
+<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>influxdb</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TLS Note</title>
+    <url>/posts/32f5e233/</url>
+    <content><![CDATA[<h2 id="1-什么是TLS"><a href="#1-什么是TLS" class="headerlink" title="1. 什么是TLS"></a>1. 什么是TLS</h2><p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
+<span id="more"></span>
+
+<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
+<h2 id="2-TLS的主要功能"><a href="#2-TLS的主要功能" class="headerlink" title="2. TLS的主要功能"></a>2. TLS的主要功能</h2><p>TLS提供以下三个主要的安全服务：</p>
+<h3 id="2-1-身份认证"><a href="#2-1-身份认证" class="headerlink" title="2.1 身份认证"></a>2.1 身份认证</h3><p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
+<h3 id="2-2-数据加密"><a href="#2-2-数据加密" class="headerlink" title="2.2 数据加密"></a>2.2 数据加密</h3><p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
+<h3 id="2-3-完整性校验"><a href="#2-3-完整性校验" class="headerlink" title="2.3 完整性校验"></a>2.3 完整性校验</h3><p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
+<h2 id="3-TLS的版本演进"><a href="#3-TLS的版本演进" class="headerlink" title="3. TLS的版本演进"></a>3. TLS的版本演进</h2><p>TLS协议经历了多个版本的演进：</p>
+<ul>
+<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
+<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
+<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
+<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
+<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
+<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
+</ul>
+<h2 id="4-TLS的密码学原理"><a href="#4-TLS的密码学原理" class="headerlink" title="4. TLS的密码学原理"></a>4. TLS的密码学原理</h2><h3 id="4-1-对称加密"><a href="#4-1-对称加密" class="headerlink" title="4.1 对称加密"></a>4.1 对称加密</h3><ul>
+<li>使用相同的密钥进行加密和解密</li>
+<li>常用算法：AES、ChaCha20</li>
+<li>用于加密传输的数据</li>
+</ul>
+<h3 id="4-2-非对称加密"><a href="#4-2-非对称加密" class="headerlink" title="4.2 非对称加密"></a>4.2 非对称加密</h3><ul>
+<li>使用公钥加密，私钥解密</li>
+<li>常用算法：RSA、ECDSA</li>
+<li>用于密钥交换和身份认证</li>
+</ul>
+<h3 id="4-3-数字证书"><a href="#4-3-数字证书" class="headerlink" title="4.3 数字证书"></a>4.3 数字证书</h3><ul>
+<li>X.509格式证书</li>
+<li>包含服务器的公钥和身份信息</li>
+<li>由CA机构签名认证</li>
+</ul>
+<h3 id="4-4-消息认证码"><a href="#4-4-消息认证码" class="headerlink" title="4.4 消息认证码"></a>4.4 消息认证码</h3><ul>
+<li>HMAC算法</li>
+<li>确保消息完整性</li>
+<li>防止数据被篡改</li>
+</ul>
+<h2 id="5-TLS握手过程"><a href="#5-TLS握手过程" class="headerlink" title="5. TLS握手过程"></a>5. TLS握手过程</h2><p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
+<h3 id="5-1-Client-Hello"><a href="#5-1-Client-Hello" class="headerlink" title="5.1 Client Hello"></a>5.1 Client Hello</h3><ul>
+<li>客户端发送支持的TLS版本</li>
+<li>支持的加密套件列表</li>
+<li>随机数（Client Random）</li>
+<li>会话ID（如果是恢复会话）</li>
+</ul>
+<h3 id="5-2-Server-Hello"><a href="#5-2-Server-Hello" class="headerlink" title="5.2 Server Hello"></a>5.2 Server Hello</h3><ul>
+<li>服务器选择TLS版本</li>
+<li>选择加密套件</li>
+<li>随机数（Server Random）</li>
+<li>服务器证书</li>
+</ul>
+<h3 id="5-3-密钥交换"><a href="#5-3-密钥交换" class="headerlink" title="5.3 密钥交换"></a>5.3 密钥交换</h3><ul>
+<li>客户端验证服务器证书</li>
+<li>生成预主密钥（Pre-master Secret）</li>
+<li>使用服务器公钥加密预主密钥</li>
+<li>计算主密钥（Master Secret）</li>
+</ul>
+<h3 id="5-4-完成握手"><a href="#5-4-完成握手" class="headerlink" title="5.4 完成握手"></a>5.4 完成握手</h3><ul>
+<li>切换到加密通信</li>
+<li>验证握手消息的完整性</li>
+<li>开始安全数据传输</li>
+</ul>
+<h2 id="6-TLS的应用场景"><a href="#6-TLS的应用场景" class="headerlink" title="6. TLS的应用场景"></a>6. TLS的应用场景</h2><h3 id="6-1-HTTPS"><a href="#6-1-HTTPS" class="headerlink" title="6.1 HTTPS"></a>6.1 HTTPS</h3><ul>
+<li>最常见的TLS应用</li>
+<li>为HTTP提供安全传输</li>
+<li>网站必备的安全保障</li>
+</ul>
+<h3 id="6-2-安全邮件"><a href="#6-2-安全邮件" class="headerlink" title="6.2 安全邮件"></a>6.2 安全邮件</h3><ul>
+<li>SMTPS</li>
+<li>IMAPS</li>
+<li>POP3S</li>
+</ul>
+<h3 id="6-3-VPN"><a href="#6-3-VPN" class="headerlink" title="6.3 VPN"></a>6.3 VPN</h3><ul>
+<li>OpenVPN</li>
+<li>其他基于TLS的VPN协议</li>
+</ul>
+<h2 id="7-常见攻击与防范"><a href="#7-常见攻击与防范" class="headerlink" title="7. 常见攻击与防范"></a>7. 常见攻击与防范</h2><h3 id="7-1-中间人攻击"><a href="#7-1-中间人攻击" class="headerlink" title="7.1 中间人攻击"></a>7.1 中间人攻击</h3><ul>
+<li>攻击者冒充服务器</li>
+<li>通过证书验证防范</li>
+<li>使用可信CA签发的证书</li>
+</ul>
+<h3 id="7-2-降级攻击"><a href="#7-2-降级攻击" class="headerlink" title="7.2 降级攻击"></a>7.2 降级攻击</h3><ul>
+<li>强制使用低版本协议</li>
+<li>禁用不安全的协议版本</li>
+<li>启用降级保护机制</li>
+</ul>
+<h3 id="7-3-重放攻击"><a href="#7-3-重放攻击" class="headerlink" title="7.3 重放攻击"></a>7.3 重放攻击</h3><ul>
+<li>重放已捕获的数据包</li>
+<li>使用随机数和时间戳</li>
+<li>会话标识符唯一性</li>
+</ul>
+<h2 id="8-最佳实践"><a href="#8-最佳实践" class="headerlink" title="8. 最佳实践"></a>8. 最佳实践</h2><h3 id="8-1-协议配置"><a href="#8-1-协议配置" class="headerlink" title="8.1 协议配置"></a>8.1 协议配置</h3><ul>
+<li>仅启用TLS 1.2及以上版本</li>
+<li>使用强加密套件</li>
+<li>启用前向保密</li>
+</ul>
+<h3 id="8-2-证书管理"><a href="#8-2-证书管理" class="headerlink" title="8.2 证书管理"></a>8.2 证书管理</h3><ul>
+<li>及时更新证书</li>
+<li>使用适当的密钥长度</li>
+<li>正确配置证书链</li>
+</ul>
+<h3 id="8-3-安全监控"><a href="#8-3-安全监控" class="headerlink" title="8.3 安全监控"></a>8.3 安全监控</h3><ul>
+<li>记录TLS错误日志</li>
+<li>监控证书有效期</li>
+<li>定期安全评估</li>
+</ul>
+]]></content>
+      <categories>
+        <category>通信协议</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>加密</tag>
+        <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>前端浏览器缓存机制</title>
+    <url>/posts/50ac740b/</url>
+    <content><![CDATA[<h2 id="前端浏览器缓存机制"><a href="#前端浏览器缓存机制" class="headerlink" title="前端浏览器缓存机制"></a>前端浏览器缓存机制</h2><p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
+<span id="more"></span>
+
+<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
+<h4 id="1-强缓存（Strong-Caching）"><a href="#1-强缓存（Strong-Caching）" class="headerlink" title="1. 强缓存（Strong Caching）"></a>1. 强缓存（Strong Caching）</h4><p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
+<ul>
+<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p>
+</li>
+<li><p><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：</p>
+<ul>
+<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
+<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
+<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
+<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
+</ul>
+</li>
+</ul>
+<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
+<h4 id="2-协商缓存（Negotiation-Caching）"><a href="#2-协商缓存（Negotiation-Caching）" class="headerlink" title="2. 协商缓存（Negotiation Caching）"></a>2. 协商缓存（Negotiation Caching）</h4><p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
+<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
+<ul>
+<li><p><strong>Last-Modified &amp; If-Modified-Since</strong>: </p>
+<ul>
+<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
+<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
+</ul>
+</li>
+<li><p><strong>ETag &amp; If-None-Match</strong>:</p>
+<ul>
+<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
+<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
+</ul>
+</li>
+</ul>
+<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
+<h4 id="3-哈希与缓存（Hash）"><a href="#3-哈希与缓存（Hash）" class="headerlink" title="3. 哈希与缓存（Hash）"></a>3. 哈希与缓存（Hash）</h4><p>**哈希（Hash）**与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
+<p><strong>典型用法</strong>：</p>
+<ul>
+<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
+<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
+</ul>
+<p><strong>总结</strong>：</p>
+<ul>
+<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
+<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
+<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
+</ul>
+<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
+<h3 id="什么是CDN（内容分发网络）"><a href="#什么是CDN（内容分发网络）" class="headerlink" title="什么是CDN（内容分发网络）"></a>什么是CDN（内容分发网络）</h3><p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
+<h4 id="CDN的工作原理"><a href="#CDN的工作原理" class="headerlink" title="CDN的工作原理"></a>CDN的工作原理</h4><ol>
+<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p>
+</li>
+<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p>
+</li>
+<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p>
+</li>
+<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p>
+</li>
+</ol>
+<h4 id="CDN的主要优势"><a href="#CDN的主要优势" class="headerlink" title="CDN的主要优势"></a>CDN的主要优势</h4><ol>
+<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p>
+</li>
+<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p>
+</li>
+<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p>
+</li>
+<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p>
+</li>
+<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p>
+</li>
+</ol>
+<h4 id="CDN的使用场景"><a href="#CDN的使用场景" class="headerlink" title="CDN的使用场景"></a>CDN的使用场景</h4><ul>
+<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
+<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
+<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
+</ul>
+<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>编码</title>
+    <url>/posts/6f8a188e/</url>
+    <content><![CDATA[<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>今天在复习编译原理的时候，发现对底层的编码都是还停留在听过或者见过的状态，所以决定学习一下有关编码的知识。</p>
+<span id="more"></span>
+
+<h3 id="编码概述"><a href="#编码概述" class="headerlink" title="编码概述"></a>编码概述</h3><ul>
+<li><strong>定义</strong>：编码是将信息从一种形式或格式转换为另一种形式的过程，以便信息能够被存储、传输或处理。在计算机科学中，编码通常指将人类可读的信息（如文本、图像、声音等）转换为计算机可识别的二进制形式。</li>
+<li><strong>目的</strong>：编码的主要目的是实现信息的有效存储、传输和处理。通过编码，信息可以在不同的系统、设备和网络之间进行交换和共享，同时还能对信息进行加密、压缩等操作以提高安全性、减少存储空间和传输带宽。</li>
+</ul>
+<h3 id="字符编码"><a href="#字符编码" class="headerlink" title="字符编码"></a>字符编码</h3><h4 id="ASCII编码"><a href="#ASCII编码" class="headerlink" title="ASCII编码"></a>ASCII编码</h4><ul>
+<li><strong>背景与起源</strong><ul>
+<li>1960年代，计算机开始普及，但不同厂商使用不同的编码标准，导致信息交换困难</li>
+<li>1967年，美国标准化组织制定ASCII，实现了计算机间的标准化通信</li>
+</ul>
+</li>
+<li><strong>工作原理</strong><ul>
+<li>使用7位二进制数，可以表示128个字符（2^7 &#x3D; 128）</li>
+<li>0-31：控制字符（如换行符\n &#x3D; 10，回车符\r &#x3D; 13）</li>
+<li>32-127：可打印字符（如’A’ &#x3D; 65，’a’ &#x3D; 97，’0’ &#x3D; 48）</li>
+</ul>
+</li>
+<li><strong>优点</strong><ul>
+<li>简单易用，是最基础的编码标准</li>
+<li>至今仍被广泛使用，现代编码方案都兼容ASCII</li>
+</ul>
+</li>
+<li><strong>缺点</strong><ul>
+<li>只能表示英文字母和符号，无法表示其他语言字符</li>
+<li>例如：无法表示”中文”、”日本語”等字符</li>
+</ul>
+</li>
+</ul>
+<h4 id="GB2312与GBK"><a href="#GB2312与GBK" class="headerlink" title="GB2312与GBK"></a>GB2312与GBK</h4><ul>
+<li><p><strong>GB2312</strong></p>
+<ul>
+<li><strong>起源</strong>：1980年，中国为解决计算机无法显示汉字问题而制定</li>
+<li><strong>原理</strong>：采用双字节编码<ul>
+<li>首字节范围0xA1-0xF7，次字节范围0xA1-0xFE</li>
+<li>加0xA1是为了避开ASCII码的0x00-0x7F区域，确保与ASCII兼容</li>
+<li>分区设计：<ul>
+<li>01-09区：特殊符号</li>
+<li>16-55区：一级汉字（3755个常用字）</li>
+<li>56-87区：二级汉字（3008个次常用字）</li>
+<li>10-15区：保留区</li>
+</ul>
+</li>
+<li>每个区94个字符，共94个区</li>
+</ul>
+</li>
+<li><strong>示例</strong>：<ul>
+<li>“中”的GB2312编码为0xD6D0（第45区第60个汉字）</li>
+<li>“国”的GB2312编码为0xB9FA（第16区第15个汉字）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>优点</strong>：</p>
+<ul>
+<li>完全兼容ASCII</li>
+<li>包含6763个常用汉字，满足基本需求</li>
+<li><strong>缺点</strong>：<ul>
+<li>汉字数量有限，部分生僻字无法表示</li>
+<li>不支持繁体中文、日韩文字</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>GBK</strong></p>
+<ul>
+<li><strong>起源</strong>：1995年推出，是GB2312的扩展</li>
+<li><strong>特点</strong>：<ul>
+<li>向下完全兼容GB2312</li>
+<li>收录21003个汉字，包括繁体字</li>
+</ul>
+</li>
+<li><strong>示例</strong>：<ul>
+<li>“㠭”（生僻字）在GB2312中无法表示，但GBK可以表示</li>
+</ul>
+</li>
+<li><strong>优点</strong>：<ul>
+<li>字符集更大，能满足绝大多数中文处理需求</li>
+<li>兼容性好，在中国大陆使用广泛</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>不是国际标准，在跨国际平台可能出现乱码</li>
+<li>无法表示其他国家的文字系统</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="Unicode与UTF编码"><a href="#Unicode与UTF编码" class="headerlink" title="Unicode与UTF编码"></a>Unicode与UTF编码</h4><ul>
+<li><p><strong>Unicode</strong></p>
+<ul>
+<li><strong>起源</strong>：<ul>
+<li>1991年推出，目标是统一全球所有字符编码</li>
+<li>由于各国编码标准不一，同一个二进制值在不同编码下可能表示不同字符，造成乱码</li>
+</ul>
+</li>
+<li><strong>特点</strong>：<ul>
+<li>为每个字符分配唯一编码点（Code Point）</li>
+<li>编码空间从U+0000到U+10FFFF，共17个平面（Plane）</li>
+<li>第0平面（BMP，基本多语言平面）：U+0000至U+FFFF，收录最常用字符</li>
+<li>目前已收录超过14万个字符，包括各国文字、符号、emoji等</li>
+</ul>
+</li>
+<li><strong>重要概念</strong>：<ul>
+<li>码点（Code Point）：字符在Unicode字符集中的唯一编号</li>
+<li>平面（Plane）：Unicode编码空间的逻辑分区，每个平面收录65536个字符</li>
+<li>代理对（Surrogate Pair）：使用两个16位值表示BMP之外的字符</li>
+</ul>
+</li>
+<li><strong>示例</strong>：<ul>
+<li>“A” → U+0041（基本拉丁字母）</li>
+<li>“中” → U+4E2D（CJK统一表意文字）</li>
+<li>“😀” → U+1F600（补充表意平面，表情符号）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>UTF-8</strong></p>
+<ul>
+<li><strong>原理</strong>：变长编码方案，使用1-4个字节表示一个字符<ul>
+<li>对于单字节，最高位为0</li>
+<li>对于多字节，第一个字节以几个1开头，就使用几个字节编码</li>
+</ul>
+</li>
+<li><strong>编码规则</strong>：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Unicode范围            UTF-8编码方式</span><br><span class="line">0000-007F: 0xxxxxxx</span><br><span class="line">0080-07FF: 110xxxxx 10xxxxxx</span><br><span class="line">0800-FFFF: 1110xxxx 10xxxxxx 10xxxxxx</span><br><span class="line">10000-10FFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</span><br></pre></td></tr></table></figure></li>
+<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">字符    Unicode编码点     UTF-8编码          二进制表示</span><br><span class="line">A       U+0041           41                01000001</span><br><span class="line">中      U+4E2D           E4 B8 AD          11100100 10111000 10101101</span><br><span class="line">😀      U+1F600          F0 9F 98 80      11110000 10011111 10011000 10000000</span><br></pre></td></tr></table></figure></li>
+<li><strong>优点</strong>：<ul>
+<li>完全兼容ASCII</li>
+<li>节省存储空间（常用字符占用字节少）</li>
+<li>自同步（可以从任意位置开始解码）</li>
+<li>无字节序问题</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>变长编码使字符定位较慢</li>
+<li>在内存中操作不如定长编码方便</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>UTF-16</strong></p>
+<ul>
+<li><strong>原理</strong>：<ul>
+<li>BMP平面内字符：使用2个字节直接表示</li>
+<li>BMP平面外字符：使用4个字节的代理对（Surrogate Pair）表示</li>
+</ul>
+</li>
+<li><strong>编码规则</strong>：<ul>
+<li>BMP字符：直接用16位表示</li>
+<li>非BMP字符：将码点转换为代理对<ol>
+<li>码点减去0x10000得到20位数</li>
+<li>高10位加上0xD800得到高位代理</li>
+<li>低10位加上0xDC00得到低位代理</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">字符    Unicode编码点     UTF-16编码        说明</span><br><span class="line">A       U+0041           00 41            BMP内字符</span><br><span class="line">中      U+4E2D           4E 2D            BMP内字符</span><br><span class="line">😀      U+1F600          D83D DE00        代理对表示</span><br></pre></td></tr></table></figure></li>
+<li><strong>优点</strong>：<ul>
+<li>处理中日韩文字效率高（大多在BMP平面内）</li>
+<li>Java、JavaScript等语言内部采用此编码</li>
+<li>定长编码便于字符定位</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：<ul>
+<li>不兼容ASCII</li>
+<li>存在大小端序问题（需要BOM标记）</li>
+<li>占用空间较大</li>
+<li>代理对处理复杂</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="数据编码"><a href="#数据编码" class="headerlink" title="数据编码"></a>数据编码</h3><ul>
+<li><strong>数字编码</strong><ul>
+<li><strong>二进制编码</strong>：将数字转换为二进制形式，是计算机处理数字信息的基础。例如，十进制数10的二进制编码是1010。</li>
+<li><strong>BCD编码</strong>：二进制编码的十进制数，将十进制数的每一位分别转换为4位二进制数。例如，十进制数10的BCD编码是0001 0000。</li>
+</ul>
+</li>
+<li><strong>图像编码</strong><ul>
+<li><strong>位图编码</strong>：将图像的每个像素点的颜色信息直接存储起来，常见的位图格式有BMP、PNG等。</li>
+<li><strong>压缩编码</strong>：通过减少图像数据的冗余信息来实现数据压缩，常见的压缩编码格式有JPEG、GIF等。JPEG采用离散余弦变换（DCT）和量化等技术，GIF采用LZW压缩算法。</li>
+</ul>
+</li>
+<li><strong>音频编码</strong><ul>
+<li><strong>PCM编码</strong>：脉冲编码调制，将模拟音频信号转换为数字信号，是音频数字化的基础。PCM编码的音频数据量较大。</li>
+<li><strong>压缩编码</strong>：通过减少音频数据的冗余信息来实现数据压缩，常见的压缩编码格式有MP3、AAC等。MP3采用心理声学模型和变换编码等技术，AAC是MP3的改进版本，具有更高的压缩效率和音质。</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+      </categories>
+      <tags>
+        <tag>编码</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>机器学习入门01</title>
+    <url>/posts/debf589c/</url>
+    <content><![CDATA[<p>本科毕设的研究方向与隐私计算有关，联邦学习算是其中的一个分支技术，机器学习算是其中的一个基础理论。因此打算记录一下机器学习的一些基础知识。</p>
+<span id="more"></span>
+
+<h2 id="参考教程"><a href="#参考教程" class="headerlink" title="参考教程"></a>参考教程</h2><p>以下是我计划学习的机器学习课程资源：</p>
+<ul>
+<li><p><a href="https://developers.google.cn/machine-learning/crash-course/linear-regression?hl=zh-cn">Google机器学习速成课程</a> - Google官方入门教程，内容简洁实用</p>
+</li>
+<li><p><a href="https://search.bilibili.com/all?keyword=%E5%90%B4%E6%81%A9%E8%BE%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0">吴恩达机器学习课程</a> - Coursera上最受欢迎的机器学习课程之一，适合入门</p>
+</li>
+<li><p><a href="https://www.bilibili.com/video/BV1YsqSY8EiW">李宏毅机器学习课程</a> - 台湾大学教授的机器学习课程，讲解深入浅出</p>
+</li>
+<li><p><a href="https://www.bilibili.com/video/BV1if4y147hS">李沐动手学深度学习</a> - 亚马逊资深科学家的实战课程，注重代码实践</p>
+</li>
+</ul>
+<p>今天先从google的机器学习速成课程开始。</p>
+<h2 id="什么是机器学习-Machine-Learning-？"><a href="#什么是机器学习-Machine-Learning-？" class="headerlink" title="什么是机器学习(Machine Learning)？"></a>什么是机器学习(Machine Learning)？</h2><p>从基本层面来说，机器学习是指训练一款名为模型(Model)的软件，以便做出有用的预测或根据数据生成内容。</p>
+<h3 id="机器学习系统类型"><a href="#机器学习系统类型" class="headerlink" title="机器学习系统类型"></a>机器学习系统类型</h3><p>根据机器学习系统学习预测或生成内容的方式，它们可分为以下一个或多个类别：</p>
+<ul>
+<li>监督式学习(Supervised Learning)</li>
+<li>非监督式学习(Unsupervised Learning)</li>
+<li>强化学习(Reinforcement Learning)</li>
+<li>生成式 AI(Generative AI)</li>
+</ul>
+<h3 id="监督式学习-Supervised-Learning"><a href="#监督式学习-Supervised-Learning" class="headerlink" title="监督式学习(Supervised Learning)"></a>监督式学习(Supervised Learning)</h3><p>监督式学习模型在看到包含正确答案的大量数据后，可以发现产生正确答案的数据元素之间的关联，然后进行预测。这就像学生通过研究包含问题和答案的旧考试来学习新材料。学生在使用足够多的旧版考试进行训练后，就可以做好准备参加新版考试了。这些机器学习系统是”监督式”的，这意味着人类会向机器学习系统提供包含已知正确结果的数据。</p>
+<p>监督式学习的两种最常见用例是回归(Regression)和分类(Classification)。</p>
+<h4 id="回归-Regression"><a href="#回归-Regression" class="headerlink" title="回归(Regression)"></a>回归(Regression)</h4><p>回归模型可以预测连续的数值(Continuous Value)。回归模型的输出是一个具体的数字,比如预测房价是500万元,或预测明天的降雨量是50毫米。</p>
+<p>以下是一些典型的回归应用场景:</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>输入数据</th>
+<th>预测结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>房价预测</td>
+<td>建筑面积、位置、装修等级、周边配套等</td>
+<td>房屋价格(元)</td>
+</tr>
+<tr>
+<td>行程时间预测</td>
+<td>路况、天气、历史数据等</td>
+<td>到达时间(分钟)</td>
+</tr>
+</tbody></table>
+<h4 id="分类-Classification"><a href="#分类-Classification" class="headerlink" title="分类(Classification)"></a>分类(Classification)</h4><p>分类模型用于预测某个对象属于特定类别的可能性。与输出连续数值的回归模型不同,分类模型输出的是离散的类别(Discrete Category)标签(Category Label)。</p>
+<p>分类模型可以分为:</p>
+<ul>
+<li>二元分类(Binary Classification):输出仅包含两个类别,如判断邮件是否为垃圾邮件(是&#x2F;否)</li>
+<li>多类分类(Multi-class Classification):可以输出多个类别,如识别图片中的天气类型(晴天&#x2F;雨天&#x2F;雪天等)</li>
+</ul>
+<p>分类的典型应用包括:</p>
+<ul>
+<li>垃圾邮件检测</li>
+<li>图像识别</li>
+<li>疾病诊断</li>
+<li>信用评估</li>
+</ul>
+<h3 id="非监督式学习-Unsupervised-Learning"><a href="#非监督式学习-Unsupervised-Learning" class="headerlink" title="非监督式学习(Unsupervised Learning)"></a>非监督式学习(Unsupervised Learning)</h3><p>非监督式学习模型通过获得不含任何正确答案的数据来进行预测。非监督式学习模型的目标是找出数据中具有意义的模式。换句话说，模型没有关于如何对每项数据进行分类的提示，而是必须推断自己的规则。</p>
+<p>一种常用的非监督式学习模型采用了一种称为聚类(Clustering)的技术。该模型会找到用于划分自然分组的数据点。<br><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A801.png" alt="alt text"></p>
+<h3 id="强化学习-Reinforcement-Learning"><a href="#强化学习-Reinforcement-Learning" class="headerlink" title="强化学习(Reinforcement Learning)"></a>强化学习(Reinforcement Learning)</h3><p>强化学习(Reinforcement Learning)模型根据在环境中执行的操作获得奖励或惩罚，从而进行预测。强化学习系统会生成政策，定义用于获得最多奖励的最佳策略。</p>
+<p>强化学习用于训练机器人执行任务（例如在房间内四处走动），以及训练 AlphaGo 等软件程序玩围棋。</p>
+<h3 id="生成式-AI-Generative-AI"><a href="#生成式-AI-Generative-AI" class="headerlink" title="生成式 AI(Generative AI)"></a>生成式 AI(Generative AI)</h3><p>生成式 AI 是一类根据用户输入生成内容的模型。例如，生成式 AI 可以创作独特的图片、音乐作品和笑话；它可以总结文章、说明如何执行任务或编辑照片。</p>
+<p>生成式 AI 可以接受各种输入，并创建各种输出，例如文本、图片、音频和视频。它还可以接受和创建这些值的组合。例如，模型可以接受图片作为输入，并创建图片和文本作为输出，也可以接受图片和文本作为输入，并创建视频作为输出。</p>
+<p>我们可以通过生成模型的输入和输出来讨论它们，通常以”输入类型”到”输出类型”的形式写出。例如，以下是生成式模型的部分输入和输出列表：</p>
+<ul>
+<li>文本到文本</li>
+<li>文本到图像</li>
+<li>文本到视频</li>
+<li>文本转代码</li>
+<li>文本转语音</li>
+<li>图片和文本到图片</li>
+</ul>
+<p>生成式 AI 如何运作？概括来讲，生成式模型会学习数据中的模式，目标是生成新的但类似的数据。<br>为了生成独特且富有创意的输出，生成式模型最初使用非监督式方法进行训练，在这种方法中，模型会学习模仿其训练数据。有时，系统会使用监督学习或强化学习对与模型可能被要求执行的任务（例如总结文章或编辑照片）相关的特定数据进行进一步训练。</p>
+<h3 id="监督式学习基础概念"><a href="#监督式学习基础概念" class="headerlink" title="监督式学习基础概念"></a>监督式学习基础概念</h3><p>监督式学习的任务定义明确，可用于多种场景，例如识别垃圾内容或预测降水。</p>
+<p>监督式机器学习基于以下核心概念：</p>
+<ul>
+<li>数据(Data)</li>
+<li>模型(Model)</li>
+<li>训练(Training)</li>
+<li>评估(Evaluation)</li>
+<li>推理(Inference)</li>
+</ul>
+<h4 id="数据-Data"><a href="#数据-Data" class="headerlink" title="数据(Data)"></a>数据(Data)</h4><p>数据是机器学习的驱动力。数据的形式为存储在表中的单词和数字，或以图片和音频文件中捕获的像素和波形值的形式。我们将相关数据存储在数据集(Dataset)中。</p>
+<p>例如，我们可能拥有以下类型的数据集：</p>
+<ul>
+<li>猫的图片集</li>
+<li>房价数据</li>
+<li>天气信息</li>
+</ul>
+<p>数据集由包含特征(Feature)和标签(Label)的各个样本(Sample)组成。您可以将样本视为电子表格中的一行。其中：</p>
+<ul>
+<li>特征是监督式模型用于预测标签的值</li>
+<li>标签就是”答案”，也就是我们想要模型预测的值</li>
+</ul>
+<p>以预测降雨的天气模型为例：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>特征</td>
+<td>纬度、经度、温度、湿度、云覆盖范围、风向、气压</td>
+</tr>
+<tr>
+<td>标签</td>
+<td>降雨量</td>
+</tr>
+</tbody></table>
+<p>同时包含特征和标签的样本称为有标签样本(Labeled Sample)。</p>
+<h4 id="数据集特征-Dataset-Characteristics"><a href="#数据集特征-Dataset-Characteristics" class="headerlink" title="数据集特征(Dataset Characteristics)"></a>数据集特征(Dataset Characteristics)</h4><p>数据集的特征是规模(Scale)和多样性(Diversity)。大小表示样本数量。多样性表示这些样本所涵盖的范围。好的数据集要既大又多样化。</p>
+<p>有些数据集规模庞大且丰富多样。然而，有些数据集很大但多样性较低，还有一些虽然较小但多样性较高。换言之，大型数据集不能保证足够的多样性，高度多样性的数据集也无法保证有足够的样本。</p>
+<p>例如：</p>
+<ul>
+<li>数据集可能包含 100 年的数据，但只包含 7 月份的数据。使用此数据集来预测 1 月的降雨量会产生较差的预测。</li>
+<li>相反，数据集可能仅涵盖几年，但包含每月。此数据集可能产生较差的预测，因为它未涵盖足够的年份解释可变性。</li>
+</ul>
+<p>数据集的特征数量也可以作为特征。例如：</p>
+<ul>
+<li>某些天气数据集可能包含数百个特征，从卫星图像到云覆盖率值，不一而足</li>
+<li>其他数据集可能只包含三四个特征，例如湿度、大气压力和温度</li>
+</ul>
+<p>具有更多特征的数据集有助于模型发现其他模式并做出更好的预测。但是，特征较多的数据集并不一定生成的模型能够提供更好的预测，因为某些特征可能与标签没有因果关系。</p>
+<h4 id="模型-Model"><a href="#模型-Model" class="headerlink" title="模型(Model)"></a>模型(Model)</h4><p>在监督式学习中，模型是复杂的数字集合，用于定义从特定输入特征模式与特定输出标签值的数学关系。模型通过训练发现这些模式。</p>
+<h4 id="训练-Training"><a href="#训练-Training" class="headerlink" title="训练(Training)"></a>训练(Training)</h4><p>监督式模型必须先接受训练，然后才能进行预测。为了训练模型，我们为模型提供一个带有标签样本的数据集。</p>
+<p>训练过程包括以下步骤：</p>
+<ol>
+<li>模型的目标是找到根据特征预测标签的最佳解决方案</li>
+<li>模型通过将预测值与标签的实际值进行比较来找到最佳解决方案</li>
+<li>根据预测值与实际值（定义为损失(Loss)）之间的差异，模型会逐步更新其解决方案</li>
+<li>模型会学习特征与标签之间的数学关系，以便对未见过的数据做出最佳预测</li>
+</ol>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A802.png" alt="alt text"></p>
+<p>例如，如果模型预测降雨量为 1.15 inches，但实际值为 0.75 inches，则模型会修改其解决方案，使其预测更接近 0.75 inches。在模型查看数据集中的每个样本（在某些情况下，多次查看）后，会得到一个能够为每个样本做出平均最佳预测的解决方案。</p>
+<p>通过这种方式，模型可以逐步学习特征与标签之间的正确关系。这种逐渐理解的机制也是为什么庞大、多样化的数据集能够产生更好的模型的原因。该模型看到了更多值范围更广的数据，并且改进了对特征与标签之间关系的理解。</p>
+<p>在训练期间，机器学习从业者可以对模型用于进行预测的配置和功能进行细微调整。例如，某些特征的预测能力高于其他特征。因此，机器学习从业者可以选择模型在训练期间使用哪些特征。例如，假设天气数据集包含 time_of_day 作为特征。在这种情况下，机器学习从业者可以在训练期间添加或移除 time_of_day，以查看在使用或不使用该模型的情况下，模型是否能够更好地进行预测。</p>
+<h4 id="评估-Evaluation"><a href="#评估-Evaluation" class="headerlink" title="评估(Evaluation)"></a>评估(Evaluation)</h4><p>我们会评估经过训练的模型，以确定它的学习效果。在评估模型时，我们会使用加标签的数据集，但仅向模型提供数据集的特征。然后，我们会将模型的预测结果与标签的真实值进行比较。</p>
+<p>评估模型时，我们通常会使用以下指标：</p>
+<ul>
+<li>准确率(Accuracy)</li>
+<li>精确率(Precision)</li>
+<li>召回率(Recall)</li>
+</ul>
+<p>根据模型的预测，我们可能会在实际应用中部署模型之前进行更多的训练和评估。</p>
+<h4 id="推理-Inference"><a href="#推理-Inference" class="headerlink" title="推理(Inference)"></a>推理(Inference)</h4><p>对评估模型的结果感到满意后，我们就可以使用模型对无标签样本进行预测（称为推断）。在天气应用示例中，我们将为模型提供当前的天气条件（如温度、大气压和相对湿度），并预测降雨量。</p>
+<p>以上是机器学习的基础概念，后续的内容请看下一篇博客。</p>
+]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络通信漫谈 - 从TCP/IP到gRPC</title>
+    <url>/posts/f520f9c/</url>
+    <content><![CDATA[<h2 id="计算机通信的层次"><a href="#计算机通信的层次" class="headerlink" title="计算机通信的层次"></a>计算机通信的层次</h2><p>计算机通信是计算机网络形成的基础，这篇博客我们来简单了解一下现有的计算机网络通信协议。</p>
+<span id="more"></span>
+<h3 id="网络分层模型"><a href="#网络分层模型" class="headerlink" title="网络分层模型"></a>网络分层模型</h3><p>理论上有OSI七层模型,但在实际应用中我们更常用TCP&#x2F;IP四层模型:</p>
+<ul>
+<li>应用层:HTTP、FTP、SMTP、gRPC等应用协议</li>
+<li>传输层:TCP、UDP等传输控制协议</li>
+<li>网络层:IP、ICMP等网络协议</li>
+<li>网络接口层:以太网、WiFi等物理传输协议</li>
+</ul>
+<p>这种分层设计让我们可以在不改变其他层的情况下优化或替换某一层的实现。就像我们可以在同样的TCP协议上开发HTTP、FTP等不同的应用协议,也可以用WiFi或网线作为物理传输介质。</p>
+<h2 id="协议栈的演进"><a href="#协议栈的演进" class="headerlink" title="协议栈的演进"></a>协议栈的演进</h2><h3 id="基础传输层-TCP与UDP"><a href="#基础传输层-TCP与UDP" class="headerlink" title="基础传输层 - TCP与UDP"></a>基础传输层 - TCP与UDP</h3><p>传输层是整个协议栈的核心,提供了两种主要的传输服务:</p>
+<p>TCP(传输控制协议):</p>
+<ul>
+<li>面向连接:通信前需要建立连接(三次握手)</li>
+<li>可靠传输:使用确认机制和重传机制保证数据可靠到达</li>
+<li>流量控制:根据接收方处理能力调整发送速率</li>
+<li>拥塞控制:根据网络状况调整发送速率</li>
+<li>适用场景:文件传输、网页访问等对可靠性要求高的应用</li>
+</ul>
+<p>UDP(用户数据报协议):</p>
+<ul>
+<li>无连接:不需要建立连接即可传输数据</li>
+<li>不可靠:不保证数据一定送达</li>
+<li>无流量控制和拥塞控制</li>
+<li>开销小、延迟低</li>
+<li>适用场景:视频直播、游戏等对实时性要求高的应用</li>
+</ul>
+<h3 id="应用层的发展"><a href="#应用层的发展" class="headerlink" title="应用层的发展"></a>应用层的发展</h3><h4 id="HTTP-互联网的通用语言"><a href="#HTTP-互联网的通用语言" class="headerlink" title="HTTP - 互联网的通用语言"></a>HTTP - 互联网的通用语言</h4><p>HTTP协议构建在TCP之上,经历了几个重要版本:</p>
+<p>HTTP&#x2F;1.1:</p>
+<ul>
+<li>持久连接:复用TCP连接</li>
+<li>管道化请求:支持多个请求排队</li>
+<li>但存在队头阻塞问题</li>
+</ul>
+<p>HTTP&#x2F;2:</p>
+<ul>
+<li>多路复用:在同一连接上并发处理多个请求</li>
+<li>头部压缩:减少传输开销</li>
+<li>服务器推送:主动推送相关资源</li>
+<li>二进制分帧:更高效的数据传输</li>
+</ul>
+<h4 id="gRPC-现代分布式系统的新选择"><a href="#gRPC-现代分布式系统的新选择" class="headerlink" title="gRPC - 现代分布式系统的新选择"></a>gRPC - 现代分布式系统的新选择</h4><p>gRPC是基于HTTP&#x2F;2构建的高性能RPC框架:</p>
+<ul>
+<li>协议层次:<ul>
+<li>应用层:gRPC API</li>
+<li>中间层:HTTP&#x2F;2</li>
+<li>传输层:TCP</li>
+<li>安全层:TLS(可选)</li>
+</ul>
+</li>
+</ul>
+<p>四种通信模式:</p>
+<ol>
+<li><p>一元RPC(Unary):</p>
+<ul>
+<li>类似HTTP&#x2F;1.1的请求-响应模式</li>
+<li>适用于传统的客户端-服务器交互</li>
+</ul>
+</li>
+<li><p>服务器流式RPC(Server Streaming):</p>
+<ul>
+<li>客户端发送一个请求,服务器返回数据流</li>
+<li>适用于服务器推送场景,如订阅更新</li>
+</ul>
+</li>
+<li><p>客户端流式RPC(Client Streaming):</p>
+<ul>
+<li>客户端发送数据流,服务器返回一个响应</li>
+<li>适用于数据上传场景</li>
+</ul>
+</li>
+<li><p>双向流式RPC(Bidirectional Streaming):</p>
+<ul>
+<li>客户端和服务器同时收发数据流</li>
+<li>适用于实时通信场景,如在线游戏</li>
+</ul>
+</li>
+</ol>
+<p>gRPC的优势:</p>
+<ul>
+<li>基于HTTP&#x2F;2的高性能</li>
+<li>Protocol Buffers的高效序列化</li>
+<li>强类型接口定义</li>
+<li>跨语言支持</li>
+<li>内置流控和安全机制</li>
+</ul>
+<h2 id="安全传输-TLS的重要性"><a href="#安全传输-TLS的重要性" class="headerlink" title="安全传输 - TLS的重要性"></a>安全传输 - TLS的重要性</h2><p>TLS在传输层和应用层之间提供了安全保障:</p>
+<ul>
+<li>加密:保护数据不被窃听</li>
+<li>认证:验证通信双方身份</li>
+<li>完整性:确保数据不被篡改</li>
+</ul>
+<p>现代应用如HTTPS和gRPC都默认集成了TLS,为应用提供端到端的安全保障。</p>
+]]></content>
+      <categories>
+        <category>通信协议</category>
+      </categories>
+      <tags>
+        <tag>网络协议</tag>
+        <tag>gRPC</tag>
+        <tag>TLS</tag>
+        <tag>HTTP</tag>
       </tags>
   </entry>
   <entry>
@@ -905,6 +1506,517 @@
       <tags>
         <tag>TDX</tag>
         <tag>Intel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>机器学习入门02</title>
+    <url>/posts/ee0cb7e3/</url>
+    <content><![CDATA[<p>今天继续进行机器学习的入门，主题是线性回归。</p>
+<span id="more"></span>
+
+<h2 id="线性回归-Linear-Regression"><a href="#线性回归-Linear-Regression" class="headerlink" title="线性回归(Linear Regression)"></a>线性回归(Linear Regression)</h2><p>线性回归是一种 用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出 功能和 label 之间的关联。</p>
+<p>例如，假设我们要预测汽车的燃油效率（以英里&#x2F;英里为单位） 根据汽车的重量确定加仑，我们有以下数据集：</p>
+<table>
+<thead>
+<tr>
+<th>干磷(功能)</th>
+<th>英里&#x2F;加仑(标签)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3.5</td>
+<td>18</td>
+</tr>
+<tr>
+<td>3.69</td>
+<td>15</td>
+</tr>
+<tr>
+<td>3.44</td>
+<td>18</td>
+</tr>
+<tr>
+<td>3.43</td>
+<td>16</td>
+</tr>
+<tr>
+<td>4.34</td>
+<td>15</td>
+</tr>
+<tr>
+<td>4.42</td>
+<td>14</td>
+</tr>
+<tr>
+<td>2.37</td>
+<td>24</td>
+</tr>
+</tbody></table>
+<p>如果我们绘制这些点，通过这些点绘制一条最适合的直线来创建自己的模型,就会得到以下图表：</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A803.png" alt="alt text"></p>
+<h3 id="线性回归方程-Linear-Regression-Equation"><a href="#线性回归方程-Linear-Regression-Equation" class="headerlink" title="线性回归方程(Linear Regression Equation)"></a>线性回归方程(Linear Regression Equation)</h3><p>用代数术语来说，模型的定义为：</p>
+<p>$$y &#x3D; mx + b$$</p>
+<p>其中：</p>
+<ul>
+<li>y 表示每加仑英里数，即我们想要预测的值</li>
+<li>m 是直线的斜率</li>
+<li>x 是磷，即我们的输入值</li>
+<li>b 为 y 轴截距</li>
+</ul>
+<p>在机器学习中，我们编写线性回归模型的方程式如下所示：</p>
+<p>$$y’ &#x3D; b + w_1x_1$$</p>
+<p>其中：</p>
+<ul>
+<li>y’ 是预测标签，即输出</li>
+<li>b 是偏差(Bias)模型。偏差与代数中y截距的概念相同直线方程。在机器学习中，偏差有时称为 w₀。偏差是一个模型的参数，而且是在训练期间计算的</li>
+<li>w₁ 是权重(Weight)功能。权重与代数中斜率 m 的概念相同直线方程。权重为参数，是在训练期间计算的</li>
+<li>x₁ 是一项特征(Feature)，即输入</li>
+</ul>
+<p>在训练期间，模型会计算可产生最佳结果的权重和偏差模型。</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A804.png" alt="alt text"></p>
+<p>在我们的示例中，通过终止的线性计算得到：</p>
+<ul>
+<li>偏差为 30 (对应 y 轴截距)</li>
+<li>权重为 -3.6 (直线的斜率)</li>
+</ul>
+<p>因此，我们的模型可以表示为：</p>
+<p>$$y’ &#x3D; 30 + (-3.6)(x_1)$$</p>
+<p>现在我们就可以用这个模型进行预测了。例如，对于一辆重量为 4000 磷的汽车，我们可以预测其燃油效率：</p>
+<p>$$y’ &#x3D; 30 + (-3.6)(4.0) &#x3D; 30 - 14.4 &#x3D; 15.6$$</p>
+<p>预测结果表明这辆汽车的燃油效率约为每加仑15.6英里。</p>
+<h3 id="具有多个特征的模型-Models-with-Multiple-Features"><a href="#具有多个特征的模型-Models-with-Multiple-Features" class="headerlink" title="具有多个特征的模型(Models with Multiple Features)"></a>具有多个特征的模型(Models with Multiple Features)</h3><p>虽然本文中的示例仅使用了一项功能（即重量级汽车的特征），但更复杂的模型可能依赖于多种特征，每个特征都有单独的权重(w₁、w₂ 等)。例如，一个模型可以写为：</p>
+<p>$$y’ &#x3D; b + w_1x_1 + w_2x_2 + w_3x_3 + w_4x_4 + w_5x_5$$</p>
+<p>例如，预测汽油里程的模型可以额外使用特征如：</p>
+<ul>
+<li>发动机排量 (Displacement)</li>
+<li>加速性能 (Acceleration)</li>
+<li>汽缸数 (Number of cylinders)</li>
+<li>马力 (Horsepower)</li>
+</ul>
+<p>此模型的编写方式如下图所示：</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A805.png" alt="alt text"></p>
+<p>在这个模型中：</p>
+<ul>
+<li>x₁ 代表重量 (Pounds)</li>
+<li>x₂ 代表排量 (Displacement)</li>
+<li>x₃ 代表加速性能 (Acceleration)</li>
+<li>x₄ 代表汽缸数 (Number of cylinders)</li>
+<li>x₅ 代表马力 (Horsepower)</li>
+</ul>
+<p>每个特征(x)都有其对应的权重(w)，这些权重在训练过程中被优化，以获得最准确的预测结果。</p>
+<h3 id="线性回归：损失-Loss"><a href="#线性回归：损失-Loss" class="headerlink" title="线性回归：损失(Loss)"></a>线性回归：损失(Loss)</h3><p>损失是一个数值指标，用于描述模型的预测有多大偏差。损失函数用于衡量模型预测与实际标签之间的距离。训练模型的目标是尽可能降低损失，将其降至最低值。</p>
+<p>在下图中，可以将损失可视化为从数据点指向模型的箭头。箭头表示模型的预测结果与实际值之间的差距。</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A806.png" alt="alt text"></p>
+<h4 id="损失距离-Loss-Distance"><a href="#损失距离-Loss-Distance" class="headerlink" title="损失距离(Loss Distance)"></a>损失距离(Loss Distance)</h4><p>在统计学和机器学习中，损失函数用于衡量预测值与实际值之间的差异。损失函数侧重于值之间的距离，而不是方向。例如，如果模型预测值为 2，但实际值为 5，我们并不关心损失为负值（5 - 2 &#x3D; -3）。我们关心的是这两个值之间的距离为 3。因此，所有用于计算损失的方法都会移除符号。</p>
+<p>移除此标记的两种最常用方法如下：</p>
+<ol>
+<li><p>计算实际值与预测值之间的差值的绝对值：<br>$$L1 &#x3D; |y - y’|$$</p>
+</li>
+<li><p>将实际值与预测值之间的差值平方：<br>$$L2 &#x3D; (y - y’)^2$$</p>
+</li>
+</ol>
+<h4 id="损失类型"><a href="#损失类型" class="headerlink" title="损失类型"></a>损失类型</h4><p>在线性回归中，有四种主要的损失函数，如下表所示。</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A807.png" alt="alt text"></p>
+<p>L₁ 损失函数和 L₂ 损失函数（或 MAE 和 MSE）之间的功能差异在于平方。当预测值与标签之间的差异较大时，平方会使损失变得更大。当差异较小（小于 1）时，平方会使损失更小。</p>
+<p>当处理多个示例时，我们通常会对所有示例的损失进行平均，无论是使用 MAE 还是 MSE。</p>
+<blockquote>
+<ul>
+<li>MSE (Mean Square Error)：均方误差</li>
+<li>计算公式：MSE &#x3D; (Σ(预测值 - 实际值)²) &#x2F; n</li>
+<li>RMSE (Root Mean Square Error)：均方根误差</li>
+<li>计算公式：RMSE &#x3D; √MSE</li>
+<li>即MSE开平方根</li>
+</ul>
+</blockquote>
+<h4 id="损失计算示例"><a href="#损失计算示例" class="headerlink" title="损失计算示例"></a>损失计算示例</h4><p>使用之前的最佳拟合直线，我们将计算单个示例的 L₂ 损失。从最优拟合直线中，我们得到了权重和偏差的以下值：</p>
+<ul>
+<li>Weight: -3.6</li>
+<li>Bias: 30</li>
+</ul>
+<p>如果模型预测重 2,370 磅的汽车每加仑可行驶 21.5 英里，但实际每加仑可行驶 24 英里，我们将按如下方式计算 L₂ 损失：</p>
+<p>$$L_2 &#x3D; (y - y’)^2 &#x3D; (24 - 21.5)^2 &#x3D; (2.5)^2 &#x3D; 6.25$$</p>
+<p>在此示例中，该单个数据点的 L₂ 损失为 6.25。</p>
+<h4 id="选择损失函数-Choosing-Loss-Functions"><a href="#选择损失函数-Choosing-Loss-Functions" class="headerlink" title="选择损失函数(Choosing Loss Functions)"></a>选择损失函数(Choosing Loss Functions)</h4><p>确定使用 MAE 还是 MSE 可能取决于数据集以及希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：</p>
+<ul>
+<li>汽车通常在 2,000 到 5,000 磅之间</li>
+<li>每加仑汽油能行驶的英里数介于 8 到 50 英里之间</li>
+<li>重 8,000 磅的汽车或每加仑汽油能行驶 100 英里的汽车都超出了典型范围，会被视为离群值(Outliers)</li>
+</ul>
+<h4 id="离群值处理"><a href="#离群值处理" class="headerlink" title="离群值处理"></a>离群值处理</h4><p>离群值还可以指模型的预测与真实值之间的差距。例如：</p>
+<ul>
+<li>3,000 磅的车重属于典型的车重范围</li>
+<li>每加仑 40 英里的油耗属于典型的油耗范围</li>
+<li>但是，对于每加仑 40 英里的 3,000 磅汽车，如果模型预测每加仑能行驶 18 到 20 英里，这个预测结果会认为是离群值</li>
+</ul>
+<h4 id="损失函数的选择"><a href="#损失函数的选择" class="headerlink" title="损失函数的选择"></a>损失函数的选择</h4><p>选择最佳损失函数时，考虑希望模型如何处理离群值：</p>
+<ul>
+<li>MSE 会使模型更接近离群值</li>
+<li>MAE 则不会</li>
+<li>与 L₁ 损失函数相比，L₂ 损失函数对离群值的惩罚更高</li>
+</ul>
+<p>例如，下图片显示了使用 MAE 训练的模型和使用 MSE 训练的模型的比较。红线表示将用于进行预测的完全训练好的模型：</p>
+<ul>
+<li>离群值更接近使用 MSE 训练的模型</li>
+<li>离群值对使用 MAE 训练的模型影响较小</li>
+</ul>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A808.png" alt="alt text"></p>
+<h3 id="线性回归：梯度下降-Gradient-Descent"><a href="#线性回归：梯度下降-Gradient-Descent" class="headerlink" title="线性回归：梯度下降(Gradient Descent)"></a>线性回归：梯度下降(Gradient Descent)</h3><p>梯度下降法是一种数学技术，能够以迭代方式找出权重和偏差，从而生成损失最低的模型。梯度下降法会针对用户指定的多次迭代重复以下过程，以找到最佳权重和偏差。</p>
+<p>模型开始训练时使用接近于零的随机权重和偏差，然后重复以下步骤：</p>
+<p>使用当前权重和偏差计算损失。</p>
+<p>确定用于减少损失的权重和偏差的移动方向。</p>
+<p>将权重和偏差值在可减少损失的方向上稍微移动。</p>
+<p>返回第 1 步并重复此过程，直到模型无法进一步降低损失。</p>
+<p>下图概述了梯度下降法为找出损失最低的模型权重和偏差所执行的迭代步骤。</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A809.png" alt="alt text"></p>
+<h4 id="梯度下降实例"><a href="#梯度下降实例" class="headerlink" title="梯度下降实例"></a>梯度下降实例</h4><h4 id="示例数据集"><a href="#示例数据集" class="headerlink" title="示例数据集"></a>示例数据集</h4><p>我们使用一个包含 7 个示例的小型数据集来演示梯度下降，这些示例分别对应汽车的重量(以磅为单位) 和每加仑行驶里程数：</p>
+<table>
+<thead>
+<tr>
+<th>以千计的英磅 (特征)</th>
+<th>每加仑英里 (标签)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3.5</td>
+<td>18</td>
+</tr>
+<tr>
+<td>3.69</td>
+<td>15</td>
+</tr>
+<tr>
+<td>3.44</td>
+<td>18</td>
+</tr>
+<tr>
+<td>3.43</td>
+<td>16</td>
+</tr>
+<tr>
+<td>4.34</td>
+<td>15</td>
+</tr>
+<tr>
+<td>4.42</td>
+<td>14</td>
+</tr>
+<tr>
+<td>2.37</td>
+<td>24</td>
+</tr>
+</tbody></table>
+<h4 id="梯度下降步骤"><a href="#梯度下降步骤" class="headerlink" title="梯度下降步骤"></a>梯度下降步骤</h4><h5 id="1-初始化模型参数"><a href="#1-初始化模型参数" class="headerlink" title="1. 初始化模型参数"></a>1. 初始化模型参数</h5><p>模型会先将权重和偏差设为零，然后开始训练：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Weight: 0</span><br><span class="line">Bias: 0</span><br><span class="line">y = 0 + 0(x₁)</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-计算初始损失"><a href="#2-计算初始损失" class="headerlink" title="2. 计算初始损失"></a>2. 计算初始损失</h5><p>使用当前的模型参数计算 MSE 损失：<br>$$Loss &#x3D; \frac{(18-0)^2 + (15-0)^2 + (18-0)^2 + (16-0)^2 + (15-0)^2 + (14-0)^2 + (24-0)^2}{7}$$<br>$$Loss &#x3D; 303.71$$</p>
+<h5 id="3-计算梯度"><a href="#3-计算梯度" class="headerlink" title="3. 计算梯度"></a>3. 计算梯度</h5><p>我们需要计算损失函数相对于权重和偏差的导数。预测函数定义为：<br>$$f_{w,b}(x) &#x3D; (w * x) + b$$</p>
+<p>MSE 损失函数为：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$<br>其中 $i$ 表示第 $i$ 个训练示例，$M$ 表示示例数量。</p>
+<h6 id="权重的梯度"><a href="#权重的梯度" class="headerlink" title="权重的梯度"></a>权重的梯度</h6><p>权重的导数计算：<br>$$\frac{\partial}{\partial w} \frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$</p>
+<p>求值结果：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)}) * 2x_{(i)}$$</p>
+<p>当权重和偏差为零时，计算得到斜率为 -119.7。</p>
+<h6 id="偏差的梯度"><a href="#偏差的梯度" class="headerlink" title="偏差的梯度"></a>偏差的梯度</h6><p>偏差的导数计算：<br>$$\frac{\partial}{\partial b} \frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$</p>
+<p>求值结果：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)}) * 2$$</p>
+<p>当权重和偏差为零时，计算得到斜率为 -34.3。</p>
+<h5 id="4-更新参数"><a href="#4-更新参数" class="headerlink" title="4. 更新参数"></a>4. 更新参数</h5><p>向负斜率方向移动一小步（学习率设为 0.01）：</p>
+<p>$$New\ weight &#x3D; old\ weight - (0.01 * weight\ slope)$$<br>$$New\ bias &#x3D; old\ bias - (0.01 * bias\ slope)$$</p>
+<p>第一次迭代的计算：<br>$$New\ weight &#x3D; 0 - (0.01) * (-119.7) &#x3D; 1.2$$<br>$$New\ bias &#x3D; 0 - (0.01) * (-34.3) &#x3D; 0.34$$</p>
+<h4 id="迭代结果"><a href="#迭代结果" class="headerlink" title="迭代结果"></a>迭代结果</h4><p>重复上述步骤六次后，得到以下结果：</p>
+<table>
+<thead>
+<tr>
+<th>迭代</th>
+<th>权重</th>
+<th>偏差</th>
+<th>损失 (MSE)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>303.71</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1.2</td>
+<td>0.34</td>
+<td>170.67</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2.75</td>
+<td>0.59</td>
+<td>67.3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.17</td>
+<td>0.72</td>
+<td>50.63</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.47</td>
+<td>0.82</td>
+<td>42.1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>3.68</td>
+<td>0.9</td>
+<td>37.74</td>
+</tr>
+</tbody></table>
+<h4 id="收敛过程"><a href="#收敛过程" class="headerlink" title="收敛过程"></a>收敛过程</h4><p>在训练过程中,损失值会随着迭代次数的增加而不断降低。当损失值趋于稳定,不再显著下降时,我们就说模型达到了收敛状态。此时继续训练,损失值可能会出现小幅波动,但整体保持稳定。</p>
+<h4 id="损失曲线"><a href="#损失曲线" class="headerlink" title="损失曲线"></a>损失曲线</h4><p>损失曲线是观察模型收敛情况的重要工具。它展示了损失值随迭代次数的变化趋势:</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A810.png" alt="alt text"></p>
+<p>典型的损失曲线有以下特点:</p>
+<ul>
+<li>初期阶段: 损失值快速下降</li>
+<li>中期阶段: 下降速度逐渐放缓</li>
+<li>后期阶段: 趋于平稳,表明模型接近收敛</li>
+</ul>
+<h4 id="凸函数与最小值"><a href="#凸函数与最小值" class="headerlink" title="凸函数与最小值"></a>凸函数与最小值</h4><p>线性回归模型的损失函数是一个凸函数,这意味着它只有一个全局最小值。下图展示了一个单特征模型的损失函数表面:</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A811.png" alt="alt text"></p>
+<ul>
+<li>x轴: 权重 (Weight)</li>
+<li>y轴: 偏差 (Bias)</li>
+<li>z轴: 损失值 (Loss)</li>
+</ul>
+<p>这种凸形状保证了:</p>
+<ol>
+<li>梯度下降一定能找到最小损失点</li>
+<li>不会陷入局部最小值</li>
+</ol>
+<p>需要注意的是:</p>
+<ul>
+<li>模型通常找到的是接近最小值的点,而不是精确的最小值</li>
+<li>最小损失点并不意味着零损失,而是在当前数据下能达到的最优解</li>
+</ul>
+<h3 id="线性回归：超参数-Hyperparameters"><a href="#线性回归：超参数-Hyperparameters" class="headerlink" title="线性回归：超参数(Hyperparameters)"></a>线性回归：超参数(Hyperparameters)</h3><p>超参数是用于控制训练过程的变量。常见的超参数包括：</p>
+<ul>
+<li>学习速率 (Learning Rate)</li>
+<li>批量大小 (Batch Size)</li>
+<li>纪元 (Epoch)</li>
+</ul>
+<p>与模型参数(如权重和偏差)不同，超参数是在训练前设置的控制值，而不是在训练过程中学习得到的值。</p>
+<h4 id="学习速率-Learning-Rate"><a href="#学习速率-Learning-Rate" class="headerlink" title="学习速率(Learning Rate)"></a>学习速率(Learning Rate)</h4><p>学习速率决定了每次梯度下降时模型参数的调整步长。它直接影响模型的训练效果：</p>
+<ul>
+<li><p>学习速率过低：</p>
+<ul>
+<li>模型收敛速度慢</li>
+<li>需要更多迭代才能达到最优解</li>
+<li>训练时间较长</li>
+</ul>
+</li>
+<li><p>学习速率过高：</p>
+<ul>
+<li>可能导致模型无法收敛</li>
+<li>参数更新幅度过大，在最优解附近来回震荡</li>
+<li>难以找到最优解</li>
+</ul>
+</li>
+</ul>
+<p>选择合适的学习速率很重要：</p>
+<ul>
+<li>需要在训练速度和稳定性之间取得平衡</li>
+<li>通常从一个较小的值开始尝试（如0.01）</li>
+<li>根据训练效果进行调整</li>
+</ul>
+<p>例如：如果梯度为2.5，学习速率为0.01，则参数的更新步长为0.025。理想的学习速率应该使模型在合理的迭代次数内收敛。</p>
+<blockquote>
+<p>将学习速率翻倍可能会减慢训练速度。<br>此声明是正确的。将学习率翻倍可能会导致学习率过大，从而导致权重”跳来跳去”，增加收敛所需的时间。</p>
+</blockquote>
+<h4 id="批量大小-Batch-Size"><a href="#批量大小-Batch-Size" class="headerlink" title="批量大小 (Batch Size)"></a>批量大小 (Batch Size)</h4><p>批量大小是一个超参数，表示每次更新模型参数时使用的训练样本数量。虽然理论上可以在每次迭代时使用所有训练样本，但当数据集很大时（如包含数十万至数百万个样本），这种方法在计算上是不实际的。</p>
+<p>为了解决这个问题，有两种常用的梯度下降方法：</p>
+<h5 id="随机梯度下降法-SGD-Stochastic-Gradient-Descent"><a href="#随机梯度下降法-SGD-Stochastic-Gradient-Descent" class="headerlink" title="随机梯度下降法 (SGD, Stochastic Gradient Descent)"></a>随机梯度下降法 (SGD, Stochastic Gradient Descent)</h5><ul>
+<li>每次迭代只使用一个随机样本（批量大小为1）</li>
+<li>优点：<ul>
+<li>计算速度快</li>
+<li>能够跳出局部最优解</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>参数更新波动较大</li>
+<li>收敛过程不稳定</li>
+</ul>
+</li>
+</ul>
+<p>下图展示了使用SGD训练时的损失曲线：</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A812.png" alt="alt text"></p>
+<p>可以看到，虽然整体趋势是下降的，但曲线呈现出明显的波动。这种波动不仅出现在训练初期，在接近收敛时也会存在。</p>
+<h5 id="小批量随机梯度下降法-mini-batch-SGD"><a href="#小批量随机梯度下降法-mini-batch-SGD" class="headerlink" title="小批量随机梯度下降法 (mini-batch SGD)"></a>小批量随机梯度下降法 (mini-batch SGD)</h5><ul>
+<li>是完整批量梯度下降和SGD的折中方案</li>
+<li>每次使用一小批样本（批量大小通常在1到N之间，N为总样本数）</li>
+<li>特点：<ul>
+<li>对每个批次计算平均梯度</li>
+<li>参数更新更稳定</li>
+<li>计算效率较高</li>
+</ul>
+</li>
+</ul>
+<p>批量大小的选择：</p>
+<ul>
+<li>批量较小时：行为类似于SGD，更新波动大但计算快</li>
+<li>批量较大时：行为类似于完整批量梯度下降，更新稳定但计算慢</li>
+<li>需要在计算效率和训练稳定性之间找到平衡</li>
+</ul>
+<p>在训练模型时，噪声并不总是不良特征。适当的噪声可以帮助模型更好地泛化，这一点在神经网络的权重和偏差优化中尤为重要。</p>
+<h4 id="纪元-Epoch"><a href="#纪元-Epoch" class="headerlink" title="纪元 (Epoch)"></a>纪元 (Epoch)</h4><p>纪元表示模型完整处理训练集一次的过程。例如，对于包含1,000个样本的训练集，如果批量大小为100，则需要10次迭代(iterations)才能完成一个纪元。</p>
+<p>训练通常需要多个纪元，因为模型需要多次处理训练集中的所有样本才能达到较好的效果。纪元数是在训练开始前设置的超参数。一般来说，纪元数越多，模型拟合得越好，但训练时间也越长。</p>
+<p>下表比较了不同批处理方式对参数更新次数的影响：</p>
+<table>
+<thead>
+<tr>
+<th>批处理类型</th>
+<th>参数更新频率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>完整批次</td>
+<td>每个纪元更新一次。例如：1000个样本，训练20个纪元，总共更新20次</td>
+</tr>
+<tr>
+<td>随机梯度下降</td>
+<td>每个样本更新一次。例如：1000个样本，训练20个纪元，总共更新20,000次</td>
+</tr>
+<tr>
+<td>小批量梯度下降</td>
+<td>每个批次更新一次。例如：1000个样本，批量大小100，训练20个纪元，总共更新200次</td>
+</tr>
+</tbody></table>
+<p>从上表可以看出：</p>
+<ul>
+<li>完整批次：参数更新最少，但每次计算量大</li>
+<li>随机梯度下降：参数更新最频繁，但可能不稳定</li>
+<li>小批量梯度下降：在更新频率和计算效率之间取得平衡</li>
+</ul>
+<h3 id="线性回归：编程练习"><a href="#线性回归：编程练习" class="headerlink" title="线性回归：编程练习"></a>线性回归：编程练习</h3><h4 id="Part-1-Setup-Exercise"><a href="#Part-1-Setup-Exercise" class="headerlink" title="Part 1 - Setup Exercise"></a>Part 1 - Setup Exercise</h4><p>在机器学习项目中，通常需要以下几类Python库来帮助我们完成不同的任务：</p>
+<h5 id="数据处理库"><a href="#数据处理库" class="headerlink" title="数据处理库"></a>数据处理库</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np  <span class="comment"># 数值计算</span></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment"># 数据分析</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>NumPy</strong> (np)</li>
+</ol>
+<ul>
+<li>用于处理数值数据的基础库</li>
+<li>提供高效的数组操作</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数组</span></span><br><span class="line">arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br><span class="line"><span class="comment"># 基本运算</span></span><br><span class="line">arr + <span class="number">1</span>  <span class="comment"># [2, 3, 4, 5, 6]</span></span><br><span class="line">arr * <span class="number">2</span>  <span class="comment"># [2, 4, 6, 8, 10]</span></span><br><span class="line"><span class="comment"># 统计运算</span></span><br><span class="line">arr.mean()  <span class="comment"># 平均值</span></span><br><span class="line">arr.<span class="built_in">max</span>()   <span class="comment"># 最大值</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li><strong>Pandas</strong> (pd)</li>
+</ol>
+<ul>
+<li>用于处理表格数据的高级库</li>
+<li>提供DataFrame数据结构（类似Excel表格）</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数据表</span></span><br><span class="line">df = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&#x27;重量&#x27;</span>: [<span class="number">2.0</span>, <span class="number">2.4</span>, <span class="number">1.5</span>],</span><br><span class="line">    <span class="string">&#x27;里程&#x27;</span>: [<span class="number">18</span>, <span class="number">15</span>, <span class="number">18</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment"># 读取CSV文件</span></span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;data.csv&#x27;</span>)</span><br><span class="line"><span class="comment"># 基本统计</span></span><br><span class="line">df.describe()  <span class="comment"># 显示统计信息</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="机器学习库"><a href="#机器学习库" class="headerlink" title="机器学习库"></a>机器学习库</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> keras  <span class="comment"># 深度学习框架</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Keras</strong></p>
+<ul>
+<li>用于构建和训练深度学习模型的高级框架</li>
+<li>提供简单易用的API</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 构建简单的神经网络</span></span><br><span class="line">model = keras.Sequential([</span><br><span class="line">    keras.layers.Dense(<span class="number">1</span>, input_shape=[<span class="number">1</span>])</span><br><span class="line">])</span><br><span class="line"><span class="comment"># 编译模型</span></span><br><span class="line">model.<span class="built_in">compile</span>(optimizer=<span class="string">&#x27;sgd&#x27;</span>, loss=<span class="string">&#x27;mse&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="数据可视化库"><a href="#数据可视化库" class="headerlink" title="数据可视化库"></a>数据可视化库</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> plotly.express <span class="keyword">as</span> px</span><br><span class="line"><span class="keyword">import</span> plotly.graph_objects <span class="keyword">as</span> go</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>Plotly</strong> (px, go)</li>
+</ol>
+<ul>
+<li>用于创建交互式图表</li>
+<li>支持多种图表类型</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">fig = px.scatter(df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br><span class="line"><span class="comment"># 显示图表</span></span><br><span class="line">fig.show()</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li><strong>Seaborn</strong> (sns)</li>
+</ol>
+<ul>
+<li>基于Matplotlib的统计可视化库</li>
+<li>提供美观的默认样式</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">sns.scatterplot(data=df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>在实际项目中，这些库通常会一起使用：</p>
+<ol>
+<li>使用Pandas读取和处理数据</li>
+<li>用NumPy进行数值计算</li>
+<li>使用Keras构建和训练模型</li>
+<li>用Plotly或Seaborn可视化结果</li>
+</ol>
+<h5 id="加载数据"><a href="#加载数据" class="headerlink" title="加载数据"></a>加载数据</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 从网络加载芝加哥出租车数据集</span></span><br><span class="line">chicago_taxi_dataset = pd.read_csv(<span class="string">&quot;https://download.mlcc.google.com/mledu-datasets/chicago_taxi_train.csv&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>这行代码使用pandas的<code>read_csv()</code>函数从网络下载并读取CSV文件。这个数据集包含了芝加哥出租车的行程信息。</p>
+<h5 id="选择特定列"><a href="#选择特定列" class="headerlink" title="选择特定列"></a>选择特定列</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择需要的列创建新的DataFrame</span></span><br><span class="line">training_df = chicago_taxi_dataset[[<span class="string">&#x27;TRIP_MILES&#x27;</span>,    <span class="comment"># 行程里程</span></span><br><span class="line">                                  <span class="string">&#x27;TRIP_SECONDS&#x27;</span>,    <span class="comment"># 行程时间（秒）</span></span><br><span class="line">                                  <span class="string">&#x27;FARE&#x27;</span>,            <span class="comment"># 车费</span></span><br><span class="line">                                  <span class="string">&#x27;COMPANY&#x27;</span>,         <span class="comment"># 出租车公司</span></span><br><span class="line">                                  <span class="string">&#x27;PAYMENT_TYPE&#x27;</span>,    <span class="comment"># 支付方式</span></span><br><span class="line">                                  <span class="string">&#x27;TIP_RATE&#x27;</span>]]       <span class="comment"># 小费率</span></span><br></pre></td></tr></table></figure>
+<p>这里我们从原始数据集中选择了6个重要特征：</p>
+<ul>
+<li>TRIP_MILES：行程距离</li>
+<li>TRIP_SECONDS：行程时长</li>
+<li>FARE：车费金额</li>
+<li>COMPANY：出租车公司</li>
+<li>PAYMENT_TYPE：支付方式</li>
+<li>TIP_RATE：小费比例</li>
+</ul>
+<h5 id="查看数据信息"><a href="#查看数据信息" class="headerlink" title="查看数据信息"></a>查看数据信息</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打印数据集基本信息</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Read dataset completed successfully.&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Total number of rows: &#123;0&#125;\n\n&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(training_df.index)))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示前200行数据</span></span><br><span class="line">training_df.head(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
+<p>这段代码做了两件事：</p>
+<ol>
+<li>打印数据集的总行数</li>
+<li>显示数据集的前200行，帮助我们了解数据的基本结构</li>
+</ol>
+<h4 id="Part-2-Dataset-Exploration"><a href="#Part-2-Dataset-Exploration" class="headerlink" title="Part 2 - Dataset Exploration"></a>Part 2 - Dataset Exploration</h4><h5 id="基本统计信息："><a href="#基本统计信息：" class="headerlink" title="基本统计信息："></a>基本统计信息：</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看数值列的统计信息</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.describe())</span><br></pre></td></tr></table></figure>
+<p>输出结果类似：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">       TRIP_MILES        FARE</span><br><span class="line">count         4.0         5.0    # 非空值数量</span><br><span class="line">mean          2.75       13.0    # 平均值</span><br><span class="line">std           1.04        4.7    # 标准差</span><br><span class="line">min           1.50        8.0    # 最小值</span><br><span class="line">25%           2.25       10.0    # 25%分位数</span><br><span class="line">50%           2.75       12.0    # 中位数</span><br><span class="line">75%           3.25       15.0    # 75%分位数</span><br><span class="line">max           4.00       20.0    # 最大值</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看数据类型</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.info())</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Data columns (total 4 columns):</span><br><span class="line"> #   Column        Non-Null Count  Dtype  </span><br><span class="line">---  ------        --------------  -----  </span><br><span class="line"> 0   TRIP_MILES    4 non-null     float64   # 4条非空数据，浮点型</span><br><span class="line"> 1   FARE          5 non-null     int64     # 5条非空数据，整数型</span><br><span class="line"> 2   PAYMENT_TYPE  5 non-null     object    # 5条非空数据，字符串型</span><br><span class="line"> 3   COMPANY       5 non-null     object    # 5条非空数据，字符串型</span><br></pre></td></tr></table></figure>
+
+
+<h5 id="缺失值检查："><a href="#缺失值检查：" class="headerlink" title="缺失值检查："></a>缺失值检查：</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 检查缺失值</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.isnull().<span class="built_in">sum</span>())</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">TRIP_MILES     1    # TRIP_MILES列有1个缺失值</span><br><span class="line">FARE           0    # FARE列没有缺失值</span><br><span class="line">PAYMENT_TYPE   0    # PAYMENT_TYPE列没有缺失值</span><br><span class="line">COMPANY        0    # COMPANY列没有缺失值</span><br></pre></td></tr></table></figure>
+
+<h5 id="分类变量分析："><a href="#分类变量分析：" class="headerlink" title="分类变量分析："></a>分类变量分析：</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看支付方式的种类</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;支付方式类型:&quot;</span>, taxi_data[<span class="string">&#x27;PAYMENT_TYPE&#x27;</span>].unique())</span><br><span class="line"><span class="comment"># 输出: [&#x27;信用卡&#x27;, &#x27;现金&#x27;, &#x27;支付宝&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 统计每个公司的订单数量</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data[<span class="string">&#x27;COMPANY&#x27;</span>].value_counts())</span><br><span class="line"><span class="comment"># 输出:</span></span><br><span class="line"><span class="comment"># A公司    2</span></span><br><span class="line"><span class="comment"># B公司    2</span></span><br><span class="line"><span class="comment"># C公司    1</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="相关性分析："><a href="#相关性分析：" class="headerlink" title="相关性分析："></a>相关性分析：</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 计算行程里程和车费的相关性</span></span><br><span class="line">correlation = taxi_data[[<span class="string">&#x27;TRIP_MILES&#x27;</span>, <span class="string">&#x27;FARE&#x27;</span>]].corr()</span><br><span class="line"><span class="built_in">print</span>(correlation)</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">            TRIP_MILES      FARE</span><br><span class="line">TRIP_MILES    1.000000   0.850123  # 正相关，说明里程越长，费用越高</span><br><span class="line">FARE          0.850123   1.000000</span><br></pre></td></tr></table></figure>
+
+<p>在这一步中，我们将使用相关矩阵（Correlation Matrix）来识别与标签值相关性良好的特征。相关值具有以下含义：</p>
+<ol>
+<li>完全正相关（Perfect Positive Correlation）：1.0<ul>
+<li>定义：当一个属性（attribute）上升时，另一个属性也上升</li>
+<li>例如：学习时间与考试成绩的关系</li>
+</ul>
+</li>
+<li>完全负相关（Perfect Negative Correlation）：-1.0<ul>
+<li>定义：当一个属性上升时，另一个属性下降</li>
+<li>例如：商品价格与销售量的关系</li>
+</ul>
+</li>
+<li>无相关性（No Correlation）：0.0<ul>
+<li>定义：两列之间不存在线性关系（Linear Relationship）</li>
+<li>例如：学生的身高与考试成绩的关系</li>
+</ul>
+</li>
+</ol>
+<p>一般来说，相关值（Correlation Value）的绝对值越大，该特征（Feature）的预测能力就越强</p>
+<p>使用pairplot进行多变量关系可视化，这段代码将创建一个3x3的图表矩阵：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">sns.pairplot(training_df, </span><br><span class="line">             x_vars=[<span class="string">&quot;FARE&quot;</span>, <span class="string">&quot;TRIP_MILES&quot;</span>, <span class="string">&quot;TRIP_SECONDS&quot;</span>],</span><br><span class="line">             y_vars=[<span class="string">&quot;FARE&quot;</span>, <span class="string">&quot;TRIP_MILES&quot;</span>, <span class="string">&quot;TRIP_SECONDS&quot;</span>])</span><br></pre></td></tr></table></figure>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A813.png" alt="alt text"></p>
+<h4 id="Part-3-Train-Model"><a href="#Part-3-Train-Model" class="headerlink" title="Part 3 - Train Model"></a>Part 3 - Train Model</h4><p>在这部分，我们将实现一组用于模型训练和可视化的函数。这些函数可以帮助我们可视化训练过程、展示模型预测结果和分析模型性能。</p>
+<h3 id="1-可视化函数实现"><a href="#1-可视化函数实现" class="headerlink" title="1. 可视化函数实现"></a>1. 可视化函数实现</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_plots</span>(<span class="params">df, feature_names, label_name, model_output, sample_size=<span class="number">200</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;主函数：创建模型训练的可视化图表</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 创建包含损失曲线和模型预测的双图表</span></span><br><span class="line"><span class="string">    - 支持1D和2D特征的可视化</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        model_output: tuple，模型输出(weights, bias, epochs, rmse)</span></span><br><span class="line"><span class="string">        sample_size: int，采样大小，默认200</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 获取随机样本</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确定是2D还是3D图</span></span><br><span class="line">    is_2d_plot = <span class="built_in">len</span>(feature_names) == <span class="number">1</span></span><br><span class="line">    model_plot_type = <span class="string">&quot;scatter&quot;</span> <span class="keyword">if</span> is_2d_plot <span class="keyword">else</span> <span class="string">&quot;surface&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 创建子图</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制数据和模型</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_loss_curve</span>(<span class="params">epochs, rmse, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制损失曲线</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 展示训练过程中的损失变化</span></span><br><span class="line"><span class="string">    - 使用红色线条表示</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        epochs: array，训练轮数</span></span><br><span class="line"><span class="string">        rmse: array，均方根误差</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_data</span>(<span class="params">df, features, label, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制原始数据散点图</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 支持1D特征的2D散点图</span></span><br><span class="line"><span class="string">    - 支持2D特征的3D散点图</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        label: str，标签名</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">plot_model</span>(<span class="params">df, features, weights, bias, fig</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;绘制模型预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 1D特征：显示预测线</span></span><br><span class="line"><span class="string">    - 2D特征：显示预测平面</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        weights: array，特征权重</span></span><br><span class="line"><span class="string">        bias: float，偏置值</span></span><br><span class="line"><span class="string">        fig: Figure，plotly图表对象</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 计算预测值</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 绘制预测线或预测面</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">model_info</span>(<span class="params">feature_names, label_name, model_output</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;生成模型信息摘要</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 显示特征权重</span></span><br><span class="line"><span class="string">    - 显示偏置值</span></span><br><span class="line"><span class="string">    - 生成预测方程</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        model_output: tuple，模型输出(weights, bias, epochs, rmse)</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        str，格式化的模型信息字符串</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 生成模型方程</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<h5 id="模型训练函数实现"><a href="#模型训练函数实现" class="headerlink" title="模型训练函数实现"></a>模型训练函数实现</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">build_model</span>(<span class="params">my_learning_rate, num_features</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;创建并编译简单的线性回归模型</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 创建具有单个Dense层的Keras模型</span></span><br><span class="line"><span class="string">    - 配置优化器和损失函数</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        my_learning_rate: float，学习率</span></span><br><span class="line"><span class="string">        num_features: int，特征数量</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        model: keras.Model，编译好的模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 描述模型结构</span></span><br><span class="line">    <span class="comment"># 简单线性回归模型由单层单节点组成</span></span><br><span class="line">    inputs = keras.Input(shape=(num_features,))</span><br><span class="line">    outputs = keras.layers.Dense(units=<span class="number">1</span>)(inputs)</span><br><span class="line">    model = keras.Model(inputs=inputs, outputs=outputs)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 编译模型，配置优化器和损失函数</span></span><br><span class="line">    model.<span class="built_in">compile</span>(optimizer=keras.optimizers.RMSprop(learning_rate=my_learning_rate),</span><br><span class="line">                 loss=<span class="string">&quot;mean_squared_error&quot;</span>,</span><br><span class="line">                 metrics=[keras.metrics.RootMeanSquaredError()])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">train_model</span>(<span class="params">model, df, features, label, epochs, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;训练模型</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 使用数据训练模型</span></span><br><span class="line"><span class="string">    - 获取训练后的权重和偏置</span></span><br><span class="line"><span class="string">    - 记录训练过程中的误差</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        model: keras.Model，待训练的模型</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        features: array，特征数据</span></span><br><span class="line"><span class="string">        label: array，标签数据</span></span><br><span class="line"><span class="string">        epochs: int，训练轮数</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        tuple，包含(trained_weight, trained_bias, epochs, rmse)</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 训练模型</span></span><br><span class="line">    history = model.fit(x=features,</span><br><span class="line">                       y=label,</span><br><span class="line">                       batch_size=batch_size,</span><br><span class="line">                       epochs=epochs)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取训练后的权重和偏置</span></span><br><span class="line">    trained_weight = model.get_weights()[<span class="number">0</span>]</span><br><span class="line">    trained_bias = model.get_weights()[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取训练历史</span></span><br><span class="line">    epochs = history.epoch</span><br><span class="line">    hist = pd.DataFrame(history.history)</span><br><span class="line">    rmse = hist[<span class="string">&quot;root_mean_squared_error&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> trained_weight, trained_bias, epochs, rmse</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">run_experiment</span>(<span class="params">df, feature_names, label_name, learning_rate, epochs, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;运行完整的训练实验</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 准备训练数据</span></span><br><span class="line"><span class="string">    - 构建并训练模型</span></span><br><span class="line"><span class="string">    - 可视化训练结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，训练数据</span></span><br><span class="line"><span class="string">        feature_names: list，特征名列表</span></span><br><span class="line"><span class="string">        label_name: str，标签名</span></span><br><span class="line"><span class="string">        learning_rate: float，学习率</span></span><br><span class="line"><span class="string">        epochs: int，训练轮数</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        model: keras.Model，训练好的模型</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;INFO: starting training experiment with features=&#123;&#125; and label=&#123;&#125;\n&#x27;</span>.<span class="built_in">format</span>(</span><br><span class="line">        feature_names, label_name))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 准备数据</span></span><br><span class="line">    num_features = <span class="built_in">len</span>(feature_names)</span><br><span class="line">    features = df.loc[:, feature_names].values</span><br><span class="line">    label = df[label_name].values</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 构建并训练模型</span></span><br><span class="line">    model = build_model(learning_rate, num_features)</span><br><span class="line">    model_output = train_model(model, df, features, label, epochs, batch_size)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 输出结果</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;\nSUCCESS: training experiment complete\n&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#123;&#125;&#x27;</span>.<span class="built_in">format</span>(model_info(feature_names, label_name, model_output)))</span><br><span class="line">    make_plots(df, feature_names, label_name, model_output)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;SUCCESS: defining linear regression functions complete.&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="运行训练实验"><a href="#运行训练实验" class="headerlink" title="运行训练实验"></a>运行训练实验</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置超参数</span></span><br><span class="line">learning_rate = <span class="number">0.001</span>  <span class="comment"># 学习率</span></span><br><span class="line">epochs = <span class="number">20</span>           <span class="comment"># 训练轮数</span></span><br><span class="line">batch_size = <span class="number">50</span>      <span class="comment"># 批次大小</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据预处理 - 将秒转换为分钟</span></span><br><span class="line">training_df.loc[:, <span class="string">&#x27;TRIP_MINUTES&#x27;</span>] = training_df[<span class="string">&#x27;TRIP_SECONDS&#x27;</span>]/<span class="number">60</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义特征和标签</span></span><br><span class="line">features = [<span class="string">&#x27;TRIP_MILES&#x27;</span>, <span class="string">&#x27;TRIP_MINUTES&#x27;</span>]  <span class="comment"># 使用里程和时间作为特征</span></span><br><span class="line">label = <span class="string">&#x27;FARE&#x27;</span>                             <span class="comment"># 预测出租车费用</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行训练实验</span></span><br><span class="line">model_2 = run_experiment(training_df, features, label, learning_rate, epochs, batch_size)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Part-4-Validate-Model"><a href="#Part-4-Validate-Model" class="headerlink" title="Part 4 - Validate Model"></a>Part 4 - Validate Model</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">format_currency</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;格式化金额为美元形式</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        x: float，待格式化的金额</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        str，格式化后的金额字符串，如&quot;$12.34&quot;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;$&#123;:.2f&#125;&quot;</span>.<span class="built_in">format</span>(x)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_batch</span>(<span class="params">df, batch_size</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;构建预测用的数据批次</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 从数据集中随机抽样</span></span><br><span class="line"><span class="string">    - 重置索引</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        df: DataFrame，源数据集</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        DataFrame，构建好的批次数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    batch = df.sample(n=batch_size).copy()</span><br><span class="line">    batch.set_index(np.arange(batch_size), inplace=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">return</span> batch</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">predict_fare</span>(<span class="params">model, df, features, label, batch_size=<span class="number">50</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;使用模型预测车费</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 构建预测批次</span></span><br><span class="line"><span class="string">    - 进行批量预测</span></span><br><span class="line"><span class="string">    - 计算预测误差</span></span><br><span class="line"><span class="string">    - 整理预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        model: keras.Model，训练好的模型</span></span><br><span class="line"><span class="string">        df: DataFrame，预测数据</span></span><br><span class="line"><span class="string">        features: list，特征名列表</span></span><br><span class="line"><span class="string">        label: str，标签名</span></span><br><span class="line"><span class="string">        batch_size: int，批次大小，默认50</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">    返回：</span></span><br><span class="line"><span class="string">        DataFrame，包含预测结果的数据框</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    batch = build_batch(df, batch_size)</span><br><span class="line">    predicted_values = model.predict_on_batch(x=batch.loc[:, features].values)</span><br><span class="line"></span><br><span class="line">    data = &#123;<span class="string">&quot;PREDICTED_FARE&quot;</span>: [], <span class="string">&quot;OBSERVED_FARE&quot;</span>: [], <span class="string">&quot;L1_LOSS&quot;</span>: [],</span><br><span class="line">            features[<span class="number">0</span>]: [], features[<span class="number">1</span>]: []&#125;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">        predicted = predicted_values[i][<span class="number">0</span>]</span><br><span class="line">        observed = batch.at[i, label]</span><br><span class="line">        data[<span class="string">&quot;PREDICTED_FARE&quot;</span>].append(format_currency(predicted))</span><br><span class="line">        data[<span class="string">&quot;OBSERVED_FARE&quot;</span>].append(format_currency(observed))</span><br><span class="line">        data[<span class="string">&quot;L1_LOSS&quot;</span>].append(format_currency(<span class="built_in">abs</span>(observed - predicted)))</span><br><span class="line">        data[features[<span class="number">0</span>]].append(batch.at[i, features[<span class="number">0</span>]])</span><br><span class="line">        data[features[<span class="number">1</span>]].append(<span class="string">&quot;&#123;:.2f&#125;&quot;</span>.<span class="built_in">format</span>(batch.at[i, features[<span class="number">1</span>]]))</span><br><span class="line"></span><br><span class="line">    output_df = pd.DataFrame(data)</span><br><span class="line">    <span class="keyword">return</span> output_df</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">show_predictions</span>(<span class="params">output</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;展示预测结果</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    功能：</span></span><br><span class="line"><span class="string">    - 添加表头装饰</span></span><br><span class="line"><span class="string">    - 打印预测结果表格</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    参数：</span></span><br><span class="line"><span class="string">        output: DataFrame，预测结果数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    header = <span class="string">&quot;-&quot;</span> * <span class="number">80</span></span><br><span class="line">    banner = header + <span class="string">&quot;\n&quot;</span> + <span class="string">&quot;|&quot;</span> + <span class="string">&quot;PREDICTIONS&quot;</span>.center(<span class="number">78</span>) + <span class="string">&quot;|&quot;</span> + <span class="string">&quot;\n&quot;</span> + header</span><br><span class="line">    <span class="built_in">print</span>(banner)</span><br><span class="line">    <span class="built_in">print</span>(output)</span><br><span class="line">    <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
+<h5 id="执行模型预测"><a href="#执行模型预测" class="headerlink" title="执行模型预测"></a>执行模型预测</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用训练好的模型进行预测</span></span><br><span class="line">output = predict_fare(model_2, training_df, features, label)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 展示预测结果</span></span><br><span class="line">show_predictions(output)</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <tags>
+        <tag>机器学习</tag>
       </tags>
   </entry>
   <entry>
@@ -1556,1106 +2668,6 @@
         <tag>Linux</tag>
         <tag>操作系统</tag>
         <tag>内核</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>机器学习入门01</title>
-    <url>/posts/debf589c/</url>
-    <content><![CDATA[<p>本科毕设的研究方向与隐私计算有关，联邦学习算是其中的一个分支技术，机器学习算是其中的一个基础理论。因此打算记录一下机器学习的一些基础知识。</p>
-<span id="more"></span>
-
-<h2 id="参考教程"><a href="#参考教程" class="headerlink" title="参考教程"></a>参考教程</h2><p>以下是我计划学习的机器学习课程资源：</p>
-<ul>
-<li><p><a href="https://developers.google.cn/machine-learning/crash-course/linear-regression?hl=zh-cn">Google机器学习速成课程</a> - Google官方入门教程，内容简洁实用</p>
-</li>
-<li><p><a href="https://search.bilibili.com/all?keyword=%E5%90%B4%E6%81%A9%E8%BE%BE%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0">吴恩达机器学习课程</a> - Coursera上最受欢迎的机器学习课程之一，适合入门</p>
-</li>
-<li><p><a href="https://www.bilibili.com/video/BV1YsqSY8EiW">李宏毅机器学习课程</a> - 台湾大学教授的机器学习课程，讲解深入浅出</p>
-</li>
-<li><p><a href="https://www.bilibili.com/video/BV1if4y147hS">李沐动手学深度学习</a> - 亚马逊资深科学家的实战课程，注重代码实践</p>
-</li>
-</ul>
-<p>今天先从google的机器学习速成课程开始。</p>
-<h2 id="什么是机器学习-Machine-Learning-？"><a href="#什么是机器学习-Machine-Learning-？" class="headerlink" title="什么是机器学习(Machine Learning)？"></a>什么是机器学习(Machine Learning)？</h2><p>从基本层面来说，机器学习是指训练一款名为模型(Model)的软件，以便做出有用的预测或根据数据生成内容。</p>
-<h3 id="机器学习系统类型"><a href="#机器学习系统类型" class="headerlink" title="机器学习系统类型"></a>机器学习系统类型</h3><p>根据机器学习系统学习预测或生成内容的方式，它们可分为以下一个或多个类别：</p>
-<ul>
-<li>监督式学习(Supervised Learning)</li>
-<li>非监督式学习(Unsupervised Learning)</li>
-<li>强化学习(Reinforcement Learning)</li>
-<li>生成式 AI(Generative AI)</li>
-</ul>
-<h3 id="监督式学习-Supervised-Learning"><a href="#监督式学习-Supervised-Learning" class="headerlink" title="监督式学习(Supervised Learning)"></a>监督式学习(Supervised Learning)</h3><p>监督式学习模型在看到包含正确答案的大量数据后，可以发现产生正确答案的数据元素之间的关联，然后进行预测。这就像学生通过研究包含问题和答案的旧考试来学习新材料。学生在使用足够多的旧版考试进行训练后，就可以做好准备参加新版考试了。这些机器学习系统是”监督式”的，这意味着人类会向机器学习系统提供包含已知正确结果的数据。</p>
-<p>监督式学习的两种最常见用例是回归(Regression)和分类(Classification)。</p>
-<h4 id="回归-Regression"><a href="#回归-Regression" class="headerlink" title="回归(Regression)"></a>回归(Regression)</h4><p>回归模型可以预测连续的数值(Continuous Value)。回归模型的输出是一个具体的数字,比如预测房价是500万元,或预测明天的降雨量是50毫米。</p>
-<p>以下是一些典型的回归应用场景:</p>
-<table>
-<thead>
-<tr>
-<th>场景</th>
-<th>输入数据</th>
-<th>预测结果</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>房价预测</td>
-<td>建筑面积、位置、装修等级、周边配套等</td>
-<td>房屋价格(元)</td>
-</tr>
-<tr>
-<td>行程时间预测</td>
-<td>路况、天气、历史数据等</td>
-<td>到达时间(分钟)</td>
-</tr>
-</tbody></table>
-<h4 id="分类-Classification"><a href="#分类-Classification" class="headerlink" title="分类(Classification)"></a>分类(Classification)</h4><p>分类模型用于预测某个对象属于特定类别的可能性。与输出连续数值的回归模型不同,分类模型输出的是离散的类别(Discrete Category)标签(Category Label)。</p>
-<p>分类模型可以分为:</p>
-<ul>
-<li>二元分类(Binary Classification):输出仅包含两个类别,如判断邮件是否为垃圾邮件(是&#x2F;否)</li>
-<li>多类分类(Multi-class Classification):可以输出多个类别,如识别图片中的天气类型(晴天&#x2F;雨天&#x2F;雪天等)</li>
-</ul>
-<p>分类的典型应用包括:</p>
-<ul>
-<li>垃圾邮件检测</li>
-<li>图像识别</li>
-<li>疾病诊断</li>
-<li>信用评估</li>
-</ul>
-<h3 id="非监督式学习-Unsupervised-Learning"><a href="#非监督式学习-Unsupervised-Learning" class="headerlink" title="非监督式学习(Unsupervised Learning)"></a>非监督式学习(Unsupervised Learning)</h3><p>非监督式学习模型通过获得不含任何正确答案的数据来进行预测。非监督式学习模型的目标是找出数据中具有意义的模式。换句话说，模型没有关于如何对每项数据进行分类的提示，而是必须推断自己的规则。</p>
-<p>一种常用的非监督式学习模型采用了一种称为聚类(Clustering)的技术。该模型会找到用于划分自然分组的数据点。<br><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A801.png" alt="alt text"></p>
-<h3 id="强化学习-Reinforcement-Learning"><a href="#强化学习-Reinforcement-Learning" class="headerlink" title="强化学习(Reinforcement Learning)"></a>强化学习(Reinforcement Learning)</h3><p>强化学习(Reinforcement Learning)模型根据在环境中执行的操作获得奖励或惩罚，从而进行预测。强化学习系统会生成政策，定义用于获得最多奖励的最佳策略。</p>
-<p>强化学习用于训练机器人执行任务（例如在房间内四处走动），以及训练 AlphaGo 等软件程序玩围棋。</p>
-<h3 id="生成式-AI-Generative-AI"><a href="#生成式-AI-Generative-AI" class="headerlink" title="生成式 AI(Generative AI)"></a>生成式 AI(Generative AI)</h3><p>生成式 AI 是一类根据用户输入生成内容的模型。例如，生成式 AI 可以创作独特的图片、音乐作品和笑话；它可以总结文章、说明如何执行任务或编辑照片。</p>
-<p>生成式 AI 可以接受各种输入，并创建各种输出，例如文本、图片、音频和视频。它还可以接受和创建这些值的组合。例如，模型可以接受图片作为输入，并创建图片和文本作为输出，也可以接受图片和文本作为输入，并创建视频作为输出。</p>
-<p>我们可以通过生成模型的输入和输出来讨论它们，通常以”输入类型”到”输出类型”的形式写出。例如，以下是生成式模型的部分输入和输出列表：</p>
-<ul>
-<li>文本到文本</li>
-<li>文本到图像</li>
-<li>文本到视频</li>
-<li>文本转代码</li>
-<li>文本转语音</li>
-<li>图片和文本到图片</li>
-</ul>
-<p>生成式 AI 如何运作？概括来讲，生成式模型会学习数据中的模式，目标是生成新的但类似的数据。<br>为了生成独特且富有创意的输出，生成式模型最初使用非监督式方法进行训练，在这种方法中，模型会学习模仿其训练数据。有时，系统会使用监督学习或强化学习对与模型可能被要求执行的任务（例如总结文章或编辑照片）相关的特定数据进行进一步训练。</p>
-<h3 id="监督式学习基础概念"><a href="#监督式学习基础概念" class="headerlink" title="监督式学习基础概念"></a>监督式学习基础概念</h3><p>监督式学习的任务定义明确，可用于多种场景，例如识别垃圾内容或预测降水。</p>
-<p>监督式机器学习基于以下核心概念：</p>
-<ul>
-<li>数据(Data)</li>
-<li>模型(Model)</li>
-<li>训练(Training)</li>
-<li>评估(Evaluation)</li>
-<li>推理(Inference)</li>
-</ul>
-<h4 id="数据-Data"><a href="#数据-Data" class="headerlink" title="数据(Data)"></a>数据(Data)</h4><p>数据是机器学习的驱动力。数据的形式为存储在表中的单词和数字，或以图片和音频文件中捕获的像素和波形值的形式。我们将相关数据存储在数据集(Dataset)中。</p>
-<p>例如，我们可能拥有以下类型的数据集：</p>
-<ul>
-<li>猫的图片集</li>
-<li>房价数据</li>
-<li>天气信息</li>
-</ul>
-<p>数据集由包含特征(Feature)和标签(Label)的各个样本(Sample)组成。您可以将样本视为电子表格中的一行。其中：</p>
-<ul>
-<li>特征是监督式模型用于预测标签的值</li>
-<li>标签就是”答案”，也就是我们想要模型预测的值</li>
-</ul>
-<p>以预测降雨的天气模型为例：</p>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>内容</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>特征</td>
-<td>纬度、经度、温度、湿度、云覆盖范围、风向、气压</td>
-</tr>
-<tr>
-<td>标签</td>
-<td>降雨量</td>
-</tr>
-</tbody></table>
-<p>同时包含特征和标签的样本称为有标签样本(Labeled Sample)。</p>
-<h4 id="数据集特征-Dataset-Characteristics"><a href="#数据集特征-Dataset-Characteristics" class="headerlink" title="数据集特征(Dataset Characteristics)"></a>数据集特征(Dataset Characteristics)</h4><p>数据集的特征是规模(Scale)和多样性(Diversity)。大小表示样本数量。多样性表示这些样本所涵盖的范围。好的数据集要既大又多样化。</p>
-<p>有些数据集规模庞大且丰富多样。然而，有些数据集很大但多样性较低，还有一些虽然较小但多样性较高。换言之，大型数据集不能保证足够的多样性，高度多样性的数据集也无法保证有足够的样本。</p>
-<p>例如：</p>
-<ul>
-<li>数据集可能包含 100 年的数据，但只包含 7 月份的数据。使用此数据集来预测 1 月的降雨量会产生较差的预测。</li>
-<li>相反，数据集可能仅涵盖几年，但包含每月。此数据集可能产生较差的预测，因为它未涵盖足够的年份解释可变性。</li>
-</ul>
-<p>数据集的特征数量也可以作为特征。例如：</p>
-<ul>
-<li>某些天气数据集可能包含数百个特征，从卫星图像到云覆盖率值，不一而足</li>
-<li>其他数据集可能只包含三四个特征，例如湿度、大气压力和温度</li>
-</ul>
-<p>具有更多特征的数据集有助于模型发现其他模式并做出更好的预测。但是，特征较多的数据集并不一定生成的模型能够提供更好的预测，因为某些特征可能与标签没有因果关系。</p>
-<h4 id="模型-Model"><a href="#模型-Model" class="headerlink" title="模型(Model)"></a>模型(Model)</h4><p>在监督式学习中，模型是复杂的数字集合，用于定义从特定输入特征模式与特定输出标签值的数学关系。模型通过训练发现这些模式。</p>
-<h4 id="训练-Training"><a href="#训练-Training" class="headerlink" title="训练(Training)"></a>训练(Training)</h4><p>监督式模型必须先接受训练，然后才能进行预测。为了训练模型，我们为模型提供一个带有标签样本的数据集。</p>
-<p>训练过程包括以下步骤：</p>
-<ol>
-<li>模型的目标是找到根据特征预测标签的最佳解决方案</li>
-<li>模型通过将预测值与标签的实际值进行比较来找到最佳解决方案</li>
-<li>根据预测值与实际值（定义为损失(Loss)）之间的差异，模型会逐步更新其解决方案</li>
-<li>模型会学习特征与标签之间的数学关系，以便对未见过的数据做出最佳预测</li>
-</ol>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A802.png" alt="alt text"></p>
-<p>例如，如果模型预测降雨量为 1.15 inches，但实际值为 0.75 inches，则模型会修改其解决方案，使其预测更接近 0.75 inches。在模型查看数据集中的每个样本（在某些情况下，多次查看）后，会得到一个能够为每个样本做出平均最佳预测的解决方案。</p>
-<p>通过这种方式，模型可以逐步学习特征与标签之间的正确关系。这种逐渐理解的机制也是为什么庞大、多样化的数据集能够产生更好的模型的原因。该模型看到了更多值范围更广的数据，并且改进了对特征与标签之间关系的理解。</p>
-<p>在训练期间，机器学习从业者可以对模型用于进行预测的配置和功能进行细微调整。例如，某些特征的预测能力高于其他特征。因此，机器学习从业者可以选择模型在训练期间使用哪些特征。例如，假设天气数据集包含 time_of_day 作为特征。在这种情况下，机器学习从业者可以在训练期间添加或移除 time_of_day，以查看在使用或不使用该模型的情况下，模型是否能够更好地进行预测。</p>
-<h4 id="评估-Evaluation"><a href="#评估-Evaluation" class="headerlink" title="评估(Evaluation)"></a>评估(Evaluation)</h4><p>我们会评估经过训练的模型，以确定它的学习效果。在评估模型时，我们会使用加标签的数据集，但仅向模型提供数据集的特征。然后，我们会将模型的预测结果与标签的真实值进行比较。</p>
-<p>评估模型时，我们通常会使用以下指标：</p>
-<ul>
-<li>准确率(Accuracy)</li>
-<li>精确率(Precision)</li>
-<li>召回率(Recall)</li>
-</ul>
-<p>根据模型的预测，我们可能会在实际应用中部署模型之前进行更多的训练和评估。</p>
-<h4 id="推理-Inference"><a href="#推理-Inference" class="headerlink" title="推理(Inference)"></a>推理(Inference)</h4><p>对评估模型的结果感到满意后，我们就可以使用模型对无标签样本进行预测（称为推断）。在天气应用示例中，我们将为模型提供当前的天气条件（如温度、大气压和相对湿度），并预测降雨量。</p>
-<p>以上是机器学习的基础概念，后续的内容请看下一篇博客。</p>
-]]></content>
-      <categories>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>机器学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端浏览器缓存机制</title>
-    <url>/posts/50ac740b/</url>
-    <content><![CDATA[<h2 id="前端浏览器缓存机制"><a href="#前端浏览器缓存机制" class="headerlink" title="前端浏览器缓存机制"></a>前端浏览器缓存机制</h2><p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
-<span id="more"></span>
-
-<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
-<h4 id="1-强缓存（Strong-Caching）"><a href="#1-强缓存（Strong-Caching）" class="headerlink" title="1. 强缓存（Strong Caching）"></a>1. 强缓存（Strong Caching）</h4><p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
-<ul>
-<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p>
-</li>
-<li><p><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：</p>
-<ul>
-<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
-<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
-<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
-<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
-</ul>
-</li>
-</ul>
-<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
-<h4 id="2-协商缓存（Negotiation-Caching）"><a href="#2-协商缓存（Negotiation-Caching）" class="headerlink" title="2. 协商缓存（Negotiation Caching）"></a>2. 协商缓存（Negotiation Caching）</h4><p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
-<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
-<ul>
-<li><p><strong>Last-Modified &amp; If-Modified-Since</strong>: </p>
-<ul>
-<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
-<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
-</ul>
-</li>
-<li><p><strong>ETag &amp; If-None-Match</strong>:</p>
-<ul>
-<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
-<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
-</ul>
-</li>
-</ul>
-<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
-<h4 id="3-哈希与缓存（Hash）"><a href="#3-哈希与缓存（Hash）" class="headerlink" title="3. 哈希与缓存（Hash）"></a>3. 哈希与缓存（Hash）</h4><p>**哈希（Hash）**与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
-<p><strong>典型用法</strong>：</p>
-<ul>
-<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
-<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
-</ul>
-<p><strong>总结</strong>：</p>
-<ul>
-<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
-<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
-<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
-</ul>
-<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
-<h3 id="什么是CDN（内容分发网络）"><a href="#什么是CDN（内容分发网络）" class="headerlink" title="什么是CDN（内容分发网络）"></a>什么是CDN（内容分发网络）</h3><p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
-<h4 id="CDN的工作原理"><a href="#CDN的工作原理" class="headerlink" title="CDN的工作原理"></a>CDN的工作原理</h4><ol>
-<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p>
-</li>
-<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p>
-</li>
-<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p>
-</li>
-<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p>
-</li>
-</ol>
-<h4 id="CDN的主要优势"><a href="#CDN的主要优势" class="headerlink" title="CDN的主要优势"></a>CDN的主要优势</h4><ol>
-<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p>
-</li>
-<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p>
-</li>
-<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p>
-</li>
-<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p>
-</li>
-<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p>
-</li>
-</ol>
-<h4 id="CDN的使用场景"><a href="#CDN的使用场景" class="headerlink" title="CDN的使用场景"></a>CDN的使用场景</h4><ul>
-<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
-<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
-<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
-</ul>
-<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>机器学习入门02</title>
-    <url>/posts/ee0cb7e3/</url>
-    <content><![CDATA[<p>今天继续进行机器学习的入门，主题是线性回归。</p>
-<span id="more"></span>
-
-<h2 id="线性回归-Linear-Regression"><a href="#线性回归-Linear-Regression" class="headerlink" title="线性回归(Linear Regression)"></a>线性回归(Linear Regression)</h2><p>线性回归是一种 用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出 功能和 label 之间的关联。</p>
-<p>例如，假设我们要预测汽车的燃油效率（以英里&#x2F;英里为单位） 根据汽车的重量确定加仑，我们有以下数据集：</p>
-<table>
-<thead>
-<tr>
-<th>干磷(功能)</th>
-<th>英里&#x2F;加仑(标签)</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>3.5</td>
-<td>18</td>
-</tr>
-<tr>
-<td>3.69</td>
-<td>15</td>
-</tr>
-<tr>
-<td>3.44</td>
-<td>18</td>
-</tr>
-<tr>
-<td>3.43</td>
-<td>16</td>
-</tr>
-<tr>
-<td>4.34</td>
-<td>15</td>
-</tr>
-<tr>
-<td>4.42</td>
-<td>14</td>
-</tr>
-<tr>
-<td>2.37</td>
-<td>24</td>
-</tr>
-</tbody></table>
-<p>如果我们绘制这些点，通过这些点绘制一条最适合的直线来创建自己的模型,就会得到以下图表：</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A803.png" alt="alt text"></p>
-<h3 id="线性回归方程-Linear-Regression-Equation"><a href="#线性回归方程-Linear-Regression-Equation" class="headerlink" title="线性回归方程(Linear Regression Equation)"></a>线性回归方程(Linear Regression Equation)</h3><p>用代数术语来说，模型的定义为：</p>
-<p>$$y &#x3D; mx + b$$</p>
-<p>其中：</p>
-<ul>
-<li>y 表示每加仑英里数，即我们想要预测的值</li>
-<li>m 是直线的斜率</li>
-<li>x 是磷，即我们的输入值</li>
-<li>b 为 y 轴截距</li>
-</ul>
-<p>在机器学习中，我们编写线性回归模型的方程式如下所示：</p>
-<p>$$y’ &#x3D; b + w_1x_1$$</p>
-<p>其中：</p>
-<ul>
-<li>y’ 是预测标签，即输出</li>
-<li>b 是偏差(Bias)模型。偏差与代数中y截距的概念相同直线方程。在机器学习中，偏差有时称为 w₀。偏差是一个模型的参数，而且是在训练期间计算的</li>
-<li>w₁ 是权重(Weight)功能。权重与代数中斜率 m 的概念相同直线方程。权重为参数，是在训练期间计算的</li>
-<li>x₁ 是一项特征(Feature)，即输入</li>
-</ul>
-<p>在训练期间，模型会计算可产生最佳结果的权重和偏差模型。</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A804.png" alt="alt text"></p>
-<p>在我们的示例中，通过终止的线性计算得到：</p>
-<ul>
-<li>偏差为 30 (对应 y 轴截距)</li>
-<li>权重为 -3.6 (直线的斜率)</li>
-</ul>
-<p>因此，我们的模型可以表示为：</p>
-<p>$$y’ &#x3D; 30 + (-3.6)(x_1)$$</p>
-<p>现在我们就可以用这个模型进行预测了。例如，对于一辆重量为 4000 磷的汽车，我们可以预测其燃油效率：</p>
-<p>$$y’ &#x3D; 30 + (-3.6)(4.0) &#x3D; 30 - 14.4 &#x3D; 15.6$$</p>
-<p>预测结果表明这辆汽车的燃油效率约为每加仑15.6英里。</p>
-<h3 id="具有多个特征的模型-Models-with-Multiple-Features"><a href="#具有多个特征的模型-Models-with-Multiple-Features" class="headerlink" title="具有多个特征的模型(Models with Multiple Features)"></a>具有多个特征的模型(Models with Multiple Features)</h3><p>虽然本文中的示例仅使用了一项功能（即重量级汽车的特征），但更复杂的模型可能依赖于多种特征，每个特征都有单独的权重(w₁、w₂ 等)。例如，一个模型可以写为：</p>
-<p>$$y’ &#x3D; b + w_1x_1 + w_2x_2 + w_3x_3 + w_4x_4 + w_5x_5$$</p>
-<p>例如，预测汽油里程的模型可以额外使用特征如：</p>
-<ul>
-<li>发动机排量 (Displacement)</li>
-<li>加速性能 (Acceleration)</li>
-<li>汽缸数 (Number of cylinders)</li>
-<li>马力 (Horsepower)</li>
-</ul>
-<p>此模型的编写方式如下图所示：</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A805.png" alt="alt text"></p>
-<p>在这个模型中：</p>
-<ul>
-<li>x₁ 代表重量 (Pounds)</li>
-<li>x₂ 代表排量 (Displacement)</li>
-<li>x₃ 代表加速性能 (Acceleration)</li>
-<li>x₄ 代表汽缸数 (Number of cylinders)</li>
-<li>x₅ 代表马力 (Horsepower)</li>
-</ul>
-<p>每个特征(x)都有其对应的权重(w)，这些权重在训练过程中被优化，以获得最准确的预测结果。</p>
-<h3 id="线性回归：损失-Loss"><a href="#线性回归：损失-Loss" class="headerlink" title="线性回归：损失(Loss)"></a>线性回归：损失(Loss)</h3><p>损失是一个数值指标，用于描述模型的预测有多大偏差。损失函数用于衡量模型预测与实际标签之间的距离。训练模型的目标是尽可能降低损失，将其降至最低值。</p>
-<p>在下图中，可以将损失可视化为从数据点指向模型的箭头。箭头表示模型的预测结果与实际值之间的差距。</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A806.png" alt="alt text"></p>
-<h4 id="损失距离-Loss-Distance"><a href="#损失距离-Loss-Distance" class="headerlink" title="损失距离(Loss Distance)"></a>损失距离(Loss Distance)</h4><p>在统计学和机器学习中，损失函数用于衡量预测值与实际值之间的差异。损失函数侧重于值之间的距离，而不是方向。例如，如果模型预测值为 2，但实际值为 5，我们并不关心损失为负值（5 - 2 &#x3D; -3）。我们关心的是这两个值之间的距离为 3。因此，所有用于计算损失的方法都会移除符号。</p>
-<p>移除此标记的两种最常用方法如下：</p>
-<ol>
-<li><p>计算实际值与预测值之间的差值的绝对值：<br>$$L1 &#x3D; |y - y’|$$</p>
-</li>
-<li><p>将实际值与预测值之间的差值平方：<br>$$L2 &#x3D; (y - y’)^2$$</p>
-</li>
-</ol>
-<h4 id="损失类型"><a href="#损失类型" class="headerlink" title="损失类型"></a>损失类型</h4><p>在线性回归中，有四种主要的损失函数，如下表所示。</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A807.png" alt="alt text"></p>
-<p>L₁ 损失函数和 L₂ 损失函数（或 MAE 和 MSE）之间的功能差异在于平方。当预测值与标签之间的差异较大时，平方会使损失变得更大。当差异较小（小于 1）时，平方会使损失更小。</p>
-<p>当处理多个示例时，我们通常会对所有示例的损失进行平均，无论是使用 MAE 还是 MSE。</p>
-<h4 id="损失计算示例"><a href="#损失计算示例" class="headerlink" title="损失计算示例"></a>损失计算示例</h4><p>使用之前的最佳拟合直线，我们将计算单个示例的 L₂ 损失。从最优拟合直线中，我们得到了权重和偏差的以下值：</p>
-<ul>
-<li>Weight: -3.6</li>
-<li>Bias: 30</li>
-</ul>
-<p>如果模型预测重 2,370 磅的汽车每加仑可行驶 21.5 英里，但实际每加仑可行驶 24 英里，我们将按如下方式计算 L₂ 损失：</p>
-<p>$$L_2 &#x3D; (y - y’)^2 &#x3D; (24 - 21.5)^2 &#x3D; (2.5)^2 &#x3D; 6.25$$</p>
-<p>在此示例中，该单个数据点的 L₂ 损失为 6.25。</p>
-<h4 id="选择损失函数-Choosing-Loss-Functions"><a href="#选择损失函数-Choosing-Loss-Functions" class="headerlink" title="选择损失函数(Choosing Loss Functions)"></a>选择损失函数(Choosing Loss Functions)</h4><p>确定使用 MAE 还是 MSE 可能取决于数据集以及希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：</p>
-<ul>
-<li>汽车通常在 2,000 到 5,000 磅之间</li>
-<li>每加仑汽油能行驶的英里数介于 8 到 50 英里之间</li>
-<li>重 8,000 磅的汽车或每加仑汽油能行驶 100 英里的汽车都超出了典型范围，会被视为离群值(Outliers)</li>
-</ul>
-<h4 id="离群值处理"><a href="#离群值处理" class="headerlink" title="离群值处理"></a>离群值处理</h4><p>离群值还可以指模型的预测与真实值之间的差距。例如：</p>
-<ul>
-<li>3,000 磅的车重属于典型的车重范围</li>
-<li>每加仑 40 英里的油耗属于典型的油耗范围</li>
-<li>但是，对于每加仑 40 英里的 3,000 磅汽车，如果模型预测每加仑能行驶 18 到 20 英里，这个预测结果会认为是离群值</li>
-</ul>
-<h4 id="损失函数的选择"><a href="#损失函数的选择" class="headerlink" title="损失函数的选择"></a>损失函数的选择</h4><p>选择最佳损失函数时，考虑希望模型如何处理离群值：</p>
-<ul>
-<li>MSE 会使模型更接近离群值</li>
-<li>MAE 则不会</li>
-<li>与 L₁ 损失函数相比，L₂ 损失函数对离群值的惩罚更高</li>
-</ul>
-<p>例如，下图片显示了使用 MAE 训练的模型和使用 MSE 训练的模型的比较。红线表示将用于进行预测的完全训练好的模型：</p>
-<ul>
-<li>离群值更接近使用 MSE 训练的模型</li>
-<li>离群值对使用 MAE 训练的模型影响较小</li>
-</ul>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A808.png" alt="alt text"></p>
-<h3 id="线性回归：梯度下降-Gradient-Descent"><a href="#线性回归：梯度下降-Gradient-Descent" class="headerlink" title="线性回归：梯度下降(Gradient Descent)"></a>线性回归：梯度下降(Gradient Descent)</h3><p>梯度下降法是一种数学技术，能够以迭代方式找出权重和偏差，从而生成损失最低的模型。梯度下降法会针对用户指定的多次迭代重复以下过程，以找到最佳权重和偏差。</p>
-<p>模型开始训练时使用接近于零的随机权重和偏差，然后重复以下步骤：</p>
-<p>使用当前权重和偏差计算损失。</p>
-<p>确定用于减少损失的权重和偏差的移动方向。</p>
-<p>将权重和偏差值在可减少损失的方向上稍微移动。</p>
-<p>返回第 1 步并重复此过程，直到模型无法进一步降低损失。</p>
-<p>下图概述了梯度下降法为找出损失最低的模型权重和偏差所执行的迭代步骤。</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A809.png" alt="alt text"></p>
-<h4 id="梯度下降实例"><a href="#梯度下降实例" class="headerlink" title="梯度下降实例"></a>梯度下降实例</h4><h4 id="示例数据集"><a href="#示例数据集" class="headerlink" title="示例数据集"></a>示例数据集</h4><p>我们使用一个包含 7 个示例的小型数据集来演示梯度下降，这些示例分别对应汽车的重量(以磅为单位) 和每加仑行驶里程数：</p>
-<table>
-<thead>
-<tr>
-<th>以千计的英磅 (特征)</th>
-<th>每加仑英里 (标签)</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>3.5</td>
-<td>18</td>
-</tr>
-<tr>
-<td>3.69</td>
-<td>15</td>
-</tr>
-<tr>
-<td>3.44</td>
-<td>18</td>
-</tr>
-<tr>
-<td>3.43</td>
-<td>16</td>
-</tr>
-<tr>
-<td>4.34</td>
-<td>15</td>
-</tr>
-<tr>
-<td>4.42</td>
-<td>14</td>
-</tr>
-<tr>
-<td>2.37</td>
-<td>24</td>
-</tr>
-</tbody></table>
-<h4 id="梯度下降步骤"><a href="#梯度下降步骤" class="headerlink" title="梯度下降步骤"></a>梯度下降步骤</h4><h5 id="1-初始化模型参数"><a href="#1-初始化模型参数" class="headerlink" title="1. 初始化模型参数"></a>1. 初始化模型参数</h5><p>模型会先将权重和偏差设为零，然后开始训练：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Weight: 0</span><br><span class="line">Bias: 0</span><br><span class="line">y = 0 + 0(x₁)</span><br></pre></td></tr></table></figure>
-
-<h5 id="2-计算初始损失"><a href="#2-计算初始损失" class="headerlink" title="2. 计算初始损失"></a>2. 计算初始损失</h5><p>使用当前的模型参数计算 MSE 损失：<br>$$Loss &#x3D; \frac{(18-0)^2 + (15-0)^2 + (18-0)^2 + (16-0)^2 + (15-0)^2 + (14-0)^2 + (24-0)^2}{7}$$<br>$$Loss &#x3D; 303.71$$</p>
-<h5 id="3-计算梯度"><a href="#3-计算梯度" class="headerlink" title="3. 计算梯度"></a>3. 计算梯度</h5><p>我们需要计算损失函数相对于权重和偏差的导数。预测函数定义为：<br>$$f_{w,b}(x) &#x3D; (w * x) + b$$</p>
-<p>MSE 损失函数为：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$<br>其中 $i$ 表示第 $i$ 个训练示例，$M$ 表示示例数量。</p>
-<h6 id="权重的梯度"><a href="#权重的梯度" class="headerlink" title="权重的梯度"></a>权重的梯度</h6><p>权重的导数计算：<br>$$\frac{\partial}{\partial w} \frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$</p>
-<p>求值结果：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)}) * 2x_{(i)}$$</p>
-<p>当权重和偏差为零时，计算得到斜率为 -119.7。</p>
-<h6 id="偏差的梯度"><a href="#偏差的梯度" class="headerlink" title="偏差的梯度"></a>偏差的梯度</h6><p>偏差的导数计算：<br>$$\frac{\partial}{\partial b} \frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)})^2$$</p>
-<p>求值结果：<br>$$\frac{1}{M} \sum_{i&#x3D;1}^M (f_{w,b}(x_{(i)}) - y_{(i)}) * 2$$</p>
-<p>当权重和偏差为零时，计算得到斜率为 -34.3。</p>
-<h5 id="4-更新参数"><a href="#4-更新参数" class="headerlink" title="4. 更新参数"></a>4. 更新参数</h5><p>向负斜率方向移动一小步（学习率设为 0.01）：</p>
-<p>$$New\ weight &#x3D; old\ weight - (0.01 * weight\ slope)$$<br>$$New\ bias &#x3D; old\ bias - (0.01 * bias\ slope)$$</p>
-<p>第一次迭代的计算：<br>$$New\ weight &#x3D; 0 - (0.01) * (-119.7) &#x3D; 1.2$$<br>$$New\ bias &#x3D; 0 - (0.01) * (-34.3) &#x3D; 0.34$$</p>
-<h4 id="迭代结果"><a href="#迭代结果" class="headerlink" title="迭代结果"></a>迭代结果</h4><p>重复上述步骤六次后，得到以下结果：</p>
-<table>
-<thead>
-<tr>
-<th>迭代</th>
-<th>权重</th>
-<th>偏差</th>
-<th>损失 (MSE)</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>303.71</td>
-</tr>
-<tr>
-<td>2</td>
-<td>1.2</td>
-<td>0.34</td>
-<td>170.67</td>
-</tr>
-<tr>
-<td>3</td>
-<td>2.75</td>
-<td>0.59</td>
-<td>67.3</td>
-</tr>
-<tr>
-<td>4</td>
-<td>3.17</td>
-<td>0.72</td>
-<td>50.63</td>
-</tr>
-<tr>
-<td>5</td>
-<td>3.47</td>
-<td>0.82</td>
-<td>42.1</td>
-</tr>
-<tr>
-<td>6</td>
-<td>3.68</td>
-<td>0.9</td>
-<td>37.74</td>
-</tr>
-</tbody></table>
-<h4 id="收敛过程"><a href="#收敛过程" class="headerlink" title="收敛过程"></a>收敛过程</h4><p>在训练过程中,损失值会随着迭代次数的增加而不断降低。当损失值趋于稳定,不再显著下降时,我们就说模型达到了收敛状态。此时继续训练,损失值可能会出现小幅波动,但整体保持稳定。</p>
-<h4 id="损失曲线"><a href="#损失曲线" class="headerlink" title="损失曲线"></a>损失曲线</h4><p>损失曲线是观察模型收敛情况的重要工具。它展示了损失值随迭代次数的变化趋势:</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A810.png" alt="alt text"></p>
-<p>典型的损失曲线有以下特点:</p>
-<ul>
-<li>初期阶段: 损失值快速下降</li>
-<li>中期阶段: 下降速度逐渐放缓</li>
-<li>后期阶段: 趋于平稳,表明模型接近收敛</li>
-</ul>
-<h4 id="凸函数与最小值"><a href="#凸函数与最小值" class="headerlink" title="凸函数与最小值"></a>凸函数与最小值</h4><p>线性回归模型的损失函数是一个凸函数,这意味着它只有一个全局最小值。下图展示了一个单特征模型的损失函数表面:</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A811.png" alt="alt text"></p>
-<ul>
-<li>x轴: 权重 (Weight)</li>
-<li>y轴: 偏差 (Bias)</li>
-<li>z轴: 损失值 (Loss)</li>
-</ul>
-<p>这种凸形状保证了:</p>
-<ol>
-<li>梯度下降一定能找到最小损失点</li>
-<li>不会陷入局部最小值</li>
-</ol>
-<p>需要注意的是:</p>
-<ul>
-<li>模型通常找到的是接近最小值的点,而不是精确的最小值</li>
-<li>最小损失点并不意味着零损失,而是在当前数据下能达到的最优解</li>
-</ul>
-<h3 id="线性回归：超参数-Hyperparameters"><a href="#线性回归：超参数-Hyperparameters" class="headerlink" title="线性回归：超参数(Hyperparameters)"></a>线性回归：超参数(Hyperparameters)</h3><p>超参数是用于控制训练过程的变量。常见的超参数包括：</p>
-<ul>
-<li>学习速率 (Learning Rate)</li>
-<li>批量大小 (Batch Size)</li>
-<li>纪元 (Epoch)</li>
-</ul>
-<p>与模型参数(如权重和偏差)不同，超参数是在训练前设置的控制值，而不是在训练过程中学习得到的值。</p>
-<h4 id="学习速率-Learning-Rate"><a href="#学习速率-Learning-Rate" class="headerlink" title="学习速率(Learning Rate)"></a>学习速率(Learning Rate)</h4><p>学习速率决定了每次梯度下降时模型参数的调整步长。它直接影响模型的训练效果：</p>
-<ul>
-<li><p>学习速率过低：</p>
-<ul>
-<li>模型收敛速度慢</li>
-<li>需要更多迭代才能达到最优解</li>
-<li>训练时间较长</li>
-</ul>
-</li>
-<li><p>学习速率过高：</p>
-<ul>
-<li>可能导致模型无法收敛</li>
-<li>参数更新幅度过大，在最优解附近来回震荡</li>
-<li>难以找到最优解</li>
-</ul>
-</li>
-</ul>
-<p>选择合适的学习速率很重要：</p>
-<ul>
-<li>需要在训练速度和稳定性之间取得平衡</li>
-<li>通常从一个较小的值开始尝试（如0.01）</li>
-<li>根据训练效果进行调整</li>
-</ul>
-<p>例如：如果梯度为2.5，学习速率为0.01，则参数的更新步长为0.025。理想的学习速率应该使模型在合理的迭代次数内收敛。</p>
-<blockquote>
-<p>将学习速率翻倍可能会减慢训练速度。<br>此声明是正确的。将学习率翻倍可能会导致学习率过大，从而导致权重”跳来跳去”，增加收敛所需的时间。</p>
-</blockquote>
-<h4 id="批量大小-Batch-Size"><a href="#批量大小-Batch-Size" class="headerlink" title="批量大小 (Batch Size)"></a>批量大小 (Batch Size)</h4><p>批量大小是一个超参数，表示每次更新模型参数时使用的训练样本数量。虽然理论上可以在每次迭代时使用所有训练样本，但当数据集很大时（如包含数十万至数百万个样本），这种方法在计算上是不实际的。</p>
-<p>为了解决这个问题，有两种常用的梯度下降方法：</p>
-<h5 id="随机梯度下降法-SGD-Stochastic-Gradient-Descent"><a href="#随机梯度下降法-SGD-Stochastic-Gradient-Descent" class="headerlink" title="随机梯度下降法 (SGD, Stochastic Gradient Descent)"></a>随机梯度下降法 (SGD, Stochastic Gradient Descent)</h5><ul>
-<li>每次迭代只使用一个随机样本（批量大小为1）</li>
-<li>优点：<ul>
-<li>计算速度快</li>
-<li>能够跳出局部最优解</li>
-</ul>
-</li>
-<li>缺点：<ul>
-<li>参数更新波动较大</li>
-<li>收敛过程不稳定</li>
-</ul>
-</li>
-</ul>
-<p>下图展示了使用SGD训练时的损失曲线：</p>
-<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A812.png" alt="alt text"></p>
-<p>可以看到，虽然整体趋势是下降的，但曲线呈现出明显的波动。这种波动不仅出现在训练初期，在接近收敛时也会存在。</p>
-<h5 id="小批量随机梯度下降法-mini-batch-SGD"><a href="#小批量随机梯度下降法-mini-batch-SGD" class="headerlink" title="小批量随机梯度下降法 (mini-batch SGD)"></a>小批量随机梯度下降法 (mini-batch SGD)</h5><ul>
-<li>是完整批量梯度下降和SGD的折中方案</li>
-<li>每次使用一小批样本（批量大小通常在1到N之间，N为总样本数）</li>
-<li>特点：<ul>
-<li>对每个批次计算平均梯度</li>
-<li>参数更新更稳定</li>
-<li>计算效率较高</li>
-</ul>
-</li>
-</ul>
-<p>批量大小的选择：</p>
-<ul>
-<li>批量较小时：行为类似于SGD，更新波动大但计算快</li>
-<li>批量较大时：行为类似于完整批量梯度下降，更新稳定但计算慢</li>
-<li>需要在计算效率和训练稳定性之间找到平衡</li>
-</ul>
-<p>在训练模型时，噪声并不总是不良特征。适当的噪声可以帮助模型更好地泛化，这一点在神经网络的权重和偏差优化中尤为重要。</p>
-<h4 id="纪元-Epoch"><a href="#纪元-Epoch" class="headerlink" title="纪元 (Epoch)"></a>纪元 (Epoch)</h4><p>纪元表示模型完整处理训练集一次的过程。例如，对于包含1,000个样本的训练集，如果批量大小为100，则需要10次迭代(iterations)才能完成一个纪元。</p>
-<p>训练通常需要多个纪元，因为模型需要多次处理训练集中的所有样本才能达到较好的效果。纪元数是在训练开始前设置的超参数。一般来说，纪元数越多，模型拟合得越好，但训练时间也越长。</p>
-<p>下表比较了不同批处理方式对参数更新次数的影响：</p>
-<table>
-<thead>
-<tr>
-<th>批处理类型</th>
-<th>参数更新频率</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>完整批次</td>
-<td>每个纪元更新一次。例如：1000个样本，训练20个纪元，总共更新20次</td>
-</tr>
-<tr>
-<td>随机梯度下降</td>
-<td>每个样本更新一次。例如：1000个样本，训练20个纪元，总共更新20,000次</td>
-</tr>
-<tr>
-<td>小批量梯度下降</td>
-<td>每个批次更新一次。例如：1000个样本，批量大小100，训练20个纪元，总共更新200次</td>
-</tr>
-</tbody></table>
-<p>从上表可以看出：</p>
-<ul>
-<li>完整批次：参数更新最少，但每次计算量大</li>
-<li>随机梯度下降：参数更新最频繁，但可能不稳定</li>
-<li>小批量梯度下降：在更新频率和计算效率之间取得平衡</li>
-</ul>
-<h3 id="线性回归：编程练习"><a href="#线性回归：编程练习" class="headerlink" title="线性回归：编程练习"></a>线性回归：编程练习</h3><p>在机器学习项目中，通常需要以下几类Python库来帮助我们完成不同的任务：</p>
-<h4 id="数据处理库"><a href="#数据处理库" class="headerlink" title="数据处理库"></a>数据处理库</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np  <span class="comment"># 数值计算</span></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment"># 数据分析</span></span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><strong>NumPy</strong> (np)</li>
-</ol>
-<ul>
-<li>用于处理数值数据的基础库</li>
-<li>提供高效的数组操作</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数组</span></span><br><span class="line">arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br><span class="line"><span class="comment"># 基本运算</span></span><br><span class="line">arr + <span class="number">1</span>  <span class="comment"># [2, 3, 4, 5, 6]</span></span><br><span class="line">arr * <span class="number">2</span>  <span class="comment"># [2, 4, 6, 8, 10]</span></span><br><span class="line"><span class="comment"># 统计运算</span></span><br><span class="line">arr.mean()  <span class="comment"># 平均值</span></span><br><span class="line">arr.<span class="built_in">max</span>()   <span class="comment"># 最大值</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<ol start="2">
-<li><strong>Pandas</strong> (pd)</li>
-</ol>
-<ul>
-<li>用于处理表格数据的高级库</li>
-<li>提供DataFrame数据结构（类似Excel表格）</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数据表</span></span><br><span class="line">df = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&#x27;重量&#x27;</span>: [<span class="number">2.0</span>, <span class="number">2.4</span>, <span class="number">1.5</span>],</span><br><span class="line">    <span class="string">&#x27;里程&#x27;</span>: [<span class="number">18</span>, <span class="number">15</span>, <span class="number">18</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment"># 读取CSV文件</span></span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;data.csv&#x27;</span>)</span><br><span class="line"><span class="comment"># 基本统计</span></span><br><span class="line">df.describe()  <span class="comment"># 显示统计信息</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h4 id="机器学习库"><a href="#机器学习库" class="headerlink" title="机器学习库"></a>机器学习库</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> keras  <span class="comment"># 深度学习框架</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>Keras</strong></p>
-<ul>
-<li>用于构建和训练深度学习模型的高级框架</li>
-<li>提供简单易用的API</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 构建简单的神经网络</span></span><br><span class="line">model = keras.Sequential([</span><br><span class="line">    keras.layers.Dense(<span class="number">1</span>, input_shape=[<span class="number">1</span>])</span><br><span class="line">])</span><br><span class="line"><span class="comment"># 编译模型</span></span><br><span class="line">model.<span class="built_in">compile</span>(optimizer=<span class="string">&#x27;sgd&#x27;</span>, loss=<span class="string">&#x27;mse&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h4 id="数据可视化库"><a href="#数据可视化库" class="headerlink" title="数据可视化库"></a>数据可视化库</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> plotly.express <span class="keyword">as</span> px</span><br><span class="line"><span class="keyword">import</span> plotly.graph_objects <span class="keyword">as</span> go</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><strong>Plotly</strong> (px, go)</li>
-</ol>
-<ul>
-<li>用于创建交互式图表</li>
-<li>支持多种图表类型</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">fig = px.scatter(df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br><span class="line"><span class="comment"># 显示图表</span></span><br><span class="line">fig.show()</span><br></pre></td></tr></table></figure></li>
-</ul>
-<ol start="2">
-<li><strong>Seaborn</strong> (sns)</li>
-</ol>
-<ul>
-<li>基于Matplotlib的统计可视化库</li>
-<li>提供美观的默认样式</li>
-<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">sns.scatterplot(data=df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
-</ul>
-<p>在实际项目中，这些库通常会一起使用：</p>
-<ol>
-<li>使用Pandas读取和处理数据</li>
-<li>用NumPy进行数值计算</li>
-<li>使用Keras构建和训练模型</li>
-<li>用Plotly或Seaborn可视化结果</li>
-</ol>
-<h4 id="1-加载数据"><a href="#1-加载数据" class="headerlink" title="1. 加载数据"></a>1. 加载数据</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 从网络加载芝加哥出租车数据集</span></span><br><span class="line">chicago_taxi_dataset = pd.read_csv(<span class="string">&quot;https://download.mlcc.google.com/mledu-datasets/chicago_taxi_train.csv&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>这行代码使用pandas的<code>read_csv()</code>函数从网络下载并读取CSV文件。这个数据集包含了芝加哥出租车的行程信息。</p>
-<h4 id="2-选择特定列"><a href="#2-选择特定列" class="headerlink" title="2. 选择特定列"></a>2. 选择特定列</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择需要的列创建新的DataFrame</span></span><br><span class="line">training_df = chicago_taxi_dataset[[<span class="string">&#x27;TRIP_MILES&#x27;</span>,    <span class="comment"># 行程里程</span></span><br><span class="line">                                  <span class="string">&#x27;TRIP_SECONDS&#x27;</span>,    <span class="comment"># 行程时间（秒）</span></span><br><span class="line">                                  <span class="string">&#x27;FARE&#x27;</span>,            <span class="comment"># 车费</span></span><br><span class="line">                                  <span class="string">&#x27;COMPANY&#x27;</span>,         <span class="comment"># 出租车公司</span></span><br><span class="line">                                  <span class="string">&#x27;PAYMENT_TYPE&#x27;</span>,    <span class="comment"># 支付方式</span></span><br><span class="line">                                  <span class="string">&#x27;TIP_RATE&#x27;</span>]]       <span class="comment"># 小费率</span></span><br></pre></td></tr></table></figure>
-<p>这里我们从原始数据集中选择了6个重要特征：</p>
-<ul>
-<li>TRIP_MILES：行程距离</li>
-<li>TRIP_SECONDS：行程时长</li>
-<li>FARE：车费金额</li>
-<li>COMPANY：出租车公司</li>
-<li>PAYMENT_TYPE：支付方式</li>
-<li>TIP_RATE：小费比例</li>
-</ul>
-<h4 id="3-查看数据信息"><a href="#3-查看数据信息" class="headerlink" title="3. 查看数据信息"></a>3. 查看数据信息</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 打印数据集基本信息</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Read dataset completed successfully.&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Total number of rows: &#123;0&#125;\n\n&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(training_df.index)))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示前200行数据</span></span><br><span class="line">training_df.head(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
-<p>这段代码做了两件事：</p>
-<ol>
-<li>打印数据集的总行数</li>
-<li>显示数据集的前200行，帮助我们了解数据的基本结构</li>
-</ol>
-<h4 id="数据探索建议"><a href="#数据探索建议" class="headerlink" title="数据探索建议"></a>数据探索建议</h4><ol>
-<li>基本统计信息：</li>
-</ol>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看数值列的统计信息</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.describe())</span><br></pre></td></tr></table></figure>
-<p>输出结果类似：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">       TRIP_MILES        FARE</span><br><span class="line">count         4.0         5.0    # 非空值数量</span><br><span class="line">mean          2.75       13.0    # 平均值</span><br><span class="line">std           1.04        4.7    # 标准差</span><br><span class="line">min           1.50        8.0    # 最小值</span><br><span class="line">25%           2.25       10.0    # 25%分位数</span><br><span class="line">50%           2.75       12.0    # 中位数</span><br><span class="line">75%           3.25       15.0    # 75%分位数</span><br><span class="line">max           4.00       20.0    # 最大值</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看数据类型</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.info())</span><br></pre></td></tr></table></figure>
-<p>输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Data columns (total 4 columns):</span><br><span class="line"> #   Column        Non-Null Count  Dtype  </span><br><span class="line">---  ------        --------------  -----  </span><br><span class="line"> 0   TRIP_MILES    4 non-null     float64   # 4条非空数据，浮点型</span><br><span class="line"> 1   FARE          5 non-null     int64     # 5条非空数据，整数型</span><br><span class="line"> 2   PAYMENT_TYPE  5 non-null     object    # 5条非空数据，字符串型</span><br><span class="line"> 3   COMPANY       5 non-null     object    # 5条非空数据，字符串型</span><br></pre></td></tr></table></figure>
-
-
-<ol start="2">
-<li>缺失值检查：</li>
-</ol>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 检查缺失值</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data.isnull().<span class="built_in">sum</span>())</span><br></pre></td></tr></table></figure>
-<p>输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">TRIP_MILES     1    # TRIP_MILES列有1个缺失值</span><br><span class="line">FARE           0    # FARE列没有缺失值</span><br><span class="line">PAYMENT_TYPE   0    # PAYMENT_TYPE列没有缺失值</span><br><span class="line">COMPANY        0    # COMPANY列没有缺失值</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>分类变量分析：</li>
-</ol>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看支付方式的种类</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;支付方式类型:&quot;</span>, taxi_data[<span class="string">&#x27;PAYMENT_TYPE&#x27;</span>].unique())</span><br><span class="line"><span class="comment"># 输出: [&#x27;信用卡&#x27;, &#x27;现金&#x27;, &#x27;支付宝&#x27;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 统计每个公司的订单数量</span></span><br><span class="line"><span class="built_in">print</span>(taxi_data[<span class="string">&#x27;COMPANY&#x27;</span>].value_counts())</span><br><span class="line"><span class="comment"># 输出:</span></span><br><span class="line"><span class="comment"># A公司    2</span></span><br><span class="line"><span class="comment"># B公司    2</span></span><br><span class="line"><span class="comment"># C公司    1</span></span><br></pre></td></tr></table></figure>
-
-<ol start="4">
-<li>相关性分析：</li>
-</ol>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 计算行程里程和车费的相关性</span></span><br><span class="line">correlation = taxi_data[[<span class="string">&#x27;TRIP_MILES&#x27;</span>, <span class="string">&#x27;FARE&#x27;</span>]].corr()</span><br><span class="line"><span class="built_in">print</span>(correlation)</span><br></pre></td></tr></table></figure>
-<p>输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">            TRIP_MILES      FARE</span><br><span class="line">TRIP_MILES    1.000000   0.850123  # 正相关，说明里程越长，费用越高</span><br><span class="line">FARE          0.850123   1.000000</span><br></pre></td></tr></table></figure>
-
-<p>在这一步中，我们将使用相关矩阵（Correlation Matrix）来识别与标签值相关性良好的特征。相关值具有以下含义：</p>
-<ol>
-<li>完全正相关（Perfect Positive Correlation）：1.0<ul>
-<li>定义：当一个属性（attribute）上升时，另一个属性也上升</li>
-<li>例如：学习时间与考试成绩的关系</li>
-</ul>
-</li>
-<li>完全负相关（Perfect Negative Correlation）：-1.0<ul>
-<li>定义：当一个属性上升时，另一个属性下降</li>
-<li>例如：商品价格与销售量的关系</li>
-</ul>
-</li>
-<li>无相关性（No Correlation）：0.0<ul>
-<li>定义：两列之间不存在线性关系（Linear Relationship）</li>
-<li>例如：学生的身高与考试成绩的关系</li>
-</ul>
-</li>
-</ol>
-<p>一般来说，相关值（Correlation Value）的绝对值越大，该特征（Feature）的预测能力就越强</p>
-]]></content>
-      <tags>
-        <tag>机器学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
-<span id="more"></span>
-
-<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p>发现可以正常读取了</p>
-<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-
-<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
-]]></content>
-      <categories>
-        <category>Database</category>
-      </categories>
-      <tags>
-        <tag>influxdb</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>计算机网络通信漫谈 - 从TCP/IP到gRPC</title>
-    <url>/posts/f520f9c/</url>
-    <content><![CDATA[<h2 id="计算机通信的层次"><a href="#计算机通信的层次" class="headerlink" title="计算机通信的层次"></a>计算机通信的层次</h2><p>计算机通信是计算机网络形成的基础，这篇博客我们来简单了解一下现有的计算机网络通信协议。</p>
-<span id="more"></span>
-<h3 id="网络分层模型"><a href="#网络分层模型" class="headerlink" title="网络分层模型"></a>网络分层模型</h3><p>理论上有OSI七层模型,但在实际应用中我们更常用TCP&#x2F;IP四层模型:</p>
-<ul>
-<li>应用层:HTTP、FTP、SMTP、gRPC等应用协议</li>
-<li>传输层:TCP、UDP等传输控制协议</li>
-<li>网络层:IP、ICMP等网络协议</li>
-<li>网络接口层:以太网、WiFi等物理传输协议</li>
-</ul>
-<p>这种分层设计让我们可以在不改变其他层的情况下优化或替换某一层的实现。就像我们可以在同样的TCP协议上开发HTTP、FTP等不同的应用协议,也可以用WiFi或网线作为物理传输介质。</p>
-<h2 id="协议栈的演进"><a href="#协议栈的演进" class="headerlink" title="协议栈的演进"></a>协议栈的演进</h2><h3 id="基础传输层-TCP与UDP"><a href="#基础传输层-TCP与UDP" class="headerlink" title="基础传输层 - TCP与UDP"></a>基础传输层 - TCP与UDP</h3><p>传输层是整个协议栈的核心,提供了两种主要的传输服务:</p>
-<p>TCP(传输控制协议):</p>
-<ul>
-<li>面向连接:通信前需要建立连接(三次握手)</li>
-<li>可靠传输:使用确认机制和重传机制保证数据可靠到达</li>
-<li>流量控制:根据接收方处理能力调整发送速率</li>
-<li>拥塞控制:根据网络状况调整发送速率</li>
-<li>适用场景:文件传输、网页访问等对可靠性要求高的应用</li>
-</ul>
-<p>UDP(用户数据报协议):</p>
-<ul>
-<li>无连接:不需要建立连接即可传输数据</li>
-<li>不可靠:不保证数据一定送达</li>
-<li>无流量控制和拥塞控制</li>
-<li>开销小、延迟低</li>
-<li>适用场景:视频直播、游戏等对实时性要求高的应用</li>
-</ul>
-<h3 id="应用层的发展"><a href="#应用层的发展" class="headerlink" title="应用层的发展"></a>应用层的发展</h3><h4 id="HTTP-互联网的通用语言"><a href="#HTTP-互联网的通用语言" class="headerlink" title="HTTP - 互联网的通用语言"></a>HTTP - 互联网的通用语言</h4><p>HTTP协议构建在TCP之上,经历了几个重要版本:</p>
-<p>HTTP&#x2F;1.1:</p>
-<ul>
-<li>持久连接:复用TCP连接</li>
-<li>管道化请求:支持多个请求排队</li>
-<li>但存在队头阻塞问题</li>
-</ul>
-<p>HTTP&#x2F;2:</p>
-<ul>
-<li>多路复用:在同一连接上并发处理多个请求</li>
-<li>头部压缩:减少传输开销</li>
-<li>服务器推送:主动推送相关资源</li>
-<li>二进制分帧:更高效的数据传输</li>
-</ul>
-<h4 id="gRPC-现代分布式系统的新选择"><a href="#gRPC-现代分布式系统的新选择" class="headerlink" title="gRPC - 现代分布式系统的新选择"></a>gRPC - 现代分布式系统的新选择</h4><p>gRPC是基于HTTP&#x2F;2构建的高性能RPC框架:</p>
-<ul>
-<li>协议层次:<ul>
-<li>应用层:gRPC API</li>
-<li>中间层:HTTP&#x2F;2</li>
-<li>传输层:TCP</li>
-<li>安全层:TLS(可选)</li>
-</ul>
-</li>
-</ul>
-<p>四种通信模式:</p>
-<ol>
-<li><p>一元RPC(Unary):</p>
-<ul>
-<li>类似HTTP&#x2F;1.1的请求-响应模式</li>
-<li>适用于传统的客户端-服务器交互</li>
-</ul>
-</li>
-<li><p>服务器流式RPC(Server Streaming):</p>
-<ul>
-<li>客户端发送一个请求,服务器返回数据流</li>
-<li>适用于服务器推送场景,如订阅更新</li>
-</ul>
-</li>
-<li><p>客户端流式RPC(Client Streaming):</p>
-<ul>
-<li>客户端发送数据流,服务器返回一个响应</li>
-<li>适用于数据上传场景</li>
-</ul>
-</li>
-<li><p>双向流式RPC(Bidirectional Streaming):</p>
-<ul>
-<li>客户端和服务器同时收发数据流</li>
-<li>适用于实时通信场景,如在线游戏</li>
-</ul>
-</li>
-</ol>
-<p>gRPC的优势:</p>
-<ul>
-<li>基于HTTP&#x2F;2的高性能</li>
-<li>Protocol Buffers的高效序列化</li>
-<li>强类型接口定义</li>
-<li>跨语言支持</li>
-<li>内置流控和安全机制</li>
-</ul>
-<h2 id="安全传输-TLS的重要性"><a href="#安全传输-TLS的重要性" class="headerlink" title="安全传输 - TLS的重要性"></a>安全传输 - TLS的重要性</h2><p>TLS在传输层和应用层之间提供了安全保障:</p>
-<ul>
-<li>加密:保护数据不被窃听</li>
-<li>认证:验证通信双方身份</li>
-<li>完整性:确保数据不被篡改</li>
-</ul>
-<p>现代应用如HTTPS和gRPC都默认集成了TLS,为应用提供端到端的安全保障。</p>
-]]></content>
-      <categories>
-        <category>通信协议</category>
-      </categories>
-      <tags>
-        <tag>网络协议</tag>
-        <tag>gRPC</tag>
-        <tag>TLS</tag>
-        <tag>HTTP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>编码</title>
-    <url>/posts/6f8a188e/</url>
-    <content><![CDATA[<h2 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h2><p>今天在复习编译原理的时候，发现对底层的编码都是还停留在听过或者见过的状态，所以决定学习一下有关编码的知识。</p>
-<span id="more"></span>
-
-<h3 id="编码概述"><a href="#编码概述" class="headerlink" title="编码概述"></a>编码概述</h3><ul>
-<li><strong>定义</strong>：编码是将信息从一种形式或格式转换为另一种形式的过程，以便信息能够被存储、传输或处理。在计算机科学中，编码通常指将人类可读的信息（如文本、图像、声音等）转换为计算机可识别的二进制形式。</li>
-<li><strong>目的</strong>：编码的主要目的是实现信息的有效存储、传输和处理。通过编码，信息可以在不同的系统、设备和网络之间进行交换和共享，同时还能对信息进行加密、压缩等操作以提高安全性、减少存储空间和传输带宽。</li>
-</ul>
-<h3 id="字符编码"><a href="#字符编码" class="headerlink" title="字符编码"></a>字符编码</h3><h4 id="ASCII编码"><a href="#ASCII编码" class="headerlink" title="ASCII编码"></a>ASCII编码</h4><ul>
-<li><strong>背景与起源</strong><ul>
-<li>1960年代，计算机开始普及，但不同厂商使用不同的编码标准，导致信息交换困难</li>
-<li>1967年，美国标准化组织制定ASCII，实现了计算机间的标准化通信</li>
-</ul>
-</li>
-<li><strong>工作原理</strong><ul>
-<li>使用7位二进制数，可以表示128个字符（2^7 &#x3D; 128）</li>
-<li>0-31：控制字符（如换行符\n &#x3D; 10，回车符\r &#x3D; 13）</li>
-<li>32-127：可打印字符（如’A’ &#x3D; 65，’a’ &#x3D; 97，’0’ &#x3D; 48）</li>
-</ul>
-</li>
-<li><strong>优点</strong><ul>
-<li>简单易用，是最基础的编码标准</li>
-<li>至今仍被广泛使用，现代编码方案都兼容ASCII</li>
-</ul>
-</li>
-<li><strong>缺点</strong><ul>
-<li>只能表示英文字母和符号，无法表示其他语言字符</li>
-<li>例如：无法表示”中文”、”日本語”等字符</li>
-</ul>
-</li>
-</ul>
-<h4 id="GB2312与GBK"><a href="#GB2312与GBK" class="headerlink" title="GB2312与GBK"></a>GB2312与GBK</h4><ul>
-<li><p><strong>GB2312</strong></p>
-<ul>
-<li><strong>起源</strong>：1980年，中国为解决计算机无法显示汉字问题而制定</li>
-<li><strong>原理</strong>：采用双字节编码<ul>
-<li>首字节范围0xA1-0xF7，次字节范围0xA1-0xFE</li>
-<li>加0xA1是为了避开ASCII码的0x00-0x7F区域，确保与ASCII兼容</li>
-<li>分区设计：<ul>
-<li>01-09区：特殊符号</li>
-<li>16-55区：一级汉字（3755个常用字）</li>
-<li>56-87区：二级汉字（3008个次常用字）</li>
-<li>10-15区：保留区</li>
-</ul>
-</li>
-<li>每个区94个字符，共94个区</li>
-</ul>
-</li>
-<li><strong>示例</strong>：<ul>
-<li>“中”的GB2312编码为0xD6D0（第45区第60个汉字）</li>
-<li>“国”的GB2312编码为0xB9FA（第16区第15个汉字）</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>优点</strong>：</p>
-<ul>
-<li>完全兼容ASCII</li>
-<li>包含6763个常用汉字，满足基本需求</li>
-<li><strong>缺点</strong>：<ul>
-<li>汉字数量有限，部分生僻字无法表示</li>
-<li>不支持繁体中文、日韩文字</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>GBK</strong></p>
-<ul>
-<li><strong>起源</strong>：1995年推出，是GB2312的扩展</li>
-<li><strong>特点</strong>：<ul>
-<li>向下完全兼容GB2312</li>
-<li>收录21003个汉字，包括繁体字</li>
-</ul>
-</li>
-<li><strong>示例</strong>：<ul>
-<li>“㠭”（生僻字）在GB2312中无法表示，但GBK可以表示</li>
-</ul>
-</li>
-<li><strong>优点</strong>：<ul>
-<li>字符集更大，能满足绝大多数中文处理需求</li>
-<li>兼容性好，在中国大陆使用广泛</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li>不是国际标准，在跨国际平台可能出现乱码</li>
-<li>无法表示其他国家的文字系统</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="Unicode与UTF编码"><a href="#Unicode与UTF编码" class="headerlink" title="Unicode与UTF编码"></a>Unicode与UTF编码</h4><ul>
-<li><p><strong>Unicode</strong></p>
-<ul>
-<li><strong>起源</strong>：<ul>
-<li>1991年推出，目标是统一全球所有字符编码</li>
-<li>由于各国编码标准不一，同一个二进制值在不同编码下可能表示不同字符，造成乱码</li>
-</ul>
-</li>
-<li><strong>特点</strong>：<ul>
-<li>为每个字符分配唯一编码点（Code Point）</li>
-<li>编码空间从U+0000到U+10FFFF，共17个平面（Plane）</li>
-<li>第0平面（BMP，基本多语言平面）：U+0000至U+FFFF，收录最常用字符</li>
-<li>目前已收录超过14万个字符，包括各国文字、符号、emoji等</li>
-</ul>
-</li>
-<li><strong>重要概念</strong>：<ul>
-<li>码点（Code Point）：字符在Unicode字符集中的唯一编号</li>
-<li>平面（Plane）：Unicode编码空间的逻辑分区，每个平面收录65536个字符</li>
-<li>代理对（Surrogate Pair）：使用两个16位值表示BMP之外的字符</li>
-</ul>
-</li>
-<li><strong>示例</strong>：<ul>
-<li>“A” → U+0041（基本拉丁字母）</li>
-<li>“中” → U+4E2D（CJK统一表意文字）</li>
-<li>“😀” → U+1F600（补充表意平面，表情符号）</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>UTF-8</strong></p>
-<ul>
-<li><strong>原理</strong>：变长编码方案，使用1-4个字节表示一个字符<ul>
-<li>对于单字节，最高位为0</li>
-<li>对于多字节，第一个字节以几个1开头，就使用几个字节编码</li>
-</ul>
-</li>
-<li><strong>编码规则</strong>：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Unicode范围            UTF-8编码方式</span><br><span class="line">0000-007F: 0xxxxxxx</span><br><span class="line">0080-07FF: 110xxxxx 10xxxxxx</span><br><span class="line">0800-FFFF: 1110xxxx 10xxxxxx 10xxxxxx</span><br><span class="line">10000-10FFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</span><br></pre></td></tr></table></figure></li>
-<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">字符    Unicode编码点     UTF-8编码          二进制表示</span><br><span class="line">A       U+0041           41                01000001</span><br><span class="line">中      U+4E2D           E4 B8 AD          11100100 10111000 10101101</span><br><span class="line">😀      U+1F600          F0 9F 98 80      11110000 10011111 10011000 10000000</span><br></pre></td></tr></table></figure></li>
-<li><strong>优点</strong>：<ul>
-<li>完全兼容ASCII</li>
-<li>节省存储空间（常用字符占用字节少）</li>
-<li>自同步（可以从任意位置开始解码）</li>
-<li>无字节序问题</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li>变长编码使字符定位较慢</li>
-<li>在内存中操作不如定长编码方便</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><strong>UTF-16</strong></p>
-<ul>
-<li><strong>原理</strong>：<ul>
-<li>BMP平面内字符：使用2个字节直接表示</li>
-<li>BMP平面外字符：使用4个字节的代理对（Surrogate Pair）表示</li>
-</ul>
-</li>
-<li><strong>编码规则</strong>：<ul>
-<li>BMP字符：直接用16位表示</li>
-<li>非BMP字符：将码点转换为代理对<ol>
-<li>码点减去0x10000得到20位数</li>
-<li>高10位加上0xD800得到高位代理</li>
-<li>低10位加上0xDC00得到低位代理</li>
-</ol>
-</li>
-</ul>
-</li>
-<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">字符    Unicode编码点     UTF-16编码        说明</span><br><span class="line">A       U+0041           00 41            BMP内字符</span><br><span class="line">中      U+4E2D           4E 2D            BMP内字符</span><br><span class="line">😀      U+1F600          D83D DE00        代理对表示</span><br></pre></td></tr></table></figure></li>
-<li><strong>优点</strong>：<ul>
-<li>处理中日韩文字效率高（大多在BMP平面内）</li>
-<li>Java、JavaScript等语言内部采用此编码</li>
-<li>定长编码便于字符定位</li>
-</ul>
-</li>
-<li><strong>缺点</strong>：<ul>
-<li>不兼容ASCII</li>
-<li>存在大小端序问题（需要BOM标记）</li>
-<li>占用空间较大</li>
-<li>代理对处理复杂</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="数据编码"><a href="#数据编码" class="headerlink" title="数据编码"></a>数据编码</h3><ul>
-<li><strong>数字编码</strong><ul>
-<li><strong>二进制编码</strong>：将数字转换为二进制形式，是计算机处理数字信息的基础。例如，十进制数10的二进制编码是1010。</li>
-<li><strong>BCD编码</strong>：二进制编码的十进制数，将十进制数的每一位分别转换为4位二进制数。例如，十进制数10的BCD编码是0001 0000。</li>
-</ul>
-</li>
-<li><strong>图像编码</strong><ul>
-<li><strong>位图编码</strong>：将图像的每个像素点的颜色信息直接存储起来，常见的位图格式有BMP、PNG等。</li>
-<li><strong>压缩编码</strong>：通过减少图像数据的冗余信息来实现数据压缩，常见的压缩编码格式有JPEG、GIF等。JPEG采用离散余弦变换（DCT）和量化等技术，GIF采用LZW压缩算法。</li>
-</ul>
-</li>
-<li><strong>音频编码</strong><ul>
-<li><strong>PCM编码</strong>：脉冲编码调制，将模拟音频信号转换为数字信号，是音频数字化的基础。PCM编码的音频数据量较大。</li>
-<li><strong>压缩编码</strong>：通过减少音频数据的冗余信息来实现数据压缩，常见的压缩编码格式有MP3、AAC等。MP3采用心理声学模型和变换编码等技术，AAC是MP3的改进版本，具有更高的压缩效率和音质。</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-      </categories>
-      <tags>
-        <tag>编码</tag>
       </tags>
   </entry>
 </search>
