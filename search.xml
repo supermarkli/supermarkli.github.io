@@ -1,6 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>CSS Note</title>
+    <url>/posts/752f9918/</url>
+    <content><![CDATA[<h2 id="CSS心得"><a href="#CSS心得" class="headerlink" title="CSS心得"></a>CSS心得</h2><p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
+<span id="more"></span>
+
+<p>body最好设为**overflow:hidden;**这样就不会出现最大页面的滑动框</p>
+<p>color才是字体颜色</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="常见css"><a href="#常见css" class="headerlink" title="常见css"></a>常见css</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常见flex属性"><a href="#常见flex属性" class="headerlink" title="常见flex属性"></a>常见flex属性</h3><p>flex: 1；可以搭配overflow：hidden；使用</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="技巧：可以搭配js实现宽度变化"><a href="#技巧：可以搭配js实现宽度变化" class="headerlink" title="技巧：可以搭配js实现宽度变化"></a>技巧：可以搭配js实现宽度变化</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="技巧：改变列宽"><a href="#技巧：改变列宽" class="headerlink" title="技巧：改变列宽"></a>技巧：改变列宽</h3><p>将单元格设为如下</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
+
+<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
+<ol>
+<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
+<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
+</ol>
+<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
+<p>这里的技巧是color:white;这样不会影响表格的美观</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="技巧：表格置顶"><a href="#技巧：表格置顶" class="headerlink" title="技巧：表格置顶"></a>技巧：表格置顶</h3><p>outline是为了修复滑动时失去边界的bug</p>
+<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
+<ul>
+<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
+<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>CSS</category>
+      </categories>
+      <tags>
+        <tag>CSS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>2.4G 无线通信笔记</title>
     <url>/posts/a25d78f8/</url>
     <content><![CDATA[<h2 id="什么是2-4G无线通信？"><a href="#什么是2-4G无线通信？" class="headerlink" title="什么是2.4G无线通信？"></a>什么是2.4G无线通信？</h2><p>之前嵌入式project的通信中用到了2.4G模块，借此机会来了解一下这项技术。</p>
@@ -246,55 +295,6 @@
       </tags>
   </entry>
   <entry>
-    <title>CSS Note</title>
-    <url>/posts/752f9918/</url>
-    <content><![CDATA[<h2 id="CSS心得"><a href="#CSS心得" class="headerlink" title="CSS心得"></a>CSS心得</h2><p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
-<span id="more"></span>
-
-<p>body最好设为**overflow:hidden;**这样就不会出现最大页面的滑动框</p>
-<p>color才是字体颜色</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="常见css"><a href="#常见css" class="headerlink" title="常见css"></a>常见css</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="常见flex属性"><a href="#常见flex属性" class="headerlink" title="常见flex属性"></a>常见flex属性</h3><p>flex: 1；可以搭配overflow：hidden；使用</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="技巧：可以搭配js实现宽度变化"><a href="#技巧：可以搭配js实现宽度变化" class="headerlink" title="技巧：可以搭配js实现宽度变化"></a>技巧：可以搭配js实现宽度变化</h3><figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
-
-<h3 id="技巧：改变列宽"><a href="#技巧：改变列宽" class="headerlink" title="技巧：改变列宽"></a>技巧：改变列宽</h3><p>将单元格设为如下</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
-
-<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
-<ol>
-<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
-<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
-</ol>
-<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
-<p>这里的技巧是color:white;这样不会影响表格的美观</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="技巧：表格置顶"><a href="#技巧：表格置顶" class="headerlink" title="技巧：表格置顶"></a>技巧：表格置顶</h3><p>outline是为了修复滑动时失去边界的bug</p>
-<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
-<ul>
-<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
-<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
-</ul>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <categories>
-        <category>CSS</category>
-      </categories>
-      <tags>
-        <tag>CSS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Anaconda Note</title>
     <url>/posts/7066aaf6/</url>
     <content><![CDATA[<h2 id="Anaconda"><a href="#Anaconda" class="headerlink" title="Anaconda"></a>Anaconda</h2><p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
@@ -346,6 +346,124 @@
       <tags>
         <tag>conda</tag>
         <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TLS Note</title>
+    <url>/posts/32f5e233/</url>
+    <content><![CDATA[<h2 id="1-什么是TLS"><a href="#1-什么是TLS" class="headerlink" title="1. 什么是TLS"></a>1. 什么是TLS</h2><p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
+<span id="more"></span>
+
+<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
+<h2 id="2-TLS的主要功能"><a href="#2-TLS的主要功能" class="headerlink" title="2. TLS的主要功能"></a>2. TLS的主要功能</h2><p>TLS提供以下三个主要的安全服务：</p>
+<h3 id="2-1-身份认证"><a href="#2-1-身份认证" class="headerlink" title="2.1 身份认证"></a>2.1 身份认证</h3><p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
+<h3 id="2-2-数据加密"><a href="#2-2-数据加密" class="headerlink" title="2.2 数据加密"></a>2.2 数据加密</h3><p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
+<h3 id="2-3-完整性校验"><a href="#2-3-完整性校验" class="headerlink" title="2.3 完整性校验"></a>2.3 完整性校验</h3><p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
+<h2 id="3-TLS的版本演进"><a href="#3-TLS的版本演进" class="headerlink" title="3. TLS的版本演进"></a>3. TLS的版本演进</h2><p>TLS协议经历了多个版本的演进：</p>
+<ul>
+<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
+<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
+<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
+<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
+<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
+<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
+</ul>
+<h2 id="4-TLS的密码学原理"><a href="#4-TLS的密码学原理" class="headerlink" title="4. TLS的密码学原理"></a>4. TLS的密码学原理</h2><h3 id="4-1-对称加密"><a href="#4-1-对称加密" class="headerlink" title="4.1 对称加密"></a>4.1 对称加密</h3><ul>
+<li>使用相同的密钥进行加密和解密</li>
+<li>常用算法：AES、ChaCha20</li>
+<li>用于加密传输的数据</li>
+</ul>
+<h3 id="4-2-非对称加密"><a href="#4-2-非对称加密" class="headerlink" title="4.2 非对称加密"></a>4.2 非对称加密</h3><ul>
+<li>使用公钥加密，私钥解密</li>
+<li>常用算法：RSA、ECDSA</li>
+<li>用于密钥交换和身份认证</li>
+</ul>
+<h3 id="4-3-数字证书"><a href="#4-3-数字证书" class="headerlink" title="4.3 数字证书"></a>4.3 数字证书</h3><ul>
+<li>X.509格式证书</li>
+<li>包含服务器的公钥和身份信息</li>
+<li>由CA机构签名认证</li>
+</ul>
+<h3 id="4-4-消息认证码"><a href="#4-4-消息认证码" class="headerlink" title="4.4 消息认证码"></a>4.4 消息认证码</h3><ul>
+<li>HMAC算法</li>
+<li>确保消息完整性</li>
+<li>防止数据被篡改</li>
+</ul>
+<h2 id="5-TLS握手过程"><a href="#5-TLS握手过程" class="headerlink" title="5. TLS握手过程"></a>5. TLS握手过程</h2><p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
+<h3 id="5-1-Client-Hello"><a href="#5-1-Client-Hello" class="headerlink" title="5.1 Client Hello"></a>5.1 Client Hello</h3><ul>
+<li>客户端发送支持的TLS版本</li>
+<li>支持的加密套件列表</li>
+<li>随机数（Client Random）</li>
+<li>会话ID（如果是恢复会话）</li>
+</ul>
+<h3 id="5-2-Server-Hello"><a href="#5-2-Server-Hello" class="headerlink" title="5.2 Server Hello"></a>5.2 Server Hello</h3><ul>
+<li>服务器选择TLS版本</li>
+<li>选择加密套件</li>
+<li>随机数（Server Random）</li>
+<li>服务器证书</li>
+</ul>
+<h3 id="5-3-密钥交换"><a href="#5-3-密钥交换" class="headerlink" title="5.3 密钥交换"></a>5.3 密钥交换</h3><ul>
+<li>客户端验证服务器证书</li>
+<li>生成预主密钥（Pre-master Secret）</li>
+<li>使用服务器公钥加密预主密钥</li>
+<li>计算主密钥（Master Secret）</li>
+</ul>
+<h3 id="5-4-完成握手"><a href="#5-4-完成握手" class="headerlink" title="5.4 完成握手"></a>5.4 完成握手</h3><ul>
+<li>切换到加密通信</li>
+<li>验证握手消息的完整性</li>
+<li>开始安全数据传输</li>
+</ul>
+<h2 id="6-TLS的应用场景"><a href="#6-TLS的应用场景" class="headerlink" title="6. TLS的应用场景"></a>6. TLS的应用场景</h2><h3 id="6-1-HTTPS"><a href="#6-1-HTTPS" class="headerlink" title="6.1 HTTPS"></a>6.1 HTTPS</h3><ul>
+<li>最常见的TLS应用</li>
+<li>为HTTP提供安全传输</li>
+<li>网站必备的安全保障</li>
+</ul>
+<h3 id="6-2-安全邮件"><a href="#6-2-安全邮件" class="headerlink" title="6.2 安全邮件"></a>6.2 安全邮件</h3><ul>
+<li>SMTPS</li>
+<li>IMAPS</li>
+<li>POP3S</li>
+</ul>
+<h3 id="6-3-VPN"><a href="#6-3-VPN" class="headerlink" title="6.3 VPN"></a>6.3 VPN</h3><ul>
+<li>OpenVPN</li>
+<li>其他基于TLS的VPN协议</li>
+</ul>
+<h2 id="7-常见攻击与防范"><a href="#7-常见攻击与防范" class="headerlink" title="7. 常见攻击与防范"></a>7. 常见攻击与防范</h2><h3 id="7-1-中间人攻击"><a href="#7-1-中间人攻击" class="headerlink" title="7.1 中间人攻击"></a>7.1 中间人攻击</h3><ul>
+<li>攻击者冒充服务器</li>
+<li>通过证书验证防范</li>
+<li>使用可信CA签发的证书</li>
+</ul>
+<h3 id="7-2-降级攻击"><a href="#7-2-降级攻击" class="headerlink" title="7.2 降级攻击"></a>7.2 降级攻击</h3><ul>
+<li>强制使用低版本协议</li>
+<li>禁用不安全的协议版本</li>
+<li>启用降级保护机制</li>
+</ul>
+<h3 id="7-3-重放攻击"><a href="#7-3-重放攻击" class="headerlink" title="7.3 重放攻击"></a>7.3 重放攻击</h3><ul>
+<li>重放已捕获的数据包</li>
+<li>使用随机数和时间戳</li>
+<li>会话标识符唯一性</li>
+</ul>
+<h2 id="8-最佳实践"><a href="#8-最佳实践" class="headerlink" title="8. 最佳实践"></a>8. 最佳实践</h2><h3 id="8-1-协议配置"><a href="#8-1-协议配置" class="headerlink" title="8.1 协议配置"></a>8.1 协议配置</h3><ul>
+<li>仅启用TLS 1.2及以上版本</li>
+<li>使用强加密套件</li>
+<li>启用前向保密</li>
+</ul>
+<h3 id="8-2-证书管理"><a href="#8-2-证书管理" class="headerlink" title="8.2 证书管理"></a>8.2 证书管理</h3><ul>
+<li>及时更新证书</li>
+<li>使用适当的密钥长度</li>
+<li>正确配置证书链</li>
+</ul>
+<h3 id="8-3-安全监控"><a href="#8-3-安全监控" class="headerlink" title="8.3 安全监控"></a>8.3 安全监控</h3><ul>
+<li>记录TLS错误日志</li>
+<li>监控证书有效期</li>
+<li>定期安全评估</li>
+</ul>
+]]></content>
+      <categories>
+        <category>通信协议</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>加密</tag>
+        <tag>HTTPS</tag>
       </tags>
   </entry>
   <entry>
@@ -787,165 +905,6 @@
       <tags>
         <tag>TDX</tag>
         <tag>Intel</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TLS Note</title>
-    <url>/posts/32f5e233/</url>
-    <content><![CDATA[<h2 id="1-什么是TLS"><a href="#1-什么是TLS" class="headerlink" title="1. 什么是TLS"></a>1. 什么是TLS</h2><p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
-<span id="more"></span>
-
-<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
-<h2 id="2-TLS的主要功能"><a href="#2-TLS的主要功能" class="headerlink" title="2. TLS的主要功能"></a>2. TLS的主要功能</h2><p>TLS提供以下三个主要的安全服务：</p>
-<h3 id="2-1-身份认证"><a href="#2-1-身份认证" class="headerlink" title="2.1 身份认证"></a>2.1 身份认证</h3><p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
-<h3 id="2-2-数据加密"><a href="#2-2-数据加密" class="headerlink" title="2.2 数据加密"></a>2.2 数据加密</h3><p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
-<h3 id="2-3-完整性校验"><a href="#2-3-完整性校验" class="headerlink" title="2.3 完整性校验"></a>2.3 完整性校验</h3><p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
-<h2 id="3-TLS的版本演进"><a href="#3-TLS的版本演进" class="headerlink" title="3. TLS的版本演进"></a>3. TLS的版本演进</h2><p>TLS协议经历了多个版本的演进：</p>
-<ul>
-<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
-<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
-<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
-<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
-<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
-<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
-</ul>
-<h2 id="4-TLS的密码学原理"><a href="#4-TLS的密码学原理" class="headerlink" title="4. TLS的密码学原理"></a>4. TLS的密码学原理</h2><h3 id="4-1-对称加密"><a href="#4-1-对称加密" class="headerlink" title="4.1 对称加密"></a>4.1 对称加密</h3><ul>
-<li>使用相同的密钥进行加密和解密</li>
-<li>常用算法：AES、ChaCha20</li>
-<li>用于加密传输的数据</li>
-</ul>
-<h3 id="4-2-非对称加密"><a href="#4-2-非对称加密" class="headerlink" title="4.2 非对称加密"></a>4.2 非对称加密</h3><ul>
-<li>使用公钥加密，私钥解密</li>
-<li>常用算法：RSA、ECDSA</li>
-<li>用于密钥交换和身份认证</li>
-</ul>
-<h3 id="4-3-数字证书"><a href="#4-3-数字证书" class="headerlink" title="4.3 数字证书"></a>4.3 数字证书</h3><ul>
-<li>X.509格式证书</li>
-<li>包含服务器的公钥和身份信息</li>
-<li>由CA机构签名认证</li>
-</ul>
-<h3 id="4-4-消息认证码"><a href="#4-4-消息认证码" class="headerlink" title="4.4 消息认证码"></a>4.4 消息认证码</h3><ul>
-<li>HMAC算法</li>
-<li>确保消息完整性</li>
-<li>防止数据被篡改</li>
-</ul>
-<h2 id="5-TLS握手过程"><a href="#5-TLS握手过程" class="headerlink" title="5. TLS握手过程"></a>5. TLS握手过程</h2><p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
-<h3 id="5-1-Client-Hello"><a href="#5-1-Client-Hello" class="headerlink" title="5.1 Client Hello"></a>5.1 Client Hello</h3><ul>
-<li>客户端发送支持的TLS版本</li>
-<li>支持的加密套件列表</li>
-<li>随机数（Client Random）</li>
-<li>会话ID（如果是恢复会话）</li>
-</ul>
-<h3 id="5-2-Server-Hello"><a href="#5-2-Server-Hello" class="headerlink" title="5.2 Server Hello"></a>5.2 Server Hello</h3><ul>
-<li>服务器选择TLS版本</li>
-<li>选择加密套件</li>
-<li>随机数（Server Random）</li>
-<li>服务器证书</li>
-</ul>
-<h3 id="5-3-密钥交换"><a href="#5-3-密钥交换" class="headerlink" title="5.3 密钥交换"></a>5.3 密钥交换</h3><ul>
-<li>客户端验证服务器证书</li>
-<li>生成预主密钥（Pre-master Secret）</li>
-<li>使用服务器公钥加密预主密钥</li>
-<li>计算主密钥（Master Secret）</li>
-</ul>
-<h3 id="5-4-完成握手"><a href="#5-4-完成握手" class="headerlink" title="5.4 完成握手"></a>5.4 完成握手</h3><ul>
-<li>切换到加密通信</li>
-<li>验证握手消息的完整性</li>
-<li>开始安全数据传输</li>
-</ul>
-<h2 id="6-TLS的应用场景"><a href="#6-TLS的应用场景" class="headerlink" title="6. TLS的应用场景"></a>6. TLS的应用场景</h2><h3 id="6-1-HTTPS"><a href="#6-1-HTTPS" class="headerlink" title="6.1 HTTPS"></a>6.1 HTTPS</h3><ul>
-<li>最常见的TLS应用</li>
-<li>为HTTP提供安全传输</li>
-<li>网站必备的安全保障</li>
-</ul>
-<h3 id="6-2-安全邮件"><a href="#6-2-安全邮件" class="headerlink" title="6.2 安全邮件"></a>6.2 安全邮件</h3><ul>
-<li>SMTPS</li>
-<li>IMAPS</li>
-<li>POP3S</li>
-</ul>
-<h3 id="6-3-VPN"><a href="#6-3-VPN" class="headerlink" title="6.3 VPN"></a>6.3 VPN</h3><ul>
-<li>OpenVPN</li>
-<li>其他基于TLS的VPN协议</li>
-</ul>
-<h2 id="7-常见攻击与防范"><a href="#7-常见攻击与防范" class="headerlink" title="7. 常见攻击与防范"></a>7. 常见攻击与防范</h2><h3 id="7-1-中间人攻击"><a href="#7-1-中间人攻击" class="headerlink" title="7.1 中间人攻击"></a>7.1 中间人攻击</h3><ul>
-<li>攻击者冒充服务器</li>
-<li>通过证书验证防范</li>
-<li>使用可信CA签发的证书</li>
-</ul>
-<h3 id="7-2-降级攻击"><a href="#7-2-降级攻击" class="headerlink" title="7.2 降级攻击"></a>7.2 降级攻击</h3><ul>
-<li>强制使用低版本协议</li>
-<li>禁用不安全的协议版本</li>
-<li>启用降级保护机制</li>
-</ul>
-<h3 id="7-3-重放攻击"><a href="#7-3-重放攻击" class="headerlink" title="7.3 重放攻击"></a>7.3 重放攻击</h3><ul>
-<li>重放已捕获的数据包</li>
-<li>使用随机数和时间戳</li>
-<li>会话标识符唯一性</li>
-</ul>
-<h2 id="8-最佳实践"><a href="#8-最佳实践" class="headerlink" title="8. 最佳实践"></a>8. 最佳实践</h2><h3 id="8-1-协议配置"><a href="#8-1-协议配置" class="headerlink" title="8.1 协议配置"></a>8.1 协议配置</h3><ul>
-<li>仅启用TLS 1.2及以上版本</li>
-<li>使用强加密套件</li>
-<li>启用前向保密</li>
-</ul>
-<h3 id="8-2-证书管理"><a href="#8-2-证书管理" class="headerlink" title="8.2 证书管理"></a>8.2 证书管理</h3><ul>
-<li>及时更新证书</li>
-<li>使用适当的密钥长度</li>
-<li>正确配置证书链</li>
-</ul>
-<h3 id="8-3-安全监控"><a href="#8-3-安全监控" class="headerlink" title="8.3 安全监控"></a>8.3 安全监控</h3><ul>
-<li>记录TLS错误日志</li>
-<li>监控证书有效期</li>
-<li>定期安全评估</li>
-</ul>
-]]></content>
-      <categories>
-        <category>通信协议</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>加密</tag>
-        <tag>HTTPS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
-<span id="more"></span>
-
-<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-
-<p>发现可以正常读取了</p>
-<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-
-<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
-]]></content>
-      <categories>
-        <category>Database</category>
-      </categories>
-      <tags>
-        <tag>influxdb</tag>
       </tags>
   </entry>
   <entry>
@@ -1851,7 +1810,8 @@
   <entry>
     <title>机器学习入门02</title>
     <url>/posts/ee0cb7e3/</url>
-    <content><![CDATA[<span id="more"></span>
+    <content><![CDATA[<p>今天继续进行机器学习的入门，主题是线性回归。</p>
+<span id="more"></span>
 
 <h2 id="线性回归-Linear-Regression"><a href="#线性回归-Linear-Regression" class="headerlink" title="线性回归(Linear Regression)"></a>线性回归(Linear Regression)</h2><p>线性回归是一种 用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出 功能和 label 之间的关联。</p>
 <p>例如，假设我们要预测汽车的燃油效率（以英里&#x2F;英里为单位） 根据汽车的重量确定加仑，我们有以下数据集：</p>
@@ -1944,7 +1904,7 @@
 </ul>
 <p>每个特征(x)都有其对应的权重(w)，这些权重在训练过程中被优化，以获得最准确的预测结果。</p>
 <h3 id="线性回归：损失-Loss"><a href="#线性回归：损失-Loss" class="headerlink" title="线性回归：损失(Loss)"></a>线性回归：损失(Loss)</h3><p>损失是一个数值指标，用于描述模型的预测有多大偏差。损失函数用于衡量模型预测与实际标签之间的距离。训练模型的目标是尽可能降低损失，将其降至最低值。</p>
-<p>在下图中，您可以将损失可视化为从数据点指向模型的箭头。箭头表示模型的预测结果与实际值之间的差距。</p>
+<p>在下图中，可以将损失可视化为从数据点指向模型的箭头。箭头表示模型的预测结果与实际值之间的差距。</p>
 <p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A806.png" alt="alt text"></p>
 <h4 id="损失距离-Loss-Distance"><a href="#损失距离-Loss-Distance" class="headerlink" title="损失距离(Loss Distance)"></a>损失距离(Loss Distance)</h4><p>在统计学和机器学习中，损失函数用于衡量预测值与实际值之间的差异。损失函数侧重于值之间的距离，而不是方向。例如，如果模型预测值为 2，但实际值为 5，我们并不关心损失为负值（5 - 2 &#x3D; -3）。我们关心的是这两个值之间的距离为 3。因此，所有用于计算损失的方法都会移除符号。</p>
 <p>移除此标记的两种最常用方法如下：</p>
@@ -1966,7 +1926,7 @@
 <p>如果模型预测重 2,370 磅的汽车每加仑可行驶 21.5 英里，但实际每加仑可行驶 24 英里，我们将按如下方式计算 L₂ 损失：</p>
 <p>$$L_2 &#x3D; (y - y’)^2 &#x3D; (24 - 21.5)^2 &#x3D; (2.5)^2 &#x3D; 6.25$$</p>
 <p>在此示例中，该单个数据点的 L₂ 损失为 6.25。</p>
-<h4 id="选择损失函数-Choosing-Loss-Functions"><a href="#选择损失函数-Choosing-Loss-Functions" class="headerlink" title="选择损失函数(Choosing Loss Functions)"></a>选择损失函数(Choosing Loss Functions)</h4><p>确定使用 MAE 还是 MSE 可能取决于数据集以及您希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：</p>
+<h4 id="选择损失函数-Choosing-Loss-Functions"><a href="#选择损失函数-Choosing-Loss-Functions" class="headerlink" title="选择损失函数(Choosing Loss Functions)"></a>选择损失函数(Choosing Loss Functions)</h4><p>确定使用 MAE 还是 MSE 可能取决于数据集以及希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：</p>
 <ul>
 <li>汽车通常在 2,000 到 5,000 磅之间</li>
 <li>每加仑汽油能行驶的英里数介于 8 到 50 英里之间</li>
@@ -1978,7 +1938,7 @@
 <li>每加仑 40 英里的油耗属于典型的油耗范围</li>
 <li>但是，对于每加仑 40 英里的 3,000 磅汽车，如果模型预测每加仑能行驶 18 到 20 英里，这个预测结果会认为是离群值</li>
 </ul>
-<h4 id="损失函数的选择"><a href="#损失函数的选择" class="headerlink" title="损失函数的选择"></a>损失函数的选择</h4><p>选择最佳损失函数时，请考虑您希望模型如何处理离群值：</p>
+<h4 id="损失函数的选择"><a href="#损失函数的选择" class="headerlink" title="损失函数的选择"></a>损失函数的选择</h4><p>选择最佳损失函数时，考虑希望模型如何处理离群值：</p>
 <ul>
 <li>MSE 会使模型更接近离群值</li>
 <li>MAE 则不会</li>
@@ -1998,7 +1958,7 @@
 <p>返回第 1 步并重复此过程，直到模型无法进一步降低损失。</p>
 <p>下图概述了梯度下降法为找出损失最低的模型权重和偏差所执行的迭代步骤。</p>
 <p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A809.png" alt="alt text"></p>
-<h3 id="梯度下降实例"><a href="#梯度下降实例" class="headerlink" title="梯度下降实例"></a>梯度下降实例</h3><h4 id="示例数据集"><a href="#示例数据集" class="headerlink" title="示例数据集"></a>示例数据集</h4><p>我们使用一个包含 7 个示例的小型数据集来演示梯度下降，这些示例分别对应汽车的重量(以磅为单位) 和每加仑行驶里程数：</p>
+<h4 id="梯度下降实例"><a href="#梯度下降实例" class="headerlink" title="梯度下降实例"></a>梯度下降实例</h4><h4 id="示例数据集"><a href="#示例数据集" class="headerlink" title="示例数据集"></a>示例数据集</h4><p>我们使用一个包含 7 个示例的小型数据集来演示梯度下降，这些示例分别对应汽车的重量(以磅为单位) 和每加仑行驶里程数：</p>
 <table>
 <thead>
 <tr>
@@ -2097,11 +2057,339 @@
 <td>37.74</td>
 </tr>
 </tbody></table>
-<h4 id="收敛说明"><a href="#收敛说明" class="headerlink" title="收敛说明"></a>收敛说明</h4><p>可以看到，随着每次迭代，损失值都在降低。在实际应用中，模型会一直训练直到收敛，即损失值不再显著下降。当模型收敛时，继续迭代不会带来明显的损失降低，因为梯度下降已经找到了接近最优的权重和偏差值。</p>
-<p>如果在模型收敛后继续训练，损失值可能会出现小幅波动。为了确认模型是否真正收敛，需要观察损失值是否趋于稳定。</p>
+<h4 id="收敛过程"><a href="#收敛过程" class="headerlink" title="收敛过程"></a>收敛过程</h4><p>在训练过程中,损失值会随着迭代次数的增加而不断降低。当损失值趋于稳定,不再显著下降时,我们就说模型达到了收敛状态。此时继续训练,损失值可能会出现小幅波动,但整体保持稳定。</p>
+<h4 id="损失曲线"><a href="#损失曲线" class="headerlink" title="损失曲线"></a>损失曲线</h4><p>损失曲线是观察模型收敛情况的重要工具。它展示了损失值随迭代次数的变化趋势:</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A810.png" alt="alt text"></p>
+<p>典型的损失曲线有以下特点:</p>
+<ul>
+<li>初期阶段: 损失值快速下降</li>
+<li>中期阶段: 下降速度逐渐放缓</li>
+<li>后期阶段: 趋于平稳,表明模型接近收敛</li>
+</ul>
+<h4 id="凸函数与最小值"><a href="#凸函数与最小值" class="headerlink" title="凸函数与最小值"></a>凸函数与最小值</h4><p>线性回归模型的损失函数是一个凸函数,这意味着它只有一个全局最小值。下图展示了一个单特征模型的损失函数表面:</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A811.png" alt="alt text"></p>
+<ul>
+<li>x轴: 权重 (Weight)</li>
+<li>y轴: 偏差 (Bias)</li>
+<li>z轴: 损失值 (Loss)</li>
+</ul>
+<p>这种凸形状保证了:</p>
+<ol>
+<li>梯度下降一定能找到最小损失点</li>
+<li>不会陷入局部最小值</li>
+</ol>
+<p>需要注意的是:</p>
+<ul>
+<li>模型通常找到的是接近最小值的点,而不是精确的最小值</li>
+<li>最小损失点并不意味着零损失,而是在当前数据下能达到的最优解</li>
+</ul>
+<h3 id="线性回归：超参数-Hyperparameters"><a href="#线性回归：超参数-Hyperparameters" class="headerlink" title="线性回归：超参数(Hyperparameters)"></a>线性回归：超参数(Hyperparameters)</h3><p>超参数是用于控制训练过程的变量。常见的超参数包括：</p>
+<ul>
+<li>学习速率 (Learning Rate)</li>
+<li>批量大小 (Batch Size)</li>
+<li>纪元 (Epoch)</li>
+</ul>
+<p>与模型参数(如权重和偏差)不同，超参数是在训练前设置的控制值，而不是在训练过程中学习得到的值。</p>
+<h4 id="学习速率-Learning-Rate"><a href="#学习速率-Learning-Rate" class="headerlink" title="学习速率(Learning Rate)"></a>学习速率(Learning Rate)</h4><p>学习速率决定了每次梯度下降时模型参数的调整步长。它直接影响模型的训练效果：</p>
+<ul>
+<li><p>学习速率过低：</p>
+<ul>
+<li>模型收敛速度慢</li>
+<li>需要更多迭代才能达到最优解</li>
+<li>训练时间较长</li>
+</ul>
+</li>
+<li><p>学习速率过高：</p>
+<ul>
+<li>可能导致模型无法收敛</li>
+<li>参数更新幅度过大，在最优解附近来回震荡</li>
+<li>难以找到最优解</li>
+</ul>
+</li>
+</ul>
+<p>选择合适的学习速率很重要：</p>
+<ul>
+<li>需要在训练速度和稳定性之间取得平衡</li>
+<li>通常从一个较小的值开始尝试（如0.01）</li>
+<li>根据训练效果进行调整</li>
+</ul>
+<p>例如：如果梯度为2.5，学习速率为0.01，则参数的更新步长为0.025。理想的学习速率应该使模型在合理的迭代次数内收敛。</p>
+<blockquote>
+<p>将学习速率翻倍可能会减慢训练速度。<br>此声明是正确的。将学习率翻倍可能会导致学习率过大，从而导致权重“跳来跳去”，增加收敛所需的时间。</p>
+</blockquote>
+<h4 id="批量大小-Batch-Size"><a href="#批量大小-Batch-Size" class="headerlink" title="批量大小 (Batch Size)"></a>批量大小 (Batch Size)</h4><p>批量大小是一个超参数，表示每次更新模型参数时使用的训练样本数量。虽然理论上可以在每次迭代时使用所有训练样本，但当数据集很大时（如包含数十万至数百万个样本），这种方法在计算上是不实际的。</p>
+<p>为了解决这个问题，有两种常用的梯度下降方法：</p>
+<h5 id="随机梯度下降法-SGD-Stochastic-Gradient-Descent"><a href="#随机梯度下降法-SGD-Stochastic-Gradient-Descent" class="headerlink" title="随机梯度下降法 (SGD, Stochastic Gradient Descent)"></a>随机梯度下降法 (SGD, Stochastic Gradient Descent)</h5><ul>
+<li>每次迭代只使用一个随机样本（批量大小为1）</li>
+<li>优点：<ul>
+<li>计算速度快</li>
+<li>能够跳出局部最优解</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>参数更新波动较大</li>
+<li>收敛过程不稳定</li>
+</ul>
+</li>
+</ul>
+<p>下图展示了使用SGD训练时的损失曲线：</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A812.png" alt="alt text"></p>
+<p>可以看到，虽然整体趋势是下降的，但曲线呈现出明显的波动。这种波动不仅出现在训练初期，在接近收敛时也会存在。</p>
+<h5 id="小批量随机梯度下降法-mini-batch-SGD"><a href="#小批量随机梯度下降法-mini-batch-SGD" class="headerlink" title="小批量随机梯度下降法 (mini-batch SGD)"></a>小批量随机梯度下降法 (mini-batch SGD)</h5><ul>
+<li>是完整批量梯度下降和SGD的折中方案</li>
+<li>每次使用一小批样本（批量大小通常在1到N之间，N为总样本数）</li>
+<li>特点：<ul>
+<li>对每个批次计算平均梯度</li>
+<li>参数更新更稳定</li>
+<li>计算效率较高</li>
+</ul>
+</li>
+</ul>
+<p>批量大小的选择：</p>
+<ul>
+<li>批量较小时：行为类似于SGD，更新波动大但计算快</li>
+<li>批量较大时：行为类似于完整批量梯度下降，更新稳定但计算慢</li>
+<li>需要在计算效率和训练稳定性之间找到平衡</li>
+</ul>
+<p>在训练模型时，噪声并不总是不良特征。适当的噪声可以帮助模型更好地泛化，这一点在神经网络的权重和偏差优化中尤为重要。</p>
+<h4 id="纪元-Epoch"><a href="#纪元-Epoch" class="headerlink" title="纪元 (Epoch)"></a>纪元 (Epoch)</h4><p>纪元表示模型完整处理训练集一次的过程。例如，对于包含1,000个样本的训练集，如果批量大小为100，则需要10次迭代(iterations)才能完成一个纪元。</p>
+<p>训练通常需要多个纪元，因为模型需要多次处理训练集中的所有样本才能达到较好的效果。纪元数是在训练开始前设置的超参数。一般来说，纪元数越多，模型拟合得越好，但训练时间也越长。</p>
+<p>下表比较了不同批处理方式对参数更新次数的影响：</p>
+<table>
+<thead>
+<tr>
+<th>批处理类型</th>
+<th>参数更新频率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>完整批次</td>
+<td>每个纪元更新一次。例如：1000个样本，训练20个纪元，总共更新20次</td>
+</tr>
+<tr>
+<td>随机梯度下降</td>
+<td>每个样本更新一次。例如：1000个样本，训练20个纪元，总共更新20,000次</td>
+</tr>
+<tr>
+<td>小批量梯度下降</td>
+<td>每个批次更新一次。例如：1000个样本，批量大小100，训练20个纪元，总共更新200次</td>
+</tr>
+</tbody></table>
+<p>从上表可以看出：</p>
+<ul>
+<li>完整批次：参数更新最少，但每次计算量大</li>
+<li>随机梯度下降：参数更新最频繁，但可能不稳定</li>
+<li>小批量梯度下降：在更新频率和计算效率之间取得平衡</li>
+</ul>
+<h3 id="线性回归：编程练习"><a href="#线性回归：编程练习" class="headerlink" title="线性回归：编程练习"></a>线性回归：编程练习</h3><p>在机器学习项目中，通常需要以下几类Python库来帮助我们完成不同的任务：</p>
+<h4 id="数据处理库"><a href="#数据处理库" class="headerlink" title="数据处理库"></a>数据处理库</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np  <span class="comment"># 数值计算</span></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment"># 数据分析</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>NumPy</strong> (np)</li>
+</ol>
+<ul>
+<li>用于处理数值数据的基础库</li>
+<li>提供高效的数组操作</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数组</span></span><br><span class="line">arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br><span class="line"><span class="comment"># 基本运算</span></span><br><span class="line">arr + <span class="number">1</span>  <span class="comment"># [2, 3, 4, 5, 6]</span></span><br><span class="line">arr * <span class="number">2</span>  <span class="comment"># [2, 4, 6, 8, 10]</span></span><br><span class="line"><span class="comment"># 统计运算</span></span><br><span class="line">arr.mean()  <span class="comment"># 平均值</span></span><br><span class="line">arr.<span class="built_in">max</span>()   <span class="comment"># 最大值</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li><strong>Pandas</strong> (pd)</li>
+</ol>
+<ul>
+<li>用于处理表格数据的高级库</li>
+<li>提供DataFrame数据结构（类似Excel表格）</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建数据表</span></span><br><span class="line">df = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&#x27;重量&#x27;</span>: [<span class="number">2.0</span>, <span class="number">2.4</span>, <span class="number">1.5</span>],</span><br><span class="line">    <span class="string">&#x27;里程&#x27;</span>: [<span class="number">18</span>, <span class="number">15</span>, <span class="number">18</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment"># 读取CSV文件</span></span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;data.csv&#x27;</span>)</span><br><span class="line"><span class="comment"># 基本统计</span></span><br><span class="line">df.describe()  <span class="comment"># 显示统计信息</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="机器学习库"><a href="#机器学习库" class="headerlink" title="机器学习库"></a>机器学习库</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> keras  <span class="comment"># 深度学习框架</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Keras</strong></p>
+<ul>
+<li>用于构建和训练深度学习模型的高级框架</li>
+<li>提供简单易用的API</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 构建简单的神经网络</span></span><br><span class="line">model = keras.Sequential([</span><br><span class="line">    keras.layers.Dense(<span class="number">1</span>, input_shape=[<span class="number">1</span>])</span><br><span class="line">])</span><br><span class="line"><span class="comment"># 编译模型</span></span><br><span class="line">model.<span class="built_in">compile</span>(optimizer=<span class="string">&#x27;sgd&#x27;</span>, loss=<span class="string">&#x27;mse&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="数据可视化库"><a href="#数据可视化库" class="headerlink" title="数据可视化库"></a>数据可视化库</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> plotly.express <span class="keyword">as</span> px</span><br><span class="line"><span class="keyword">import</span> plotly.graph_objects <span class="keyword">as</span> go</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>Plotly</strong> (px, go)</li>
+</ol>
+<ul>
+<li>用于创建交互式图表</li>
+<li>支持多种图表类型</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">fig = px.scatter(df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br><span class="line"><span class="comment"># 显示图表</span></span><br><span class="line">fig.show()</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li><strong>Seaborn</strong> (sns)</li>
+</ol>
+<ul>
+<li>基于Matplotlib的统计可视化库</li>
+<li>提供美观的默认样式</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">sns.scatterplot(data=df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>这些库各有特点：</p>
+<ul>
+<li>NumPy和Pandas主要用于数据处理和分析</li>
+<li>Keras用于构建机器学习模型</li>
+<li>Plotly和Seaborn用于数据可视化，帮助我们理解数据和展示结果</li>
+</ul>
+<p>在实际项目中，这些库通常会一起使用：</p>
+<ol>
+<li>使用Pandas读取和处理数据</li>
+<li>用NumPy进行数值计算</li>
+<li>使用Keras构建和训练模型</li>
+<li>用Plotly或Seaborn可视化结果</li>
+</ol>
 ]]></content>
       <tags>
         <tag>机器学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题"><a href="#influxdb连接问题" class="headerlink" title="influxdb连接问题"></a>influxdb连接问题</h2><p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：</p>
+<span id="more"></span>
+
+<h3 id="token401问题"><a href="#token401问题" class="headerlink" title="token401问题"></a>token401问题</h3><h4 id="登录401"><a href="#登录401" class="headerlink" title="登录401"></a>登录401</h4><p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p><img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f"></p>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<p><img src="/assets/image-20240919184721228.png" alt="image-20240919184721228"></p>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+
+<p>发现可以正常读取了</p>
+<h4 id="过期401"><a href="#过期401" class="headerlink" title="过期401"></a>过期401</h4><p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="数据读取问题"><a href="#数据读取问题" class="headerlink" title="数据读取问题"></a>数据读取问题</h3><p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h3><p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>influxdb</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络通信漫谈 - 从TCP/IP到gRPC</title>
+    <url>/posts/f520f9c/</url>
+    <content><![CDATA[<h2 id="计算机通信的层次"><a href="#计算机通信的层次" class="headerlink" title="计算机通信的层次"></a>计算机通信的层次</h2><p>计算机通信是计算机网络形成的基础，这篇博客我们来简单了解一下现有的计算机网络通信协议。</p>
+<span id="more"></span>
+<h3 id="网络分层模型"><a href="#网络分层模型" class="headerlink" title="网络分层模型"></a>网络分层模型</h3><p>理论上有OSI七层模型,但在实际应用中我们更常用TCP&#x2F;IP四层模型:</p>
+<ul>
+<li>应用层:HTTP、FTP、SMTP、gRPC等应用协议</li>
+<li>传输层:TCP、UDP等传输控制协议</li>
+<li>网络层:IP、ICMP等网络协议</li>
+<li>网络接口层:以太网、WiFi等物理传输协议</li>
+</ul>
+<p>这种分层设计让我们可以在不改变其他层的情况下优化或替换某一层的实现。就像我们可以在同样的TCP协议上开发HTTP、FTP等不同的应用协议,也可以用WiFi或网线作为物理传输介质。</p>
+<h2 id="协议栈的演进"><a href="#协议栈的演进" class="headerlink" title="协议栈的演进"></a>协议栈的演进</h2><h3 id="基础传输层-TCP与UDP"><a href="#基础传输层-TCP与UDP" class="headerlink" title="基础传输层 - TCP与UDP"></a>基础传输层 - TCP与UDP</h3><p>传输层是整个协议栈的核心,提供了两种主要的传输服务:</p>
+<p>TCP(传输控制协议):</p>
+<ul>
+<li>面向连接:通信前需要建立连接(三次握手)</li>
+<li>可靠传输:使用确认机制和重传机制保证数据可靠到达</li>
+<li>流量控制:根据接收方处理能力调整发送速率</li>
+<li>拥塞控制:根据网络状况调整发送速率</li>
+<li>适用场景:文件传输、网页访问等对可靠性要求高的应用</li>
+</ul>
+<p>UDP(用户数据报协议):</p>
+<ul>
+<li>无连接:不需要建立连接即可传输数据</li>
+<li>不可靠:不保证数据一定送达</li>
+<li>无流量控制和拥塞控制</li>
+<li>开销小、延迟低</li>
+<li>适用场景:视频直播、游戏等对实时性要求高的应用</li>
+</ul>
+<h3 id="应用层的发展"><a href="#应用层的发展" class="headerlink" title="应用层的发展"></a>应用层的发展</h3><h4 id="HTTP-互联网的通用语言"><a href="#HTTP-互联网的通用语言" class="headerlink" title="HTTP - 互联网的通用语言"></a>HTTP - 互联网的通用语言</h4><p>HTTP协议构建在TCP之上,经历了几个重要版本:</p>
+<p>HTTP&#x2F;1.1:</p>
+<ul>
+<li>持久连接:复用TCP连接</li>
+<li>管道化请求:支持多个请求排队</li>
+<li>但存在队头阻塞问题</li>
+</ul>
+<p>HTTP&#x2F;2:</p>
+<ul>
+<li>多路复用:在同一连接上并发处理多个请求</li>
+<li>头部压缩:减少传输开销</li>
+<li>服务器推送:主动推送相关资源</li>
+<li>二进制分帧:更高效的数据传输</li>
+</ul>
+<h4 id="gRPC-现代分布式系统的新选择"><a href="#gRPC-现代分布式系统的新选择" class="headerlink" title="gRPC - 现代分布式系统的新选择"></a>gRPC - 现代分布式系统的新选择</h4><p>gRPC是基于HTTP&#x2F;2构建的高性能RPC框架:</p>
+<ul>
+<li>协议层次:<ul>
+<li>应用层:gRPC API</li>
+<li>中间层:HTTP&#x2F;2</li>
+<li>传输层:TCP</li>
+<li>安全层:TLS(可选)</li>
+</ul>
+</li>
+</ul>
+<p>四种通信模式:</p>
+<ol>
+<li><p>一元RPC(Unary):</p>
+<ul>
+<li>类似HTTP&#x2F;1.1的请求-响应模式</li>
+<li>适用于传统的客户端-服务器交互</li>
+</ul>
+</li>
+<li><p>服务器流式RPC(Server Streaming):</p>
+<ul>
+<li>客户端发送一个请求,服务器返回数据流</li>
+<li>适用于服务器推送场景,如订阅更新</li>
+</ul>
+</li>
+<li><p>客户端流式RPC(Client Streaming):</p>
+<ul>
+<li>客户端发送数据流,服务器返回一个响应</li>
+<li>适用于数据上传场景</li>
+</ul>
+</li>
+<li><p>双向流式RPC(Bidirectional Streaming):</p>
+<ul>
+<li>客户端和服务器同时收发数据流</li>
+<li>适用于实时通信场景,如在线游戏</li>
+</ul>
+</li>
+</ol>
+<p>gRPC的优势:</p>
+<ul>
+<li>基于HTTP&#x2F;2的高性能</li>
+<li>Protocol Buffers的高效序列化</li>
+<li>强类型接口定义</li>
+<li>跨语言支持</li>
+<li>内置流控和安全机制</li>
+</ul>
+<h2 id="安全传输-TLS的重要性"><a href="#安全传输-TLS的重要性" class="headerlink" title="安全传输 - TLS的重要性"></a>安全传输 - TLS的重要性</h2><p>TLS在传输层和应用层之间提供了安全保障:</p>
+<ul>
+<li>加密:保护数据不被窃听</li>
+<li>认证:验证通信双方身份</li>
+<li>完整性:确保数据不被篡改</li>
+</ul>
+<p>现代应用如HTTPS和gRPC都默认集成了TLS,为应用提供端到端的安全保障。</p>
+]]></content>
+      <categories>
+        <category>通信协议</category>
+      </categories>
+      <tags>
+        <tag>网络协议</tag>
+        <tag>gRPC</tag>
+        <tag>TLS</tag>
+        <tag>HTTP</tag>
       </tags>
   </entry>
   <entry>
@@ -2306,113 +2594,6 @@
       </categories>
       <tags>
         <tag>编码</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>计算机网络通信漫谈 - 从TCP/IP到gRPC</title>
-    <url>/posts/f520f9c/</url>
-    <content><![CDATA[<h2 id="计算机通信的层次"><a href="#计算机通信的层次" class="headerlink" title="计算机通信的层次"></a>计算机通信的层次</h2><p>计算机通信是计算机网络形成的基础，这篇博客我们来简单了解一下现有的计算机网络通信协议。</p>
-<span id="more"></span>
-<h3 id="网络分层模型"><a href="#网络分层模型" class="headerlink" title="网络分层模型"></a>网络分层模型</h3><p>理论上有OSI七层模型,但在实际应用中我们更常用TCP&#x2F;IP四层模型:</p>
-<ul>
-<li>应用层:HTTP、FTP、SMTP、gRPC等应用协议</li>
-<li>传输层:TCP、UDP等传输控制协议</li>
-<li>网络层:IP、ICMP等网络协议</li>
-<li>网络接口层:以太网、WiFi等物理传输协议</li>
-</ul>
-<p>这种分层设计让我们可以在不改变其他层的情况下优化或替换某一层的实现。就像我们可以在同样的TCP协议上开发HTTP、FTP等不同的应用协议,也可以用WiFi或网线作为物理传输介质。</p>
-<h2 id="协议栈的演进"><a href="#协议栈的演进" class="headerlink" title="协议栈的演进"></a>协议栈的演进</h2><h3 id="基础传输层-TCP与UDP"><a href="#基础传输层-TCP与UDP" class="headerlink" title="基础传输层 - TCP与UDP"></a>基础传输层 - TCP与UDP</h3><p>传输层是整个协议栈的核心,提供了两种主要的传输服务:</p>
-<p>TCP(传输控制协议):</p>
-<ul>
-<li>面向连接:通信前需要建立连接(三次握手)</li>
-<li>可靠传输:使用确认机制和重传机制保证数据可靠到达</li>
-<li>流量控制:根据接收方处理能力调整发送速率</li>
-<li>拥塞控制:根据网络状况调整发送速率</li>
-<li>适用场景:文件传输、网页访问等对可靠性要求高的应用</li>
-</ul>
-<p>UDP(用户数据报协议):</p>
-<ul>
-<li>无连接:不需要建立连接即可传输数据</li>
-<li>不可靠:不保证数据一定送达</li>
-<li>无流量控制和拥塞控制</li>
-<li>开销小、延迟低</li>
-<li>适用场景:视频直播、游戏等对实时性要求高的应用</li>
-</ul>
-<h3 id="应用层的发展"><a href="#应用层的发展" class="headerlink" title="应用层的发展"></a>应用层的发展</h3><h4 id="HTTP-互联网的通用语言"><a href="#HTTP-互联网的通用语言" class="headerlink" title="HTTP - 互联网的通用语言"></a>HTTP - 互联网的通用语言</h4><p>HTTP协议构建在TCP之上,经历了几个重要版本:</p>
-<p>HTTP&#x2F;1.1:</p>
-<ul>
-<li>持久连接:复用TCP连接</li>
-<li>管道化请求:支持多个请求排队</li>
-<li>但存在队头阻塞问题</li>
-</ul>
-<p>HTTP&#x2F;2:</p>
-<ul>
-<li>多路复用:在同一连接上并发处理多个请求</li>
-<li>头部压缩:减少传输开销</li>
-<li>服务器推送:主动推送相关资源</li>
-<li>二进制分帧:更高效的数据传输</li>
-</ul>
-<h4 id="gRPC-现代分布式系统的新选择"><a href="#gRPC-现代分布式系统的新选择" class="headerlink" title="gRPC - 现代分布式系统的新选择"></a>gRPC - 现代分布式系统的新选择</h4><p>gRPC是基于HTTP&#x2F;2构建的高性能RPC框架:</p>
-<ul>
-<li>协议层次:<ul>
-<li>应用层:gRPC API</li>
-<li>中间层:HTTP&#x2F;2</li>
-<li>传输层:TCP</li>
-<li>安全层:TLS(可选)</li>
-</ul>
-</li>
-</ul>
-<p>四种通信模式:</p>
-<ol>
-<li><p>一元RPC(Unary):</p>
-<ul>
-<li>类似HTTP&#x2F;1.1的请求-响应模式</li>
-<li>适用于传统的客户端-服务器交互</li>
-</ul>
-</li>
-<li><p>服务器流式RPC(Server Streaming):</p>
-<ul>
-<li>客户端发送一个请求,服务器返回数据流</li>
-<li>适用于服务器推送场景,如订阅更新</li>
-</ul>
-</li>
-<li><p>客户端流式RPC(Client Streaming):</p>
-<ul>
-<li>客户端发送数据流,服务器返回一个响应</li>
-<li>适用于数据上传场景</li>
-</ul>
-</li>
-<li><p>双向流式RPC(Bidirectional Streaming):</p>
-<ul>
-<li>客户端和服务器同时收发数据流</li>
-<li>适用于实时通信场景,如在线游戏</li>
-</ul>
-</li>
-</ol>
-<p>gRPC的优势:</p>
-<ul>
-<li>基于HTTP&#x2F;2的高性能</li>
-<li>Protocol Buffers的高效序列化</li>
-<li>强类型接口定义</li>
-<li>跨语言支持</li>
-<li>内置流控和安全机制</li>
-</ul>
-<h2 id="安全传输-TLS的重要性"><a href="#安全传输-TLS的重要性" class="headerlink" title="安全传输 - TLS的重要性"></a>安全传输 - TLS的重要性</h2><p>TLS在传输层和应用层之间提供了安全保障:</p>
-<ul>
-<li>加密:保护数据不被窃听</li>
-<li>认证:验证通信双方身份</li>
-<li>完整性:确保数据不被篡改</li>
-</ul>
-<p>现代应用如HTTPS和gRPC都默认集成了TLS,为应用提供端到端的安全保障。</p>
-]]></content>
-      <categories>
-        <category>通信协议</category>
-      </categories>
-      <tags>
-        <tag>网络协议</tag>
-        <tag>gRPC</tag>
-        <tag>TLS</tag>
-        <tag>HTTP</tag>
       </tags>
   </entry>
 </search>

@@ -21,12 +21,12 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
-    <meta name="description" content="线性回归(Linear Regression)线性回归是一种 用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出 功能和 label 之间的关联。 例如，假设我们要预测汽车的燃油效率（以英里&#x2F;英里为单位） 根据汽车的重量确定加仑，我们有以下数据集：    干磷(功能) 英里&#x2F;加仑(标签)    3.5 18   3.69 15   3.44 18   3.">
+    <meta name="description" content="今天继续进行机器学习的入门，主题是线性回归。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="机器学习入门02">
 <meta property="og:url" content="https://supermarkli.github.io/posts/ee0cb7e3/index.html">
 <meta property="og:site_name" content="吃糠咽菜">
-<meta property="og:description" content="线性回归(Linear Regression)线性回归是一种 用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出 功能和 label 之间的关联。 例如，假设我们要预测汽车的燃油效率（以英里&#x2F;英里为单位） 根据汽车的重量确定加仑，我们有以下数据集：    干磷(功能) 英里&#x2F;加仑(标签)    3.5 18   3.69 15   3.44 18   3.">
+<meta property="og:description" content="今天继续进行机器学习的入门，主题是线性回归。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A803.png">
 <meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A804.png">
@@ -35,8 +35,11 @@
 <meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A807.png">
 <meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A808.png">
 <meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A809.png">
+<meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A810.png">
+<meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A811.png">
+<meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A812.png">
 <meta property="article:published_time" content="2025-02-17T02:03:12.000Z">
-<meta property="article:modified_time" content="2025-02-17T02:46:37.190Z">
+<meta property="article:modified_time" content="2025-02-17T06:55:28.203Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="机器学习">
 <meta name="twitter:card" content="summary">
@@ -150,7 +153,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-Regression"><span class="nav-number">1.</span> <span class="nav-text">线性回归(Linear Regression)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E6%96%B9%E7%A8%8B-Linear-Regression-Equation"><span class="nav-number">1.1.</span> <span class="nav-text">线性回归方程(Linear Regression Equation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E6%9C%89%E5%A4%9A%E4%B8%AA%E7%89%B9%E5%BE%81%E7%9A%84%E6%A8%A1%E5%9E%8B-Models-with-Multiple-Features"><span class="nav-number">1.2.</span> <span class="nav-text">具有多个特征的模型(Models with Multiple Features)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%8D%9F%E5%A4%B1-Loss"><span class="nav-number">1.3.</span> <span class="nav-text">线性回归：损失(Loss)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%B7%9D%E7%A6%BB-Loss-Distance"><span class="nav-number">1.3.1.</span> <span class="nav-text">损失距离(Loss Distance)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">损失类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%AE%A1%E7%AE%97%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.3.3.</span> <span class="nav-text">损失计算示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0-Choosing-Loss-Functions"><span class="nav-number">1.3.4.</span> <span class="nav-text">选择损失函数(Choosing Loss Functions)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%BB%E7%BE%A4%E5%80%BC%E5%A4%84%E7%90%86"><span class="nav-number">1.3.5.</span> <span class="nav-text">离群值处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">1.3.6.</span> <span class="nav-text">损失函数的选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D-Gradient-Descent"><span class="nav-number">1.4.</span> <span class="nav-text">线性回归：梯度下降(Gradient Descent)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.5.</span> <span class="nav-text">梯度下降实例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">1.5.1.</span> <span class="nav-text">示例数据集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.5.2.</span> <span class="nav-text">梯度下降步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">1. 初始化模型参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E8%AE%A1%E7%AE%97%E5%88%9D%E5%A7%8B%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">2. 计算初始损失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E8%AE%A1%E7%AE%97%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.5.2.3.</span> <span class="nav-text">3. 计算梯度</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%83%E9%87%8D%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.5.2.3.1.</span> <span class="nav-text">权重的梯度</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%81%8F%E5%B7%AE%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.5.2.3.2.</span> <span class="nav-text">偏差的梯度</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0"><span class="nav-number">1.5.2.4.</span> <span class="nav-text">4. 更新参数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E7%BB%93%E6%9E%9C"><span class="nav-number">1.5.3.</span> <span class="nav-text">迭代结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B6%E6%95%9B%E8%AF%B4%E6%98%8E"><span class="nav-number">1.5.4.</span> <span class="nav-text">收敛说明</span></a></li></ol></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92-Linear-Regression"><span class="nav-number">1.</span> <span class="nav-text">线性回归(Linear Regression)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E6%96%B9%E7%A8%8B-Linear-Regression-Equation"><span class="nav-number">1.1.</span> <span class="nav-text">线性回归方程(Linear Regression Equation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E6%9C%89%E5%A4%9A%E4%B8%AA%E7%89%B9%E5%BE%81%E7%9A%84%E6%A8%A1%E5%9E%8B-Models-with-Multiple-Features"><span class="nav-number">1.2.</span> <span class="nav-text">具有多个特征的模型(Models with Multiple Features)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%8D%9F%E5%A4%B1-Loss"><span class="nav-number">1.3.</span> <span class="nav-text">线性回归：损失(Loss)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%B7%9D%E7%A6%BB-Loss-Distance"><span class="nav-number">1.3.1.</span> <span class="nav-text">损失距离(Loss Distance)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">损失类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E8%AE%A1%E7%AE%97%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.3.3.</span> <span class="nav-text">损失计算示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0-Choosing-Loss-Functions"><span class="nav-number">1.3.4.</span> <span class="nav-text">选择损失函数(Choosing Loss Functions)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%BB%E7%BE%A4%E5%80%BC%E5%A4%84%E7%90%86"><span class="nav-number">1.3.5.</span> <span class="nav-text">离群值处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">1.3.6.</span> <span class="nav-text">损失函数的选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D-Gradient-Descent"><span class="nav-number">1.4.</span> <span class="nav-text">线性回归：梯度下降(Gradient Descent)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E5%AE%9E%E4%BE%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">梯度下降实例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-number">1.4.2.</span> <span class="nav-text">示例数据集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.4.3.</span> <span class="nav-text">梯度下降步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%A8%A1%E5%9E%8B%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">1. 初始化模型参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E8%AE%A1%E7%AE%97%E5%88%9D%E5%A7%8B%E6%8D%9F%E5%A4%B1"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">2. 计算初始损失</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E8%AE%A1%E7%AE%97%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">3. 计算梯度</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%9D%83%E9%87%8D%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.1.</span> <span class="nav-text">权重的梯度</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%81%8F%E5%B7%AE%E7%9A%84%E6%A2%AF%E5%BA%A6"><span class="nav-number">1.4.3.3.2.</span> <span class="nav-text">偏差的梯度</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E6%9B%B4%E6%96%B0%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">4. 更新参数</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E7%BB%93%E6%9E%9C"><span class="nav-number">1.4.4.</span> <span class="nav-text">迭代结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%94%B6%E6%95%9B%E8%BF%87%E7%A8%8B"><span class="nav-number">1.4.5.</span> <span class="nav-text">收敛过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E6%9B%B2%E7%BA%BF"><span class="nav-number">1.4.6.</span> <span class="nav-text">损失曲线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%B8%E5%87%BD%E6%95%B0%E4%B8%8E%E6%9C%80%E5%B0%8F%E5%80%BC"><span class="nav-number">1.4.7.</span> <span class="nav-text">凸函数与最小值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E8%B6%85%E5%8F%82%E6%95%B0-Hyperparameters"><span class="nav-number">1.5.</span> <span class="nav-text">线性回归：超参数(Hyperparameters)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E9%80%9F%E7%8E%87-Learning-Rate"><span class="nav-number">1.5.1.</span> <span class="nav-text">学习速率(Learning Rate)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%B9%E9%87%8F%E5%A4%A7%E5%B0%8F-Batch-Size"><span class="nav-number">1.5.2.</span> <span class="nav-text">批量大小 (Batch Size)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-SGD-Stochastic-Gradient-Descent"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">随机梯度下降法 (SGD, Stochastic Gradient Descent)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%B0%8F%E6%89%B9%E9%87%8F%E9%9A%8F%E6%9C%BA%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95-mini-batch-SGD"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">小批量随机梯度下降法 (mini-batch SGD)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%AA%E5%85%83-Epoch"><span class="nav-number">1.5.3.</span> <span class="nav-text">纪元 (Epoch)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%EF%BC%9A%E7%BC%96%E7%A8%8B%E7%BB%83%E4%B9%A0"><span class="nav-number">1.6.</span> <span class="nav-text">线性回归：编程练习</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E5%BA%93"><span class="nav-number">1.6.1.</span> <span class="nav-text">数据处理库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%BA%93"><span class="nav-number">1.6.2.</span> <span class="nav-text">机器学习库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%93"><span class="nav-number">1.6.3.</span> <span class="nav-text">数据可视化库</span></a></li></ol></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -241,7 +244,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-02-17 10:03:12 / 修改时间：10:46:37" itemprop="dateCreated datePublished" datetime="2025-02-17T10:03:12+08:00">2025-02-17</time>
+      <time title="创建时间：2025-02-17 10:03:12 / 修改时间：14:55:28" itemprop="dateCreated datePublished" datetime="2025-02-17T10:03:12+08:00">2025-02-17</time>
     </span>
 
   
@@ -258,14 +261,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>4k</span>
+      <span>6.8k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>7 分钟</span>
+      <span>12 分钟</span>
     </span>
 </div>
 
@@ -275,7 +278,8 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+    <div class="post-body" itemprop="articleBody"><p>今天继续进行机器学习的入门，主题是线性回归。</p>
+<span id="more"></span>
 
 <h2 id="线性回归-Linear-Regression"><a href="#线性回归-Linear-Regression" class="headerlink" title="线性回归(Linear Regression)"></a>线性回归(Linear Regression)</h2><p>线性回归是一种 用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出 功能和 label 之间的关联。</p>
 <p>例如，假设我们要预测汽车的燃油效率（以英里&#x2F;英里为单位） 根据汽车的重量确定加仑，我们有以下数据集：</p>
@@ -368,7 +372,7 @@
 </ul>
 <p>每个特征(x)都有其对应的权重(w)，这些权重在训练过程中被优化，以获得最准确的预测结果。</p>
 <h3 id="线性回归：损失-Loss"><a href="#线性回归：损失-Loss" class="headerlink" title="线性回归：损失(Loss)"></a>线性回归：损失(Loss)</h3><p>损失是一个数值指标，用于描述模型的预测有多大偏差。损失函数用于衡量模型预测与实际标签之间的距离。训练模型的目标是尽可能降低损失，将其降至最低值。</p>
-<p>在下图中，您可以将损失可视化为从数据点指向模型的箭头。箭头表示模型的预测结果与实际值之间的差距。</p>
+<p>在下图中，可以将损失可视化为从数据点指向模型的箭头。箭头表示模型的预测结果与实际值之间的差距。</p>
 <p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A806.png" alt="alt text"></p>
 <h4 id="损失距离-Loss-Distance"><a href="#损失距离-Loss-Distance" class="headerlink" title="损失距离(Loss Distance)"></a>损失距离(Loss Distance)</h4><p>在统计学和机器学习中，损失函数用于衡量预测值与实际值之间的差异。损失函数侧重于值之间的距离，而不是方向。例如，如果模型预测值为 2，但实际值为 5，我们并不关心损失为负值（5 - 2 &#x3D; -3）。我们关心的是这两个值之间的距离为 3。因此，所有用于计算损失的方法都会移除符号。</p>
 <p>移除此标记的两种最常用方法如下：</p>
@@ -390,7 +394,7 @@
 <p>如果模型预测重 2,370 磅的汽车每加仑可行驶 21.5 英里，但实际每加仑可行驶 24 英里，我们将按如下方式计算 L₂ 损失：</p>
 <p>$$L_2 &#x3D; (y - y’)^2 &#x3D; (24 - 21.5)^2 &#x3D; (2.5)^2 &#x3D; 6.25$$</p>
 <p>在此示例中，该单个数据点的 L₂ 损失为 6.25。</p>
-<h4 id="选择损失函数-Choosing-Loss-Functions"><a href="#选择损失函数-Choosing-Loss-Functions" class="headerlink" title="选择损失函数(Choosing Loss Functions)"></a>选择损失函数(Choosing Loss Functions)</h4><p>确定使用 MAE 还是 MSE 可能取决于数据集以及您希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：</p>
+<h4 id="选择损失函数-Choosing-Loss-Functions"><a href="#选择损失函数-Choosing-Loss-Functions" class="headerlink" title="选择损失函数(Choosing Loss Functions)"></a>选择损失函数(Choosing Loss Functions)</h4><p>确定使用 MAE 还是 MSE 可能取决于数据集以及希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：</p>
 <ul>
 <li>汽车通常在 2,000 到 5,000 磅之间</li>
 <li>每加仑汽油能行驶的英里数介于 8 到 50 英里之间</li>
@@ -402,7 +406,7 @@
 <li>每加仑 40 英里的油耗属于典型的油耗范围</li>
 <li>但是，对于每加仑 40 英里的 3,000 磅汽车，如果模型预测每加仑能行驶 18 到 20 英里，这个预测结果会认为是离群值</li>
 </ul>
-<h4 id="损失函数的选择"><a href="#损失函数的选择" class="headerlink" title="损失函数的选择"></a>损失函数的选择</h4><p>选择最佳损失函数时，请考虑您希望模型如何处理离群值：</p>
+<h4 id="损失函数的选择"><a href="#损失函数的选择" class="headerlink" title="损失函数的选择"></a>损失函数的选择</h4><p>选择最佳损失函数时，考虑希望模型如何处理离群值：</p>
 <ul>
 <li>MSE 会使模型更接近离群值</li>
 <li>MAE 则不会</li>
@@ -422,7 +426,7 @@
 <p>返回第 1 步并重复此过程，直到模型无法进一步降低损失。</p>
 <p>下图概述了梯度下降法为找出损失最低的模型权重和偏差所执行的迭代步骤。</p>
 <p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A809.png" alt="alt text"></p>
-<h3 id="梯度下降实例"><a href="#梯度下降实例" class="headerlink" title="梯度下降实例"></a>梯度下降实例</h3><h4 id="示例数据集"><a href="#示例数据集" class="headerlink" title="示例数据集"></a>示例数据集</h4><p>我们使用一个包含 7 个示例的小型数据集来演示梯度下降，这些示例分别对应汽车的重量(以磅为单位) 和每加仑行驶里程数：</p>
+<h4 id="梯度下降实例"><a href="#梯度下降实例" class="headerlink" title="梯度下降实例"></a>梯度下降实例</h4><h4 id="示例数据集"><a href="#示例数据集" class="headerlink" title="示例数据集"></a>示例数据集</h4><p>我们使用一个包含 7 个示例的小型数据集来演示梯度下降，这些示例分别对应汽车的重量(以磅为单位) 和每加仑行驶里程数：</p>
 <table>
 <thead>
 <tr>
@@ -521,8 +525,188 @@
 <td>37.74</td>
 </tr>
 </tbody></table>
-<h4 id="收敛说明"><a href="#收敛说明" class="headerlink" title="收敛说明"></a>收敛说明</h4><p>可以看到，随着每次迭代，损失值都在降低。在实际应用中，模型会一直训练直到收敛，即损失值不再显著下降。当模型收敛时，继续迭代不会带来明显的损失降低，因为梯度下降已经找到了接近最优的权重和偏差值。</p>
-<p>如果在模型收敛后继续训练，损失值可能会出现小幅波动。为了确认模型是否真正收敛，需要观察损失值是否趋于稳定。</p>
+<h4 id="收敛过程"><a href="#收敛过程" class="headerlink" title="收敛过程"></a>收敛过程</h4><p>在训练过程中,损失值会随着迭代次数的增加而不断降低。当损失值趋于稳定,不再显著下降时,我们就说模型达到了收敛状态。此时继续训练,损失值可能会出现小幅波动,但整体保持稳定。</p>
+<h4 id="损失曲线"><a href="#损失曲线" class="headerlink" title="损失曲线"></a>损失曲线</h4><p>损失曲线是观察模型收敛情况的重要工具。它展示了损失值随迭代次数的变化趋势:</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A810.png" alt="alt text"></p>
+<p>典型的损失曲线有以下特点:</p>
+<ul>
+<li>初期阶段: 损失值快速下降</li>
+<li>中期阶段: 下降速度逐渐放缓</li>
+<li>后期阶段: 趋于平稳,表明模型接近收敛</li>
+</ul>
+<h4 id="凸函数与最小值"><a href="#凸函数与最小值" class="headerlink" title="凸函数与最小值"></a>凸函数与最小值</h4><p>线性回归模型的损失函数是一个凸函数,这意味着它只有一个全局最小值。下图展示了一个单特征模型的损失函数表面:</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A811.png" alt="alt text"></p>
+<ul>
+<li>x轴: 权重 (Weight)</li>
+<li>y轴: 偏差 (Bias)</li>
+<li>z轴: 损失值 (Loss)</li>
+</ul>
+<p>这种凸形状保证了:</p>
+<ol>
+<li>梯度下降一定能找到最小损失点</li>
+<li>不会陷入局部最小值</li>
+</ol>
+<p>需要注意的是:</p>
+<ul>
+<li>模型通常找到的是接近最小值的点,而不是精确的最小值</li>
+<li>最小损失点并不意味着零损失,而是在当前数据下能达到的最优解</li>
+</ul>
+<h3 id="线性回归：超参数-Hyperparameters"><a href="#线性回归：超参数-Hyperparameters" class="headerlink" title="线性回归：超参数(Hyperparameters)"></a>线性回归：超参数(Hyperparameters)</h3><p>超参数是用于控制训练过程的变量。常见的超参数包括：</p>
+<ul>
+<li>学习速率 (Learning Rate)</li>
+<li>批量大小 (Batch Size)</li>
+<li>纪元 (Epoch)</li>
+</ul>
+<p>与模型参数(如权重和偏差)不同，超参数是在训练前设置的控制值，而不是在训练过程中学习得到的值。</p>
+<h4 id="学习速率-Learning-Rate"><a href="#学习速率-Learning-Rate" class="headerlink" title="学习速率(Learning Rate)"></a>学习速率(Learning Rate)</h4><p>学习速率决定了每次梯度下降时模型参数的调整步长。它直接影响模型的训练效果：</p>
+<ul>
+<li><p>学习速率过低：</p>
+<ul>
+<li>模型收敛速度慢</li>
+<li>需要更多迭代才能达到最优解</li>
+<li>训练时间较长</li>
+</ul>
+</li>
+<li><p>学习速率过高：</p>
+<ul>
+<li>可能导致模型无法收敛</li>
+<li>参数更新幅度过大，在最优解附近来回震荡</li>
+<li>难以找到最优解</li>
+</ul>
+</li>
+</ul>
+<p>选择合适的学习速率很重要：</p>
+<ul>
+<li>需要在训练速度和稳定性之间取得平衡</li>
+<li>通常从一个较小的值开始尝试（如0.01）</li>
+<li>根据训练效果进行调整</li>
+</ul>
+<p>例如：如果梯度为2.5，学习速率为0.01，则参数的更新步长为0.025。理想的学习速率应该使模型在合理的迭代次数内收敛。</p>
+<blockquote>
+<p>将学习速率翻倍可能会减慢训练速度。<br>此声明是正确的。将学习率翻倍可能会导致学习率过大，从而导致权重“跳来跳去”，增加收敛所需的时间。</p>
+</blockquote>
+<h4 id="批量大小-Batch-Size"><a href="#批量大小-Batch-Size" class="headerlink" title="批量大小 (Batch Size)"></a>批量大小 (Batch Size)</h4><p>批量大小是一个超参数，表示每次更新模型参数时使用的训练样本数量。虽然理论上可以在每次迭代时使用所有训练样本，但当数据集很大时（如包含数十万至数百万个样本），这种方法在计算上是不实际的。</p>
+<p>为了解决这个问题，有两种常用的梯度下降方法：</p>
+<h5 id="随机梯度下降法-SGD-Stochastic-Gradient-Descent"><a href="#随机梯度下降法-SGD-Stochastic-Gradient-Descent" class="headerlink" title="随机梯度下降法 (SGD, Stochastic Gradient Descent)"></a>随机梯度下降法 (SGD, Stochastic Gradient Descent)</h5><ul>
+<li>每次迭代只使用一个随机样本（批量大小为1）</li>
+<li>优点：<ul>
+<li>计算速度快</li>
+<li>能够跳出局部最优解</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>参数更新波动较大</li>
+<li>收敛过程不稳定</li>
+</ul>
+</li>
+</ul>
+<p>下图展示了使用SGD训练时的损失曲线：</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A812.png" alt="alt text"></p>
+<p>可以看到，虽然整体趋势是下降的，但曲线呈现出明显的波动。这种波动不仅出现在训练初期，在接近收敛时也会存在。</p>
+<h5 id="小批量随机梯度下降法-mini-batch-SGD"><a href="#小批量随机梯度下降法-mini-batch-SGD" class="headerlink" title="小批量随机梯度下降法 (mini-batch SGD)"></a>小批量随机梯度下降法 (mini-batch SGD)</h5><ul>
+<li>是完整批量梯度下降和SGD的折中方案</li>
+<li>每次使用一小批样本（批量大小通常在1到N之间，N为总样本数）</li>
+<li>特点：<ul>
+<li>对每个批次计算平均梯度</li>
+<li>参数更新更稳定</li>
+<li>计算效率较高</li>
+</ul>
+</li>
+</ul>
+<p>批量大小的选择：</p>
+<ul>
+<li>批量较小时：行为类似于SGD，更新波动大但计算快</li>
+<li>批量较大时：行为类似于完整批量梯度下降，更新稳定但计算慢</li>
+<li>需要在计算效率和训练稳定性之间找到平衡</li>
+</ul>
+<p>在训练模型时，噪声并不总是不良特征。适当的噪声可以帮助模型更好地泛化，这一点在神经网络的权重和偏差优化中尤为重要。</p>
+<h4 id="纪元-Epoch"><a href="#纪元-Epoch" class="headerlink" title="纪元 (Epoch)"></a>纪元 (Epoch)</h4><p>纪元表示模型完整处理训练集一次的过程。例如，对于包含1,000个样本的训练集，如果批量大小为100，则需要10次迭代(iterations)才能完成一个纪元。</p>
+<p>训练通常需要多个纪元，因为模型需要多次处理训练集中的所有样本才能达到较好的效果。纪元数是在训练开始前设置的超参数。一般来说，纪元数越多，模型拟合得越好，但训练时间也越长。</p>
+<p>下表比较了不同批处理方式对参数更新次数的影响：</p>
+<table>
+<thead>
+<tr>
+<th>批处理类型</th>
+<th>参数更新频率</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>完整批次</td>
+<td>每个纪元更新一次。例如：1000个样本，训练20个纪元，总共更新20次</td>
+</tr>
+<tr>
+<td>随机梯度下降</td>
+<td>每个样本更新一次。例如：1000个样本，训练20个纪元，总共更新20,000次</td>
+</tr>
+<tr>
+<td>小批量梯度下降</td>
+<td>每个批次更新一次。例如：1000个样本，批量大小100，训练20个纪元，总共更新200次</td>
+</tr>
+</tbody></table>
+<p>从上表可以看出：</p>
+<ul>
+<li>完整批次：参数更新最少，但每次计算量大</li>
+<li>随机梯度下降：参数更新最频繁，但可能不稳定</li>
+<li>小批量梯度下降：在更新频率和计算效率之间取得平衡</li>
+</ul>
+<h3 id="线性回归：编程练习"><a href="#线性回归：编程练习" class="headerlink" title="线性回归：编程练习"></a>线性回归：编程练习</h3><p>在机器学习项目中，通常需要以下几类Python库来帮助我们完成不同的任务：</p>
+<h4 id="数据处理库"><a href="#数据处理库" class="headerlink" title="数据处理库"></a>数据处理库</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np  <span class="comment"># 数值计算</span></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment"># 数据分析</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>NumPy</strong> (np)</li>
+</ol>
+<ul>
+<li>用于处理数值数据的基础库</li>
+<li>提供高效的数组操作</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建数组</span></span><br><span class="line">arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])</span><br><span class="line"><span class="comment"># 基本运算</span></span><br><span class="line">arr + <span class="number">1</span>  <span class="comment"># [2, 3, 4, 5, 6]</span></span><br><span class="line">arr * <span class="number">2</span>  <span class="comment"># [2, 4, 6, 8, 10]</span></span><br><span class="line"><span class="comment"># 统计运算</span></span><br><span class="line">arr.mean()  <span class="comment"># 平均值</span></span><br><span class="line">arr.<span class="built_in">max</span>()   <span class="comment"># 最大值</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li><strong>Pandas</strong> (pd)</li>
+</ol>
+<ul>
+<li>用于处理表格数据的高级库</li>
+<li>提供DataFrame数据结构（类似Excel表格）</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建数据表</span></span><br><span class="line">df = pd.DataFrame(&#123;</span><br><span class="line">    <span class="string">&#x27;重量&#x27;</span>: [<span class="number">2.0</span>, <span class="number">2.4</span>, <span class="number">1.5</span>],</span><br><span class="line">    <span class="string">&#x27;里程&#x27;</span>: [<span class="number">18</span>, <span class="number">15</span>, <span class="number">18</span>]</span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment"># 读取CSV文件</span></span><br><span class="line">df = pd.read_csv(<span class="string">&#x27;data.csv&#x27;</span>)</span><br><span class="line"><span class="comment"># 基本统计</span></span><br><span class="line">df.describe()  <span class="comment"># 显示统计信息</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="机器学习库"><a href="#机器学习库" class="headerlink" title="机器学习库"></a>机器学习库</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> keras  <span class="comment"># 深度学习框架</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Keras</strong></p>
+<ul>
+<li>用于构建和训练深度学习模型的高级框架</li>
+<li>提供简单易用的API</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 构建简单的神经网络</span></span><br><span class="line">model = keras.Sequential([</span><br><span class="line">    keras.layers.Dense(<span class="number">1</span>, input_shape=[<span class="number">1</span>])</span><br><span class="line">])</span><br><span class="line"><span class="comment"># 编译模型</span></span><br><span class="line">model.<span class="built_in">compile</span>(optimizer=<span class="string">&#x27;sgd&#x27;</span>, loss=<span class="string">&#x27;mse&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="数据可视化库"><a href="#数据可视化库" class="headerlink" title="数据可视化库"></a>数据可视化库</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> plotly.express <span class="keyword">as</span> px</span><br><span class="line"><span class="keyword">import</span> plotly.graph_objects <span class="keyword">as</span> go</span><br><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><strong>Plotly</strong> (px, go)</li>
+</ol>
+<ul>
+<li>用于创建交互式图表</li>
+<li>支持多种图表类型</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">fig = px.scatter(df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br><span class="line"><span class="comment"># 显示图表</span></span><br><span class="line">fig.show()</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="2">
+<li><strong>Seaborn</strong> (sns)</li>
+</ol>
+<ul>
+<li>基于Matplotlib的统计可视化库</li>
+<li>提供美观的默认样式</li>
+<li>常用功能示例：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建散点图</span></span><br><span class="line">sns.scatterplot(data=df, x=<span class="string">&#x27;重量&#x27;</span>, y=<span class="string">&#x27;里程&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>这些库各有特点：</p>
+<ul>
+<li>NumPy和Pandas主要用于数据处理和分析</li>
+<li>Keras用于构建机器学习模型</li>
+<li>Plotly和Seaborn用于数据可视化，帮助我们理解数据和展示结果</li>
+</ul>
+<p>在实际项目中，这些库通常会一起使用：</p>
+<ol>
+<li>使用Pandas读取和处理数据</li>
+<li>用NumPy进行数值计算</li>
+<li>使用Keras构建和训练模型</li>
+<li>用Plotly或Seaborn可视化结果</li>
+</ol>
 
     </div>
 
@@ -574,13 +758,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">57k</span>
+    <span title="站点总字数">60k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:43</span>
+    <span title="站点阅读时长">1:48</span>
   </span>
 </div>
 <div class="busuanzi-count">
