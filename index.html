@@ -154,7 +154,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-count">13</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -199,6 +199,231 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/ee0cb7e3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aq.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/posts/ee0cb7e3/" class="post-title-link" itemprop="url">机器学习入门02</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-02-17 10:03:12 / 修改时间：10:34:21" itemprop="dateCreated datePublished" datetime="2025-02-17T10:03:12+08:00">2025-02-17</time>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <span id="more"></span>
+
+<h2 id="线性回归-Linear-Regression"><a href="#线性回归-Linear-Regression" class="headerlink" title="线性回归(Linear Regression)"></a>线性回归(Linear Regression)</h2><p>线性回归是一种 用于找出各个变量之间的关系的统计技术。在机器学习中线性回归模型会找出 功能和 label 之间的关联。</p>
+<p>例如，假设我们要预测汽车的燃油效率（以英里&#x2F;英里为单位） 根据汽车的重量确定加仑，我们有以下数据集：</p>
+<table>
+<thead>
+<tr>
+<th>干磷(功能)</th>
+<th>英里&#x2F;加仑(标签)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3.5</td>
+<td>18</td>
+</tr>
+<tr>
+<td>3.69</td>
+<td>15</td>
+</tr>
+<tr>
+<td>3.44</td>
+<td>18</td>
+</tr>
+<tr>
+<td>3.43</td>
+<td>16</td>
+</tr>
+<tr>
+<td>4.34</td>
+<td>15</td>
+</tr>
+<tr>
+<td>4.42</td>
+<td>14</td>
+</tr>
+<tr>
+<td>2.37</td>
+<td>24</td>
+</tr>
+</tbody></table>
+<p>如果我们绘制这些点，通过这些点绘制一条最适合的直线来创建自己的模型,就会得到以下图表：</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A803.png" alt="alt text"></p>
+<h3 id="线性回归方程-Linear-Regression-Equation"><a href="#线性回归方程-Linear-Regression-Equation" class="headerlink" title="线性回归方程(Linear Regression Equation)"></a>线性回归方程(Linear Regression Equation)</h3><p>用代数术语来说，模型的定义为：</p>
+<p>$$y &#x3D; mx + b$$</p>
+<p>其中：</p>
+<ul>
+<li>y 表示每加仑英里数，即我们想要预测的值</li>
+<li>m 是直线的斜率</li>
+<li>x 是磷，即我们的输入值</li>
+<li>b 为 y 轴截距</li>
+</ul>
+<p>在机器学习中，我们编写线性回归模型的方程式如下所示：</p>
+<p>$$y’ &#x3D; b + w_1x_1$$</p>
+<p>其中：</p>
+<ul>
+<li>y’ 是预测标签，即输出</li>
+<li>b 是偏差(Bias)模型。偏差与代数中y截距的概念相同直线方程。在机器学习中，偏差有时称为 w₀。偏差是一个模型的参数，而且是在训练期间计算的</li>
+<li>w₁ 是权重(Weight)功能。权重与代数中斜率 m 的概念相同直线方程。权重为参数，是在训练期间计算的</li>
+<li>x₁ 是一项特征(Feature)，即输入</li>
+</ul>
+<p>在训练期间，模型会计算可产生最佳结果的权重和偏差模型。</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A804.png" alt="alt text"></p>
+<p>在我们的示例中，通过终止的线性计算得到：</p>
+<ul>
+<li>偏差为 30 (对应 y 轴截距)</li>
+<li>权重为 -3.6 (直线的斜率)</li>
+</ul>
+<p>因此，我们的模型可以表示为：</p>
+<p>$$y’ &#x3D; 30 + (-3.6)(x_1)$$</p>
+<p>现在我们就可以用这个模型进行预测了。例如，对于一辆重量为 4000 磷的汽车，我们可以预测其燃油效率：</p>
+<p>$$y’ &#x3D; 30 + (-3.6)(4.0) &#x3D; 30 - 14.4 &#x3D; 15.6$$</p>
+<p>预测结果表明这辆汽车的燃油效率约为每加仑15.6英里。</p>
+<h3 id="具有多个特征的模型-Models-with-Multiple-Features"><a href="#具有多个特征的模型-Models-with-Multiple-Features" class="headerlink" title="具有多个特征的模型(Models with Multiple Features)"></a>具有多个特征的模型(Models with Multiple Features)</h3><p>虽然本文中的示例仅使用了一项功能（即重量级汽车的特征），但更复杂的模型可能依赖于多种特征，每个特征都有单独的权重(w₁、w₂ 等)。例如，一个模型可以写为：</p>
+<p>$$y’ &#x3D; b + w_1x_1 + w_2x_2 + w_3x_3 + w_4x_4 + w_5x_5$$</p>
+<p>例如，预测汽油里程的模型可以额外使用特征如：</p>
+<ul>
+<li>发动机排量 (Displacement)</li>
+<li>加速性能 (Acceleration)</li>
+<li>汽缸数 (Number of cylinders)</li>
+<li>马力 (Horsepower)</li>
+</ul>
+<p>此模型的编写方式如下图所示：</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A805.png" alt="alt text"></p>
+<p>在这个模型中：</p>
+<ul>
+<li>x₁ 代表重量 (Pounds)</li>
+<li>x₂ 代表排量 (Displacement)</li>
+<li>x₃ 代表加速性能 (Acceleration)</li>
+<li>x₄ 代表汽缸数 (Number of cylinders)</li>
+<li>x₅ 代表马力 (Horsepower)</li>
+</ul>
+<p>每个特征(x)都有其对应的权重(w)，这些权重在训练过程中被优化，以获得最准确的预测结果。</p>
+<h3 id="线性回归：损失-Loss"><a href="#线性回归：损失-Loss" class="headerlink" title="线性回归：损失(Loss)"></a>线性回归：损失(Loss)</h3><p>损失是一个数值指标，用于描述模型的预测有多大偏差。损失函数用于衡量模型预测与实际标签之间的距离。训练模型的目标是尽可能降低损失，将其降至最低值。</p>
+<p>在下图中，您可以将损失可视化为从数据点指向模型的箭头。箭头表示模型的预测结果与实际值之间的差距。</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A806.png" alt="alt text"></p>
+<h4 id="损失距离-Loss-Distance"><a href="#损失距离-Loss-Distance" class="headerlink" title="损失距离(Loss Distance)"></a>损失距离(Loss Distance)</h4><p>在统计学和机器学习中，损失函数用于衡量预测值与实际值之间的差异。损失函数侧重于值之间的距离，而不是方向。例如，如果模型预测值为 2，但实际值为 5，我们并不关心损失为负值（5 - 2 &#x3D; -3）。我们关心的是这两个值之间的距离为 3。因此，所有用于计算损失的方法都会移除符号。</p>
+<p>移除此标记的两种最常用方法如下：</p>
+<ol>
+<li><p>计算实际值与预测值之间的差值的绝对值：<br>$$L1 &#x3D; |y - y’|$$</p>
+</li>
+<li><p>将实际值与预测值之间的差值平方：<br>$$L2 &#x3D; (y - y’)^2$$</p>
+</li>
+</ol>
+<h4 id="损失类型"><a href="#损失类型" class="headerlink" title="损失类型"></a>损失类型</h4><p>在线性回归中，有四种主要的损失函数，如下表所示。</p>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A807.png" alt="alt text"></p>
+<p>L₁ 损失函数和 L₂ 损失函数（或 MAE 和 MSE）之间的功能差异在于平方。当预测值与标签之间的差异较大时，平方会使损失变得更大。当差异较小（小于 1）时，平方会使损失更小。</p>
+<p>当处理多个示例时，我们通常会对所有示例的损失进行平均，无论是使用 MAE 还是 MSE。</p>
+<h4 id="损失计算示例"><a href="#损失计算示例" class="headerlink" title="损失计算示例"></a>损失计算示例</h4><p>使用之前的最佳拟合直线，我们将计算单个示例的 L₂ 损失。从最优拟合直线中，我们得到了权重和偏差的以下值：</p>
+<ul>
+<li>Weight: -3.6</li>
+<li>Bias: 30</li>
+</ul>
+<p>如果模型预测重 2,370 磅的汽车每加仑可行驶 21.5 英里，但实际每加仑可行驶 24 英里，我们将按如下方式计算 L₂ 损失：</p>
+<p>$$L_2 &#x3D; (y - y’)^2 &#x3D; (24 - 21.5)^2 &#x3D; (2.5)^2 &#x3D; 6.25$$</p>
+<p>在此示例中，该单个数据点的 L₂ 损失为 6.25。</p>
+<h4 id="选择损失函数-Choosing-Loss-Functions"><a href="#选择损失函数-Choosing-Loss-Functions" class="headerlink" title="选择损失函数(Choosing Loss Functions)"></a>选择损失函数(Choosing Loss Functions)</h4><p>确定使用 MAE 还是 MSE 可能取决于数据集以及您希望处理特定预测的方式。数据集中的大多数特征值通常属于一个特定范围，例如：</p>
+<ul>
+<li>汽车通常在 2,000 到 5,000 磅之间</li>
+<li>每加仑汽油能行驶的英里数介于 8 到 50 英里之间</li>
+<li>重 8,000 磅的汽车或每加仑汽油能行驶 100 英里的汽车都超出了典型范围，会被视为离群值(Outliers)</li>
+</ul>
+<h4 id="离群值处理"><a href="#离群值处理" class="headerlink" title="离群值处理"></a>离群值处理</h4><p>离群值还可以指模型的预测与真实值之间的差距。例如：</p>
+<ul>
+<li>3,000 磅的车重属于典型的车重范围</li>
+<li>每加仑 40 英里的油耗属于典型的油耗范围</li>
+<li>但是，对于每加仑 40 英里的 3,000 磅汽车，如果模型预测每加仑能行驶 18 到 20 英里，这个预测结果会认为是离群值</li>
+</ul>
+<h4 id="损失函数的选择"><a href="#损失函数的选择" class="headerlink" title="损失函数的选择"></a>损失函数的选择</h4><p>选择最佳损失函数时，请考虑您希望模型如何处理离群值：</p>
+<ul>
+<li>MSE 会使模型更接近离群值</li>
+<li>MAE 则不会</li>
+<li>与 L₁ 损失函数相比，L₂ 损失函数对离群值的惩罚更高</li>
+</ul>
+<p>例如，下图片显示了使用 MAE 训练的模型和使用 MSE 训练的模型的比较。红线表示将用于进行预测的完全训练好的模型：</p>
+<ul>
+<li>离群值更接近使用 MSE 训练的模型</li>
+<li>离群值对使用 MAE 训练的模型影响较小</li>
+</ul>
+<p><img src="/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A808.png" alt="alt text"></p>
+<h3 id="线性回归：梯度下降-Gradient-Descent"><a href="#线性回归：梯度下降-Gradient-Descent" class="headerlink" title="线性回归：梯度下降(Gradient Descent)"></a>线性回归：梯度下降(Gradient Descent)</h3><p>梯度下降是一种优化算法，用于训练机器学习模型。梯度下降算法会迭代地调整模型参数，以最小化损失函数。</p>
+<p>梯度下降算法会迭代地调整模型参数，以最小化损失函数。</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/debf589c/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -227,9 +452,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2025-02-16 17:08:18 / 修改时间：18:14:19" itemprop="dateCreated datePublished" datetime="2025-02-16T17:08:18+08:00">2025-02-16</time>
+      <time title="创建时间：2025-02-16 17:08:18" itemprop="dateCreated datePublished" datetime="2025-02-16T17:08:18+08:00">2025-02-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-17 10:10:08" itemprop="dateModified" datetime="2025-02-17T10:10:08+08:00">2025-02-17</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -1124,107 +1355,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/7066aaf6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/aq.png">
-      <meta itemprop="name" content="吃糠咽菜">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="吃糠咽菜">
-      <meta itemprop="description" content="一些乱七八糟的笔记">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | 吃糠咽菜">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/posts/7066aaf6/" class="post-title-link" itemprop="url">Anaconda Note</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-      
-
-      <time title="创建时间：2025-01-05 22:41:08 / 修改时间：22:52:29" itemprop="dateCreated datePublished" datetime="2025-01-05T22:41:08+08:00">2025-01-05</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
-        </span>
-    </span>
-
-  
-    <span class="post-meta-break"></span>
-    <span class="post-meta-item" title="本文字数">
-      <span class="post-meta-item-icon">
-        <i class="far fa-file-word"></i>
-      </span>
-      <span class="post-meta-item-text">本文字数：</span>
-      <span>890</span>
-    </span>
-    <span class="post-meta-item" title="阅读时长">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>2 分钟</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="Anaconda"><a href="#Anaconda" class="headerlink" title="Anaconda"></a>Anaconda</h2><p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/7066aaf6/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
@@ -1248,13 +1378,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">53k</span>
+    <span title="站点总字数">55k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:36</span>
+    <span title="站点阅读时长">1:41</span>
   </span>
 </div>
 <div class="busuanzi-count">
