@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="今天继续进行机器学习的入门，主题是分类。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习入门05">
+<meta property="og:url" content="https://supermarkli.github.io/posts/70682240/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="今天继续进行机器学习的入门，主题是分类。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-19T01:49:16.000Z">
+<meta property="article:modified_time" content="2025-02-19T02:29:50.683Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/70682240/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/70682240/","path":"posts/70682240/","title":"机器学习入门05"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习入门05 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E7%B1%BB-classification"><span class="nav-number">1.</span> <span class="nav-text">分类 (Classification)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%88%E5%80%BCthreshold%E5%92%8C%E5%88%86%E7%B1%BB%E5%86%B3%E7%AD%96"><span class="nav-number">1.1.</span> <span class="nav-text">阈值(Threshold)和分类决策</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%88%E5%80%BCthreshold%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">1.1.1.</span> <span class="nav-text">阈值(Threshold)的选择</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%B7%E6%B7%86%E7%9F%A9%E9%98%B5confusion-matrix"><span class="nav-number">1.2.</span> <span class="nav-text">混淆矩阵(Confusion Matrix)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%B8%8D%E5%B9%B3%E8%A1%A1%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.1.</span> <span class="nav-text">数据不平衡问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87"><span class="nav-number">1.3.</span> <span class="nav-text">分类评估指标</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%86%E7%A1%AE%E7%8E%87accuracy"><span class="nav-number">1.3.1.</span> <span class="nav-text">准确率(Accuracy)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AC%E5%9B%9E%E7%8E%87%E6%88%96%E7%9C%9F%E6%AD%A3%E4%BE%8B%E7%8E%87recall-or-tpr"><span class="nav-number">1.3.2.</span> <span class="nav-text">召回率或真正例率(Recall or
+TPR)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%87%E6%AD%A3%E4%BE%8B%E7%8E%87fpr"><span class="nav-number">1.3.3.</span> <span class="nav-text">假正例率(FPR)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B2%BE%E7%A1%AE%E7%8E%87precision"><span class="nav-number">1.3.4.</span> <span class="nav-text">精确率(Precision)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E6%A0%87%E7%9A%84%E9%80%89%E6%8B%A9%E5%92%8C%E6%9D%83%E8%A1%A1"><span class="nav-number">1.4.</span> <span class="nav-text">指标的选择和权衡</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E9%80%89%E9%AB%98%E7%BA%A7f1-%E5%BE%97%E5%88%86"><span class="nav-number">1.4.1.</span> <span class="nav-text">（可选，高级）F1 得分</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/aq.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/70682240/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aq.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习入门05 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习入门05
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-02-19 09:49:16 / 修改时间：10:29:50" itemprop="dateCreated datePublished" datetime="2025-02-19T09:49:16+08:00">2025-02-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>今天继续进行机器学习的入门，主题是分类。 <span id="more"></span></p>
+<h2 id="分类-classification">分类 (Classification)</h2>
+<p>分类是机器学习中的一种重要任务，其目标是根据已知样本的某些特征，判断一个新的样本属于哪种已知的样本类。</p>
+<h3 id="阈值threshold和分类决策">阈值(Threshold)和分类决策</h3>
+<p>在二分类问题中，分类模型通常会输出一个0到1之间的预测值，表示样本属于某个类别的概率。例如，在垃圾邮件分类中，预测值0.75表示该邮件有75%的可能性是垃圾邮件。为了将这个概率值转换为具体的分类结果（垃圾邮件或非垃圾邮件），我们需要设定一个阈值（threshold）。</p>
+<p>当我们设定阈值后： -
+如果预测概率大于阈值，样本会被分类为正类（如垃圾邮件） -
+如果预测概率小于阈值，样本会被分类为负类（如正常邮件）</p>
+<h4 id="阈值threshold的选择">阈值(Threshold)的选择</h4>
+<p>阈值的选择非常重要，会直接影响分类结果。以垃圾邮件分类为例：</p>
+<ul>
+<li>如果模型对某封邮件的预测值为0.99，表示它有99%的可能性是垃圾邮件</li>
+<li>如果另一封邮件的预测值为0.51，表示它有51%的可能性是垃圾邮件</li>
+<li>如果我们将阈值设为0.5，这两封邮件都会被分类为垃圾邮件</li>
+<li>但如果将阈值设为0.95，则只有第一封邮件会被分类为垃圾邮件</li>
+</ul>
+<p>虽然0.5看起来是一个直观的选择，但在实际应用中，我们需要考虑： 1.
+不同类别样本的分布是否均衡 2. 错误分类的代价是否相同 3.
+业务需求的具体要求</p>
+<p>例如，如果将正常邮件错误地归类为垃圾邮件的代价远高于将垃圾邮件错误地归类为正常邮件，我们可能需要设置一个较高的阈值，以减少误判正常邮件的情况。</p>
+<h3 id="混淆矩阵confusion-matrix">混淆矩阵(Confusion Matrix)</h3>
+<p>在评估分类模型的性能时,仅仅知道预测概率是不够的,我们还需要了解模型预测的具体情况。混淆矩阵(Confusion
+Matrix)是一个非常有用的工具,它可以帮助我们详细了解分类器的预测结果。</p>
+<p>混淆矩阵可以用下表表示:</p>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 32%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>实际正例</th>
+<th>实际负例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>预测为正</td>
+<td>真正例(TP):
+被正确分类为垃圾邮件的垃圾邮件。这些是系统自动发送到"垃圾邮件"文件夹的垃圾邮件。</td>
+<td>假正例(FP):
+非垃圾邮件被误分类为垃圾邮件。这些是最终进入"垃圾邮件"文件夹的正常电子邮件。</td>
+</tr>
+<tr>
+<td>预测为负</td>
+<td>假负例(FN):
+垃圾邮件被错误分类为非垃圾邮件。这些是垃圾邮件过滤器未捕获的垃圾邮件，并已进入收件箱。</td>
+<td>真负例(TN):
+非垃圾邮件被正确分类为非垃圾邮件。这些是直接发送到收件箱的正常电子邮件。</td>
+</tr>
+</tbody>
+</table>
+<p>在二分类问题中,混淆矩阵包含四种可能的预测结果:</p>
+<ol type="1">
+<li>真正例(True Positive, TP): 正确地将正类样本预测为正类
+<ul>
+<li>例如:正确地将垃圾邮件识别为垃圾邮件</li>
+</ul></li>
+<li>假正例(False Positive, FP): 错误地将负类样本预测为正类
+<ul>
+<li>例如:错误地将正常邮件判定为垃圾邮件</li>
+</ul></li>
+<li>假负例(False Negative, FN): 错误地将正类样本预测为负类
+<ul>
+<li>例如:错误地将垃圾邮件判定为正常邮件</li>
+</ul></li>
+<li>真负例(True Negative, TN): 正确地将负类样本预测为负类
+<ul>
+<li>例如:正确地将正常邮件识别为正常邮件</li>
+</ul></li>
+</ol>
+<p>混淆矩阵的一个重要特点是: - 每一行的总和(TP + FP 和 FN +
+TN)代表模型预测的结果分布 - 每一列的总和(TP + FN 和 FP +
+TN)代表实际的类别分布</p>
+<h4 id="数据不平衡问题">数据不平衡问题</h4>
+<p>在实际应用中,我们经常会遇到数据不平衡的情况,即不同类别的样本数量差异很大。例如,在垃圾邮件分类中,正常邮件可能远多于垃圾邮件。这种不平衡会影响模型的性能评估和训练效果。</p>
+<p>如果实际正例的总数与实际负例的总数相差较大,我们称之为数据不平衡。这种情况下,仅仅依靠准确率可能会产生误导。
+例如,在一个数据集中,如果只有1%的邮件是垃圾邮件,那么一个简单地将所有邮件都判定为正常邮件的模型也能获得99%的准确率,但这显然不是一个好的模型。</p>
+<h3 id="分类评估指标">分类评估指标</h3>
+<p>在分类问题中,我们需要一些指标来评估模型的性能。这些指标基于混淆矩阵中的不同组成部分计算得出,并且会随着阈值的设置而变化。通常,用户会根据具体任务调整阈值来优化某个指标。</p>
+<h4 id="准确率accuracy">准确率(Accuracy)</h4>
+<p>准确率是最基本的分类评估指标,它表示所有分类(无论是正类还是负类)中正确分类的比例。其数学定义为:</p>
+<p><span class="math display">\[
+Accuracy = \frac{correct\ classifications}{total\ classifications} =
+\frac{TP + TN}{TP + TN + FP + FN}
+\]</span></p>
+<p>在垃圾邮件分类示例中,准确率衡量的是所有电子邮件正确分类所占的比例。</p>
+<p>一个完美的模型没有假正例和假负例,因此准确率为1.0,即100%。</p>
+<p>由于准确率包含混淆矩阵中的所有四种结果(TP、FP、TN、FN),因此在<strong>数据集平衡且各个类别中的示例数量相近</strong>的情况下,准确率可以用作衡量模型质量的相对指标。因此,它通常是许多通用或未指定任务的通用或未指定模型使用的默认评估指标。</p>
+<p>然而,如果数据集不平衡,或者一种错误(假负例或假正例)的代价高于另一种错误(大多数实际应用中都是如此),则最好改为对其他指标进行优化。</p>
+<p>例如,对于严重不均衡的数据集(其中一个类别出现的频率非常低,例如1%),如果模型100%都预测为负类,则准确率得分为99%,尽管该模型毫无用处。</p>
+<blockquote>
+<p>注意：在机器学习(ML)中,recall、precision和accuracy等字词的数学定义可能与这些字词的常用含义不同,或更具体。</p>
+</blockquote>
+<h4 id="召回率或真正例率recall-or-tpr">召回率或真正例率(Recall or
+TPR)</h4>
+<p>召回率(Recall)，也称为真正例率(True Positive Rate,
+TPR)，表示在所有实际正例中被正确分类为正例的比例。其数学定义为：</p>
+<p><span class="math display">\[
+Recall\ (TPR) = \frac{correctly\ classified\ actual\ positives}{all\
+actual\ positives} = \frac{TP}{TP + FN}
+\]</span></p>
+<p>在垃圾邮件分类示例中，召回率衡量的是被正确分类为垃圾邮件的垃圾邮件的比例。因此，召回率的另一个名称是检测概率：它回答了"此模型检测到垃圾邮件的比例是多少？"这一问题。</p>
+<p>一个完美的模型，其假负例率为0，因此召回率(TPR)为1.0，也就是说，检测率为100%。</p>
+<p>在实际正例数量非常少（例如总共1-2个样本）的不平衡数据集中，召回率作为指标的意义不大，作用不大。</p>
+<h4 id="假正例率fpr">假正例率(FPR)</h4>
+<p>假正例率(False Positive Rate,
+FPR)是指被错误分类为正例的所有实际负例所占的比例，也称为误报概率。其数学定义为：</p>
+<p><span class="math display">\[
+FPR = \frac{incorrectly\ classified\ actual\ negatives}{all\ actual\
+negatives} = \frac{FP}{FP + TN}
+\]</span></p>
+<p>假正例是被错误分类的实际负例，因此会出现在分母中。在垃圾邮件分类示例中，FPR用于衡量被错误分类为垃圾邮件的合法电子邮件的比例，或模型的误报率。</p>
+<p>完美的模型没有假正例，因此FPR为0.0，也就是说，假警报率为0%。</p>
+<p>在实际负例数量非常少（例如总共1-2个示例）的不平衡数据集中，FPR作为一个指标就没有那么有意义和实用。</p>
+<h4 id="精确率precision">精确率(Precision)</h4>
+<p>精确率是指模型所有正分类分类中实际正分类的比例。在数学上，其定义为：</p>
+<p><span class="math display">\[
+Precision = \frac{correctly\ classified\ actual\ positives}{everything\
+classified\ as\ positive} = \frac{TP}{TP + FP}
+\]</span></p>
+<p>在垃圾邮件分类示例中，精确率衡量的是被归类为垃圾邮件的电子邮件中实际是垃圾邮件的比例。</p>
+<p>假设有一个完美的模型，则该模型没有假正例，因此精确率为1.0。</p>
+<p>在实际正例数量非常少（例如总共1-2个示例）的不平衡数据集中，精确率作为指标的意义和实用性较低。</p>
+<p>随着假正例的减少，精确率会提高；随着假负例的减少，召回率会提高。但正如前面所述，提高分类阈值往往会减少正例的数量并增加假负例的数量，而降低阈值则会产生相反的效果。因此，精确率和召回率通常呈反向关系，提高一个会反过来降低另一个。</p>
+<h3 id="指标的选择和权衡">指标的选择和权衡</h3>
+<p>在评估模型和选择阈值时，选择优先处理的指标取决于特定问题的需求、收益和风险。在垃圾邮件分类示例中，通常最好优先考虑召回率（抓取所有垃圾邮件）或准确率（尽量确保被标记为垃圾邮件的电子邮件实际上是垃圾邮件），或者在达到某个最低准确性水平的情况下，兼顾这两者。</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>指标</th>
+<th>指南</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>准确率</td>
+<td>作为平衡数据集的模型训练进度/收敛情况的粗略指标。<br>对于模型效果，请仅与其他指标结合使用。<br>避免使用不平衡的数据集，考虑使用其他指标。</td>
+</tr>
+<tr>
+<td>召回率<br>（真正例率）</td>
+<td>在假负例比假正例开销更高时使用。</td>
+</tr>
+<tr>
+<td>假正例率</td>
+<td>在假正例比假负例开销更高时使用。</td>
+</tr>
+<tr>
+<td>精确率</td>
+<td>当正例预测的准确性非常重要时，请使用此方法。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="可选高级f1-得分">（可选，高级）F1 得分</h4>
+<p>F1 得分是精确率和召回率的调和平均数（一种平均值）。</p>
+<p>在数学上，它可以按下式计算：</p>
+<p><span class="math display">\[
+F1 = 2 * \frac{precision * recall}{precision + recall} = \frac{2TP}{2TP
++ FP + FN}
+\]</span></p>
+<p>该指标在精确率和召回率的重要性之间进行了平衡，对于类别不平衡的数据集，该指标优于准确率。如果精确率和召回率的完美分数均为
+1.0，则F1 的完美分数也是 1.0。更广泛地说，当精确率和召回率的值接近时，F1
+也会接近它们的值。当精确率和召回率相差很大时，F1
+将与较差的指标相似。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/76f12d6/" rel="prev" title="机器学习入门04">
+                  <i class="fa fa-angle-left"></i> 机器学习入门04
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">75k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:16</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>
