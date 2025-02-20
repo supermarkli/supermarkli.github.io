@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="今天继续进行机器学习的入门，主题是处理数值数据。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习入门06">
+<meta property="og:url" content="https://supermarkli.github.io/posts/e96173fa/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="今天继续进行机器学习的入门，主题是处理数值数据。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A822.png">
+<meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A823.png">
+<meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A824.png">
+<meta property="article:published_time" content="2025-02-19T10:28:40.000Z">
+<meta property="article:modified_time" content="2025-02-20T03:27:51.336Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A822.png">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/e96173fa/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/e96173fa/","path":"posts/e96173fa/","title":"机器学习入门06"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习入门06 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E6%95%B0%E5%80%BC%E6%95%B0%E6%8D%AE-handling-numerical-data"><span class="nav-number">1.</span> <span class="nav-text">处理数值数据 (Handling
+Numerical Data)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%80%BC%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">数值数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="nav-number">1.2.</span> <span class="nav-text">数据可视化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%9F%E8%AE%A1%E5%88%86%E6%9E%90"><span class="nav-number">1.3.</span> <span class="nav-text">数据统计分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%BB%E7%BE%A4%E5%80%BC%E6%A3%80%E6%B5%8B"><span class="nav-number">1.4.</span> <span class="nav-text">离群值检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%80%BC%E6%95%B0%E6%8D%AE%E6%A0%87%E5%87%86%E5%8C%96"><span class="nav-number">1.5.</span> <span class="nav-text">数值数据标准化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E5%8C%96%E7%9A%84%E5%BF%85%E8%A6%81%E6%80%A7"><span class="nav-number">1.5.1.</span> <span class="nav-text">标准化的必要性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E5%8C%96%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.5.2.</span> <span class="nav-text">标准化的优势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%A0%87%E5%87%86%E5%8C%96%E6%96%B9%E6%B3%95"><span class="nav-number">1.5.3.</span> <span class="nav-text">常见标准化方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E7%BC%A9%E6%94%BEmin-max%E6%A0%87%E5%87%86%E5%8C%96"><span class="nav-number">1.5.4.</span> <span class="nav-text">线性缩放(Min-Max标准化)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F"><span class="nav-number">1.5.4.1.</span> <span class="nav-text">计算公式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#z%E5%88%86%E6%95%B0%E6%A0%87%E5%87%86%E5%8C%96"><span class="nav-number">1.5.5.</span> <span class="nav-text">Z分数标准化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.5.5.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BD%AC%E6%8D%A2"><span class="nav-number">1.5.5.2.</span> <span class="nav-text">数据转换</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F-1"><span class="nav-number">1.5.5.3.</span> <span class="nav-text">计算公式</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E6%95%B0%E7%BC%A9%E6%94%BE"><span class="nav-number">1.5.6.</span> <span class="nav-text">对数缩放</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%85%AC%E5%BC%8F"><span class="nav-number">1.5.6.1.</span> <span class="nav-text">基本公式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.5.6.2.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.5.6.3.</span> <span class="nav-text">应用示例</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%AA%E8%A3%81%E6%8A%80%E6%9C%AF"><span class="nav-number">1.5.7.</span> <span class="nav-text">剪裁技术</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%85%AC%E5%BC%8F-1"><span class="nav-number">1.5.7.1.</span> <span class="nav-text">基本公式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF-1"><span class="nav-number">1.5.7.2.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B-1"><span class="nav-number">1.5.7.3.</span> <span class="nav-text">应用示例</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/aq.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/e96173fa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aq.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习入门06 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习入门06
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-02-19 18:28:40" itemprop="dateCreated datePublished" datetime="2025-02-19T18:28:40+08:00">2025-02-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-20 11:27:51" itemprop="dateModified" datetime="2025-02-20T11:27:51+08:00">2025-02-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>6 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>今天继续进行机器学习的入门，主题是处理数值数据。 <span id="more"></span></p>
+<h2 id="处理数值数据-handling-numerical-data">处理数值数据 (Handling
+Numerical Data)</h2>
+<p>机器学习从业者需要花更多的时间来评估、清理和转换数据
+而不是构建模型。</p>
+<p>模型实际上会提取一个浮点值数组，称为特征向量(feature vector)。</p>
+<p>特征工程(feature
+engineering)是机器学习中的重要环节,它将原始数据转换为更适合模型学习的形式。如图3所示,特征工程可以将原始数据集中的特征转换为模型可以更好学习的特征向量。</p>
+<p><img src="/assets/机器学习入门22.png" /></p>
+<h3 id="数值数据处理">数值数据处理</h3>
+<p>在开始特征工程之前,我们需要对数据进行初步探索和分析。主要有两种方式:</p>
+<ol type="1">
+<li>数据直观查看
+<ul>
+<li>通过表格或图形直接观察数据</li>
+<li>了解数据的基本结构和分布</li>
+<li>发现明显的异常值或缺失值</li>
+</ul></li>
+<li>统计信息分析
+<ul>
+<li>获取数据的统计特征</li>
+<li>了解数据的分布情况</li>
+<li>发现数据的潜在规律</li>
+</ul></li>
+</ol>
+<h3 id="数据可视化">数据可视化</h3>
+<p>数据可视化是发现数据中隐藏模式的重要工具:</p>
+<ol type="1">
+<li>可视化方法
+<ul>
+<li>散点图: 观察变量间的关系</li>
+<li>直方图: 查看数据分布</li>
+<li>箱线图: 识别异常值</li>
+</ul></li>
+<li>使用pandas进行可视化
+<ul>
+<li>处理缺失数据</li>
+<li>创建各类统计图表</li>
+<li>进行数据转换和分析</li>
+</ul></li>
+</ol>
+<h3 id="数据统计分析">数据统计分析</h3>
+<p>除了直观分析外,我们还需要通过数学方法评估潜在的特征和标签。主要包括以下基本统计信息:</p>
+<ol type="1">
+<li>集中趋势指标
+<ul>
+<li>平均值: 反映数据的平均水平</li>
+<li>中位数: 反映数据的中心位置</li>
+</ul></li>
+<li>离散程度指标
+<ul>
+<li>标准差: 反映数据的波动程度</li>
+<li>四分位数: 第0、25、50、75和100百分位
+<ul>
+<li>第0个百分位是最小值</li>
+<li>第50个百分位是中位数</li>
+<li>第100个百分位是最大值</li>
+</ul></li>
+</ul></li>
+</ol>
+<h3 id="离群值检测">离群值检测</h3>
+<p>离群值是指与特征或标签中的大多数其他值相差显著的值。检测和处理离群值非常重要,因为:</p>
+<ol type="1">
+<li>影响模型训练
+<ul>
+<li>可能导致模型训练出现问题</li>
+<li>影响模型的泛化能力</li>
+</ul></li>
+<li>检测方法
+<ul>
+<li>使用四分位距离法</li>
+<li>比较不同区间的差异</li>
+<li>如果第0-25百分位区间差异与75-100百分位区间差异显著不同,则可能存在离群值</li>
+</ul></li>
+</ol>
+<p>离群值可以分为以下两类:</p>
+<ol type="1">
+<li>错误数据
+<ul>
+<li>由于错误输入或设备故障产生</li>
+<li>通常需要删除或修正</li>
+<li>对模型训练没有实际价值</li>
+</ul></li>
+<li>有效但异常的数据点
+<ul>
+<li>属于真实但罕见的情况</li>
+<li>可能包含重要信息</li>
+<li>需要谨慎处理</li>
+</ul></li>
+</ol>
+<p>根据离群值的类型,采取不同的处理方法:</p>
+<ol type="1">
+<li>保留策略
+<ul>
+<li>如果离群值反映真实现象</li>
+<li>可能有助于模型学习边界情况</li>
+<li>注意极端值对模型的影响</li>
+</ul></li>
+<li>处理方法
+<ul>
+<li>删除明显的错误数据</li>
+<li>使用剪裁等特征工程技术</li>
+<li>根据具体情况选择合适的处理方式</li>
+</ul></li>
+</ol>
+<blockquote>
+<p>注意: 请勿过度依赖基本统计信息,异常中可能隐藏着有价值的数据模式。</p>
+</blockquote>
+<h3 id="数值数据标准化">数值数据标准化</h3>
+<p>通过标准化技术,我们可以将不同范围的特征转换到相似的尺度。这对模型训练非常重要。</p>
+<h4 id="标准化的必要性">标准化的必要性</h4>
+<p>以下是一个具体示例:</p>
+<ul>
+<li>特征X的范围为154到24,917,482</li>
+<li>特征Y的范围为5到22</li>
+</ul>
+<p>这种范围差异巨大的情况会影响模型训练效果。标准化可以将这些特征转换到相似的范围(通常是0到1)。</p>
+<h4 id="标准化的优势">标准化的优势</h4>
+<ol type="1">
+<li>提高训练效率
+<ul>
+<li>避免模型在训练时出现"反弹"</li>
+<li>提高收敛速度</li>
+<li>可以使用Adagrad和Adam等优化器获得更好的效果</li>
+</ul></li>
+<li>提高预测准确性
+<ul>
+<li>使模型对不同范围的特征有相同的敏感度</li>
+<li>避免做出不切实际的预测</li>
+</ul></li>
+<li>处理异常值
+<ul>
+<li>有助于避免"NaN陷阱"</li>
+<li>NaN(非数字)会在某些计算中产生</li>
+<li>需要特别处理以避免传播</li>
+</ul></li>
+<li>特征权重平衡
+<ul>
+<li>确保模型对每个特征给予合适的关注</li>
+<li>防止范围较大的特征主导模型</li>
+<li>提高小范围特征的影响力</li>
+</ul></li>
+</ol>
+<blockquote>
+<p>警告:
+如果在训练时对某特征进行了标准化,在预测时也必须对该特征进行相同的标准化处理。</p>
+</blockquote>
+<h4 id="常见标准化方法">常见标准化方法</h4>
+<ol type="1">
+<li>线性缩放
+<ul>
+<li>将数据映射到指定范围</li>
+<li>保持数据的相对关系</li>
+<li>常用范围如[-1,1]或[0,1]</li>
+</ul></li>
+<li>Z分数标准化
+<ul>
+<li>基于均值和标准差</li>
+<li>转换为标准正态分布</li>
+<li>适用于近似正态分布的数据</li>
+</ul></li>
+<li>目标扩缩
+<ul>
+<li>根据具体任务调整数据范围</li>
+<li>考虑模型的特定需求</li>
+<li>灵活调整标准化程度</li>
+</ul></li>
+<li>剪裁技术
+<ul>
+<li>处理异常值和极端数据</li>
+<li>确保数据落在合理范围内</li>
+<li>不是标准的标准化方法,但可以辅助使用</li>
+</ul></li>
+</ol>
+<blockquote>
+<p>建议:
+根据数据特点和模型需求选择合适的标准化方法,必要时可以组合使用多种技术。</p>
+</blockquote>
+<h4 id="线性缩放min-max标准化">线性缩放(Min-Max标准化)</h4>
+<p>线性缩放是一种常用的标准化方法,它可以将数据从原始范围转换到标准范围(通常是0到1或-1到+1)。</p>
+<h5 id="计算公式">计算公式</h5>
+<p>对于要缩放到[0,1]范围的数据,使用以下公式:</p>
+<p><span class="math display">\[x&#39; = \frac{x - x_{min}}{x_{max} -
+x_{min}}\]</span></p>
+<p>其中:</p>
+<ul>
+<li>x' 是标准化后的值</li>
+<li>x 是原始值</li>
+<li>x_min 是数据集中的最小值</li>
+<li>x_max 是数据集中的最大值</li>
+</ul>
+<p>线性缩放在满足以下条件时是较好的选择:</p>
+<ol type="1">
+<li><p>数据特点</p>
+<ul>
+<li>数据的上下限变化不大</li>
+<li>离群值较少或没有</li>
+<li>数据在范围内较均匀分布</li>
+</ul></li>
+<li><p>实际应用示例 以年龄(age)特征为例,线性缩放是合适的标准化方法:</p>
+<ul>
+<li>明确的取值范围(0到100)</li>
+<li>极端值较少(仅0.3%超过100岁)</li>
+<li>分布相对均匀</li>
+<li>需要保留所有年龄段的代表性</li>
+</ul></li>
+<li><p>局限性</p>
+<ul>
+<li>对非线性分布的数据效果不佳</li>
+<li>与Z分数标准化相比,处理偏态分布时效果较差</li>
+</ul></li>
+</ol>
+<blockquote>
+<p>注意:
+大多数实际特征都不会完全满足线性缩放的理想条件。对于非线性分布明显的特征,Z分数标准化通常是更好的选择。</p>
+</blockquote>
+<h4 id="z分数标准化">Z分数标准化</h4>
+<p>Z分数标准化是一种常用的标准化方法,它基于数据的均值和标准差进行计算。</p>
+<p><img src="/assets/机器学习入门23.png" /></p>
+<h5 id="定义">定义</h5>
+<p>Z分数表示某个值与平均值之间相差多少个标准差。例如:</p>
+<ul>
+<li>Z得分为+2.0表示该值比平均值高2个标准差</li>
+<li>Z得分为-1.5表示该值比平均值低1.5个标准差</li>
+</ul>
+<h5 id="数据转换">数据转换</h5>
+<p>Z分数标准化会将数据转换为标准正态分布: - 原始数据可能呈现任意分布 -
+标准化后的数据近似正态分布 - 转换后的数据均值为0,标准差为1</p>
+<h5 id="计算公式-1">计算公式</h5>
+<p>对于数据点x,其Z分数计算如下:</p>
+<p><span class="math display">\[z = \frac{x - \mu}{\sigma}\]</span></p>
+<p>其中:</p>
+<ul>
+<li>z 是标准化后的Z分数</li>
+<li>x 是原始值</li>
+<li>μ 是数据集的均值</li>
+<li>σ 是数据集的标准差</li>
+</ul>
+<blockquote>
+<p>注意:
+Z分数标准化特别适合处理近似正态分布的数据,或者需要将数据转换为正态分布的场景。</p>
+</blockquote>
+<h4 id="对数缩放">对数缩放</h4>
+<p>对数缩放是一种重要的数据转换技术。在理论上,对数可以使用任何底数;在实践中,通常使用自然对数(ln)。</p>
+<h5 id="基本公式">基本公式</h5>
+<ol type="1">
+<li><p>一般对数变换: <span class="math display">\[x&#39; =
+\log_b(x)\]</span> 其中b是对数的底数。</p></li>
+<li><p>自然对数变换(<strong>最常用</strong>): <span
+class="math display">\[x&#39; = \ln(x) = \log_e(x)\]</span></p></li>
+<li><p>处理零值和小值时的变换: <span class="math display">\[x&#39; =
+\ln(x + 1)\]</span></p></li>
+<li><p>处理负值的符号对数变换: <span class="math display">\[x&#39; =
+sign(x) \cdot \ln(|x| + 1)\]</span></p></li>
+</ol>
+<p>其中sign(x)表示x的符号:</p>
+<ul>
+<li>当x &gt; 0时,sign(x) = 1</li>
+<li>当x &lt; 0时,sign(x) = -1</li>
+<li>当x = 0时,sign(x) = 0</li>
+</ul>
+<h5 id="适用场景">适用场景</h5>
+<p><img src="/assets/机器学习入门24.png" /></p>
+<p>当数据符合幂律分布时,对数缩放会很有帮助。幂律分布通常具有以下特征:</p>
+<ol type="1">
+<li>X 值较低时,Y 值非常高</li>
+<li>随着 X 值的增加,Y 值会快速下降</li>
+<li>当 X 值较高时,Y 值趋于较低水平</li>
+</ol>
+<h5 id="应用示例">应用示例</h5>
+<p>电影评分是幂律分布的典型例子。在电影评分数据中:</p>
+<ol type="1">
+<li>少数电影获得了大量用户评分 (X 值较低,Y 值较高)</li>
+<li>大多数电影的用户评分较少 (X 值较高,Y 值较低)</li>
+</ol>
+<p>对这类数据进行对数缩放可以改变分布,有助于训练出能够做出更准确预测的模型。</p>
+<h4 id="剪裁技术">剪裁技术</h4>
+<p>剪裁是一种处理异常值的重要技术。它通过设定上下限,将超出范围的值限制在指定范围内。</p>
+<h5 id="基本公式-1">基本公式</h5>
+<ol type="1">
+<li><p>基本剪裁: <span class="math display">\[x&#39; = \begin{cases}
+x_{min} &amp; \text{if } x &lt; x_{min} \\
+x &amp; \text{if } x_{min} \leq x \leq x_{max} \\
+x_{max} &amp; \text{if } x &gt; x_{max}
+\end{cases}\]</span></p></li>
+<li><p>百分位数剪裁: <span class="math display">\[x&#39; = \begin{cases}
+P_1 &amp; \text{if } x &lt; P_1 \\
+x &amp; \text{if } P_1 \leq x \leq P_{99} \\
+P_{99} &amp; \text{if } x &gt; P_{99}
+\end{cases}\]</span></p></li>
+</ol>
+<p>其中P₁和P₉₉分别表示第1和第99百分位数。</p>
+<h5 id="适用场景-1">适用场景</h5>
+<p>剪裁技术在以下情况特别有用:</p>
+<ol type="1">
+<li>存在极端异常值</li>
+<li>数据分布有长尾</li>
+<li>模型对异常值敏感</li>
+<li>需要保持大部分数据不变</li>
+</ol>
+<h5 id="应用示例-1">应用示例</h5>
+<p>收入数据是使用剪裁的典型例子:</p>
+<ol type="1">
+<li>大多数人的收入在一个正常范围内</li>
+<li>少数极高收入会显著影响数据分布</li>
+<li>可以将高于99百分位的收入限制在P₉₉值</li>
+<li>同样处理低于1百分位的异常低值</li>
+</ol>
+<p>剪裁可以在保留数据总体特征的同时,减少极端值对模型训练的影响。</p>
+<blockquote>
+<p>注意: 剪裁时需要谨慎选择阈值,过度剪裁可能会丢失重要信息。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/70682240/" rel="prev" title="机器学习入门05">
+                  <i class="fa fa-angle-left"></i> 机器学习入门05
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">88k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>
