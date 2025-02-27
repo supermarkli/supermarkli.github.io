@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="今天继续进行机器学习的入门，主题是处理分类数据。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习入门07">
+<meta property="og:url" content="https://supermarkli.github.io/posts/9e66436c/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="今天继续进行机器学习的入门，主题是处理分类数据。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-02-21T09:35:13.000Z">
+<meta property="article:modified_time" content="2025-02-26T15:48:56.312Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/9e66436c/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/9e66436c/","path":"posts/9e66436c/","title":"机器学习入门07"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习入门07 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE-handling-categorical-data"><span class="nav-number">1.</span> <span class="nav-text">处理分类数据 (Handling
+Categorical Data)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E4%B9%9F%E5%8F%AF%E4%BB%A5%E6%98%AF%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.</span> <span class="nav-text">数字也可以是分类数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A0%81"><span class="nav-number">1.2.</span> <span class="nav-text">编码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE%E8%AF%8D%E6%B1%87%E5%92%8C%E7%8B%AC%E7%83%AD%E7%BC%96%E7%A0%81"><span class="nav-number">1.2.1.</span> <span class="nav-text">分类数据：词汇和独热编码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8B%AC%E7%83%AD%E7%BC%96%E7%A0%81"><span class="nav-number">1.2.2.</span> <span class="nav-text">独热编码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A8%80%E7%96%8F%E8%A1%A8%E7%A4%BA%E6%B3%95"><span class="nav-number">1.2.3.</span> <span class="nav-text">稀疏表示法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE%E4%B8%AD%E7%9A%84%E7%A6%BB%E7%BE%A4%E5%80%BC"><span class="nav-number">1.3.</span> <span class="nav-text">分类数据中的离群值</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E9%AB%98%E7%BB%B4%E5%88%86%E7%B1%BB%E7%89%B9%E5%BE%81"><span class="nav-number">1.3.1.</span> <span class="nav-text">编码高维分类特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%BA%E5%B7%A5%E8%AF%84%E4%BC%B0%E5%91%98"><span class="nav-number">1.3.2.</span> <span class="nav-text">人工评估员</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E8%AF%84%E4%BC%B0%E8%80%85"><span class="nav-number">1.3.3.</span> <span class="nav-text">机器评估者</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AB%98%E7%BB%B4%E5%BA%A6"><span class="nav-number">1.3.4.</span> <span class="nav-text">高维度</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE%E7%89%B9%E5%BE%81%E7%BB%84%E5%90%88"><span class="nav-number">1.4.</span> <span class="nav-text">分类数据：特征组合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%95%E6%97%B6%E4%BD%BF%E7%94%A8%E7%89%B9%E5%BE%81%E7%BB%84%E5%90%88"><span class="nav-number">1.4.1.</span> <span class="nav-text">何时使用特征组合</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/aq.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/9e66436c/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aq.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习入门07 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习入门07
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-02-21 17:35:13" itemprop="dateCreated datePublished" datetime="2025-02-21T17:35:13+08:00">2025-02-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-26 23:48:56" itemprop="dateModified" datetime="2025-02-26T23:48:56+08:00">2025-02-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>6 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>今天继续进行机器学习的入门，主题是处理分类数据。 <span id="more"></span></p>
+<h2 id="处理分类数据-handling-categorical-data">处理分类数据 (Handling
+Categorical Data)</h2>
+<h3 id="数字也可以是分类数据">数字也可以是分类数据</h3>
+<p>真实的<strong>数值数据</strong>可以有特定的含义。例如，假设我们有一个模型，用于根据房屋面积来预测房屋的价值。通常情况下，这种模型依赖于数值特征的能力。然而，在相同条件下，200平方英尺的房屋可能价值是100平方米房屋的两倍。</p>
+<p>在处理这类数据时，建议使用数值的指示性表示，而不是直接使用数值本身。例如，假设我们有一个包含整数的邮政编码。如果您将这个邮政编码视为分类特征，您需要找到与其他邮政编码不同的数字。也就是说，您可以将邮政编码10002视为分类数据，并单独计算每个邮政编码的权重。</p>
+<h3 id="编码">编码</h3>
+<p>编码是将分类数据或其他特征转换为模型可以使用的数值形式。这种转换是必要的，因为模型无法直接处理字符，例如"dog"或"maple"。本单元将介绍几种常见的编码方法。</p>
+<h4 id="分类数据词汇和独热编码">分类数据：词汇和独热编码</h4>
+<p><strong>维度</strong>是特征向量中元素的同义词。有些分类特征的维度较低。例如：</p>
+<table>
+<thead>
+<tr>
+<th>特征名称</th>
+<th>类别数</th>
+<th>类别示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>snowed_today</td>
+<td>2</td>
+<td>True, False</td>
+</tr>
+<tr>
+<td>skill_level</td>
+<td>3</td>
+<td>新手, 从业者, 专家</td>
+</tr>
+<tr>
+<td>season</td>
+<td>4</td>
+<td>冬季, 春季, 夏季, 秋季</td>
+</tr>
+<tr>
+<td>day_of_week</td>
+<td>7</td>
+<td>星期一, 星期二, 星期三</td>
+</tr>
+<tr>
+<td>星球</td>
+<td>8</td>
+<td>水星, 金星, 地球</td>
+</tr>
+</tbody>
+</table>
+<p>如果分类特征的可能类别数量较少，您可以将其编码为词汇特征。在训练过程中，模型会将每个类别值视为一个单独的特征。</p>
+<p>例如，假设您要创建一个模型，以根据汽车的 car_color
+来预测汽车的价格。由于汽车颜色的可能数量有限，car_color
+就是一个低维分类特征。</p>
+<h4 id="独热编码">独热编码</h4>
+<p>独热编码是将每个类别特征转换为其独热编码的下一步。在独热编码中：</p>
+<ul>
+<li>每个类别都包含一个包含 N 个元素的向量（数组）表示，其中 N
+是类别的数量。例如，如果 car_color 有 k 个可能的类别，则表示 car_color
+的独热编码将包含 k 个元素。</li>
+<li>对于一个元素中只有 1 个元素的值为 1.0；其余所有元素的值均为
+0.0。</li>
+</ul>
+<p>以下表格展示了 car_color 中每个元素的独热编码：</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>红色</th>
+<th>橙色</th>
+<th>蓝色</th>
+<th>黄色</th>
+<th>绿色</th>
+<th>黑色</th>
+<th>紫色</th>
+<th>棕色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Red"</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>"Orange"</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>"Blue"</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>"Yellow"</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>"Green"</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>"Black"</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>"Purple"</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>"Brown"</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>在独热编码中（而非字符或索引编码）会传递给特征的每个元素学习独特的权重。</p>
+<blockquote>
+<p><strong>注意</strong>：在真正的独热编码中，只有一个元素的值为
+1.0。在称为多热编码的变体中，多个值可以为 1.0。</p>
+</blockquote>
+<h4 id="稀疏表示法">稀疏表示法</h4>
+<p>值主要为零（或空）的特征称为稀疏特征。许多分类特征（例如
+car_color）往往是稀疏特征。稀疏表示法是指在稀疏特征中存储 1.0
+的位置。例如，“Blue”的独热编码是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[0, 0, 1, 0, 0, 0, 0, 0]</span><br></pre></td></tr></table></figure>
+<p>由于 1 位于第 2 个位置（从 0
+开始计数），因此上述稀疏特征的稀疏表示为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2</span><br></pre></td></tr></table></figure>
+<p>请注意，稀疏表示法所占用的内存远远少于八元素的 one-hot
+向量。请务必注意，模型必须基于一对一的行进行训练，而不是基于稀疏表示进行训练。</p>
+<blockquote>
+<p>注意：多热编码的稀疏表示法显示所有非零元素的位置信息。例如，同时属于“Blue”和“Black”的汽车的稀疏表示为
+2, 5。</p>
+</blockquote>
+<h3 id="分类数据中的离群值">分类数据中的离群值</h3>
+<p>与数值数据一样，分类数据也可能包含异常值。假设我们有一个分类特征
+<code>car_color</code>，它不仅包含常用颜色，还包含一些少用的离群颜色，例如
+"Mauve" 或
+"Avocado"。您可以将这些离群颜色视为一个不在训练表中的单独类别（OOV），而不是为每种离群颜色单独设置一个类别。系统会将该离群值分配到一个离群分类桶中。</p>
+<h4 id="编码高维分类特征">编码高维分类特征</h4>
+<p>某些分类特征具有较多的维度，以下是一些示例特征：</p>
+<table>
+<thead>
+<tr>
+<th>特征名称</th>
+<th>类别数</th>
+<th>类别示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>words_in_english</td>
+<td>~500,000</td>
+<td>"happy", "walking"</td>
+</tr>
+<tr>
+<td>US_postal_codes</td>
+<td>~42,000</td>
+<td>"02114", "90301"</td>
+</tr>
+<tr>
+<td>last_names_in_Germany</td>
+<td>~850,000</td>
+<td>"Schmidt", "Schneider"</td>
+</tr>
+</tbody>
+</table>
+<p>当类别数量较多时，独热编码通常不是一个好的选择。使用高维特征可能会导致以下问题：</p>
+<ul>
+<li>模型训练会更慢。</li>
+<li>结构的模型通常可以更快地推理结果。也就是说，模型的推理时间更短。</li>
+</ul>
+<p>一种常见的减少维度的方法是使用<strong>哈希编码</strong>。哈希编码是一种将少量类别映射到较小的维度的方法。</p>
+<h4 id="人工评估员">人工评估员</h4>
+<p>由于人工手动标记的数据通常精确度较高，且数据质量相对较好，因此在训练模型时，标准答案数据比机器标记的数据更受欢迎。</p>
+<p>这意味着，标记一组标准的数据集是非常重要的。人工标记可能会引入偏见，偏见可能会影响数据收集过程中的清晰度和处理过程中的引导。任何两个人工评估员的标记可能都不一样。人工评估者之间的评估结果的差异称为<strong>评估一致性</strong>。您可以通过每个示例使用多名评估员，并衡量评估结果之间的一致性，从而了解评估意见的差异。</p>
+<h4 id="机器评估者">机器评估者</h4>
+<p>机器标记的数据（与由一个或多个类型模型进行标记的标准数据）通常称为<strong>银标</strong>。机器标记的数据质量在质量上可能会有很大差异。不要轻视机器的能力，机器标记的结果可能是准确的。例如，如果计算机视觉模型将一张图片标记为“狗”，那么它实际上可能是被标记为“猫”的模型类型。</p>
+<p>同样，如果您将机器标记的所有语言评分分为0-25（是中性值），则可能会对所有语言评分的数量和数据中实际上不存在的值产生影响。在对数据进行训练之前，请务必了解数据中机器标记的质量和偏差。</p>
+<h4 id="高维度">高维度</h4>
+<p>分类数据往往会在高维特征中出现，即包含大量元素的特征。高维度会增加训练成本，并增加训练难度。因此，机器学习领域常常采用降维技术来处理高维特征。</p>
+<p>对于自然语言数据，降维的主要方法是将特征向量转换为嵌入向量。</p>
+<h3 id="分类数据特征组合">分类数据：特征组合</h3>
+<p>特征组合是指将两个或多个分类特征组合成一个新特征。类似于多项式变换，特征组合允许对特征进行线性处理。</p>
+<p>例如，假设某个数据集中有以下分类特征：</p>
+<ul>
+<li><strong>edges</strong>，包含值
+<code>smooth</code>、<code>toothed</code> 和 <code>lobed</code></li>
+<li><strong>arrangement</strong>，包含值 <code>opposite</code> 和
+<code>alternate</code></li>
+</ul>
+<p>假设上述顺序是独热编码特征的顺序：一个具有 <code>smooth</code> 边和
+<code>opposite</code> 排列的项可以表示为 ({(1, 0, 0), (1, 0)})。</p>
+<p>这两个特征的特征组合（即笛卡尔积）为：</p>
+<p><span class="math display">\[
+\{Smooth\_Opposite, Smooth\_Alternate, Toothed\_Opposite,
+Toothed\_Alternate, Lobed\_Opposite, Lobed\_Alternate\}
+\]</span></p>
+<p>其中每一项的值是基于特征值的派生：</p>
+<ul>
+<li><strong>Smooth_Opposite</strong> =
+<code>edges[0] * arrangement[0]</code></li>
+<li><strong>Toothed_Opposite</strong> =
+<code>edges[1] * arrangement[0]</code></li>
+<li><strong>Lobed_Alternate</strong> =
+<code>edges[2] * arrangement[1]</code></li>
+</ul>
+<p>对于数据集中的任何给定条件，仅当满足条件时，特征组合才会等于
+1。也就是说，具有特定顺序的特征组合中有 <code>Lobed_Alternate</code>
+的值为 1，则上述特征组合为：</p>
+<p><span class="math display">\[
+\{0, 0, 0, 0, 0, 1\}
+\]</span></p>
+<p>此数据集可用于按特征种类进行分析，因为这些特征组合是因物种而异的。</p>
+<h4 id="何时使用特征组合">何时使用特征组合</h4>
+<p>领域知识可以提供有关何时使用特征组合的指导。如果没有相关领域知识，就可能难以确定有效的特征组合或多项式转换。您通常可以通过计算销售量、神经网络等在训练过程中自动查找和应用的特征组合。</p>
+<p>请注意，组合两个稀疏特征会生成一个均匀稀疏的新特征之间的差异。例如，如果特征
+A 为 200 元素稀疏特征，特征 B 为 100 元素稀疏特征，A 和 B
+的特征组合会生成 2 万个元素的稀疏特征。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/e96173fa/" rel="prev" title="机器学习入门06">
+                  <i class="fa fa-angle-left"></i> 机器学习入门06
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/ed95efd/" rel="next" title="机器学习入门08">
+                  机器学习入门08 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">94k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:52</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>
