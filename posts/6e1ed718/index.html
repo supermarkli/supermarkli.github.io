@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="今天继续进行机器学习的入门，主题是大语言模型。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习入门11">
+<meta property="og:url" content="https://supermarkli.github.io/posts/6e1ed718/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="今天继续进行机器学习的入门，主题是大语言模型。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A842.png">
+<meta property="article:published_time" content="2025-03-01T12:06:00.000Z">
+<meta property="article:modified_time" content="2025-03-01T14:10:36.814Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supermarkli.github.io/assets/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%85%A5%E9%97%A842.png">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/6e1ed718/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/6e1ed718/","path":"posts/6e1ed718/","title":"机器学习入门11"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习入门11 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8Bllm"><span class="nav-number">1.</span> <span class="nav-text">大语言模型（LLM）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8Bllm%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">大语言模型（LLM）简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A4%E7%89%8Ctoken"><span class="nav-number">1.2.</span> <span class="nav-text">令牌（Token）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E4%BB%A4%E7%89%8C%E5%8C%96%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.1.</span> <span class="nav-text">常见令牌化方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#n%E5%85%83%E8%AF%AD%E6%B3%95%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">N元语法语言模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.3.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%84%E6%B5%8B%E6%9C%BA%E5%88%B6"><span class="nav-number">1.3.2.</span> <span class="nav-text">预测机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E5%9C%A8%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E4%B8%AD%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">上下文在语言模型中的作用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8A%E4%B8%8B%E6%96%87%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.4.1.</span> <span class="nav-text">上下文的基本概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#n%E5%85%83%E8%AF%AD%E6%B3%95%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E9%99%90%E5%88%B6"><span class="nav-number">1.4.2.</span> <span class="nav-text">N元语法的上下文限制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9Crecurrent-neural-network-rnn%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.4.3.</span> <span class="nav-text">循环神经网络（Recurrent
+Neural Network, RNN）的优势</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#transformer-%E6%9E%B6%E6%9E%84"><span class="nav-number">1.5.</span> <span class="nav-text">Transformer 架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E5%99%A8%E5%92%8C%E8%A7%A3%E7%A0%81%E5%99%A8%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.5.1.</span> <span class="nav-text">编码器和解码器的工作原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.5.2.</span> <span class="nav-text">应用示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%87%AA%E6%B3%A8%E6%84%8F%E5%8A%9B"><span class="nav-number">1.6.</span> <span class="nav-text">什么是自注意力？</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.6.1.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.6.2.</span> <span class="nav-text">实际示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E5%A4%B4%E8%87%AA%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6"><span class="nav-number">1.7.</span> <span class="nav-text">多头自注意力机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86-1"><span class="nav-number">1.7.1.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.7.2.</span> <span class="nav-text">实际应用示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#llm%E7%9A%84%E8%AE%AD%E7%BB%83%E6%96%B9%E6%B3%95"><span class="nav-number">1.8.</span> <span class="nav-text">LLM的训练方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%9E%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0%E8%AE%AD%E7%BB%83"><span class="nav-number">1.8.1.</span> <span class="nav-text">非监督学习训练</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E8%BF%87%E7%A8%8B"><span class="nav-number">1.8.2.</span> <span class="nav-text">训练过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83%E6%95%88%E6%9E%9C"><span class="nav-number">1.8.3.</span> <span class="nav-text">训练效果</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#llm%E7%9A%84%E6%96%87%E6%9C%AC%E7%94%9F%E6%88%90%E8%83%BD%E5%8A%9B"><span class="nav-number">1.9.</span> <span class="nav-text">LLM的文本生成能力</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="nav-number">1.9.1.</span> <span class="nav-text">基本原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.9.2.</span> <span class="nav-text">生成示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E7%89%B9%E7%82%B9"><span class="nav-number">1.9.3.</span> <span class="nav-text">生成特点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#llm%E7%9A%84%E5%BE%AE%E8%B0%83%E8%BF%87%E7%A8%8B"><span class="nav-number">1.10.</span> <span class="nav-text">LLM的微调过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#llm%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.10.1.</span> <span class="nav-text">LLM的基本类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AE%E8%B0%83fine-tuning"><span class="nav-number">1.10.2.</span> <span class="nav-text">微调(Fine-tuning)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#llm%E7%9A%84%E8%92%B8%E9%A6%8Fdistillation"><span class="nav-number">1.11.</span> <span class="nav-text">LLM的蒸馏(Distillation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#llm%E7%9A%84%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B"><span class="nav-number">1.12.</span> <span class="nav-text">LLM的提示工程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5-1"><span class="nav-number">1.12.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA%E7%B1%BB%E5%9E%8B%E5%92%8C%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.12.2.</span> <span class="nav-text">提示类型和示例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B%E7%89%B9%E7%82%B9"><span class="nav-number">1.12.3.</span> <span class="nav-text">提示工程特点</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/aq.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/6e1ed718/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aq.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习入门11 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习入门11
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-03-01 20:06:00 / 修改时间：22:10:36" itemprop="dateCreated datePublished" datetime="2025-03-01T20:06:00+08:00">2025-03-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>今天继续进行机器学习的入门，主题是大语言模型。 <span id="more"></span></p>
+<h2 id="大语言模型llm">大语言模型（LLM）</h2>
+<h3 id="大语言模型llm简介">大语言模型（LLM）简介</h3>
+<p>大语言模型（Large Language
+Model）是一种基于深度学习的自然语言处理模型，它能够处理和生成大量的文本数据。LLM
+通常使用 Transformer 架构，这种架构在自然语言处理任务中表现出色。</p>
+<p>LLM 相比传统语言模型有以下优势： 1. 参数量更大，学习能力更强 2.
+可以处理更长的上下文 3. 能够完成多种复杂的语言任务</p>
+<h3 id="令牌token">令牌（Token）</h3>
+<p>令牌是文本的最小单位，通常是单词或子词。令牌化是将文本转换为令牌序列的过程。让我们通过具体例子来理解：</p>
+<h4 id="常见令牌化方法">常见令牌化方法</h4>
+<ol type="1">
+<li><strong>按空格分词</strong>：
+<ul>
+<li>适用于英文等使用空格分隔的语言</li>
+<li>例：<code>"deep learning"</code> →
+<code>["deep", "learning"]</code></li>
+</ul></li>
+<li><strong>基于规则分词</strong>：
+<ul>
+<li>使用字典和语言规则</li>
+<li>适用于中文等无明显分隔符的语言</li>
+<li>例：<code>"人工智能"</code> → <code>["人工", "智能"]</code></li>
+</ul></li>
+<li><strong>子词分词</strong>：
+<ul>
+<li>将长单词拆分成常用部分</li>
+<li>例：<code>"unhappy"</code> → <code>["un", "happy"]</code></li>
+<li>可以减少词表大小，处理未知词</li>
+</ul></li>
+</ol>
+<h3 id="n元语法语言模型">N元语法语言模型</h3>
+<p>N元语法是一种用于构建语言模型的序列预测方法，其中N表示序列中的单词数。这种模型通过观察前面N-1个单词来预测下一个可能出现的单词。</p>
+<h4 id="基本概念">基本概念</h4>
+<ol type="1">
+<li><strong>2元语法(bigram)</strong>：
+<ul>
+<li>N = 2时的语言模型</li>
+<li>使用前一个单词预测下一个单词</li>
+<li>例如："you are very nice" 可以生成以下2-gram：
+<ul>
+<li>"你是"</li>
+<li>"非常"</li>
+<li>"非常好"</li>
+</ul></li>
+</ul></li>
+<li><strong>3元语法(trigram)</strong>：
+<ul>
+<li>N = 3时的语言模型</li>
+<li>使用前两个单词预测下一个单词</li>
+<li>例如对相同的词组，得到的三元语法为：
+<ul>
+<li>"你非常"</li>
+<li>"非常好"</li>
+</ul></li>
+</ul></li>
+</ol>
+<h4 id="预测机制">预测机制</h4>
+<ol type="1">
+<li><strong>上下文依赖</strong>：
+<ul>
+<li>给定前面的单词作为输入</li>
+<li>基于N元语法预测下一个单词</li>
+<li>例如："orange is" 可能的下一个单词：
+<ul>
+<li>"orange is ripe"（水果相关）</li>
+<li>"orange is cheerful"（颜色相关）</li>
+</ul></li>
+</ul></li>
+<li><strong>预测特点</strong>：
+<ul>
+<li>模型会检查训练数据中的所有相关N-gram</li>
+<li>根据上下文选择最可能的后续单词</li>
+<li>考虑语义和使用频率</li>
+</ul></li>
+<li><strong>应用考虑</strong>：
+<ul>
+<li>N值越大，考虑的上下文越多</li>
+<li>但也需要更大的训练数据集</li>
+<li>需要平衡准确性和计算复杂度</li>
+</ul></li>
+</ol>
+<p>通过N元语法模型，我们可以实现基于上下文的文本预测，这在自然语言处理中是一项重要的基础技术。</p>
+<h3 id="上下文在语言模型中的作用">上下文在语言模型中的作用</h3>
+<h4 id="上下文的基本概念">上下文的基本概念</h4>
+<ol type="1">
+<li><strong>人类语言理解</strong>：
+<ul>
+<li>人类可以保留相对较长的上下文</li>
+<li>理解对话需要记住之前的信息</li>
+<li>上下文帮助理解语言的真实含义</li>
+</ul></li>
+<li><strong>语言模型中的应用</strong>：
+<ul>
+<li>上下文是自标注标签</li>
+<li>帮助模型确定词语的具体含义</li>
+<li>例如："orange is" 可以根据上下文判断是水果还是颜色</li>
+</ul></li>
+</ol>
+<h4 id="n元语法的上下文限制">N元语法的上下文限制</h4>
+<ol type="1">
+<li><strong>上下文窗口</strong>：
+<ul>
+<li>N元语法只能看到固定长度的上下文</li>
+<li>三元语法只能看到前两个词</li>
+<li>有限的上下文导致预测准确性受限</li>
+</ul></li>
+<li><strong>N值的影响</strong>：
+<ul>
+<li>N值越大，考虑的上下文越多</li>
+<li>但实际出现的组合会减少</li>
+<li>需要在上下文长度和实用性之间平衡</li>
+</ul></li>
+</ol>
+<h4
+id="循环神经网络recurrent-neural-network-rnn的优势">循环神经网络（Recurrent
+Neural Network, RNN）的优势</h4>
+<ol type="1">
+<li><strong>长期依赖</strong>：
+<ul>
+<li>循环神经网络可以处理更长的上下文</li>
+<li>能够学习词语之间的长距离关系</li>
+<li>更接近人类的语言理解方式</li>
+</ul></li>
+<li><strong>实际应用限制</strong>：
+<ul>
+<li>可能遇到梯度消失问题</li>
+<li>训练时间较长</li>
+<li>需要大量数据支持</li>
+</ul></li>
+<li><strong>与N元语法对比</strong>：
+<ul>
+<li>循环神经网络能学习更多上下文</li>
+<li>但实际应用中可能受限</li>
+<li>N元语法更简单但上下文有限</li>
+</ul></li>
+</ol>
+<p>通过合理利用上下文信息，语言模型可以更好地理解和生成自然语言，但不同类型的模型在处理上下文时各有优势和限制。</p>
+<h3 id="transformer-架构">Transformer 架构</h3>
+<p>Transformer
+是一种专门用于处理序列数据（如自然语言）的神经网络架构。它主要由编码器（Encoder）和解码器（Decoder）两部分组成。</p>
+<p><img src="/assets/机器学习入门42.png" /></p>
+<h4 id="编码器和解码器的工作原理">编码器和解码器的工作原理</h4>
+<ol type="1">
+<li><strong>编码器（Encoder）</strong>：
+<ul>
+<li>将输入文本转换为中间表示形式</li>
+<li>使用神经网络进行特征提取</li>
+<li>例如：将英语句子转换为中间表示</li>
+</ul></li>
+<li><strong>解码器（Decoder）</strong>：
+<ul>
+<li>将中间表示转换为目标输出</li>
+<li>同样使用神经网络进行处理</li>
+<li>例如：将中间表示转换为法语句子</li>
+</ul></li>
+</ol>
+<h4 id="应用示例">应用示例</h4>
+<p>以机器翻译为例： 1.
+编码器接收输入文本（如英语句子）并处理成中间表示形式 2.
+解码器将这个中间表示转换为目标语言（如法语句子） 3.
+整个过程是端到端的，不需要人工设计特征</p>
+<p>Transformer
+架构的优势在于它能够并行处理输入序列，并且能够捕捉序列中的长距离依赖关系，这使它在各种自然语言处理任务中都能取得优秀的表现。</p>
+<h3 id="什么是自注意力">什么是自注意力？</h3>
+<p>自注意力（Self-Attention）是 Transformer
+架构中的一个核心概念，用于增强模型对上下文的理解能力。自注意力机制会为每个输入令牌计算与其他令牌的关联程度。</p>
+<h4 id="工作原理">工作原理</h4>
+<ol type="1">
+<li><strong>基本问题</strong>：
+<ul>
+<li>对于输入的每个令牌，需要回答："这个令牌与序列中其他令牌的关系如何？"</li>
+<li>自注意力机制通过计算令牌之间的关联度来回答这个问题</li>
+</ul></li>
+<li><strong>处理过程</strong>：
+<ul>
+<li>计算输入序列中所有令牌之间的关系</li>
+<li>特别关注令牌之间的语义联系</li>
+<li>生成考虑了上下文的表示</li>
+</ul></li>
+</ol>
+<h4 id="实际示例">实际示例</h4>
+<p>让我们通过一个具体的例子来理解：</p>
+<p>The animal didn't cross the street because it was too tired.</p>
+<p>在这个句子中：</p>
+<ul>
+<li>句子包含 11 个单词</li>
+<li>每个单词都需要与其他 10 个单词建立关联</li>
+<li>特别注意代词 "it" 的处理：
+<ul>
+<li>"it" 指代的是 "animal"（动物）</li>
+<li>自注意力机制能够识别出这种指代关系</li>
+<li>通过计算关联度，确定 "it" 更可能指代 "animal" 而不是其他词</li>
+</ul></li>
+</ul>
+<p>自注意力机制的优势在于它能够：</p>
+<ol type="1">
+<li>自动学习序列中的重要关系</li>
+<li>处理长距离依赖</li>
+<li>提供更好的上下文理解</li>
+</ol>
+<p>通过这种机制，Transformer
+能够更好地理解文本的语义结构，从而在各种自然语言处理任务中取得优秀表现。</p>
+<h3 id="多头自注意力机制">多头自注意力机制</h3>
+<p>多头自注意力（Multi-Head
+Attention）是对基本自注意力机制的扩展，通过并行计算多个注意力"头"来捕捉不同类型的关系。</p>
+<h4 id="工作原理-1">工作原理</h4>
+<ol type="1">
+<li><strong>基本结构</strong>：
+<ul>
+<li>每个自注意力层由多个注意力头组成</li>
+<li>每个头独立计算不同的注意力分数</li>
+<li>最终输出是不同头的结果组合（例如加权平均值或点积）</li>
+</ul></li>
+<li><strong>多头的优势</strong>：
+<ul>
+<li>可以学习不同类型的关系</li>
+<li>增强模型的表达能力</li>
+<li>允许并行处理，提高效率</li>
+</ul></li>
+</ol>
+<h4 id="实际应用示例">实际应用示例</h4>
+<p>以前面的例子为例：</p>
+<p>The animal didn't cross the street because it was too tired.</p>
+<p>在这个句子中： - 不同的注意力头可以关注不同的语言特征： *
+一些头可能专注于代词"it"与"street"的关系 *
+其他头可能关注"animal"与动词的关系 * 还有的头可能学习句法结构</p>
+<p>通过多头自注意力机制，Transformer能够： 1. 同时捕捉多种语言特征 2.
+提高模型的理解能力 3. 生成更丰富的语言表示</p>
+<h3 id="llm的训练方法">LLM的训练方法</h3>
+<p>大语言模型（LLM）的训练过程主要基于大量文本数据，采用非监督学习的方式进行。这种训练方法有其独特的特点和优势。</p>
+<h4 id="非监督学习训练">非监督学习训练</h4>
+<ol type="1">
+<li><strong>基本原理</strong>：
+<ul>
+<li>模型通过预测被遮掩的文本来学习</li>
+<li>不需要人工标注的训练数据</li>
+<li>可以利用互联网上大量的自然文本</li>
+</ul></li>
+<li><strong>掩码预测示例</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">原始文本：</span><br><span class="line">The residents of the sleepy town weren&#x27;t prepared for what came next.</span><br><span class="line"></span><br><span class="line">掩码后的文本：</span><br><span class="line">The ___ of the sleepy town weren&#x27;t prepared for ___ came next.</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="训练过程">训练过程</h4>
+<ol type="1">
+<li><p><strong>掩码机制</strong>：</p>
+<ul>
+<li>系统随机遮掩部分词语</li>
+<li>模型需要预测被遮掩的内容</li>
+<li>通过大量练习提高预测准确度</li>
+</ul></li>
+<li><p><strong>实际训练例子</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">原始文本：</span><br><span class="line">Oranges are traditionally harvested by hand. Once clipped from a tree, they don&#x27;t ripen.</span><br><span class="line"></span><br><span class="line">掩码文本：</span><br><span class="line">Oranges are traditionally ___ by hand. Once clipped from a tree, __ don&#x27;t ripen.</span><br></pre></td></tr></table></figure></p>
+<p>在这个例子中：</p>
+<ul>
+<li>"harvested"或"picked"是第一个空位的高概率选项</li>
+<li>"oranges"或"they"是第二个空位的合理选择</li>
+</ul></li>
+</ol>
+<h4 id="训练效果">训练效果</h4>
+<ol type="1">
+<li><strong>模型能力</strong>：
+<ul>
+<li>学习语言的自然模式</li>
+<li>理解上下文关系</li>
+<li>生成合理的预测</li>
+</ul></li>
+<li><strong>优化方向</strong>：
+<ul>
+<li>通过指令优化提高性能</li>
+<li>增强模型的理解能力</li>
+<li>提高预测准确度</li>
+</ul></li>
+</ol>
+<p>通过这种训练方式，LLM能够学习语言的深层结构和语义关系，从而在各种自然语言处理任务中表现出色。</p>
+<h3 id="llm的文本生成能力">LLM的文本生成能力</h3>
+<h4 id="基本原理">基本原理</h4>
+<p>LLM本质上是一个自动补全系统，能够基于上下文生成合适的文本。它通过预测和生成来完成各种文本任务。</p>
+<h4 id="生成示例">生成示例</h4>
+<ol type="1">
+<li><p><strong>句子补全</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">输入：</span><br><span class="line">My dog, Max, knows how to perform many traditional dog tricks.</span><br><span class="line"></span><br><span class="line">可能的补全：</span><br><span class="line">- He can sit down, stay in place and roll over. (概率：3.1%)</span><br><span class="line">- He has learned to sit down, stay in place and roll over. (概率：2.9%)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>问答生成</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">用户问题：What is the easiest trick to teach a dog?</span><br><span class="line">LLM回答：[生成相关回答]</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+<h4 id="生成特点">生成特点</h4>
+<ol type="1">
+<li><strong>概率模型</strong>：
+<ul>
+<li>LLM为每个可能的补全生成概率</li>
+<li>选择最合适的文本进行输出</li>
+<li>考虑上下文和语义关联</li>
+</ul></li>
+<li><strong>应用范围</strong>：
+<ul>
+<li>文本补全</li>
+<li>问答对话</li>
+<li>内容创作</li>
+<li>数据处理</li>
+</ul></li>
+<li><strong>局限性</strong>：
+<ul>
+<li>生成内容基于训练数据</li>
+<li>需要合适的提示和上下文</li>
+<li>可能需要人工验证和修正</li>
+</ul></li>
+</ol>
+<p>通过这种方式，LLM能够生成连贯、相关的文本内容，但其本质仍是基于统计模型的文本生成系统。</p>
+<h3 id="llm的微调过程">LLM的微调过程</h3>
+<h4 id="llm的基本类型">LLM的基本类型</h4>
+<ol type="1">
+<li><strong>基础LLM</strong>：
+<ul>
+<li>使用大规模自然语言进行训练</li>
+<li>理解基本语法和语言规则</li>
+<li>可以完成基础创造性任务</li>
+<li>适合作为基础平台使用</li>
+</ul></li>
+<li><strong>特点和局限</strong>：
+<ul>
+<li>输出不一定符合具体应用需求</li>
+<li>难以解决特定类型问题</li>
+<li>如回归或分类等任务表现有限</li>
+</ul></li>
+</ol>
+<h4 id="微调fine-tuning">微调(Fine-tuning)</h4>
+<p>微调是一种通过少量数据调整预训练模型参数的方法，以适应特定任务。</p>
+<ol type="1">
+<li><strong>参数数量</strong>：
+<ul>
+<li>不会改变模型的参数数量</li>
+<li>保持原始模型结构不变</li>
+</ul></li>
+<li><strong>参数调整</strong>：
+<ul>
+<li>只调整现有参数的值</li>
+<li>微调参数以适应新任务</li>
+</ul></li>
+<li><strong>主要目的</strong>：
+<ul>
+<li>让模型更好地适应特定任务</li>
+<li>提高特定领域的性能表现</li>
+</ul></li>
+</ol>
+<h3 id="llm的蒸馏distillation">LLM的蒸馏(Distillation)</h3>
+<p>蒸馏是一种将大型语言模型（LLM）转换为较小、更高效版本的技术。它通过创建一个较小的学生模型来模仿原始大型模型的行为，从而在保持模型性能的同时减少计算资源的使用。</p>
+<ol type="1">
+<li><strong>模型规模</strong>：
+<ul>
+<li>创建参数更少的模型</li>
+<li>显著减少模型体积</li>
+</ul></li>
+<li><strong>知识保持</strong>：
+<ul>
+<li>通过知识迁移保持核心功能</li>
+<li>维持关键能力不丢失</li>
+</ul></li>
+<li><strong>优化目标</strong>：
+<ul>
+<li>得到更小但仍有效的模型</li>
+<li>平衡模型大小和性能表现</li>
+</ul></li>
+</ol>
+<h3 id="llm的提示工程">LLM的提示工程</h3>
+<h4 id="基本概念-1">基本概念</h4>
+<p>提示工程是让LLM的最终用户自定义模型输出的方法，通过向LLM展示如何对提示做出响应来实现。</p>
+<h4 id="提示类型和示例">提示类型和示例</h4>
+<ol type="1">
+<li><p><strong>单样本提示</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">用户输入水果的名称：LLM 输出该水果的类。</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>简单示例</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">peach: drupe</span><br><span class="line">apple: ______</span><br></pre></td></tr></table></figure></p>
+<p>LLM可能的输出： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apple: pome</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>多样本示例</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">plum: drupe</span><br><span class="line">pear: pome</span><br><span class="line">lemon: ____</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+<h4 id="提示工程特点">提示工程特点</h4>
+<ol type="1">
+<li><strong>使用方式</strong>：
+<ul>
+<li>可以使用单个或多个示例</li>
+<li>示例应清晰表达期望输出</li>
+<li>可以组合不同类型的提示</li>
+</ul></li>
+<li><strong>零样本问题</strong>：
+<ul>
+<li>LLM可以在没有示例的情况下预测</li>
+<li>需要清晰的上下文</li>
+<li>预测质量可能受影响</li>
+</ul></li>
+<li><strong>注意事项</strong>：
+<ul>
+<li>提示工程不会改变模型的参数</li>
+<li>主要利用模型的理解能力</li>
+<li>选择合适的提示方式很重要</li>
+</ul></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"># 机器学习</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/1919e78e/" rel="prev" title="机器学习入门10">
+                  <i class="fa fa-angle-left"></i> 机器学习入门10
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">108k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:17</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>
