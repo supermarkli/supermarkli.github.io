@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="CSS心得 介绍了之前在手搓前端时遇到的一些css问题以及解决办法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSS Note">
+<meta property="og:url" content="https://supermarkli.github.io/posts/752f9918/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="CSS心得 介绍了之前在手搓前端时遇到的一些css问题以及解决办法">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-01-05T14:26:37.000Z">
+<meta property="article:modified_time" content="2025-08-02T04:08:19.222Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="CSS">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/752f9918/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/752f9918/","path":"posts/752f9918/","title":"CSS Note"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CSS Note | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#css%E5%BF%83%E5%BE%97"><span class="nav-number">1.</span> <span class="nav-text">CSS心得</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81css"><span class="nav-number">1.1.</span> <span class="nav-text">常见css</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81flex%E5%B1%9E%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">常见flex属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%80%E5%B7%A7%E5%8F%AF%E4%BB%A5%E6%90%AD%E9%85%8Djs%E5%AE%9E%E7%8E%B0%E5%AE%BD%E5%BA%A6%E5%8F%98%E5%8C%96"><span class="nav-number">1.3.</span> <span class="nav-text">技巧：可以搭配js实现宽度变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%80%E5%B7%A7%E6%94%B9%E5%8F%98%E5%88%97%E5%AE%BD"><span class="nav-number">1.4.</span> <span class="nav-text">技巧：改变列宽</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%80%E5%B7%A7%E8%A1%A8%E6%A0%BC%E7%BD%AE%E9%A1%B6"><span class="nav-number">1.5.</span> <span class="nav-text">技巧：表格置顶</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/752f9918/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CSS Note | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CSS Note
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-01-05 22:26:37" itemprop="dateCreated datePublished" datetime="2025-01-05T22:26:37+08:00">2025-01-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-08-02 12:08:19" itemprop="dateModified" datetime="2025-08-02T12:08:19+08:00">2025-08-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CSS/" itemprop="url" rel="index"><span itemprop="name">CSS</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="css心得">CSS心得</h2>
+<p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
+<span id="more"></span>
+<p>body最好设为<strong>overflow:hidden;</strong>这样就不会出现最大页面的滑动框</p>
+<p>color才是字体颜色</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="常见css">常见css</h3>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
+<h3 id="常见flex属性">常见flex属性</h3>
+<p>flex: 1；可以搭配overflow：hidden；使用</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
+<h3 id="技巧可以搭配js实现宽度变化">技巧：可以搭配js实现宽度变化</h3>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="技巧改变列宽">技巧：改变列宽</h3>
+<p>将单元格设为如下</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
+<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
+<ol type="1">
+<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
+<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
+</ol>
+<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
+<p>这里的技巧是color:white;这样不会影响表格的美观</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="技巧表格置顶">技巧：表格置顶</h3>
+<p>outline是为了修复滑动时失去边界的bug</p>
+<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
+<ul>
+<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
+<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CSS/" rel="tag"># CSS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/cbeff3a9/" rel="prev" title="TDX Note">
+                  <i class="fa fa-angle-left"></i> TDX Note
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/7066aaf6/" rel="next" title="Anaconda Note">
+                  Anaconda Note <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">64k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:56</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

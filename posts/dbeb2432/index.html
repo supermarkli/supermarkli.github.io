@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="influxdb连接问题 最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="influxdb Connection Problem">
+<meta property="og:url" content="https://supermarkli.github.io/posts/dbeb2432/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="influxdb连接问题 最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supermarkli.github.io/assets/78c665f7d532f73e4cf89e901284eb7f.png">
+<meta property="og:image" content="https://supermarkli.github.io/assets/image-20240919184721228.png">
+<meta property="article:published_time" content="2025-01-05T14:55:53.000Z">
+<meta property="article:modified_time" content="2025-08-02T04:08:19.226Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="influxdb">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supermarkli.github.io/assets/78c665f7d532f73e4cf89e901284eb7f.png">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/dbeb2432/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/dbeb2432/","path":"posts/dbeb2432/","title":"influxdb Connection Problem"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>influxdb Connection Problem | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#influxdb%E8%BF%9E%E6%8E%A5%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">influxdb连接问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#token401%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">token401问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%99%BB%E5%BD%95401"><span class="nav-number">1.1.1.</span> <span class="nav-text">登录401</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%87%E6%9C%9F401"><span class="nav-number">1.1.2.</span> <span class="nav-text">过期401</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%AF%BB%E5%8F%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">数据读取问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">其他问题</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/dbeb2432/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="influxdb Connection Problem | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          influxdb Connection Problem
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-01-05 22:55:53" itemprop="dateCreated datePublished" datetime="2025-01-05T22:55:53+08:00">2025-01-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-08-02 12:08:19" itemprop="dateModified" datetime="2025-08-02T12:08:19+08:00">2025-08-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="influxdb连接问题">influxdb连接问题</h2>
+<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
+<h3 id="token401问题">token401问题</h3>
+<h4 id="登录401">登录401</h4>
+<p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
+</figure>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<figure>
+<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
+</figure>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<p>发现可以正常读取了</p>
+<h4 id="过期401">过期401</h4>
+<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据读取问题">数据读取问题</h3>
+<p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<h3 id="其他问题">其他问题</h3>
+<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/influxdb/" rel="tag"># influxdb</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/7066aaf6/" rel="prev" title="Anaconda Note">
+                  <i class="fa fa-angle-left"></i> Anaconda Note
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/50ac740b/" rel="next" title="前端浏览器缓存机制">
+                  前端浏览器缓存机制 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">64k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:56</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

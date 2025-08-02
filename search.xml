@@ -238,50 +238,6 @@
       </tags>
   </entry>
   <entry>
-    <title>CSS Note</title>
-    <url>/posts/752f9918/</url>
-    <content><![CDATA[<h2 id="css心得">CSS心得</h2>
-<p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
-<span id="more"></span>
-<p>body最好设为<strong>overflow:hidden;</strong>这样就不会出现最大页面的滑动框</p>
-<p>color才是字体颜色</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<h3 id="常见css">常见css</h3>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
-<h3 id="常见flex属性">常见flex属性</h3>
-<p>flex: 1；可以搭配overflow：hidden；使用</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
-<h3 id="技巧可以搭配js实现宽度变化">技巧：可以搭配js实现宽度变化</h3>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="技巧改变列宽">技巧：改变列宽</h3>
-<p>将单元格设为如下</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
-<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
-<ol type="1">
-<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
-<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
-</ol>
-<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
-<p>这里的技巧是color:white;这样不会影响表格的美观</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="技巧表格置顶">技巧：表格置顶</h3>
-<p>outline是为了修复滑动时失去边界的bug</p>
-<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
-<ul>
-<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
-<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
-</ul>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>CSS</category>
-      </categories>
-      <tags>
-        <tag>CSS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>DeepSeek本地部署</title>
     <url>/posts/4f6ed32b/</url>
     <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
@@ -344,6 +300,50 @@
         <tag>Linux</tag>
         <tag>Git</tag>
         <tag>Tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CSS Note</title>
+    <url>/posts/752f9918/</url>
+    <content><![CDATA[<h2 id="css心得">CSS心得</h2>
+<p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
+<span id="more"></span>
+<p>body最好设为<strong>overflow:hidden;</strong>这样就不会出现最大页面的滑动框</p>
+<p>color才是字体颜色</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="常见css">常见css</h3>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
+<h3 id="常见flex属性">常见flex属性</h3>
+<p>flex: 1；可以搭配overflow：hidden；使用</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
+<h3 id="技巧可以搭配js实现宽度变化">技巧：可以搭配js实现宽度变化</h3>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="技巧改变列宽">技巧：改变列宽</h3>
+<p>将单元格设为如下</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
+<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
+<ol type="1">
+<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
+<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
+</ol>
+<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
+<p>这里的技巧是color:white;这样不会影响表格的美观</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="技巧表格置顶">技巧：表格置顶</h3>
+<p>outline是为了修复滑动时失去边界的bug</p>
+<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
+<ul>
+<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
+<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>CSS</category>
+      </categories>
+      <tags>
+        <tag>CSS</tag>
       </tags>
   </entry>
   <entry>
@@ -470,6 +470,134 @@
         <tag>无线通信</tag>
         <tag>NFC</tag>
         <tag>RFID</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>关于Intel TDX的深度思考与技术剖析</title>
+    <url>/posts/b63e909c/</url>
+    <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
+<span id="more"></span>
+<h3 id="引言云时代的信任难题">引言：云时代的信任难题</h3>
+<p>在当前的云计算和联邦学习场景下，数据隐私和计算过程的保密性至关重要。我们常常面临一个核心的信任悖论：我们希望利用云服务商强大的计算能力处理敏感数据，却又不能完全信任服务所在的平台，包括云厂商、甚至是拥有最高权限的租户管理员。如何确保我们的代码和数据在“别人”的服务器上，能够不被窥探、不被篡改地安全运行？可信执行环境（TEE）技术，特别是Intel TDX，为我们提供了破解这一难题的钥匙。</p>
+<h3 id="第一章tee与intel-tdx核心概念">第一章：TEE与Intel TDX核心概念</h3>
+<p>您可以将TEE想象成CPU内部一个被硬件强制隔离的“安全保险库”或“黑盒”。它主要提供以下四种核心保障：</p>
+<ul>
+<li><strong>隔离性 (Isolation)</strong>: 在TEE（Intel TDX中称为Trust Domain）内部运行的代码和数据，与服务器上运行的其他所有软件（包括操作系统、Hypervisor/虚拟机管理器，甚至是拥有物理访问权限的管理员）都是<strong>完全隔离的</strong>。</li>
+<li><strong>机密性 (Confidentiality)</strong>: TEE内的数据在CPU外部（例如在内存条DRAM上）始终是加密的。即使有人用逻辑分析仪去嗅探内存总线，也拿不到明文。</li>
+<li><strong>完整性 (Integrity)</strong>: TEE会确保加载到其内部的代码没有被篡改。</li>
+<li><strong>远程证明 (Remote Attestation)</strong>: 这是TEE的“杀手级特性”。客户端可以在与服务器通信之前，通过一个密码学协议，要求服务器上的TEE 证明自己的身份。这个证明可以告诉客户端：“我是一个货真价实的、由Intel制造的CPU中的TEE，我正在运行的代码就是你期望的那个版本（通过代码哈希值验证），并且我没有被篡改过。”</li>
+</ul>
+<h3 id="第二章信任模型的演进从完全信任到零信任">第二章：信任模型的演进：从完全信任到零信任</h3>
+<p>TEE的出现并非一蹴而就，它的价值体现在计算信任模型的不断演进中。</p>
+<h4 id="传统虚拟化-传统vm">传统虚拟化 (传统VM)</h4>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件 -&gt; Hypervisor -&gt; 虚拟机(VM)</code>。Hypervisor运行在最高权限，完全控制硬件。</li>
+<li><strong>信任模型</strong>: Hypervisor是全能的上帝。它可以随时暂停VM，检查其完整的内存状态，看到所有明文。租户必须<strong>完全信任</strong>云服务商。</li>
+</ul>
+<h4 id="sgx时代-enclave模型">SGX时代 (Enclave模型)</h4>
+<p>为了解决对Hypervisor的信任问题，Intel推出了SGX。</p>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件 -&gt; OS/Hypervisor -&gt; 应用程序 -&gt; Enclave</code>。Enclave是从应用程序的地址空间中“挖”出来的一块受硬件保护的内存区域。</li>
+<li><strong>信任模型</strong>: 信任边界缩小到Enclave内部。Hypervisor/OS无法窥探Enclave，但它仍然管理着整个应用程序和操作系统。这种模型对应用改造要求高，且与外部世界交互繁琐。</li>
+</ul>
+<h4 id="tdx时代-机密虚拟机模型">TDX时代 (机密虚拟机模型)</h4>
+<p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
+<li><strong>信任模型的革命性变化</strong>:
+<ul>
+<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
+<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
+</ul></li>
+</ul>
+<h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
+<p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
+<ul>
+<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
+<ul>
+<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
+<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
+<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
+</ul></li>
+<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
+<ul>
+<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
+<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
+<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
+</ul></li>
+<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
+<ul>
+<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
+<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
+<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
+</ul></li>
+</ul>
+<h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
+<p>仅仅将应用放入TEE环境是不足以保证安全的，开发者必须遵循特定的安全编程模式来管理所有进出TEE的数据流。</p>
+<h4 id="数据处理如何避免明文泄露">4.1 数据处理：如何避免明文泄露</h4>
+<p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
+<ul>
+<li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
+<li><strong>正确（安全）的设计模式</strong>:
+<ul>
+<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
+<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
+</ul></li>
+</ul>
+<h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>
+<p>既然TEE是黑盒，那作为最关键秘密的<strong>密钥，最初是如何安全地进入这个黑盒的？</strong> 这需要通过远程证明和密钥提供（Secret Provisioning）的协同过程来完成。</p>
+<h5 id="密钥的提供-secret-provisioning">密钥的提供 (Secret Provisioning)</h5>
+<p>这个过程就像一次高度安全的、经过身份验证的“隔空投送”。</p>
+<ol type="1">
+<li><strong>TEE发起证明</strong>: TEE应用启动后，请求CPU硬件生成一份包含其代码身份指纹（MRENCLAVE）、开发者身份（MRSIGNER）和临时公钥的<strong>证明报告（Quote）</strong>，并由CPU内嵌的硬件私钥签名。</li>
+<li><strong>密钥所有者验证证明</strong>: 密钥所有者收到Quote后，会进行双重验证：
+<ul>
+<li><strong>硬件验证</strong>: 请求Intel的证明服务器，验证Quote的硬件签名，确保它来自真实的Intel CPU。</li>
+<li><strong>软件验证</strong>: 比对自己手中经过审计的代码哈希值与Quote中的MRENCLAVE，确保TEE中运行的是未经篡改的、正确的代码版本。</li>
+</ul></li>
+<li><strong>安全“投送”密钥</strong>: 验证通过后，密钥所有者完全信任了远端的TEE。它会从Quote中提取出TEE的临时公钥，用它加密真正的私钥，然后将这个加密的“密钥包裹”发回给TEE。</li>
+<li><strong>TEE内部拆解</strong>: TEE应用收到“密钥包裹”后，用自己对应的临时私钥在受保护的内存中解密，安全地获得真实私钥。</li>
+</ol>
+<h5 id="密钥的持久化-sealing">密钥的持久化 (Sealing)</h5>
+<p>为了避免每次重启都重复上述复杂的提供流程，TEE应用在首次获取密钥后，可以利用前述的<strong>Sealing机制</strong>，将其用硬件绑定的密钥加密后，安全地保存在外部磁盘上。重启后，只有在同一台机器上、运行着同样代码的TEE应用，才能成功解封（unseal），将密钥重新加载到内存中。</p>
+<h4 id="io安全警惕自我泄露">4.3 I/O安全：警惕“自我泄露”</h4>
+<p>TEE保护的是计算过程，但它不会自动保护应用的I/O。如果开发者在代码里写了<code>print(private_key)</code>，TEE会忠实地执行，并将这个秘密通过标准输出（stdout）泄露给不受信的Guest OS，最终被租户看到。</p>
+<p>这揭示了TEE安全编程的关键原则：<strong>开发者必须有意识地管理所有进出TEE的信道，视之为潜在的泄露风险。</strong></p>
+<ul>
+<li><p><strong>防御措施1：代码审计（最重要）</strong>: 任何敏感数据变量，绝不能传递给任何执行I/O操作的函数（如<code>print()</code>, <code>log.info()</code>, <code>file.write()</code>）。客户端信任的，正是那个经过审计、确认没有此类行为的代码版本。</p></li>
+<li><p><strong>防御措施2：安全日志系统</strong>: 对日志进行过滤或加密，或在生产环境中完全禁用高风险的日志级别。</p></li>
+<li><p><strong>防御措施3：运行时配置</strong>: 将应用的stdout和stderr重定向到<code>/dev/null</code>，作为一种兜底措施。</p></li>
+</ul>
+<h3 id="第五章tee安全模型的动态性与挑战">第五章：TEE安全模型的动态性与挑战</h3>
+<h4 id="代码篡改不可能完成的任务">5.1 代码篡改：不可能完成的任务</h4>
+<p>从系统管理员的角度看，修改磁盘上的一个脚本文件非常简单。但对于TEE来说，要在不被发现的情况下恶意修改代码，却几乎不可能。</p>
+<p>这里的关键在于区分两个概念：</p>
+<ul>
+<li><p><strong>修改文件内容的能力</strong>: 租户拥有。</p></li>
+<li><p><strong>伪造程序身份的能力</strong>: 租户没有。</p></li>
+</ul>
+<p>TEE安全模型的核心基石是：<strong>代码的任何一丝一毫的改变，都会导致其身份指纹(MRENCLAVE)发生雪崩式的、不可预测的变化。</strong> 当客户端进行远程证明时，它会立刻发现代码指纹与预期的不匹配，从而拒绝信任、中止连接。同样，被修改后的代码也无法解封（unseal）由旧版本代码封存（seal）的秘密。</p>
+<p>因此，租户可以“作恶”，但他无法“隐藏作恶的意图”。在他试图运行恶意代码的那一刻，他就在远程证明的照妖镜下原形毕露了。</p>
+<h4 id="证明的瞬时性与对策">5.2 证明的“瞬时性”与对策</h4>
+<p>远程证明本质上是一个“瞬时快照”，它只证明TEE在生成报告那一刻的身份和状态，本身无法记录历史变化。这带来了潜在的“作恶后改回”的攻击窗口。</p>
+<p>在实践中，必须将远程证明与持续的、有状态的安全协议结合起来，弥补“瞬时性”带来的缺口：</p>
+<ul>
+<li><strong>方案1：会话绑定 (Session Binding)</strong>: 将瞬时证明与当前会话（如TLS会话）的关键信息（如临时公key）绑定。对“瞬时”TEE的信任，被安全地传递给了对“当前整个会话”的信任。任何导致TEE重启或代码变更的行为都会破坏会话，客户端会立刻发现。这足以防止“先证明后作恶”的攻击。</li>
+<li><strong>方案2：可信日志/区块链</strong>: 对于需要更强审计性的场景，可以将TEE每次执行的关键操作（如模型聚合）生成日志条目，并用其身份密钥签名，发布到只能追加、无法修改的存储系统（如区块链）上。这为TEE的瞬时行为提供了不可篡改的历史记录和持久化信任。</li>
+</ul>
+<h3 id="结论">结论</h3>
+<p>Intel TDX等TEE技术通过提供硬件层面的隔离性、机密性、完整性和远程证明能力，从根本上重塑了云环境下的信任模型。它将信任的根基从对“人”或“软件供应商”的主观信任，转移到了对“开源审计过的代码”和“CPU硬件设计”的客观、可验证的信任。</p>
+<p>然而，TEE并非一个能让不安全的代码自动变得安全的“魔法棒”。它提供的是一个<strong>可信的执行环境</strong>，而非一个<strong>可信的应用</strong>。要真正发挥TEE的威力，开发者必须承担起<strong>编写安全代码的责任</strong>，遵循严格的安全编程范式，谨慎管理所有的数据I/O、密钥生命周期和会话状态。</p>
+<p>通过将强大的硬件保障与严谨的软件开发实践相结合，我们才能真正构建出端到端的、能抵御来自特权软件甚至物理攻击的机密计算解决方案。</p>
+<p>以上为个人理解，敬请批评指正。</p>
+]]></content>
+      <categories>
+        <category>TEE</category>
+      </categories>
+      <tags>
+        <tag>TDX</tag>
+        <tag>Intel</tag>
+        <tag>机密计算</tag>
       </tags>
   </entry>
   <entry>
@@ -823,134 +951,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       <tags>
         <tag>TDX</tag>
         <tag>Intel</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>关于Intel TDX的深度思考与技术剖析</title>
-    <url>/posts/b63e909c/</url>
-    <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
-<span id="more"></span>
-<h3 id="引言云时代的信任难题">引言：云时代的信任难题</h3>
-<p>在当前的云计算和联邦学习场景下，数据隐私和计算过程的保密性至关重要。我们常常面临一个核心的信任悖论：我们希望利用云服务商强大的计算能力处理敏感数据，却又不能完全信任服务所在的平台，包括云厂商、甚至是拥有最高权限的租户管理员。如何确保我们的代码和数据在“别人”的服务器上，能够不被窥探、不被篡改地安全运行？可信执行环境（TEE）技术，特别是Intel TDX，为我们提供了破解这一难题的钥匙。</p>
-<h3 id="第一章tee与intel-tdx核心概念">第一章：TEE与Intel TDX核心概念</h3>
-<p>您可以将TEE想象成CPU内部一个被硬件强制隔离的“安全保险库”或“黑盒”。它主要提供以下四种核心保障：</p>
-<ul>
-<li><strong>隔离性 (Isolation)</strong>: 在TEE（Intel TDX中称为Trust Domain）内部运行的代码和数据，与服务器上运行的其他所有软件（包括操作系统、Hypervisor/虚拟机管理器，甚至是拥有物理访问权限的管理员）都是<strong>完全隔离的</strong>。</li>
-<li><strong>机密性 (Confidentiality)</strong>: TEE内的数据在CPU外部（例如在内存条DRAM上）始终是加密的。即使有人用逻辑分析仪去嗅探内存总线，也拿不到明文。</li>
-<li><strong>完整性 (Integrity)</strong>: TEE会确保加载到其内部的代码没有被篡改。</li>
-<li><strong>远程证明 (Remote Attestation)</strong>: 这是TEE的“杀手级特性”。客户端可以在与服务器通信之前，通过一个密码学协议，要求服务器上的TEE 证明自己的身份。这个证明可以告诉客户端：“我是一个货真价实的、由Intel制造的CPU中的TEE，我正在运行的代码就是你期望的那个版本（通过代码哈希值验证），并且我没有被篡改过。”</li>
-</ul>
-<h3 id="第二章信任模型的演进从完全信任到零信任">第二章：信任模型的演进：从完全信任到零信任</h3>
-<p>TEE的出现并非一蹴而就，它的价值体现在计算信任模型的不断演进中。</p>
-<h4 id="传统虚拟化-传统vm">传统虚拟化 (传统VM)</h4>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件 -&gt; Hypervisor -&gt; 虚拟机(VM)</code>。Hypervisor运行在最高权限，完全控制硬件。</li>
-<li><strong>信任模型</strong>: Hypervisor是全能的上帝。它可以随时暂停VM，检查其完整的内存状态，看到所有明文。租户必须<strong>完全信任</strong>云服务商。</li>
-</ul>
-<h4 id="sgx时代-enclave模型">SGX时代 (Enclave模型)</h4>
-<p>为了解决对Hypervisor的信任问题，Intel推出了SGX。</p>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件 -&gt; OS/Hypervisor -&gt; 应用程序 -&gt; Enclave</code>。Enclave是从应用程序的地址空间中“挖”出来的一块受硬件保护的内存区域。</li>
-<li><strong>信任模型</strong>: 信任边界缩小到Enclave内部。Hypervisor/OS无法窥探Enclave，但它仍然管理着整个应用程序和操作系统。这种模型对应用改造要求高，且与外部世界交互繁琐。</li>
-</ul>
-<h4 id="tdx时代-机密虚拟机模型">TDX时代 (机密虚拟机模型)</h4>
-<p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
-<li><strong>信任模型的革命性变化</strong>:
-<ul>
-<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
-<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
-</ul></li>
-</ul>
-<h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
-<p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
-<ul>
-<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
-<ul>
-<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
-<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
-<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
-</ul></li>
-<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
-<ul>
-<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
-<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
-<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
-</ul></li>
-<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
-<ul>
-<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
-<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
-<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
-</ul></li>
-</ul>
-<h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
-<p>仅仅将应用放入TEE环境是不足以保证安全的，开发者必须遵循特定的安全编程模式来管理所有进出TEE的数据流。</p>
-<h4 id="数据处理如何避免明文泄露">4.1 数据处理：如何避免明文泄露</h4>
-<p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
-<ul>
-<li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
-<li><strong>正确（安全）的设计模式</strong>:
-<ul>
-<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
-<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
-</ul></li>
-</ul>
-<h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>
-<p>既然TEE是黑盒，那作为最关键秘密的<strong>密钥，最初是如何安全地进入这个黑盒的？</strong> 这需要通过远程证明和密钥提供（Secret Provisioning）的协同过程来完成。</p>
-<h5 id="密钥的提供-secret-provisioning">密钥的提供 (Secret Provisioning)</h5>
-<p>这个过程就像一次高度安全的、经过身份验证的“隔空投送”。</p>
-<ol type="1">
-<li><strong>TEE发起证明</strong>: TEE应用启动后，请求CPU硬件生成一份包含其代码身份指纹（MRENCLAVE）、开发者身份（MRSIGNER）和临时公钥的<strong>证明报告（Quote）</strong>，并由CPU内嵌的硬件私钥签名。</li>
-<li><strong>密钥所有者验证证明</strong>: 密钥所有者收到Quote后，会进行双重验证：
-<ul>
-<li><strong>硬件验证</strong>: 请求Intel的证明服务器，验证Quote的硬件签名，确保它来自真实的Intel CPU。</li>
-<li><strong>软件验证</strong>: 比对自己手中经过审计的代码哈希值与Quote中的MRENCLAVE，确保TEE中运行的是未经篡改的、正确的代码版本。</li>
-</ul></li>
-<li><strong>安全“投送”密钥</strong>: 验证通过后，密钥所有者完全信任了远端的TEE。它会从Quote中提取出TEE的临时公钥，用它加密真正的私钥，然后将这个加密的“密钥包裹”发回给TEE。</li>
-<li><strong>TEE内部拆解</strong>: TEE应用收到“密钥包裹”后，用自己对应的临时私钥在受保护的内存中解密，安全地获得真实私钥。</li>
-</ol>
-<h5 id="密钥的持久化-sealing">密钥的持久化 (Sealing)</h5>
-<p>为了避免每次重启都重复上述复杂的提供流程，TEE应用在首次获取密钥后，可以利用前述的<strong>Sealing机制</strong>，将其用硬件绑定的密钥加密后，安全地保存在外部磁盘上。重启后，只有在同一台机器上、运行着同样代码的TEE应用，才能成功解封（unseal），将密钥重新加载到内存中。</p>
-<h4 id="io安全警惕自我泄露">4.3 I/O安全：警惕“自我泄露”</h4>
-<p>TEE保护的是计算过程，但它不会自动保护应用的I/O。如果开发者在代码里写了<code>print(private_key)</code>，TEE会忠实地执行，并将这个秘密通过标准输出（stdout）泄露给不受信的Guest OS，最终被租户看到。</p>
-<p>这揭示了TEE安全编程的关键原则：<strong>开发者必须有意识地管理所有进出TEE的信道，视之为潜在的泄露风险。</strong></p>
-<ul>
-<li><p><strong>防御措施1：代码审计（最重要）</strong>: 任何敏感数据变量，绝不能传递给任何执行I/O操作的函数（如<code>print()</code>, <code>log.info()</code>, <code>file.write()</code>）。客户端信任的，正是那个经过审计、确认没有此类行为的代码版本。</p></li>
-<li><p><strong>防御措施2：安全日志系统</strong>: 对日志进行过滤或加密，或在生产环境中完全禁用高风险的日志级别。</p></li>
-<li><p><strong>防御措施3：运行时配置</strong>: 将应用的stdout和stderr重定向到<code>/dev/null</code>，作为一种兜底措施。</p></li>
-</ul>
-<h3 id="第五章tee安全模型的动态性与挑战">第五章：TEE安全模型的动态性与挑战</h3>
-<h4 id="代码篡改不可能完成的任务">5.1 代码篡改：不可能完成的任务</h4>
-<p>从系统管理员的角度看，修改磁盘上的一个脚本文件非常简单。但对于TEE来说，要在不被发现的情况下恶意修改代码，却几乎不可能。</p>
-<p>这里的关键在于区分两个概念：</p>
-<ul>
-<li><p><strong>修改文件内容的能力</strong>: 租户拥有。</p></li>
-<li><p><strong>伪造程序身份的能力</strong>: 租户没有。</p></li>
-</ul>
-<p>TEE安全模型的核心基石是：<strong>代码的任何一丝一毫的改变，都会导致其身份指纹(MRENCLAVE)发生雪崩式的、不可预测的变化。</strong> 当客户端进行远程证明时，它会立刻发现代码指纹与预期的不匹配，从而拒绝信任、中止连接。同样，被修改后的代码也无法解封（unseal）由旧版本代码封存（seal）的秘密。</p>
-<p>因此，租户可以“作恶”，但他无法“隐藏作恶的意图”。在他试图运行恶意代码的那一刻，他就在远程证明的照妖镜下原形毕露了。</p>
-<h4 id="证明的瞬时性与对策">5.2 证明的“瞬时性”与对策</h4>
-<p>远程证明本质上是一个“瞬时快照”，它只证明TEE在生成报告那一刻的身份和状态，本身无法记录历史变化。这带来了潜在的“作恶后改回”的攻击窗口。</p>
-<p>在实践中，必须将远程证明与持续的、有状态的安全协议结合起来，弥补“瞬时性”带来的缺口：</p>
-<ul>
-<li><strong>方案1：会话绑定 (Session Binding)</strong>: 将瞬时证明与当前会话（如TLS会话）的关键信息（如临时公key）绑定。对“瞬时”TEE的信任，被安全地传递给了对“当前整个会话”的信任。任何导致TEE重启或代码变更的行为都会破坏会话，客户端会立刻发现。这足以防止“先证明后作恶”的攻击。</li>
-<li><strong>方案2：可信日志/区块链</strong>: 对于需要更强审计性的场景，可以将TEE每次执行的关键操作（如模型聚合）生成日志条目，并用其身份密钥签名，发布到只能追加、无法修改的存储系统（如区块链）上。这为TEE的瞬时行为提供了不可篡改的历史记录和持久化信任。</li>
-</ul>
-<h3 id="结论">结论</h3>
-<p>Intel TDX等TEE技术通过提供硬件层面的隔离性、机密性、完整性和远程证明能力，从根本上重塑了云环境下的信任模型。它将信任的根基从对“人”或“软件供应商”的主观信任，转移到了对“开源审计过的代码”和“CPU硬件设计”的客观、可验证的信任。</p>
-<p>然而，TEE并非一个能让不安全的代码自动变得安全的“魔法棒”。它提供的是一个<strong>可信的执行环境</strong>，而非一个<strong>可信的应用</strong>。要真正发挥TEE的威力，开发者必须承担起<strong>编写安全代码的责任</strong>，遵循严格的安全编程范式，谨慎管理所有的数据I/O、密钥生命周期和会话状态。</p>
-<p>通过将强大的硬件保障与严谨的软件开发实践相结合，我们才能真正构建出端到端的、能抵御来自特权软件甚至物理攻击的机密计算解决方案。</p>
-<p>以上为个人理解，敬请批评指正。</p>
-]]></content>
-      <categories>
-        <category>TEE</category>
-      </categories>
-      <tags>
-        <tag>TDX</tag>
-        <tag>Intel</tag>
-        <tag>机密计算</tag>
       </tags>
   </entry>
   <entry>

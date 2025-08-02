@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="什么是NFC？ 今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NFC Note">
+<meta property="og:url" content="https://supermarkli.github.io/posts/78289205/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="什么是NFC？ 今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supermarkli.github.io/assets/NFC-image.png">
+<meta property="article:published_time" content="2025-01-07T14:27:47.000Z">
+<meta property="article:modified_time" content="2025-08-02T04:08:19.226Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="无线通信">
+<meta property="article:tag" content="NFC">
+<meta property="article:tag" content="RFID">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supermarkli.github.io/assets/NFC-image.png">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/78289205/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/78289205/","path":"posts/78289205/","title":"NFC Note"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>NFC Note | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFnfc"><span class="nav-number">1.</span> <span class="nav-text">什么是NFC？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#nfc%E6%98%AF%E6%80%8E%E4%B9%88%E5%B7%A5%E4%BD%9C%E7%9A%84"><span class="nav-number">1.1.</span> <span class="nav-text">NFC是怎么工作的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#nfc%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88"><span class="nav-number">1.2.</span> <span class="nav-text">NFC能做什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#nfc%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">NFC的特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%B4%BB%E4%B8%AD%E7%9A%84nfc%E5%BA%94%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">生活中的NFC应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/78289205/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="NFC Note | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NFC Note
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-01-07 22:27:47" itemprop="dateCreated datePublished" datetime="2025-01-07T22:27:47+08:00">2025-01-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-08-02 12:08:19" itemprop="dateModified" datetime="2025-08-02T12:08:19+08:00">2025-08-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" itemprop="url" rel="index"><span itemprop="name">通信协议</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="什么是nfc">什么是NFC？</h2>
+<p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
+<span id="more"></span>
+<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
+<figure>
+<img src="/assets/NFC-image.png" alt="alt text" /><figcaption>alt text</figcaption>
+</figure>
+<h3 id="nfc是怎么工作的">NFC是怎么工作的？</h3>
+<p>想象一下，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
+<ol type="1">
+<li><strong>基本原理</strong>
+<ul>
+<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
+<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
+<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
+<li>数据传输速率可达424Kbps</li>
+</ul></li>
+<li><strong>为什么要靠得这么近？</strong>
+<ul>
+<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
+<li>近场通信使用感应耦合（而不是电磁波传播）</li>
+<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
+</ul></li>
+</ol>
+<blockquote>
+<p><strong>调制解调技术</strong></p>
+<p>想象用手电筒给远处的朋友发信号：</p>
+<ol type="1">
+<li><strong>什么是调制？</strong>
+<ul>
+<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
+<li>NFC中主要使用两种调制方式：
+<ul>
+<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
+<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
+</ul></li>
+</ul></li>
+<li><strong>为什么要调制？</strong>
+<ul>
+<li>原始数据（比如1和0）不能直接传输</li>
+<li>需要把数据"搭载"在13.56MHz的载波信号上</li>
+<li>就像把信息写在纸飞机上才能传递给别人</li>
+</ul></li>
+<li><strong>解调是什么？</strong>
+<ul>
+<li>接收方需要从收到的信号中"提取"出原始数据</li>
+<li>就像接收方要从纸飞机上读取信息</li>
+<li>或者从手电筒的闪烁中理解传递的含义</li>
+</ul></li>
+</ol>
+</blockquote>
+<h3 id="nfc能做什么">NFC能做什么？</h3>
+<p>NFC有三种常见的使用方式：</p>
+<ol type="1">
+<li><strong>读写模式</strong>
+<ul>
+<li>就像用手机碰一碰地铁站的时刻表海报</li>
+<li>或者用手机读取商品上的电子标签</li>
+</ul></li>
+<li><strong>手机支付模式</strong>
+<ul>
+<li>手机变身成公交卡、银行卡</li>
+<li>碰一碰就能付款</li>
+</ul></li>
+<li><strong>设备互联模式</strong>
+<ul>
+<li>两个手机之间传照片</li>
+<li>新耳机和手机快速配对</li>
+</ul></li>
+</ol>
+<h3 id="nfc的特点">NFC的特点</h3>
+<ol type="1">
+<li><strong>超级方便</strong>
+<ul>
+<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
+<li>支持双向通信，设备可以自动切换读写角色</li>
+</ul></li>
+<li><strong>很安全</strong>
+<ul>
+<li>物理层：通信距离限制</li>
+<li>协议层：支持AES-128等加密算法</li>
+<li>应用层：可集成安全单元（SE）存储敏感数据</li>
+</ul></li>
+<li><strong>省电</strong>
+<ul>
+<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
+<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
+<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
+</ul></li>
+</ol>
+<h3 id="生活中的nfc应用">生活中的NFC应用</h3>
+<ol type="1">
+<li><strong>支付场景</strong>
+<ul>
+<li>手机付款（Apple Pay、微信/支付宝碰一碰）</li>
+<li>刷公交地铁</li>
+<li>超市购物</li>
+</ul></li>
+<li><strong>智能家居</strong>
+<ul>
+<li>碰一碰开门</li>
+<li>碰一碰控制家电</li>
+<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
+</ul></li>
+<li><strong>便捷生活</strong>
+<ul>
+<li>门禁卡</li>
+<li>打卡签到</li>
+<li>快速连接蓝牙设备</li>
+</ul></li>
+</ol>
+<h2 id="总结">总结</h2>
+<p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%97%A0%E7%BA%BF%E9%80%9A%E4%BF%A1/" rel="tag"># 无线通信</a>
+              <a href="/tags/NFC/" rel="tag"># NFC</a>
+              <a href="/tags/RFID/" rel="tag"># RFID</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/6f8a188e/" rel="prev" title="编码">
+                  <i class="fa fa-angle-left"></i> 编码
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/a25d78f8/" rel="next" title="2.4G 无线通信笔记">
+                  2.4G 无线通信笔记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">64k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:56</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

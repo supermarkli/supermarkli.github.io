@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="引言 这本书是导师推荐给我很久了的，一直没啃完，希望这个寒假可以啃完这本八百页的书。(失败)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Understanding the Linux Kernel Lecture 1 Note">
+<meta property="og:url" content="https://supermarkli.github.io/posts/b1b647fa/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="引言 这本书是导师推荐给我很久了的，一直没啃完，希望这个寒假可以啃完这本八百页的书。(失败)">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-01-18T14:38:39.000Z">
+<meta property="article:modified_time" content="2025-08-02T04:08:19.226Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="操作系统">
+<meta property="article:tag" content="内核">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/b1b647fa/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/b1b647fa/","path":"posts/b1b647fa/","title":"Understanding the Linux Kernel Lecture 1 Note"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Understanding the Linux Kernel Lecture 1 Note | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">内核基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="nav-number">2.1.</span> <span class="nav-text">内核的本质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%8F%8C%E9%87%8D%E7%9B%AE%E6%A0%87"><span class="nav-number">2.2.</span> <span class="nav-text">操作系统的双重目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6"><span class="nav-number">2.3.</span> <span class="nav-text">硬件访问控制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="nav-number">2.3.1.</span> <span class="nav-text">不同系统的对比</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">2.4.</span> <span class="nav-text">系统保护机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#cpu%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.4.1.</span> <span class="nav-text">CPU执行模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">2.4.2.</span> <span class="nav-text">实现方式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux%E5%86%85%E6%A0%B8%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%89%B9%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">Linux内核的基本特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux%E5%86%85%E6%A0%B8%E7%9A%84%E6%9E%B6%E6%9E%84%E7%89%B9%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">Linux内核的架构特点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E5%9D%97%E7%BB%93%E6%9E%84monolithic-kernel"><span class="nav-number">4.1.</span> <span class="nav-text">单块结构(Monolithic Kernel)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E5%8C%96%E6%94%AF%E6%8C%81"><span class="nav-number">4.2.</span> <span class="nav-text">模块化支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%BA%BF%E7%A8%8B"><span class="nav-number">4.3.</span> <span class="nav-text">内核线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%94%AF%E6%8C%81"><span class="nav-number">4.4.</span> <span class="nav-text">多线程应用程序支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%A2%E5%8D%A0%E5%BC%8F%E5%86%85%E6%A0%B8"><span class="nav-number">4.5.</span> <span class="nav-text">抢占式内核</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E5%A4%84%E7%90%86%E5%99%A8%E6%94%AF%E6%8C%81"><span class="nav-number">4.6.</span> <span class="nav-text">多处理器支持</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%94%AF%E6%8C%81"><span class="nav-number">5.</span> <span class="nav-text">文件系统支持</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">6.</span> <span class="nav-text">Linux的优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E5%B9%B3%E5%8F%B0%E6%94%AF%E6%8C%81"><span class="nav-number">7.</span> <span class="nav-text">硬件平台支持</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AA%E4%BA%BA%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%92%8C%E5%B7%A5%E4%BD%9C%E7%AB%99%E5%A4%84%E7%90%86%E5%99%A8"><span class="nav-number">7.1.</span> <span class="nav-text">个人计算机和工作站处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%92%8C%E5%A4%A7%E5%9E%8B%E6%9C%BA%E5%A4%84%E7%90%86%E5%99%A8"><span class="nav-number">7.2.</span> <span class="nav-text">服务器和大型机处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%92%8C%E7%A7%BB%E5%8A%A8%E8%AE%BE%E5%A4%87%E5%A4%84%E7%90%86%E5%99%A8"><span class="nav-number">7.3.</span> <span class="nav-text">嵌入式和移动设备处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#risc%E5%A4%84%E7%90%86%E5%99%A8"><span class="nav-number">7.4.</span> <span class="nav-text">RISC处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E5%B9%B3%E5%8F%B0"><span class="nav-number">7.5.</span> <span class="nav-text">特殊平台</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86"><span class="nav-number">8.</span> <span class="nav-text">Linux版本管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E5%8F%B7%E4%BD%93%E7%B3%BB"><span class="nav-number">8.1.</span> <span class="nav-text">版本号体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E5%8F%91%E5%B8%83%E6%9C%BA%E5%88%B6"><span class="nav-number">8.2.</span> <span class="nav-text">版本发布机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E7%9A%84%E5%8F%98%E9%9D%A9"><span class="nav-number">8.3.</span> <span class="nav-text">2.6版本的变革</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E5%B7%AE%E5%BC%82"><span class="nav-number">8.4.</span> <span class="nav-text">版本差异</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%94%A8%E6%88%B7%E7%B3%BB%E7%BB%9F"><span class="nav-number">9.</span> <span class="nav-text">多用户系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%89%B9%E6%80%A7"><span class="nav-number">9.1.</span> <span class="nav-text">基本特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">9.2.</span> <span class="nav-text">安全保护机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90%E4%BD%93%E7%B3%BB"><span class="nav-number">9.3.</span> <span class="nav-text">用户权限体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%85%E7%BA%A7%E7%94%A8%E6%88%B7root"><span class="nav-number">9.4.</span> <span class="nav-text">超级用户(root)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8Bprocess"><span class="nav-number">9.5.</span> <span class="nav-text">进程(Process)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%89%B9%E5%BE%81"><span class="nav-number">9.5.1.</span> <span class="nav-text">进程特征</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E8%B0%83%E5%BA%A6"><span class="nav-number">9.5.2.</span> <span class="nav-text">进程调度</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="nav-number">10.</span> <span class="nav-text">内核体系结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84%E7%B1%BB%E5%9E%8B"><span class="nav-number">10.1.</span> <span class="nav-text">内核架构类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E5%9D%97%E5%86%85%E6%A0%B8"><span class="nav-number">10.1.1.</span> <span class="nav-text">单块内核</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BE%AE%E5%86%85%E6%A0%B8microkernel"><span class="nav-number">10.1.2.</span> <span class="nav-text">微内核(Microkernel)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#linux%E7%9A%84%E6%A8%A1%E5%9D%97%E5%8C%96%E6%96%B9%E6%A1%88"><span class="nav-number">10.2.</span> <span class="nav-text">Linux的模块化方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97module%E6%A6%82%E5%BF%B5"><span class="nav-number">10.2.1.</span> <span class="nav-text">模块(Module)概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E5%8C%96%E4%BC%98%E5%8A%BF"><span class="nav-number">10.2.2.</span> <span class="nav-text">模块化优势</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unix-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">11.</span> <span class="nav-text">Unix 文件系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">11.1.</span> <span class="nav-text">文件的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">11.2.</span> <span class="nav-text">目录结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">11.2.1.</span> <span class="nav-text">示例目录结构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E5%91%BD%E5%90%8D%E4%B8%8E%E8%B7%AF%E5%BE%84"><span class="nav-number">11.3.</span> <span class="nav-text">文件命名与路径</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99"><span class="nav-number">11.3.1.</span> <span class="nav-text">文件命名规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B7%AF%E5%BE%84%E5%90%8Dpathname"><span class="nav-number">11.3.2.</span> <span class="nav-text">路径名(pathname)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BD%93%E5%89%8D%E5%B7%A5%E4%BD%9C%E7%9B%AE%E5%BD%95"><span class="nav-number">11.3.3.</span> <span class="nav-text">当前工作目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E7%9B%AE%E5%BD%95%E7%AC%A6%E5%8F%B7"><span class="nav-number">11.3.4.</span> <span class="nav-text">特殊目录符号</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E7%B1%BB%E5%9E%8B"><span class="nav-number">11.4.</span> <span class="nav-text">链接类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AC%E9%93%BE%E6%8E%A5hard-link"><span class="nav-number">11.4.1.</span> <span class="nav-text">硬链接(Hard Link)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AC%E9%93%BE%E6%8E%A5%E9%99%90%E5%88%B6"><span class="nav-number">11.4.2.</span> <span class="nav-text">硬链接限制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E9%93%BE%E6%8E%A5soft-link"><span class="nav-number">11.4.3.</span> <span class="nav-text">软链接(Soft Link)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E9%93%BE%E6%8E%A5%E5%88%9B%E5%BB%BA"><span class="nav-number">11.4.4.</span> <span class="nav-text">软链接创建</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B1%BB%E5%9E%8B"><span class="nav-number">11.5.</span> <span class="nav-text">文件类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6%E4%B8%8E%E7%B4%A2%E5%BC%95%E8%8A%82%E7%82%B9"><span class="nav-number">11.6.</span> <span class="nav-text">文件描述符与索引节点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E8%8A%82%E7%82%B9inode"><span class="nav-number">11.6.1.</span> <span class="nav-text">索引节点(inode)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E8%8A%82%E7%82%B9%E5%B1%9E%E6%80%A7"><span class="nav-number">11.6.2.</span> <span class="nav-text">索引节点属性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E5%92%8C%E6%96%87%E4%BB%B6%E6%A8%A1%E5%BC%8F"><span class="nav-number">11.7.</span> <span class="nav-text">访问权限和文件模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#suid"><span class="nav-number">11.7.1.</span> <span class="nav-text">suid</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sgid"><span class="nav-number">11.7.2.</span> <span class="nav-text">sgid</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#sticky"><span class="nav-number">11.7.3.</span> <span class="nav-text">sticky</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">11.8.</span> <span class="nav-text">文件操作系统调用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">11.8.1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%80%A7%E8%83%BD%E8%80%83%E8%99%91"><span class="nav-number">11.8.2.</span> <span class="nav-text">系统性能考虑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%93%E5%BC%80%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">11.8.3.</span> <span class="nav-text">打开文件操作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="nav-number">11.8.3.1.</span> <span class="nav-text">参数说明</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">11.8.3.2.</span> <span class="nav-text">返回值</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#posix%E8%A7%84%E8%8C%83%E7%9A%84%E4%B8%80%E8%88%AC%E7%89%B9%E6%80%A7"><span class="nav-number">11.8.4.</span> <span class="nav-text">POSIX规范的一般特性</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E6%89%93%E5%BC%80%E7%9A%84%E6%96%87%E4%BB%B6"><span class="nav-number">11.9.</span> <span class="nav-text">访问打开的文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E6%96%B9%E5%BC%8F"><span class="nav-number">11.9.1.</span> <span class="nav-text">访问方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">11.9.2.</span> <span class="nav-text">文件操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lseek%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">11.9.3.</span> <span class="nav-text">lseek系统调用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#read%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">11.9.4.</span> <span class="nav-text">read系统调用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%97%AD%E6%96%87%E4%BB%B6"><span class="nav-number">11.10.</span> <span class="nav-text">关闭文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%91%BD%E5%90%8D%E5%92%8C%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6"><span class="nav-number">11.11.</span> <span class="nav-text">重命名和删除文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6"><span class="nav-number">11.11.1.</span> <span class="nav-text">重命名文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6"><span class="nav-number">11.11.2.</span> <span class="nav-text">删除文件</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/b1b647fa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Understanding the Linux Kernel Lecture 1 Note | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Understanding the Linux Kernel Lecture 1 Note
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-01-18 22:38:39" itemprop="dateCreated datePublished" datetime="2025-01-18T22:38:39+08:00">2025-01-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-08-02 12:08:19" itemprop="dateModified" datetime="2025-08-02T12:08:19+08:00">2025-08-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="引言">引言</h2>
+<p>这本书是导师推荐给我很久了的，一直没啃完，希望这个寒假可以啃完这本八百页的书。(失败)</p>
+<span id="more"></span>
+<h2 id="内核基础概念">内核基础概念</h2>
+<h3 id="内核的本质">内核的本质</h3>
+<ul>
+<li>内核是操作系统中最重要的基本程序集合</li>
+<li>系统启动时被装入RAM</li>
+<li>包含系统运行必需的核心过程(procedure)</li>
+<li>决定了系统的基本特性和能力</li>
+<li>"操作系统"常作为"内核"的同义词</li>
+</ul>
+<h3 id="操作系统的双重目标">操作系统的双重目标</h3>
+<ol type="1">
+<li><strong>硬件交互</strong>
+<ul>
+<li>管理硬件平台</li>
+<li>为低层可编程部件提供服务</li>
+</ul></li>
+<li><strong>执行环境</strong>
+<ul>
+<li>为应用程序(用户程序)提供运行环境</li>
+<li>管理程序执行</li>
+</ul></li>
+</ol>
+<h3 id="硬件访问控制">硬件访问控制</h3>
+<h4 id="不同系统的对比">不同系统的对比</h4>
+<ul>
+<li><strong>MS-DOS</strong>: 允许用户程序直接访问硬件</li>
+<li><strong>Unix系统</strong>:
+<ul>
+<li>对用户程序隐藏底层硬件细节</li>
+<li>通过系统调用请求访问硬件</li>
+<li>由内核评估和代理硬件交互</li>
+</ul></li>
+</ul>
+<h3 id="系统保护机制">系统保护机制</h3>
+<h4 id="cpu执行模式">CPU执行模式</h4>
+<ul>
+<li><strong>用户态(User Mode)</strong>
+<ul>
+<li>非特权模式</li>
+<li>用于运行普通用户程序</li>
+</ul></li>
+<li><strong>内核态(Kernel Mode)</strong>
+<ul>
+<li>特权模式</li>
+<li>用于执行内核代码</li>
+<li>可以直接访问硬件</li>
+</ul></li>
+</ul>
+<h4 id="实现方式">实现方式</h4>
+<ul>
+<li>依赖硬件特性实现保护</li>
+<li>禁止用户程序直接访问:
+<ul>
+<li>底层硬件</li>
+<li>任意物理地址</li>
+</ul></li>
+</ul>
+<h2 id="linux内核的基本特性">Linux内核的基本特性</h2>
+<p>Linux包括了现代Unix操作系统的全部特点：</p>
+<ul>
+<li>虚拟存储：提供了虚拟内存管理,支持分页和交换</li>
+<li>虚拟文件系统：统一的文件系统接口,支持多种文件系统</li>
+<li>轻量级进程：高效的进程创建和调度机制</li>
+<li>Unix信号量：进程间同步机制</li>
+<li>SVR4进程间通信：支持多种IPC机制</li>
+<li>支持对称多处理器(Symmetric Multiprocessor，SMP)系统等</li>
+</ul>
+<h2 id="linux内核的架构特点">Linux内核的架构特点</h2>
+<h3 id="单块结构monolithic-kernel">单块结构(Monolithic Kernel)</h3>
+<p>Linux采用单块内核结构,是一个庞大、复杂的自我完善(do-it-yourself)程序。它由几个逻辑上独立的成分构成,这一点上相当传统,大多数商用Unix变体也是单块结构。(值得注意的是Apple的Mac OS X和GNU的Hurd操作系统采用了微内核方法)</p>
+<h3 id="模块化支持">模块化支持</h3>
+<p>Linux对模块的支持非常出色,内核可以动态地装载和卸载部分内核代码(典型的例子如设备驱动程序)。这些代码被称为"模块"(module),Linux支持在运行时动态加载或卸载模块。在主要的商用Unix变体中,只有SVR4.2和Solaris内核有类似特性。</p>
+<h3 id="内核线程">内核线程</h3>
+<p>内核线程是一个能被独立调度的执行环境(context),它与用户程序有关。线程之间的上下文切换比普通进程间的上下文切换花费要少得多,因为前者通常在同一个地址空间内执行。Linux以一种十分有限的方式使用内核线程来周期性地执行几个内核函数。</p>
+<h3 id="多线程应用程序支持">多线程应用程序支持</h3>
+<p>Linux通过轻量级进程(lightweight process, LWP)实现多线程支持。Linux将轻量级进程当作基本的执行上下文,通过非标准的clone()系统调用来处理它们。这些进程可以共享同样的地址空间、共同的物理内存页面、共同的打开文件等。 &gt; <code>clone()</code> 是 Linux 内核中的一个系统调用，它用于创建一个新进程或线程，并允许更灵活的控制新创建的进程或线程与调用进程之间共享的资源。与传统的 <code>fork()</code> 系统调用不同，<code>clone()</code> <strong>允许父进程和子进程在多个层面上共享不同的资源</strong>。具体来说，<code>clone()</code> 允许选择性地共享虚拟内存、文件描述符、信号处理器等。</p>
+<h3 id="抢占式内核">抢占式内核</h3>
+<p>从Linux 2.6开始,内核可以随意交错执行处于特权模式的执行流。这使得Linux成为完全的抢占式内核,提供了更好的实时性能。</p>
+<h3 id="多处理器支持">多处理器支持</h3>
+<p>Linux 2.6支持不同存储模式的对称多处理(SMP),包括NUMA架构。系统不仅可以使用多处理器,而且每个处理器可以毫无区别地处理任何一个任务。</p>
+<h2 id="文件系统支持">文件系统支持</h2>
+<p>Linux支持多种文件系统格式: - Ext2/Ext3: 标准的Linux文件系统 - ReiserFS: 适合处理大量小文件的高性能文件系统 - 其他日志文件系统: 如IBM的JFS和SGI的XFS - 支持多种商业文件系统,便于与其他系统交互</p>
+<h2 id="linux的优势">Linux的优势</h2>
+<ol type="1">
+<li>免费开源</li>
+</ol>
+<ul>
+<li>除硬件之外,无需任何花费就能安装完整的Linux系统</li>
+<li>基于GPL协议,可以自由地阅读、修改内核源代码</li>
+</ul>
+<ol start="2" type="1">
+<li>低硬件要求</li>
+</ol>
+<ul>
+<li>可以在低端、便宜的硬件平台上运行</li>
+<li>仅需4MB内存的旧Intel 80386系统即可构建网络服务器</li>
+</ul>
+<ol start="3" type="1">
+<li>高性能</li>
+</ol>
+<ul>
+<li>充分挖掘了硬件部分的特点</li>
+<li>注重效率,许多商用系统的设计选择因性能低下而被舍弃</li>
+</ul>
+<ol start="4" type="1">
+<li>稳定可靠</li>
+</ol>
+<ul>
+<li>系统非常稳定,有非常低的故障率</li>
+<li>系统维护时间少</li>
+</ul>
+<ol start="5" type="1">
+<li>体积小巧</li>
+</ol>
+<ul>
+<li>内核映像和基本系统程序可以放在1.4MB软盘上</li>
+<li>远小于任何商用Unix变体的体积</li>
+</ul>
+<ol start="6" type="1">
+<li>兼容性强</li>
+</ol>
+<ul>
+<li>可以让你直接安装多种文件系统</li>
+<li>支持运行多种操作系统的程序</li>
+<li>支持多种网络协议和接口</li>
+</ul>
+<ol start="7" type="1">
+<li>技术支持</li>
+</ol>
+<ul>
+<li>活跃的开发者社区</li>
+<li>问题反馈迅速</li>
+<li>新硬件支持及时</li>
+</ul>
+<h2 id="硬件平台支持">硬件平台支持</h2>
+<p>Linux通过在arch和include目录下包含23个子目录来保持源代码与硬件相关的源代码之间的清晰界限，以支持不同的硬件平台。主要支持的处理器架构包括：</p>
+<h3 id="个人计算机和工作站处理器">个人计算机和工作站处理器</h3>
+<ul>
+<li><strong>x86_64</strong>: 支持AMD的64位处理器(如Athlon和Opteron)和Intel的ia32e/EM64T64位处理器</li>
+<li><strong>i386</strong>: 基于80x86微处理器的IBM兼容个人计算机</li>
+<li><strong>ia64</strong>: 基于64位Itanium微处理器的工作站</li>
+<li><strong>ppc/ppc64</strong>: 基于Motorola-IBM PowerPC 32位和64位微处理器的工作站</li>
+</ul>
+<h3 id="服务器和大型机处理器">服务器和大型机处理器</h3>
+<ul>
+<li><strong>alpha</strong>: HP的Alpha工作站(最早属于Digital公司，后属于Compaq公司，现已停产)</li>
+<li><strong>s390</strong>: IBM ESA/390及zSeries大型机</li>
+<li><strong>sparc/sparc64</strong>: 基于Sun公司SPARC和64位Ultra SPARC微处理器的工作站</li>
+</ul>
+<h3 id="嵌入式和移动设备处理器">嵌入式和移动设备处理器</h3>
+<ul>
+<li><strong>arm/arm26</strong>: 基于ARM处理器的计算机(如PDA)和嵌入式设备</li>
+<li><strong>m32r</strong>: 基于Renesas M32R系列微处理器的计算机</li>
+<li><strong>m68k/m68knommu</strong>: 基于Motorola MC680x0微处理器的个人计算机</li>
+<li><strong>cris</strong>: Axis在其嵌入式服务器中使用的"代码精简指令集(CRIS)"CPU</li>
+<li><strong>frv</strong>: 基于Fujitsu FR-V系列微处理器的嵌入式系统</li>
+</ul>
+<h3 id="risc处理器">RISC处理器</h3>
+<ul>
+<li><strong>h8300</strong>: Hitachi h8/300和h8S的8位和16位RISC微处理器</li>
+<li><strong>mips</strong>: 基于MIPS微处理器的工作站，如Silicon Graphics公司销售的工作站</li>
+<li><strong>parisc</strong>: 基于HP公司HP 9000 PA-RISC微处理器的工作站</li>
+<li><strong>v850</strong>: 集成了基于Harvard体系结构的32位RISC核心的NEC V850微控制器</li>
+</ul>
+<h3 id="特殊平台">特殊平台</h3>
+<ul>
+<li><strong>um</strong>: 用户态的Linux - 一个允许开发者在用户态下运行内核的虚拟平台</li>
+<li><strong>sh/sh64</strong>: 基于Hitachi和STMicroelectronics联合开发的SuperH微处理器的嵌入式系统</li>
+</ul>
+<p>这种广泛的硬件支持使Linux能够运行在从嵌入式设备到超级计算机的各种平台上，展现了其卓越的可移植性和适应性。通过模块化的设计和清晰的代码组织，Linux能够在保持核心功能稳定的同时，有效地支持不同的硬件架构。</p>
+<h2 id="linux版本管理">Linux版本管理</h2>
+<h3 id="版本号体系">版本号体系</h3>
+<p>一直到2.5版本的内核，Linux都通过简单的编号来区别内核的稳定版和开发版。每个版本号由三个数字描述，由圆点分隔：</p>
+<ol type="1">
+<li>第一位版本号：从1996年开始基本没有变化</li>
+<li>第二位版本号：表示内核的类型
+<ul>
+<li>偶数表示稳定版本的内核</li>
+<li>奇数表示正在开发中的内核</li>
+</ul></li>
+<li>第三位数字：表示发布号</li>
+</ol>
+<h3 id="版本发布机制">版本发布机制</h3>
+<ul>
+<li>稳定版本的内核由Linux的发布者和内核黑客彻底检查过</li>
+<li>新的稳定版本主要用来修正用户报告的错误或增加新的驱动程序</li>
+<li>开发版本之间可能存在非常明显的差异</li>
+<li>内核开发者可以自由地采用不同方案进行实验，但这些实验可能导致内核有很大变化</li>
+<li>用开发版运行应用程序的用户，当把内核升级到新版时，可能会遇到一些不太令人愉快的意外</li>
+</ul>
+<h3 id="版本的变革">2.6版本的变革</h3>
+<p>在Linux内核2.6版的开发过程中，内核版本的编号方式发生了很大的变化：</p>
+<ul>
+<li>第二个数字不再用于表示内核是稳定版还是开发版</li>
+<li>内核开发者都在当前的2.6版本中对内核进行大幅改进</li>
+<li>只有在内核开发者必须对内核的重大修改进行测试时，才会采用一个新的内核分支2.7</li>
+<li>这种2.7的分支要么产生一个新的内核版本，要么干脆舍弃所修改的部分而回退到2.6版</li>
+</ul>
+<h3 id="版本差异">版本差异</h3>
+<p>Linux这种新的开发模式意味着两种内核具有相同的版本号，但却有不同的发布号，如2.6.10和2.6.11内核就可能在核心部件和基本算法上有很大的差别。这种方式使得Linux可以在保持版本号稳定的同时，持续进行重要的改进和更新。</p>
+<h2 id="多用户系统">多用户系统</h2>
+<h3 id="基本特性">基本特性</h3>
+<p>多用户系统允许多个用户同时使用计算机系统，具有两个核心特性：</p>
+<ol type="1">
+<li>并发性(Concurrency)</li>
+</ol>
+<ul>
+<li>多个应用程序同时活动</li>
+<li>共享系统资源(CPU、内存、硬盘等)</li>
+<li>通过调度机制优化响应时间</li>
+</ul>
+<ol start="2" type="1">
+<li>独立性(Independence)</li>
+</ol>
+<ul>
+<li>程序互不干扰</li>
+<li>独立执行各自任务</li>
+<li>资源隔离保护</li>
+</ul>
+<h3 id="安全保护机制">安全保护机制</h3>
+<p>为保证多用户系统的安全运行，需要实现以下机制：</p>
+<ol type="1">
+<li>身份安全</li>
+</ol>
+<ul>
+<li>用户认证系统</li>
+<li>登录验证机制</li>
+<li>密码保护</li>
+</ul>
+<ol start="2" type="1">
+<li>程序保护</li>
+</ol>
+<ul>
+<li>防止程序相互干扰</li>
+<li>阻止恶意程序访问</li>
+<li>基于CPU特权模式的硬件保护</li>
+</ul>
+<ol start="3" type="1">
+<li>资源管理</li>
+</ol>
+<ul>
+<li>限制单个用户资源使用</li>
+<li>合理分配系统资源</li>
+<li>防止资源滥用</li>
+</ul>
+<h3 id="用户权限体系">用户权限体系</h3>
+<p>多用户系统采用分层的权限管理方式：</p>
+<ol type="1">
+<li>用户标识(UID)</li>
+</ol>
+<ul>
+<li>唯一的用户标识符</li>
+<li>用于身份识别和权限判断</li>
+<li>控制用户私有空间访问</li>
+</ul>
+<ol start="2" type="1">
+<li>用户组(GID)</li>
+</ol>
+<ul>
+<li>用户组标识符</li>
+<li>实现资源共享机制</li>
+<li>灵活的权限分配</li>
+</ul>
+<ol start="3" type="1">
+<li>文件权限</li>
+</ol>
+<ul>
+<li>所有者权限</li>
+<li>组成员权限</li>
+<li>其他用户权限</li>
+</ul>
+<h3 id="超级用户root">超级用户(root)</h3>
+<p>任何类Unix操作系统都有一个特殊的用户，叫做root，即超级用户(superuser)。root用户具有以下特点：</p>
+<ol type="1">
+<li>特殊权限</li>
+</ol>
+<ul>
+<li>可以访问系统中的每一个文件</li>
+<li>能够访问每个正在执行的用户程序</li>
+<li>不受通常的保护机制限制</li>
+</ul>
+<ol start="2" type="1">
+<li>管理职责</li>
+</ol>
+<ul>
+<li>处理用户账号</li>
+<li>系统备份</li>
+<li>程序升级</li>
+<li>系统维护任务</li>
+</ul>
+<h3 id="进程process">进程(Process)</h3>
+<p>进程是操作系统使用的一种基本抽象，可以定义为： - "程序执行时的一个实例" - "一个运行程序的执行上下文"</p>
+<h4 id="进程特征">进程特征</h4>
+<ol type="1">
+<li>地址空间</li>
+</ol>
+<ul>
+<li>每个进程在地址空间(address space)中执行</li>
+<li>拥有一个独立的指令序列</li>
+<li>地址空间是进程专用的内存地址集合</li>
+</ul>
+<ol start="2" type="1">
+<li>多道程序设计</li>
+</ol>
+<ul>
+<li>允许多个进程并发活动</li>
+<li>竞争系统资源（主要是CPU）</li>
+<li>支持多道程序系统(multiprogramming)或多处理系统(multiprocessing)</li>
+</ul>
+<h4 id="进程调度">进程调度</h4>
+<ol type="1">
+<li>调度类型</li>
+</ol>
+<ul>
+<li>非抢占式(nonpreemptable)：进程自愿放弃CPU时才被调度</li>
+<li>抢占式(preemptable)：操作系统记录和管理CPU时间，定期激活调度程序</li>
+</ul>
+<ol start="2" type="1">
+<li>Unix进程特点</li>
+</ol>
+<ul>
+<li>采用抢占式进程调度</li>
+<li>即使没有用户登录，系统仍有进程在监视外围设备</li>
+<li>用户登录时会创建shell进程</li>
+<li>图形界面中每个窗口通常由独立进程执行</li>
+</ul>
+<ol start="3" type="1">
+<li>进程/内核模式</li>
+</ol>
+<ul>
+<li>每个进程都认为自己是系统中唯一的进程</li>
+<li>可以独占操作系统提供的服务</li>
+<li>通过系统调用请求内核服务</li>
+</ul>
+<h2 id="内核体系结构">内核体系结构</h2>
+<h3 id="内核架构类型">内核架构类型</h3>
+<h4 id="单块内核">单块内核</h4>
+<ul>
+<li>传统Unix采用的方式</li>
+<li>所有内核功能集成到整个内核程序中</li>
+<li>在内核态下运行所有系统功能</li>
+<li>结构紧凑但复杂度高</li>
+</ul>
+<h4 id="微内核microkernel">微内核(Microkernel)</h4>
+<ol type="1">
+<li>基本特征</li>
+</ol>
+<ul>
+<li>只需内核有一个很小的函数集</li>
+<li>通常包括几个同步原语</li>
+<li>简单的调度程序</li>
+<li>进程间通信机制</li>
+</ul>
+<ol start="2" type="1">
+<li>优缺点</li>
+</ol>
+<ul>
+<li>优点：
+<ul>
+<li>结构清晰模块化</li>
+<li>系统服务独立运行</li>
+<li>易于移植和维护</li>
+</ul></li>
+<li>缺点：
+<ul>
+<li>性能较低</li>
+<li>系统调用开销大</li>
+<li>消息传递需要额外成本</li>
+</ul></li>
+</ul>
+<h3 id="linux的模块化方案">Linux的模块化方案</h3>
+<h4 id="模块module概念">模块(Module)概念</h4>
+<ul>
+<li>是一个目标文件</li>
+<li>可在运行时链接到内核或从内核解除链接</li>
+<li>由一组函数组成</li>
+<li>实现特定功能（如文件系统、驱动程序等）</li>
+<li>在内核态下执行</li>
+</ul>
+<h4 id="模块化优势">模块化优势</h4>
+<ol type="1">
+<li>灵活性</li>
+</ol>
+<ul>
+<li>运行时动态加载/卸载</li>
+<li>按需加载系统功能</li>
+<li>便于开发新模块</li>
+</ul>
+<ol start="2" type="1">
+<li>平台无关性</li>
+</ol>
+<ul>
+<li>独立于具体硬件平台</li>
+<li>适应不同系统架构</li>
+<li>如SCSI驱动程序可在不同硬件上工作</li>
+</ul>
+<ol start="3" type="1">
+<li>资源效率</li>
+</ol>
+<ul>
+<li>未使用模块可被卸载</li>
+<li>节省系统内存</li>
+<li>优化系统性能</li>
+</ul>
+<p>这种模块化设计使Linux在保持高性能的同时，也获得了类似微内核的灵活性，是一种优秀的折中方案。</p>
+<h2 id="unix-文件系统概述">Unix 文件系统概述</h2>
+<h3 id="文件的定义">文件的定义</h3>
+<ul>
+<li>Unix文件是以字节序列组成的信息载体(container)。</li>
+<li>内核不解释文件的内容。</li>
+<li>程序通过系统调用访问文件。</li>
+</ul>
+<h3 id="目录结构">目录结构</h3>
+<ul>
+<li>文件被组织在一个树结构的命名空间中。</li>
+<li>根目录("/")是树的起点。</li>
+<li>目录节点表示目录名，包含其下文件及目录的所有节点。</li>
+</ul>
+<h4 id="示例目录结构">示例目录结构</h4>
+<ul>
+<li>根目录下有子目录如dev, home, bin, usr等。</li>
+<li>叶节点表示具体文件，如ls, cp等。</li>
+</ul>
+<h3 id="文件命名与路径">文件命名与路径</h3>
+<h4 id="文件命名规则">文件命名规则</h4>
+<ul>
+<li>文件名由ASCII字符序列组成(除"/"和"\0"外)</li>
+<li>大多数文件系统限制文件名长度不超过255个字符</li>
+<li>同一目录下文件名不能重复</li>
+<li>不同目录下可以使用相同的文件名</li>
+</ul>
+<h4 id="路径名pathname">路径名(pathname)</h4>
+<ol type="1">
+<li>绝对路径</li>
+</ol>
+<ul>
+<li>以根目录"/"开头</li>
+<li>完整指定文件位置的路径</li>
+<li>从根目录开始的完整路径名</li>
+</ul>
+<ol start="2" type="1">
+<li>相对路径</li>
+</ol>
+<ul>
+<li>从当前工作目录开始</li>
+<li>使用目录名或文件名作为起点</li>
+<li>相对于进程的当前目录</li>
+</ul>
+<h4 id="当前工作目录">当前工作目录</h4>
+<ul>
+<li>每个进程都有一个当前工作目录</li>
+<li>属于进程执行上下文(execution context)的一部分</li>
+<li>用于标识进程当前所在的目录位置</li>
+</ul>
+<h4 id="特殊目录符号">特殊目录符号</h4>
+<ul>
+<li>"." 表示当前工作目录</li>
+<li>".." 表示父目录</li>
+<li>当前工作目录为根目录时,"."和".."相同</li>
+</ul>
+<h3 id="链接类型">链接类型</h3>
+<h4 id="硬链接hard-link">硬链接(Hard Link)</h4>
+<ul>
+<li>包含在目录中的文件名就是一个文件的硬链接</li>
+<li>同一文件可以在不同目录中有多个硬链接</li>
+<li>使用ln命令创建: <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ln</span> P1 P2</span><br></pre></td></tr></table></figure></li>
+<li>为路径名P1标识的文件创建一个路径名为P2的硬链接</li>
+</ul>
+<h4 id="硬链接限制">硬链接限制</h4>
+<ol type="1">
+<li>目录限制</li>
+</ol>
+<ul>
+<li>不允许普通用户给目录创建硬链接</li>
+<li>防止目录树变为环形图</li>
+<li>避免无法通过名字定位文件</li>
+</ul>
+<ol start="2" type="1">
+<li>文件系统限制</li>
+</ol>
+<ul>
+<li>只能在同一文件系统内的文件之间创建链接</li>
+<li>现代Unix系统可能包含多个文件系统</li>
+<li>这些文件系统位于不同的磁盘和/或分区</li>
+</ul>
+<h4 id="软链接soft-link">软链接(Soft Link)</h4>
+<ul>
+<li>也称为符号链接(Symbolic Link)</li>
+<li>是一个特殊的短文件</li>
+<li>包含另一个文件的任意路径名</li>
+<li>可以指向任意文件系统的文件或目录</li>
+<li>甚至可以指向不存在的文件</li>
+</ul>
+<h4 id="软链接创建">软链接创建</h4>
+<ul>
+<li>使用ln命令的-s选项创建: <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ln</span> -s P1 P2</span><br></pre></td></tr></table></figure></li>
+<li>P2指向路径名P1</li>
+<li>创建后文件系统会在P2的目录中建立一个名为P2的符号链接</li>
+<li>任何对P2的引用都会被自动替换成对P1的引用</li>
+</ul>
+<h3 id="文件类型">文件类型</h3>
+<p>Unix文件可以是以下类型之一：</p>
+<ol type="1">
+<li>普通文件(regular file)</li>
+<li>目录</li>
+<li>符号链接</li>
+<li>面向块的设备文件(block-oriented device file)</li>
+<li>面向字符的设备文件(character-oriented device file)</li>
+<li>管道(pipe)和命名管道(named pipe)(也叫FIFO)</li>
+<li>套接字(socket)</li>
+</ol>
+<p>前三种文件类型是所有Unix文件系统的基本类型，其实现将在第十八章详细讨论。</p>
+<p>设备文件与I/O设备以及集成到内核中的设备驱动程序相关。例如，当程序访问设备文件时，它直接访问与那个文件相关的I/O设备(参见第十三章)。</p>
+<p>管道和套接字是用于进程间通信的特殊文件(参见本章后面的"同步和临界区"一节以及第十九章)。</p>
+<h3 id="文件描述符与索引节点">文件描述符与索引节点</h3>
+<ul>
+<li>Unix对文件的内容和描述文件的信息给出了清晰的区分</li>
+<li>除了设备文件和特殊文件系统文件外，每个文件都由字符序列组成</li>
+<li>文件内容不包含任何控制信息，如文件长度或文件结束(end-of-file,EOF)符</li>
+</ul>
+<h4 id="索引节点inode">索引节点(inode)</h4>
+<ul>
+<li>文件系统处理文件需要的所有信息都包含在一个名为索引节点的数据结构中</li>
+<li>每个文件都有自己的索引节点</li>
+<li>文件系统用索引节点来标识文件</li>
+</ul>
+<p>尽管文件系统及内核函数对索引节点的处理可能随Unix系统的不同有很大的差异，但它们必须至少提供在POSIX标准中指定的如下属性</p>
+<h4 id="索引节点属性">索引节点属性</h4>
+<ul>
+<li>文件类型(参见前一节)</li>
+<li>与文件相关的硬链接个数</li>
+<li>以字节为单位的文件长度</li>
+<li>设备标识符(即包含文件的设备的标识符)</li>
+<li>在文件系统中标识文件的索引节点号</li>
+<li>文件拥有者的UID</li>
+<li>文件的用户组ID</li>
+<li>几个时间戳，表示索引节点状态改变的时间、最后访问时间及最后修改时间</li>
+<li>访问权限和文件模式(参见下一节)</li>
+</ul>
+<h3 id="访问权限和文件模式">访问权限和文件模式</h3>
+<p>文件的潜在用户分为三种类型：</p>
+<ul>
+<li>作为文件所有者的用户</li>
+<li>同组用户，不包括所有者</li>
+<li>所有剩下的用户(其他)</li>
+</ul>
+<p>有三种类型的访问权限——读、写及执行每组用户都有这三种权限。因此，文件访问权限的组合就用九种不同的二进制标记位。还有三种附加的标记位，即suid(Set User ID)、sgid(Set Group ID)，及sticky用来定义文件的模式。当这些标记位应用到可执行文件时有如下含义：</p>
+<h4 id="suid">suid</h4>
+<ul>
+<li>进程执行一个文件时通常保持进程拥有者的UID</li>
+<li>如果设置了可执行文件suid的标志位，进程就获得了该文件拥有者的UID</li>
+</ul>
+<h4 id="sgid">sgid</h4>
+<ul>
+<li>进程执行一个文件时保持进程组的用户组ID</li>
+<li>如果设置了可执行文件sgid的标志位，进程就获得了该文件用户组的ID</li>
+</ul>
+<h4 id="sticky">sticky</h4>
+<ul>
+<li>设置了sticky标志位的可执行文件相当于向内核发出一个请求</li>
+<li>当程序执行结束后，依然将其保留在内存中(注8)</li>
+</ul>
+<blockquote>
+<p>注8：这个标志已经过时，现在使用基于代码页共享的其他方法(参见第九章)。</p>
+</blockquote>
+<p>当文件由一个进程创建时，文件拥有者的ID就是该进程的UID，而其用户组ID可以是进程创建者的ID，也可以是父目录的ID，这取决于父目录sgid标志位的值。</p>
+<h3 id="文件操作系统调用">文件操作系统调用</h3>
+<h4 id="基本概念">基本概念</h4>
+<ul>
+<li>用户访问文件实际是访问存储在硬件块设备上的数据</li>
+<li>文件系统是硬件块设备的抽象层</li>
+<li>所有文件操作必须在内核态下进行</li>
+<li>Unix系统通过系统调用实现文件操作</li>
+</ul>
+<h4 id="系统性能考虑">系统性能考虑</h4>
+<ul>
+<li>Unix内核高度重视硬件块设备的处理效率</li>
+<li>目标是获得良好的系统整体性能</li>
+<li>通过系统调用机制确保安全和效率</li>
+</ul>
+<h4 id="打开文件操作">打开文件操作</h4>
+<p>进程必须先打开文件才能访问,使用<strong>open系统调用</strong>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fd=open(path, flag, mode)</span><br></pre></td></tr></table></figure>
+<h5 id="参数说明">参数说明</h5>
+<ol type="1">
+<li>path参数</li>
+</ol>
+<ul>
+<li>指定要打开文件的路径</li>
+<li>可以是相对路径或绝对路径</li>
+</ul>
+<ol start="2" type="1">
+<li>flag参数</li>
+</ol>
+<ul>
+<li>指定文件的打开方式：
+<ul>
+<li>读取(read)</li>
+<li>写入(write)</li>
+<li>读写(read/write)</li>
+<li>追加(append)</li>
+</ul></li>
+<li>可以指定是否创建不存在的文件</li>
+</ul>
+<ol start="3" type="1">
+<li>mode参数</li>
+</ol>
+<ul>
+<li>设置新创建文件的访问权限</li>
+</ul>
+<h5 id="返回值">返回值</h5>
+<ul>
+<li>返回文件描述符(file descriptor)</li>
+<li>创建一个打开文件对象,包含：
+<ul>
+<li>文件操作的数据结构(打开方式标志、文件位置offset等)</li>
+<li>可调用的内核函数集合(由flag参数决定)</li>
+</ul></li>
+</ul>
+<h4 id="posix规范的一般特性">POSIX规范的一般特性</h4>
+<ul>
+<li>文件描述符表示进程与打开文件之间的交互</li>
+<li>同一打开文件对象可以由一个进程的多个文件描述符引用</li>
+<li>多个进程可以同时打开同一文件：
+<ul>
+<li>每个进程获得独立的打开文件对象和文件描述符</li>
+<li>Unix文件系统默认不提供I/O操作的同步机制</li>
+<li>可使用flock()系统调用实现对整个或部分文件的I/O操作同步(参见第十二章)</li>
+</ul></li>
+</ul>
+<blockquote>
+<p>注：创建新文件可以使用create()系统调用，功能与open()类似，都由内核处理。</p>
+</blockquote>
+<h3 id="访问打开的文件">访问打开的文件</h3>
+<h4 id="访问方式">访问方式</h4>
+<ul>
+<li>普通Unix文件支持顺序访问和随机访问</li>
+<li>设备文件和管道文件通常只能顺序访问</li>
+<li>内核把文件指针存放在打开文件对象中</li>
+<li>文件指针表示下一次读写操作的位置</li>
+</ul>
+<h4 id="文件操作">文件操作</h4>
+<ul>
+<li>顺序访问：使用read()和write()系统调用，基于文件指针的当前位置读写</li>
+<li>随机访问：需要使用lseek()系统调用修改文件指针位置</li>
+</ul>
+<h4 id="lseek系统调用">lseek系统调用</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newoffset=lseek(fd, offset, whence);</span><br></pre></td></tr></table></figure>
+<p><strong>参数说明：</strong> - <strong>fd</strong>: 打开文件的文件描述符 - <strong>offset</strong>: 有符号整数值，用于计算文件指针的新位置 - <strong>whence</strong>: 指定文件指针新位置的计算方式 - offset加0：从文件头移动 - offset加当前位置：从当前位置移动 - offset加文件末尾：从文件末尾移动</p>
+<h4 id="read系统调用">read系统调用</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">count=read(fd, buf, count);</span><br></pre></td></tr></table></figure>
+<p><strong>参数说明：</strong> - <strong>fd</strong>: 打开文件的文件描述符 - <strong>buf</strong>: 指向缓冲区的指针，用于存储读取的数据 - <strong>count</strong>: 要读取的字节数</p>
+<p><strong>操作说明：</strong> - 内核会尝试从文件描述符fd指向的文件中读取count个字节 - 读取起始位置为文件的offset字段当前值 - 可能因文件结束、空管道等原因无法读取全部字节 - 返回值nread表示实际读取的字节数 - 读取完成后会更新文件指针 - write()系统调用的参数与read()类似</p>
+<h3 id="关闭文件">关闭文件</h3>
+<p>当进程不再需要访问文件内容时，使用系统调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result=close(fd);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>释放文件描述符fd相关的打开文件对象</li>
+<li>当进程终止时，内核会自动关闭其所有打开的文件</li>
+</ul>
+<h3 id="重命名和删除文件">重命名和删除文件</h3>
+<p>这些操作不需要打开文件，它们作用于目录项而非文件内容。</p>
+<h4 id="重命名文件">重命名文件</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result=rename(oldpath, newpath);</span><br></pre></td></tr></table></figure>
+<h4 id="删除文件">删除文件</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result=unlink(path);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>减少文件链接数</li>
+<li>当链接数为0时，文件才被真正删除</li>
+</ul>
+<blockquote>
+<p>25页</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag"># 操作系统</a>
+              <a href="/tags/%E5%86%85%E6%A0%B8/" rel="tag"># 内核</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/f520f9c/" rel="prev" title="计算机网络通信漫谈 - 从TCP&#x2F;IP到gRPC">
+                  <i class="fa fa-angle-left"></i> 计算机网络通信漫谈 - 从TCP/IP到gRPC
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/4f6ed32b/" rel="next" title="DeepSeek本地部署">
+                  DeepSeek本地部署 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">64k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:56</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
