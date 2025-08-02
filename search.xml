@@ -316,6 +316,37 @@
       </tags>
   </entry>
   <entry>
+    <title>Dotfiles</title>
+    <url>/posts/e5afd7e1/</url>
+    <content><![CDATA[<p>在 Linux 或 macOS 系统中，那些以点（<code>.</code>）开头的文件和文件夹，即 <code>dotfiles</code>（如 <code>.bashrc</code>, <code>.gitconfig</code>），是塑造我们数字环境的灵魂。它们记录了从终端提示符的美化，到编辑器（如 Vim/Neovim）的每一个快捷键，再到窗口管理器的布局规则。一个精心调教的 <code>dotfiles</code> 集合，是我们追求效率与个性的直接体现。</p>
+<p>然而，随着我们配置的日益精细和跨设备工作的常态化，一个问题浮出水面：如何优雅、高效地管理这些散落在主目录各处的“灵魂碎片”？ <span id="more"></span></p>
+<h3 id="传统方案的困境在简单与复杂之间挣扎">传统方案的困境：在简单与复杂之间挣扎</h3>
+<p>我们通常会经历几个阶段： 1. <strong>蛮荒时代的手动复制</strong>：在新设备上凭记忆和手动拷贝来恢复环境，低效、易错且令人沮丧。 2. <strong>自动化脚本的萌芽</strong>：编写 Shell 脚本来批量创建软链接（<code>ln -s</code>）。这是一种进步，但随着配置文件的增删，维护脚本本身成了一件麻烦事，我们等于是在用一个配置文件去管理另一堆配置文件。 3. <strong>Git 裸仓库的炫技</strong>：使用 <code>git bare repository</code> 是一个更高级的方案，它允许我们直接在主目录下用 Git 进行版本控制。功能非常强大，但其命令相对晦涩（需要一个特殊的别名），心智负担较重，破坏了 Git 操作的直观性。</p>
+<p>这些方案，要么过于简陋，要么过于复杂。我们真正需要的，是一种既直观又强大，能够清晰地将“配置的存储”与“配置的部署”分离开的工具。这正是 GNU Stow 的舞台。</p>
+<h3 id="stow-的哲学一个优雅的符号链接农场">Stow 的哲学：一个优雅的“符号链接农场”</h3>
+<p><code>Stow</code> 本质上是一个“符号链接农场管理器”（Symlink Farm Manager）。这个比喻非常精妙地揭示了它的核心工作原理。</p>
+<p>想象一下： * 你的 <code>~/dotfiles</code> 目录是一个<strong>农场</strong>。 * 农场里的每一个子目录（如 <code>nvim</code>, <code>git</code>, <code>zsh</code>）都是一种<strong>作物</strong>（配置包）。 * 你的主目录 <code>~</code> 是需要播种的<strong>土地</strong>。</p>
+<p><code>stow</code> 命令所做的，就是将你在“农场”里精心培育的“作物”，自动“播种”到“土地”的正确位置上。它通过创建符号链接（symlink）来实现这一点，这些链接就像是作物的根系，从主目录的指定位置（如 <code>~/.config/nvim</code>）精确地指向农场里的源文件（<code>~/dotfiles/nvim/.config/nvim</code>）。</p>
+<p>这种模式的核心是<strong>“关注点分离”</strong>（Separation of Concerns）： 1. <strong>配置的源码</strong>：你的 <code>dotfiles</code> 仓库是所有配置的唯一“真理之源”（Single Source of Truth）。它结构清晰，按应用模块化组织，非常适合用 Git进行版本控制。 2. <strong>配置的部署</strong>：主目录 <code>~</code> 下的配置文件只是指向源码的“指针”（软链接）。它们让应用能够正常工作，但其本身不包含任何实际配置内容。</p>
+<p>你不再需要编写 <code>ln -s a b</code> 这样的命令式脚本，而是通过在 <code>dotfiles</code> 仓库里组织文件结构这种<strong>声明式</strong>的方式，来定义你的环境应该是什么样子。<code>stow</code> 会负责实现它。</p>
+<h3 id="选择-stow-的核心优势">选择 Stow 的核心优势</h3>
+<ol type="1">
+<li><p><strong>绝对直观 (Intuitive)</strong> <code>stow</code> 最具颠覆性的一点在于它的目录结构映射。你在 <code>~/dotfiles/nvim/</code> 下看到的目录结构，就是 <code>stow</code> 将要在 <code>~</code> 目录下为你创建的软链接结构。这种“所见即所得”的设计，使得理解和维护配置变得异常简单。</p></li>
+<li><p><strong>高度模块化 (Modular)</strong> 每个应用的配置都封装在独立的目录中。这意味着你可以像乐高积木一样组合你的环境。想启用 Neovim 配置？<code>stow nvim</code>。想暂时禁用 Zsh 配置来调试问题？<code>stow -D zsh</code>。想在不同机器上使用不同的 Git 配置？只需选择性地 <code>stow</code> 即可。这种模块化能力是脚本或裸仓库方案难以比拟的。</p></li>
+<li><p><strong>极致的可移植性 (Portable)</strong> 当 <code>stow</code> 与 <code>git</code> 结合，配置新机器的体验将得到升华。整个过程简化为三步： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 克隆你的配置仓库</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/your/dotfiles.git ~/dotfiles</span><br><span class="line"><span class="comment"># 2. 进入目录</span></span><br><span class="line"><span class="built_in">cd</span> ~/dotfiles</span><br><span class="line"><span class="comment"># 3. 按需“安装”你的配置</span></span><br><span class="line">stow git zsh nvim</span><br></pre></td></tr></table></figure> 几条命令，一个熟悉的环境便跃然屏上。</p></li>
+<li><p><strong>安全且健壮 (Robust)</strong> <code>stow</code> 在执行操作前会进行检查。如果它发现目标位置已经存在一个文件或目录（而不是一个指向自己的软链接），它会报错并停止，防止意外覆盖你的重要文件。它足够智能，会自动创建缺失的父目录，也会在卸载时清理空目录。</p></li>
+</ol>
+<h3 id="结论大道至简">结论：大道至简</h3>
+<p>在 dotfiles 管理的江湖里，<code>stow</code> 并非屠龙之技，而是一招一式都直击痛点的“无招胜有招”。它放弃了复杂的逻辑，回归到对文件系统结构最朴素的映射，通过“软链接农场”这一简单而强大的模型，完美地平衡了易用性、功能性与可维护性。</p>
+<p>如果你正在寻找一种能让你重拾对配置文件掌控感的方法，<code>stow</code> 值得一试。它将帮助你打造一个真正属于自己的、可轻松漫游于多台设备间的个性化高效环境。</p>
+]]></content>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Git</tag>
+        <tag>Tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NFC Note</title>
     <url>/posts/78289205/</url>
     <content><![CDATA[<h2 id="什么是nfc">什么是NFC？</h2>
@@ -439,37 +470,6 @@
         <tag>无线通信</tag>
         <tag>NFC</tag>
         <tag>RFID</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Dotfiles</title>
-    <url>/posts/e5afd7e1/</url>
-    <content><![CDATA[<p>在 Linux 或 macOS 系统中，那些以点（<code>.</code>）开头的文件和文件夹，即 <code>dotfiles</code>（如 <code>.bashrc</code>, <code>.gitconfig</code>），是塑造我们数字环境的灵魂。它们记录了从终端提示符的美化，到编辑器（如 Vim/Neovim）的每一个快捷键，再到窗口管理器的布局规则。一个精心调教的 <code>dotfiles</code> 集合，是我们追求效率与个性的直接体现。</p>
-<p>然而，随着我们配置的日益精细和跨设备工作的常态化，一个问题浮出水面：如何优雅、高效地管理这些散落在主目录各处的“灵魂碎片”？ <span id="more"></span></p>
-<h3 id="传统方案的困境在简单与复杂之间挣扎">传统方案的困境：在简单与复杂之间挣扎</h3>
-<p>我们通常会经历几个阶段： 1. <strong>蛮荒时代的手动复制</strong>：在新设备上凭记忆和手动拷贝来恢复环境，低效、易错且令人沮丧。 2. <strong>自动化脚本的萌芽</strong>：编写 Shell 脚本来批量创建软链接（<code>ln -s</code>）。这是一种进步，但随着配置文件的增删，维护脚本本身成了一件麻烦事，我们等于是在用一个配置文件去管理另一堆配置文件。 3. <strong>Git 裸仓库的炫技</strong>：使用 <code>git bare repository</code> 是一个更高级的方案，它允许我们直接在主目录下用 Git 进行版本控制。功能非常强大，但其命令相对晦涩（需要一个特殊的别名），心智负担较重，破坏了 Git 操作的直观性。</p>
-<p>这些方案，要么过于简陋，要么过于复杂。我们真正需要的，是一种既直观又强大，能够清晰地将“配置的存储”与“配置的部署”分离开的工具。这正是 GNU Stow 的舞台。</p>
-<h3 id="stow-的哲学一个优雅的符号链接农场">Stow 的哲学：一个优雅的“符号链接农场”</h3>
-<p><code>Stow</code> 本质上是一个“符号链接农场管理器”（Symlink Farm Manager）。这个比喻非常精妙地揭示了它的核心工作原理。</p>
-<p>想象一下： * 你的 <code>~/dotfiles</code> 目录是一个<strong>农场</strong>。 * 农场里的每一个子目录（如 <code>nvim</code>, <code>git</code>, <code>zsh</code>）都是一种<strong>作物</strong>（配置包）。 * 你的主目录 <code>~</code> 是需要播种的<strong>土地</strong>。</p>
-<p><code>stow</code> 命令所做的，就是将你在“农场”里精心培育的“作物”，自动“播种”到“土地”的正确位置上。它通过创建符号链接（symlink）来实现这一点，这些链接就像是作物的根系，从主目录的指定位置（如 <code>~/.config/nvim</code>）精确地指向农场里的源文件（<code>~/dotfiles/nvim/.config/nvim</code>）。</p>
-<p>这种模式的核心是<strong>“关注点分离”</strong>（Separation of Concerns）： 1. <strong>配置的源码</strong>：你的 <code>dotfiles</code> 仓库是所有配置的唯一“真理之源”（Single Source of Truth）。它结构清晰，按应用模块化组织，非常适合用 Git进行版本控制。 2. <strong>配置的部署</strong>：主目录 <code>~</code> 下的配置文件只是指向源码的“指针”（软链接）。它们让应用能够正常工作，但其本身不包含任何实际配置内容。</p>
-<p>你不再需要编写 <code>ln -s a b</code> 这样的命令式脚本，而是通过在 <code>dotfiles</code> 仓库里组织文件结构这种<strong>声明式</strong>的方式，来定义你的环境应该是什么样子。<code>stow</code> 会负责实现它。</p>
-<h3 id="选择-stow-的核心优势">选择 Stow 的核心优势</h3>
-<ol type="1">
-<li><p><strong>绝对直观 (Intuitive)</strong> <code>stow</code> 最具颠覆性的一点在于它的目录结构映射。你在 <code>~/dotfiles/nvim/</code> 下看到的目录结构，就是 <code>stow</code> 将要在 <code>~</code> 目录下为你创建的软链接结构。这种“所见即所得”的设计，使得理解和维护配置变得异常简单。</p></li>
-<li><p><strong>高度模块化 (Modular)</strong> 每个应用的配置都封装在独立的目录中。这意味着你可以像乐高积木一样组合你的环境。想启用 Neovim 配置？<code>stow nvim</code>。想暂时禁用 Zsh 配置来调试问题？<code>stow -D zsh</code>。想在不同机器上使用不同的 Git 配置？只需选择性地 <code>stow</code> 即可。这种模块化能力是脚本或裸仓库方案难以比拟的。</p></li>
-<li><p><strong>极致的可移植性 (Portable)</strong> 当 <code>stow</code> 与 <code>git</code> 结合，配置新机器的体验将得到升华。整个过程简化为三步： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 克隆你的配置仓库</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/your/dotfiles.git ~/dotfiles</span><br><span class="line"><span class="comment"># 2. 进入目录</span></span><br><span class="line"><span class="built_in">cd</span> ~/dotfiles</span><br><span class="line"><span class="comment"># 3. 按需“安装”你的配置</span></span><br><span class="line">stow git zsh nvim</span><br></pre></td></tr></table></figure> 几条命令，一个熟悉的环境便跃然屏上。</p></li>
-<li><p><strong>安全且健壮 (Robust)</strong> <code>stow</code> 在执行操作前会进行检查。如果它发现目标位置已经存在一个文件或目录（而不是一个指向自己的软链接），它会报错并停止，防止意外覆盖你的重要文件。它足够智能，会自动创建缺失的父目录，也会在卸载时清理空目录。</p></li>
-</ol>
-<h3 id="结论大道至简">结论：大道至简</h3>
-<p>在 dotfiles 管理的江湖里，<code>stow</code> 并非屠龙之技，而是一招一式都直击痛点的“无招胜有招”。它放弃了复杂的逻辑，回归到对文件系统结构最朴素的映射，通过“软链接农场”这一简单而强大的模型，完美地平衡了易用性、功能性与可维护性。</p>
-<p>如果你正在寻找一种能让你重拾对配置文件掌控感的方法，<code>stow</code> 值得一试。它将帮助你打造一个真正属于自己的、可轻松漫游于多台设备间的个性化高效环境。</p>
-]]></content>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Git</tag>
-        <tag>Tools</tag>
       </tags>
   </entry>
   <entry>
@@ -615,6 +615,134 @@
         <tag>网络安全</tag>
         <tag>加密</tag>
         <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>关于Intel TDX的深度思考与技术剖析</title>
+    <url>/posts/b63e909c/</url>
+    <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
+<span id="more"></span>
+<h3 id="引言云时代的信任难题">引言：云时代的信任难题</h3>
+<p>在当前的云计算和联邦学习场景下，数据隐私和计算过程的保密性至关重要。我们常常面临一个核心的信任悖论：我们希望利用云服务商强大的计算能力处理敏感数据，却又不能完全信任服务所在的平台，包括云厂商、甚至是拥有最高权限的租户管理员。如何确保我们的代码和数据在“别人”的服务器上，能够不被窥探、不被篡改地安全运行？可信执行环境（TEE）技术，特别是Intel TDX，为我们提供了破解这一难题的钥匙。</p>
+<h3 id="第一章tee与intel-tdx核心概念">第一章：TEE与Intel TDX核心概念</h3>
+<p>您可以将TEE想象成CPU内部一个被硬件强制隔离的“安全保险库”或“黑盒”。它主要提供以下四种核心保障：</p>
+<ul>
+<li><strong>隔离性 (Isolation)</strong>: 在TEE（Intel TDX中称为Trust Domain）内部运行的代码和数据，与服务器上运行的其他所有软件（包括操作系统、Hypervisor/虚拟机管理器，甚至是拥有物理访问权限的管理员）都是<strong>完全隔离的</strong>。</li>
+<li><strong>机密性 (Confidentiality)</strong>: TEE内的数据在CPU外部（例如在内存条DRAM上）始终是加密的。即使有人用逻辑分析仪去嗅探内存总线，也拿不到明文。</li>
+<li><strong>完整性 (Integrity)</strong>: TEE会确保加载到其内部的代码没有被篡改。</li>
+<li><strong>远程证明 (Remote Attestation)</strong>: 这是TEE的“杀手级特性”。客户端可以在与服务器通信之前，通过一个密码学协议，要求服务器上的TEE 证明自己的身份。这个证明可以告诉客户端：“我是一个货真价实的、由Intel制造的CPU中的TEE，我正在运行的代码就是你期望的那个版本（通过代码哈希值验证），并且我没有被篡改过。”</li>
+</ul>
+<h3 id="第二章信任模型的演进从完全信任到零信任">第二章：信任模型的演进：从完全信任到零信任</h3>
+<p>TEE的出现并非一蹴而就，它的价值体现在计算信任模型的不断演进中。</p>
+<h4 id="传统虚拟化-传统vm">传统虚拟化 (传统VM)</h4>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件 -&gt; Hypervisor -&gt; 虚拟机(VM)</code>。Hypervisor运行在最高权限，完全控制硬件。</li>
+<li><strong>信任模型</strong>: Hypervisor是全能的上帝。它可以随时暂停VM，检查其完整的内存状态，看到所有明文。租户必须<strong>完全信任</strong>云服务商。</li>
+</ul>
+<h4 id="sgx时代-enclave模型">SGX时代 (Enclave模型)</h4>
+<p>为了解决对Hypervisor的信任问题，Intel推出了SGX。</p>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件 -&gt; OS/Hypervisor -&gt; 应用程序 -&gt; Enclave</code>。Enclave是从应用程序的地址空间中“挖”出来的一块受硬件保护的内存区域。</li>
+<li><strong>信任模型</strong>: 信任边界缩小到Enclave内部。Hypervisor/OS无法窥探Enclave，但它仍然管理着整个应用程序和操作系统。这种模型对应用改造要求高，且与外部世界交互繁琐。</li>
+</ul>
+<h4 id="tdx时代-机密虚拟机模型">TDX时代 (机密虚拟机模型)</h4>
+<p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
+<li><strong>信任模型的革命性变化</strong>:
+<ul>
+<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
+<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
+</ul></li>
+</ul>
+<h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
+<p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
+<ul>
+<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
+<ul>
+<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
+<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
+<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
+</ul></li>
+<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
+<ul>
+<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
+<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
+<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
+</ul></li>
+<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
+<ul>
+<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
+<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
+<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
+</ul></li>
+</ul>
+<h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
+<p>仅仅将应用放入TEE环境是不足以保证安全的，开发者必须遵循特定的安全编程模式来管理所有进出TEE的数据流。</p>
+<h4 id="数据处理如何避免明文泄露">4.1 数据处理：如何避免明文泄露</h4>
+<p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
+<ul>
+<li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
+<li><strong>正确（安全）的设计模式</strong>:
+<ul>
+<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
+<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
+</ul></li>
+</ul>
+<h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>
+<p>既然TEE是黑盒，那作为最关键秘密的<strong>密钥，最初是如何安全地进入这个黑盒的？</strong> 这需要通过远程证明和密钥提供（Secret Provisioning）的协同过程来完成。</p>
+<h5 id="密钥的提供-secret-provisioning">密钥的提供 (Secret Provisioning)</h5>
+<p>这个过程就像一次高度安全的、经过身份验证的“隔空投送”。</p>
+<ol type="1">
+<li><strong>TEE发起证明</strong>: TEE应用启动后，请求CPU硬件生成一份包含其代码身份指纹（MRENCLAVE）、开发者身份（MRSIGNER）和临时公钥的<strong>证明报告（Quote）</strong>，并由CPU内嵌的硬件私钥签名。</li>
+<li><strong>密钥所有者验证证明</strong>: 密钥所有者收到Quote后，会进行双重验证：
+<ul>
+<li><strong>硬件验证</strong>: 请求Intel的证明服务器，验证Quote的硬件签名，确保它来自真实的Intel CPU。</li>
+<li><strong>软件验证</strong>: 比对自己手中经过审计的代码哈希值与Quote中的MRENCLAVE，确保TEE中运行的是未经篡改的、正确的代码版本。</li>
+</ul></li>
+<li><strong>安全“投送”密钥</strong>: 验证通过后，密钥所有者完全信任了远端的TEE。它会从Quote中提取出TEE的临时公钥，用它加密真正的私钥，然后将这个加密的“密钥包裹”发回给TEE。</li>
+<li><strong>TEE内部拆解</strong>: TEE应用收到“密钥包裹”后，用自己对应的临时私钥在受保护的内存中解密，安全地获得真实私钥。</li>
+</ol>
+<h5 id="密钥的持久化-sealing">密钥的持久化 (Sealing)</h5>
+<p>为了避免每次重启都重复上述复杂的提供流程，TEE应用在首次获取密钥后，可以利用前述的<strong>Sealing机制</strong>，将其用硬件绑定的密钥加密后，安全地保存在外部磁盘上。重启后，只有在同一台机器上、运行着同样代码的TEE应用，才能成功解封（unseal），将密钥重新加载到内存中。</p>
+<h4 id="io安全警惕自我泄露">4.3 I/O安全：警惕“自我泄露”</h4>
+<p>TEE保护的是计算过程，但它不会自动保护应用的I/O。如果开发者在代码里写了<code>print(private_key)</code>，TEE会忠实地执行，并将这个秘密通过标准输出（stdout）泄露给不受信的Guest OS，最终被租户看到。</p>
+<p>这揭示了TEE安全编程的关键原则：<strong>开发者必须有意识地管理所有进出TEE的信道，视之为潜在的泄露风险。</strong></p>
+<ul>
+<li><p><strong>防御措施1：代码审计（最重要）</strong>: 任何敏感数据变量，绝不能传递给任何执行I/O操作的函数（如<code>print()</code>, <code>log.info()</code>, <code>file.write()</code>）。客户端信任的，正是那个经过审计、确认没有此类行为的代码版本。</p></li>
+<li><p><strong>防御措施2：安全日志系统</strong>: 对日志进行过滤或加密，或在生产环境中完全禁用高风险的日志级别。</p></li>
+<li><p><strong>防御措施3：运行时配置</strong>: 将应用的stdout和stderr重定向到<code>/dev/null</code>，作为一种兜底措施。</p></li>
+</ul>
+<h3 id="第五章tee安全模型的动态性与挑战">第五章：TEE安全模型的动态性与挑战</h3>
+<h4 id="代码篡改不可能完成的任务">5.1 代码篡改：不可能完成的任务</h4>
+<p>从系统管理员的角度看，修改磁盘上的一个脚本文件非常简单。但对于TEE来说，要在不被发现的情况下恶意修改代码，却几乎不可能。</p>
+<p>这里的关键在于区分两个概念：</p>
+<ul>
+<li><p><strong>修改文件内容的能力</strong>: 租户拥有。</p></li>
+<li><p><strong>伪造程序身份的能力</strong>: 租户没有。</p></li>
+</ul>
+<p>TEE安全模型的核心基石是：<strong>代码的任何一丝一毫的改变，都会导致其身份指纹(MRENCLAVE)发生雪崩式的、不可预测的变化。</strong> 当客户端进行远程证明时，它会立刻发现代码指纹与预期的不匹配，从而拒绝信任、中止连接。同样，被修改后的代码也无法解封（unseal）由旧版本代码封存（seal）的秘密。</p>
+<p>因此，租户可以“作恶”，但他无法“隐藏作恶的意图”。在他试图运行恶意代码的那一刻，他就在远程证明的照妖镜下原形毕露了。</p>
+<h4 id="证明的瞬时性与对策">5.2 证明的“瞬时性”与对策</h4>
+<p>远程证明本质上是一个“瞬时快照”，它只证明TEE在生成报告那一刻的身份和状态，本身无法记录历史变化。这带来了潜在的“作恶后改回”的攻击窗口。</p>
+<p>在实践中，必须将远程证明与持续的、有状态的安全协议结合起来，弥补“瞬时性”带来的缺口：</p>
+<ul>
+<li><strong>方案1：会话绑定 (Session Binding)</strong>: 将瞬时证明与当前会话（如TLS会话）的关键信息（如临时公key）绑定。对“瞬时”TEE的信任，被安全地传递给了对“当前整个会话”的信任。任何导致TEE重启或代码变更的行为都会破坏会话，客户端会立刻发现。这足以防止“先证明后作恶”的攻击。</li>
+<li><strong>方案2：可信日志/区块链</strong>: 对于需要更强审计性的场景，可以将TEE每次执行的关键操作（如模型聚合）生成日志条目，并用其身份密钥签名，发布到只能追加、无法修改的存储系统（如区块链）上。这为TEE的瞬时行为提供了不可篡改的历史记录和持久化信任。</li>
+</ul>
+<h3 id="结论">结论</h3>
+<p>Intel TDX等TEE技术通过提供硬件层面的隔离性、机密性、完整性和远程证明能力，从根本上重塑了云环境下的信任模型。它将信任的根基从对“人”或“软件供应商”的主观信任，转移到了对“开源审计过的代码”和“CPU硬件设计”的客观、可验证的信任。</p>
+<p>然而，TEE并非一个能让不安全的代码自动变得安全的“魔法棒”。它提供的是一个<strong>可信的执行环境</strong>，而非一个<strong>可信的应用</strong>。要真正发挥TEE的威力，开发者必须承担起<strong>编写安全代码的责任</strong>，遵循严格的安全编程范式，谨慎管理所有的数据I/O、密钥生命周期和会话状态。</p>
+<p>通过将强大的硬件保障与严谨的软件开发实践相结合，我们才能真正构建出端到端的、能抵御来自特权软件甚至物理攻击的机密计算解决方案。</p>
+<p>以上为个人理解，敬请批评指正。</p>
+]]></content>
+      <categories>
+        <category>TEE</category>
+      </categories>
+      <tags>
+        <tag>TDX</tag>
+        <tag>Intel</tag>
+        <tag>机密计算</tag>
       </tags>
   </entry>
   <entry>
@@ -831,6 +959,925 @@
         <tag>Shell</tag>
         <tag>Windows</tag>
         <tag>macOS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
+<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
+<h3 id="token401问题">token401问题</h3>
+<h4 id="登录401">登录401</h4>
+<p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
+</figure>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<figure>
+<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
+</figure>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<p>发现可以正常读取了</p>
+<h4 id="过期401">过期401</h4>
+<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据读取问题">数据读取问题</h3>
+<p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<h3 id="其他问题">其他问题</h3>
+<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>Database</category>
+      </categories>
+      <tags>
+        <tag>influxdb</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux任务控制：从进程管理到后台运行，一篇就够</title>
+    <url>/posts/7a8b9c1d/</url>
+    <content><![CDATA[<p>在Linux系统中，任务控制是每个用户都需要掌握的核心技能。无论是运行长时间的计算任务、管理多个进程，还是在SSH连接断开后保持程序运行，都离不开任务控制技术。本文将从基础概念出发，系统介绍Linux任务控制的完整知识体系，为你提供一份实用的技术指南。</p>
+<span id="more"></span>
+<h3 id="一核心概念进程作业与任务控制">🎯 一、核心概念：进程、作业与任务控制</h3>
+<p>在深入任务控制之前，我们需要先理解几个核心概念：</p>
+<h4 id="进程-vs-作业-vs-任务">1. 进程 vs 作业 vs 任务</h4>
+<table>
+<thead>
+<tr class="header">
+<th>概念</th>
+<th>定义</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>进程 (Process)</strong></td>
+<td>正在运行的程序实例</td>
+<td>有独立的PID，占用系统资源</td>
+</tr>
+<tr class="even">
+<td><strong>作业 (Job)</strong></td>
+<td>Shell管理的进程组</td>
+<td>可以前台/后台运行，支持挂起/恢复</td>
+</tr>
+<tr class="odd">
+<td><strong>任务 (Task)</strong></td>
+<td>用户要完成的工作单元</td>
+<td>可能包含多个进程或作业</td>
+</tr>
+</tbody>
+</table>
+<h4 id="任务控制的基本流程">2. 任务控制的基本流程</h4>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">启动程序 → 前台运行 → [Ctrl+Z] → 挂起 → [bg] → 后台运行</span><br><span class="line">    ↓</span><br><span class="line">[Ctrl+C] → 终止程序</span><br><span class="line">    ↓</span><br><span class="line">[fg] → 恢复到前台</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="二基础操作前台与后台切换">🛠️ 二、基础操作：前台与后台切换</h3>
+<h4 id="前台运行-foreground">1. 前台运行 (Foreground)</h4>
+<p>前台运行是最常见的程序执行方式：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 直接运行程序，占用当前终端</span></span><br><span class="line">python long_running_script.py</span><br><span class="line">npm start</span><br><span class="line">make build</span><br></pre></td></tr></table></figure>
+<p><strong>特点</strong>： - 程序输出直接显示在终端 - 可以通过 <code>Ctrl+C</code> 终止程序 - 程序运行期间无法执行其他命令 - 终端关闭时程序也会终止</p>
+<h4 id="后台运行-background">2. 后台运行 (Background)</h4>
+<p>后台运行让程序在后台执行，不占用终端：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 方法1：启动时直接后台运行</span></span><br><span class="line">python script.py &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2：先前台运行，再挂起并后台运行</span></span><br><span class="line">python script.py</span><br><span class="line"><span class="comment"># 按 Ctrl+Z 挂起</span></span><br><span class="line"><span class="built_in">bg</span>  <span class="comment"># 或 bg %1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法3：使用 nohup 防止SSH断开影响</span></span><br><span class="line"><span class="built_in">nohup</span> python script.py &gt; output.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<p><strong>关键符号说明</strong>： - <code>&amp;</code>：启动时直接后台运行 - <code>nohup</code>：忽略SIGHUP信号，防止SSH断开时程序终止 - <code>&gt; output.log</code>：重定向标准输出到文件 - <code>2&gt;&amp;1</code>：将错误输出也重定向到标准输出</p>
+<hr />
+<h3 id="三作业管理查看与控制">📋 三、作业管理：查看与控制</h3>
+<h4 id="查看作业状态">1. 查看作业状态</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看当前Shell的所有作业</span></span><br><span class="line"><span class="built_in">jobs</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看详细信息（包含PID）</span></span><br><span class="line"><span class="built_in">jobs</span> -l</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有进程（包括其他Shell的）</span></span><br><span class="line">ps aux | grep python</span><br><span class="line">ps -ef | grep node</span><br></pre></td></tr></table></figure>
+<p><strong>jobs命令输出示例</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">jobs</span></span><br><span class="line">[1]  + running    python data_processing.py</span><br><span class="line">[2]  - suspended  npm start</span><br><span class="line">[3]    running    make build &amp;</span><br></pre></td></tr></table></figure></p>
+<p><strong>状态说明</strong>： - <code>running</code>：正在运行 - <code>suspended</code>：已挂起 - <code>stopped</code>：已停止 - <code>+</code>：当前作业（最近被操作） - <code>-</code>：前一个作业</p>
+<h4 id="作业控制命令">2. 作业控制命令</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 挂起当前前台程序</span></span><br><span class="line">Ctrl+Z</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将挂起的作业放到后台运行</span></span><br><span class="line"><span class="built_in">bg</span> [%job_number]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将后台作业恢复到前台</span></span><br><span class="line"><span class="built_in">fg</span> [%job_number]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止指定作业</span></span><br><span class="line"><span class="built_in">kill</span> %job_number</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂起指定作业</span></span><br><span class="line"><span class="built_in">kill</span> -STOP %job_number</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复挂起的作业</span></span><br><span class="line"><span class="built_in">kill</span> -CONT %job_number</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="四高级技巧进程管理与监控">🔄 四、高级技巧：进程管理与监控</h3>
+<h4 id="使用-screen-进行会话管理">1. 使用 screen 进行会话管理</h4>
+<p><code>screen</code> 是Linux下最强大的终端复用工具：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装screen</span></span><br><span class="line"><span class="built_in">sudo</span> apt install screen  <span class="comment"># Ubuntu/Debian</span></span><br><span class="line"><span class="built_in">sudo</span> yum install screen  <span class="comment"># CentOS/RHEL</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新会话</span></span><br><span class="line">screen -S my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在screen中运行程序</span></span><br><span class="line">python long_running_script.py</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分离会话（程序继续运行）</span></span><br><span class="line">Ctrl+A, D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新连接会话</span></span><br><span class="line">screen -r my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有会话</span></span><br><span class="line">screen -<span class="built_in">ls</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止会话</span></span><br><span class="line">screen -S my_session -X quit</span><br></pre></td></tr></table></figure>
+<h4 id="使用-tmux-进行现代化终端管理">2. 使用 tmux 进行现代化终端管理</h4>
+<p><code>tmux</code> 是比 <code>screen</code> 更现代的终端复用工具：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装tmux</span></span><br><span class="line"><span class="built_in">sudo</span> apt install tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新会话</span></span><br><span class="line">tmux new -s my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分离会话</span></span><br><span class="line">Ctrl+B, D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新连接</span></span><br><span class="line">tmux attach -t my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新窗口</span></span><br><span class="line">Ctrl+B, C</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换窗口</span></span><br><span class="line">Ctrl+B, 0-9</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分割窗格</span></span><br><span class="line">Ctrl+B, %  <span class="comment"># 垂直分割</span></span><br><span class="line">Ctrl+B, <span class="string">&quot;  # 水平分割</span></span><br></pre></td></tr></table></figure>
+<h4 id="使用-systemd-管理服务">3. 使用 systemd 管理服务</h4>
+<p>对于需要长期运行的服务，推荐使用 <code>systemd</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建服务文件</span></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/systemd/system/myapp.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 服务文件内容示例</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=My Python Application</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=myuser</span><br><span class="line">WorkingDirectory=/home/myuser/myapp</span><br><span class="line">ExecStart=/usr/bin/python3 app.py</span><br><span class="line">Restart=always</span><br><span class="line">RestartSec=10</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用并启动服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> myapp</span><br><span class="line"><span class="built_in">sudo</span> systemctl start myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看服务状态</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line"><span class="built_in">sudo</span> journalctl -u myapp -f</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="五实用工具进程监控与管理">🎛️ 五、实用工具：进程监控与管理</h3>
+<h4 id="htop---交互式进程查看器">1. htop - 交互式进程查看器</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装htop</span></span><br><span class="line"><span class="built_in">sudo</span> apt install htop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行htop</span></span><br><span class="line">htop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 常用快捷键</span></span><br><span class="line"><span class="comment"># F1: 帮助</span></span><br><span class="line"><span class="comment"># F2: 设置</span></span><br><span class="line"><span class="comment"># F3: 搜索进程</span></span><br><span class="line"><span class="comment"># F4: 过滤进程</span></span><br><span class="line"><span class="comment"># F5: 树形显示</span></span><br><span class="line"><span class="comment"># F6: 排序</span></span><br><span class="line"><span class="comment"># F9: 发送信号</span></span><br><span class="line"><span class="comment"># F10: 退出</span></span><br></pre></td></tr></table></figure>
+<h4 id="使用-pstree-查看进程树">2. 使用 pstree 查看进程树</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 显示进程树</span></span><br><span class="line">pstree</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示PID</span></span><br><span class="line">pstree -p</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示用户名</span></span><br><span class="line">pstree -u</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示特定进程的子树</span></span><br><span class="line">pstree -p 1234</span><br></pre></td></tr></table></figure>
+<h4 id="使用-lsof-查看文件占用">3. 使用 lsof 查看文件占用</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看特定进程打开的文件</span></span><br><span class="line">lsof -p 1234</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定端口占用的进程</span></span><br><span class="line">lsof -i :8080</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定用户打开的文件</span></span><br><span class="line">lsof -u username</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="六实战场景常见应用案例">🚀 六、实战场景：常见应用案例</h3>
+<h4 id="长时间运行的数据处理">1. 长时间运行的数据处理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据处理任务</span></span><br><span class="line"><span class="built_in">nohup</span> python process_large_dataset.py &gt; processing.log 2&gt;&amp;1 &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看进度</span></span><br><span class="line"><span class="built_in">tail</span> -f processing.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查进程状态</span></span><br><span class="line">ps aux | grep process_large_dataset</span><br></pre></td></tr></table></figure>
+<h4 id="开发环境的多服务管理">2. 开发环境的多服务管理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动前端开发服务器</span></span><br><span class="line">npm start &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动后端API服务器</span></span><br><span class="line">python app.py &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动数据库</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start postgresql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有相关进程</span></span><br><span class="line">ps aux | grep -E <span class="string">&quot;(node|python|postgres)&quot;</span></span><br></pre></td></tr></table></figure>
+<h4 id="批量任务处理">3. 批量任务处理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建任务脚本</span></span><br><span class="line"><span class="built_in">cat</span> &gt; batch_process.sh &lt;&lt; <span class="string">&#x27;EOF&#x27;</span></span><br><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> data/*.csv; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Processing <span class="variable">$file</span>...&quot;</span></span><br><span class="line">    python process.py <span class="string">&quot;<span class="variable">$file</span>&quot;</span> &amp;</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="built_in">wait</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;All files processed!&quot;</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行批量任务</span></span><br><span class="line"><span class="built_in">chmod</span> +x batch_process.sh</span><br><span class="line"><span class="built_in">nohup</span> ./batch_process.sh &gt; batch.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="七注意事项与最佳实践">⚠️ 七、注意事项与最佳实践</h3>
+<h4 id="信号处理">1. 信号处理</h4>
+<p>了解常见的信号类型：</p>
+<table>
+<thead>
+<tr class="header">
+<th>信号</th>
+<th>数值</th>
+<th>含义</th>
+<th>默认行为</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SIGHUP</td>
+<td>1</td>
+<td>挂起</td>
+<td>终止进程</td>
+</tr>
+<tr class="even">
+<td>SIGINT</td>
+<td>2</td>
+<td>中断 (Ctrl+C)</td>
+<td>终止进程</td>
+</tr>
+<tr class="odd">
+<td>SIGQUIT</td>
+<td>3</td>
+<td>退出 (Ctrl+)</td>
+<td>终止进程并转储核心</td>
+</tr>
+<tr class="even">
+<td>SIGTERM</td>
+<td>15</td>
+<td>终止</td>
+<td>终止进程</td>
+</tr>
+<tr class="odd">
+<td>SIGKILL</td>
+<td>9</td>
+<td>强制终止</td>
+<td>立即终止进程</td>
+</tr>
+</tbody>
+</table>
+<h4 id="资源管理">2. 资源管理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 限制进程资源使用</span></span><br><span class="line"><span class="built_in">ulimit</span> -c 0        <span class="comment"># 禁用核心转储</span></span><br><span class="line"><span class="built_in">ulimit</span> -n 1024     <span class="comment"># 限制文件描述符数量</span></span><br><span class="line"><span class="built_in">ulimit</span> -u 100      <span class="comment"># 限制用户进程数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用nice调整进程优先级</span></span><br><span class="line"><span class="built_in">nice</span> -n 10 python script.py  <span class="comment"># 降低优先级</span></span><br><span class="line"><span class="built_in">sudo</span> renice -n -10 1234      <span class="comment"># 提高优先级</span></span><br></pre></td></tr></table></figure>
+<h4 id="日志管理">3. 日志管理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用logrotate管理日志文件</span></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/logrotate.d/myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置示例</span></span><br><span class="line">/home/myuser/myapp/*.<span class="built_in">log</span> &#123;</span><br><span class="line">    daily</span><br><span class="line">    rotate 7</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    create 644 myuser myuser</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="八总结与检查清单">✅ 八、总结与检查清单</h3>
+<h4 id="基础任务控制命令速查">基础任务控制命令速查</h4>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>后台运行</td>
+<td><code>command &amp;</code></td>
+<td>启动时直接后台运行</td>
+</tr>
+<tr class="even">
+<td>挂起程序</td>
+<td><code>Ctrl+Z</code></td>
+<td>暂停前台程序</td>
+</tr>
+<tr class="odd">
+<td>后台恢复</td>
+<td><code>bg [%N]</code></td>
+<td>将挂起作业放到后台</td>
+</tr>
+<tr class="even">
+<td>前台恢复</td>
+<td><code>fg [%N]</code></td>
+<td>将后台作业恢复到前台</td>
+</tr>
+<tr class="odd">
+<td>查看作业</td>
+<td><code>jobs [-l]</code></td>
+<td>显示当前Shell的作业</td>
+</tr>
+<tr class="even">
+<td>终止作业</td>
+<td><code>kill %N</code></td>
+<td>终止指定作业</td>
+</tr>
+<tr class="odd">
+<td>忽略挂起</td>
+<td><code>nohup command &amp;</code></td>
+<td>防止SSH断开影响</td>
+</tr>
+</tbody>
+</table>
+<h4 id="高级工具选择指南">高级工具选择指南</h4>
+<table>
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>推荐工具</th>
+<th>优势</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>临时后台任务</td>
+<td><code>nohup</code> + <code>&amp;</code></td>
+<td>简单快速</td>
+</tr>
+<tr class="even">
+<td>多会话管理</td>
+<td><code>screen</code></td>
+<td>稳定可靠</td>
+</tr>
+<tr class="odd">
+<td>现代化终端</td>
+<td><code>tmux</code></td>
+<td>功能丰富</td>
+</tr>
+<tr class="even">
+<td>长期服务</td>
+<td><code>systemd</code></td>
+<td>系统级管理</td>
+</tr>
+<tr class="odd">
+<td>进程监控</td>
+<td><code>htop</code></td>
+<td>交互友好</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="结语">🎉 结语</h3>
+<p>Linux任务控制是系统管理和开发工作中的必备技能。通过掌握这些工具和技巧，你可以：</p>
+<ul>
+<li><strong>提高工作效率</strong>：同时管理多个任务</li>
+<li><strong>保持程序运行</strong>：防止意外断开导致任务中断</li>
+<li><strong>优化资源使用</strong>：合理分配系统资源</li>
+<li><strong>增强系统稳定性</strong>：更好地管理长期运行的服务</li>
+</ul>
+<p>记住：<strong>好的任务控制习惯不仅能提高你的工作效率，还能让你的系统运行得更加稳定可靠。</strong></p>
+<p>Happy Hacking! 🚀</p>
+]]></content>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Shell</tag>
+        <tag>进程管理</tag>
+        <tag>任务控制</tag>
+        <tag>后台运行</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TDX Note</title>
+    <url>/posts/cbeff3a9/</url>
+    <content><![CDATA[<h2 id="intel-tdx-demystified-a-top-down-approach">Intel TDX Demystified: A Top-Down Approach</h2>
+<p><strong>摘要</strong>：Intel Trust Domain Extensions (TDX) 是一种在第四代 Intel Xeon Scalable 处理器中引入的架构扩展，支持保密计算。TDX 允许在安全仲裁模式 (SEAM) 中部署虚拟机 (VM)，提供加密的 CPU 状态和内存、完整性保护以及远程认证。</p>
+<span id="more"></span>
+<blockquote>
+<p><strong>安全仲裁模式（Secure Arbitration Mode, SEAM）</strong> 是英特尔在其处理器架构中引入的一种硬件安全机制，它允许在处理器中隔离一个由 SEAM 模块（SEAM Module）控制的安全环境，这个模块用于处理一些高度敏感的任务和数据。</p>
+</blockquote>
+<p><strong>简介</strong>：将计算迁移到云基础设施中可以降低成本，但受监管的行业对于将敏感数据移交给第三方云服务提供商仍存在担忧。</p>
+<p>保密计算旨在通过最小化处理器及其供应商的信任根来提供端到端的保护。所有数据必须在整个生命周期中受到保护，从离开其所有者的设备到进入<strong>经过认证的 CPU 封装</strong>。</p>
+<p>TDX 的威胁模型假设特权软件（如<strong>虚拟机管理程序或主机操作系统</strong>）可能是不可信的或具有对抗性的。</p>
+<hr />
+<h2 id="tdx-的概述">TDX 的概述</h2>
+<p>TDX 的目标是保护指定信任域 (TD) 的 CPU 状态和内存的机密性和完整性，并使 TD 所有者能够验证远程平台的真实性。</p>
+<p>TDX 基于一系列技术构建，包括虚拟化技术 (VT)、<strong>多密钥全内存加密 (MKTME)</strong> 和 TDX 模块 (TDX Module)。TDX 还依赖于软件保护扩展 (SGX) 和<strong>数据中心认证原语 (DCAP)</strong> 来进行远程认证。</p>
+<blockquote>
+<ul>
+<li>MKTME 提供了一种机制，使得处理器能够利用多个加密密钥，对内存数据进行加密和解密。</li>
+<li>DCAP 提供了一种机制，使得远程用户或服务可以验证 TDX 环境的可信状态。</li>
+</ul>
+</blockquote>
+<h2 id="安全原则">安全原则</h2>
+<p>消除了对不可信/特权主机软件的层级依赖，并<strong>将虚拟机管理程序和云操作员排除在可信计算基 (TCB) 之外</strong>，从而允许租户以信任的方式安全部署和运行其计算任务。</p>
+<p>TDX 保障 TD 的内存和虚拟 CPU 状态的机密性和完整性，确保这些数据不会被同一台机器上运行的其他安全域访问或篡改。它通过以下机制来实现这一点：</p>
+<ol type="1">
+<li><strong>内存访问控制</strong></li>
+<li><strong>运行时内存加密</strong></li>
+<li><strong>由 Intel 签署的 TDX 模块，负责处理涉及安全敏感的 TD 管理操作</strong></li>
+</ol>
+<p>此外，远程认证为租户提供了 TD 在真实的 TDX 支持的 Intel 处理器上运行的证明。</p>
+<h3 id="内存机密性">内存机密性</h3>
+<p>TD 的数据在处理器封装内以明文形式存储，但当数据从处理器卸载到主存储器时，处理器使用<strong>仅处理器已知的 TD 专用密钥</strong>对其进行加密。</p>
+<p>加密操作在<strong>缓存行粒度</strong>上执行，这使得外围设备无法读取或篡改 TD 的私有内存而不被检测到。当处理器从主存储器加载数据时，处理器<strong>可以检测到任何篡改行为</strong>。</p>
+<blockquote>
+<p>一个缓存行是 CPU 从主存储器<strong>读取或写入数据的基本单位</strong>，通常为 64 字节。这样做是为了提高加密和解密操作的效率，因为 CPU 的数据处理与缓存行的操作直接相关。</p>
+</blockquote>
+<h3 id="cpu-状态机密性">CPU 状态机密性</h3>
+<p>TDX 通过在安全域之间进行上下文切换时<strong>管理 TD 的虚拟 CPU 状态</strong>来保护并发进程的机密性。</p>
+<p>这些状态存储在 <strong>TD 的元数据</strong>中，并在主存储器中通过 TD 的密钥进行保护。上下文切换期间，TDX 会清除或隔离处理器内部的与 TD 相关的特定状态，如翻译后援缓冲 (TLB) 条目或分支预测缓冲，以保持 TD 信息的保护。</p>
+<blockquote>
+<p><strong>元数据（Metadata）</strong> 是指描述数据的数据。它提供了有关某一数据的结构、属性、特征等信息，帮助我们理解、组织和管理这些数据。</p>
+</blockquote>
+<h3 id="执行完整性">执行完整性</h3>
+<p>TDX 保护 TD 执行的完整性，防止主机干扰，确保在预期的状态下恢复 TD 的计算。它能够检测到虚拟 CPU 状态中的恶意变化，以及位于私有内存中的指令的插入、修改或删除。</p>
+<p>然而，TDX 不提供额外的控制流完整性保证。</p>
+<p>TD 所有者有责任使用现有的基于编译或硬件辅助的控制流完整性执行技术，例如控制流强制技术 (CET)。</p>
+<blockquote>
+<p>意味着，如果 TD 的<strong>代码本身有漏洞</strong>，攻击者仍然可以通过某种方式来影响其控制流。</p>
+<p>CET 是一种由英特尔提供的硬件安全特性，用于检测和阻止控制流劫持攻击。</p>
+</blockquote>
+<h3 id="io-保护">I/O 保护</h3>
+<p>外围设备或加速器位于 TD 信任边界之外，不应被允许访问 TD 的私有内存。为了支持虚拟化 I/O，TD 可以选择<strong>显式共享内存</strong>以进行数据传输。</p>
+<p>但是，TDX <strong>不对位于共享内存区域中的数据提供机密性和完整性保护</strong>。TD 所有者有责任实现适当的机制，例如使用传输层安全协议 (TLS) 等安全通信通道，<strong>以保护离开 TD 信任边界的数据</strong>。</p>
+<p>在未来，TDX 2.0 计划包括 TDX Connect 以解决受信 I/O 问题。</p>
+<blockquote>
+<p><strong>TLS（Transport Layer Security）</strong> 是一种用于在计算机网络上提供安全通信的加密协议。它通过加密、数据完整性验证和身份认证来保护数据的传输，防止信息泄露和篡改。</p>
+</blockquote>
+<hr />
+<h2 id="威胁模型">威胁模型</h2>
+<p>TDX 假设对手可能具有<strong>物理或远程访问计算机</strong>的能力，并能够<strong>控制启动固件、系统管理模式 (SMM)、主机操作系统 (OS)、虚拟机管理程序 (Hypervisor) 和外围设备</strong>。</p>
+<p>这些对手的主要目标是获取机密数据或干扰 TD 的执行。需要注意的是，TDX 不能保证可用性，因为对手<strong>可以控制分配给 TD 的所有计算资源</strong>，并发起拒绝服务 (DoS) 攻击。</p>
+<blockquote>
+<p>这里的"可用性"是指虚拟机（TD）能够可靠、持续地执行和运行的能力</p>
+<p><strong>拒绝服务攻击（Denial of Service，简称 DoS）</strong> 是一种网络攻击，它的目的是使目标系统或服务无法正常提供服务。攻击者通过向目标发送大量请求或恶意数据，耗尽目标的资源（如带宽、CPU、内存等），导致合法用户无法访问或使用目标系统或服务。</p>
+</blockquote>
+<p>因此，TDX 的设计必须防止对手采取任何可能破坏 TDX 安全保证的行为。下面，我们总结了对手的能力，并确定了潜在的攻击向量和场景。</p>
+<p>对手可以通过其主机侧接口函数与 TDX 模块进行交互，这些接口函数允许它们构建、初始化、测量和销毁 TD。对手可以按照任意顺序调用这些接口函数，并提供语义上和语法上合法或非法的输入。</p>
+<p>对手可以控制分配给 TD 的计算资源，包括物理内存页、处理器时间和物理/虚拟设备。它们可以在任意时刻中断 TD，并尝试读取和写入任意内存位置，还可以重新配置输入/输出内存管理单元 (IOMMU)。</p>
+<p>对手可以操纵 TD 的输入数据，包括高级配置和电源接口 (ACPI) 表、外围组件互连 (PCI) 配置、特定型号寄存器 (MSR)、内存映射输入/输出 (MMIO)、直接内存访问 (DMA)、模拟设备、主机处理的超调用、随机源和时间概念。</p>
+<p>对手可以进行物理和硬件攻击，例如通过探测总线或通过恶意 DMA 访问主存储器。对于回滚任意内存区域的物理攻击，没有防御措施。然而，<strong>对手不可能提取嵌入处理器芯片中的密钥材料</strong>。威胁模型不包括故障注入或侧信道攻击，如电源扰动、时序和电力分析。</p>
+<p>攻击 TDX 认证在模型范围之内，因为它破坏了信任模型，并可能使对手伪造虚假的 TEE，以从租户处收集机密信息。</p>
+<h3 id="可信计算基-tcb">可信计算基 (TCB)</h3>
+<p>TDX 的 TCB 由<strong>支持 TDX 的 Intel 处理器</strong>及其内置技术（如 VT、MKTME 和 SGX）组成。TCB 还包括由 Intel 签署的软件模块，如 TDX 模块、NP/P-SEAM 加载器，以及用于远程认证的 SGX 架构飞地 (enclaves)。</p>
+<p>在 TD 内运行的软件栈由租户拥有，并被视为 TCB 的一部分。TDX 中使用的加密原语被认为是可靠的，其实现也是安全的，包括随机数的生成和侧信道攻击（如时间攻击）的防护。</p>
+<p>租户必须信任处理器制造商 Intel，以开发、制造、构建和签署用于 TDX 的硬件/软件组件。TDX 模块、NP/P-SEAM 加载器以及 DCAP 的源代码是公开可审计的，允许租户评估其可信度。然而，租户还必须信任 Intel 签署的版本与他们审查的版本一致，这涉及在编译过程中对供应链攻击的保护。</p>
+<p>此外，租户还需要信任 Intel 的供应证书服务 (PCS) 进行远程认证。PCS 最初支持 SGX 认证，现已扩展至包括检索供应证书密钥 (PCK) 证书、撤销列表和 TCB 信息。</p>
+<hr />
+<h2 id="保密计算技术的比较">保密计算技术的比较</h2>
+<p>保密计算技术的共同目标是保护在不可信第三方基础设施上托管的敏感数据和计算，防止未授权访问、篡改和披露。</p>
+<p>主要处理器供应商正在竞争将保密计算功能集成到其芯片中。尽管在实现和术语上存在差异，但这些技术共享基本的安全原则，并具有类似的系统设计，如引入新的执行模式或特权级别，将虚拟机管理功能迁移到经过认证的固件/软件中，确保受信或测量的可信组件的启动，实施内存访问控制，并提供内存加密保护。</p>
+<p>除了 Intel TDX 外，我们还简要介绍了来自其他供应商的保密计算技术，包括 AMD 安全加密虚拟化 (SEV)、IBM 安全执行和受保护执行设施 (PEF)、Arm 保密计算架构 (CCA) 和 RISC-V 保密虚拟机扩展 (CoVE)。</p>
+<figure>
+<img src="/assets/1111.png" alt="已上传的图片" /><figcaption>已上传的图片</figcaption>
+</figure>
+<h3 id="amd-sev">AMD SEV</h3>
+<p>SEV（安全加密虚拟化）是 AMD EPYC 处理器中的一项保密计算功能。它通过在多租户云环境中对虚拟机（VM）内存进行加密来保护敏感数据，防止特权软件或管理员的访问。</p>
+<p>SEV 依赖于 AMD 安全内存加密 (SME) 和 AMD 虚拟化 (AMD-V) 技术，通过强制执行 VM 与虚拟机管理程序之间的加密隔离来确保安全。每个 VM 都分配有一个唯一的临时高级加密标准（AES）密钥，用于运行时的内存加密。</p>
+<p>内存控制器上的 AES 引擎负责加密或解密写入或读取主存储器的数据。每个 VM 的密钥由 <strong>AMD 平台安全处理器 (PSP) 管理</strong>，该处理器是集成在 AMD 系统芯片 (SoC) 内的 32 位 Arm Cortex-A5 微控制器。物理地址的 C 位（第 47 位）决定了内存页面的加密。</p>
+<p>SEV 还提供了远程认证机制，允许 VM 所有者验证 VM 启动测量的可信度及 SEV 平台的可靠性。PSP 生成由 AMD 认证密钥签名的认证报告。VM 所有者可以验证认证报告的真实性及其嵌入的平台/来宾测量信息。</p>
+<p>AMD 已经发布了 SEV 的三代版本。第一代 SEV 仅保护 VM 内存的机密性。第二代 SEV-ES（加密状态）增加了在虚拟机管理程序切换期间对 CPU 寄存器状态的保护，而第三代 SEV-SNP（安全嵌套分页）增加了完整性保护，以防止内存篡改、重放和重映射攻击。</p>
+<p>特别是，SEV-SNP 使用反向映射表 (RMP) 进行内存完整性保护。RMP 追踪每个页面的所有权和权限，以防止未经授权的访问。SEV-SNP 还通过将来宾地址空间划分为四个级别并在 VM 内部提供额外的安全隔离，来引入<strong>虚拟机权限级别 (VMPL)</strong> 功能。</p>
+<h3 id="ibm-保密计算">IBM 保密计算</h3>
+<p>IBM 对保密计算的早期探索可以追溯到对 SecureBlue++ 的研究，该研究在 Mambo CPU 模拟器上运行了一个模拟的 POWER 处理器。今天，IBM 系统支持两种架构的保密计算：IBM Z 和 LinuxONE 上提供的安全执行 (Secure Execution) 以及 OpenPOWER 系统上发布的受保护执行设施 (PEF)。</p>
+<p><strong>IBM 安全执行 (Secure Execution)</strong><br />
+IBM 安全执行自 IBM Z15 和 LinuxONE III 以来提供了对在隔离 TEE 中运行的安全虚拟机 (SVM) 的支持。</p>
+<p>安全执行保护 SVM 中代码和数据的机密性、完整性和真实性，防止任何未经授权的访问和篡改。安全执行利用被称为 Ultravisor 的可信固件执行安全敏感任务来引导和运行 SVM。Ultravisor 在上下文切换期间保护 SVM 的内存和状态，并防止潜在的恶意虚拟机管理程序的入侵。</p>
+<p><strong>IBM PEF (受保护执行设施)</strong><br />
+PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TEE。PEF 固件、用于准备 SVM 的工具和操作系统扩展都是作为开源软件发布的。</p>
+<p>为了保护敏感数据和代码，PEF 引入了一个受信固件——受保护执行 Ultravisor（Ultravisor），该固件通过 CPU 架构变化来屏蔽 SVM 执行并强制执行安全保障。PEF 依赖于系统的安全和受信启动，并在一个新的、最高特权的 CPU 状态（称为 Secure State）中执行 Ultravisor。</p>
+<p>虚拟机管理程序启动 VM，然后调用 Ultravisor 来切换到 SVM。Ultravisor 通过将其移动到受保护的内存来将 VM 转换为 SVM，从而确保这些内存对于不受信任的代码是不可访问的。</p>
+<h3 id="arm-cca">Arm CCA</h3>
+<p>CCA（保密计算架构）是 Armv9 架构中引入的一项技术。传统上，Arm TrustZone 通过将"普通世界"（Normal World）和"安全世界"（Secure World）分隔开来，实现了安全执行。TrustZone 防止普通世界的软件访问安全世界中的数据。</p>
+<p>CCA 引入了"领域管理扩展"（Realm Management Extension，RME），通过添加两个新的世界：领域世界（Realm World）和根世界（Root World），进一步扩展了这种分隔。</p>
+<p>领域世界（Realm World）为保密虚拟机（Confidential VMs）提供了相互不信任的执行环境，隔离工作负载，使其不受其他安全域（包括主机操作系统、虚拟机管理程序、其他领域和 TrustZone）的干扰。</p>
+<p>为了实施地址空间的隔离，CCA 使用了一种扩展的页面表结构——"粒度保护表"（Granule Protection Table，GPT），该结构用于跟踪每个页面的所有权，并将其归属于不同的世界。</p>
+<p>根世界（Root World）中的"监控器"（Monitor）负责创建和管理 GPT，防止虚拟机管理程序或操作系统直接更改它。监控器可以通过更新 GPT 动态地在不同世界之间移动物理内存。CCA 还支持对 CCA 平台及其领域的初始状态进行认证，以确保其安全性。</p>
+<h3 id="risc-v-cove">RISC-V CoVE</h3>
+<p>CoVE（保密虚拟机扩展）是 RISC-V 的一个参考保密计算架构，其受保护的实例被称为 TEE 虚拟机（TVM）。该架构引入了 TEE 安全管理器（TSM）驱动，这是一个 M 模式（RISC-V 中的最高特权级别）固件组件，用于在保密环境和非保密环境之间切换。TSM 驱动通过内存跟踪表（Memory Tracking Table，MTT）跟踪 TVM 的内存页面分配。</p>
+<p>TSM 驱动测量并加载 TSM，它是虚拟机管理程序与 TVM 之间的受信中介。CoVE 定义了一个应用程序二进制接口（ABI），供虚拟机管理程序从 TSM 请求虚拟机管理服务。</p>
+<p>CoVE 采用分层认证架构，从硬件开始，逐层向上加载、测量并认证 TSM 驱动、TSM 和 TVM。每一层都由上一层加载、测量并签署认证。这种方法提供了一个安全的信任链，可以用于验证系统的完整性。TVM 可以从 TSM 获取一个包含从硬件根源认证的证书，为 TVM 和其所运行的软件的真实性验证提供了机制。</p>
+<hr />
+<h2 id="tdx-的构建模块">TDX 的构建模块</h2>
+<p>TDX 依赖于一系列现有的 Intel 技术，包括虚拟化技术 (VT)、全内存加密 (TME)/多密钥全内存加密 (MKTME) 和软件保护扩展 (SGX)。</p>
+<figure>
+<img src="/assets/QQ_1730016861906.png" alt="QQ_1730016861906" /><figcaption>QQ_1730016861906</figcaption>
+</figure>
+<h3 id="intel-vt">Intel VT</h3>
+<p>Intel VT（虚拟化技术）是一组由 Intel 处理器提供的<strong>硬件辅助虚拟化</strong>功能。使用 VT，虚拟机监控程序（VMM）或虚拟机管理程序可以获得比基于软件的虚拟化更好的性能、隔离和安全性。Intel 的 VT 产品组合包括 CPU、内存和 I/O 的虚拟化。</p>
+<p>支持 VT-x 技术的处理器具有一组称为虚拟机扩展（VMX）的特殊指令集，它可以控制虚拟化功能的实现。支持 VT-x 的处理器可以在两种模式下运行：VMX 根模式和 VMX 非根模式。</p>
+<p>虚拟机管理程序运行在 VMX 根模式，而来宾 VM 运行在 VMX 非根模式。VT-x 定义了两种新转换方式：虚拟机进入（VM Entry）和虚拟机退出（VM Exit），用于在来宾和虚拟机管理程序之间切换。</p>
+<p>VMX 的切换信息存储在虚拟机控制结构（VMCS）中，用于记录来宾和主机的状态信息，并控制哪些来宾操作可能引发 VM 退出。</p>
+<p>Intel VT-x 使用扩展页表（EPT）来实现二级地址转换（SLAT）。每个来宾内核维护其页表以将来宾虚拟地址（GVA）转换为来宾物理地址（GPA）。虚拟机管理程序则管理 EPT，将 GPA 映射到主机物理地址（HPA）。</p>
+<p>虚拟机可以使用不同的 I/O 模型，包括基于软件和基于硬件的模型来访问 I/O 设备。基于软件的 I/O 模型包括仿真设备或半虚拟化设备，而基于硬件的 I/O 模型包括直接设备分配、单根 I/O 虚拟化（SR-IOV）设备和可扩展 I/O 虚拟化（S-IOV）设备。</p>
+<p>Intel VT 的定向 I/O（VT-d）功能使得能够隔离和限制设备访问的实体，可以包括 I/O 设备分配、DMA 重映射、中断重映射和中断发布。借助 VT-d 的支持，虚拟机可以通过 IOMMU 的虚拟到物理地址翻译，直接访问物理 I/O 内存。VT-d 还提供了灵活的 I/O 设备分配方式，并消除了虚拟机管理程序处理中断和 DMA 传输的需求。总体而言，<strong>VT-d 提升了虚拟化环境中需要直接访问 I/O 设备时的性能和安全性</strong>。</p>
+<p><strong>VT 与 TDX 的关系</strong></p>
+<p>TDX 是一个基于 VM 的 TEE。它依赖 VT 提供信任域（TD）之间的隔离。在新的威胁模型中，虚拟机管理程序不再被信任，因此管理 TD 的功能被封装在 TDX 模块中。TDX 模块和 TD 运行在新的 SEAM VMX 根/非根模式下，并增加了额外的保护。TDX 仍然依赖 EPT 来管理 GPA 到 HPA 的映射，但<strong>目前为每个 TD 维护两个 EPT</strong>，一个用于私有（加密）内存，另一个用于共享（未加密）内存。</p>
+<p>需要注意的是，<strong>目前 TDX 1.0 中不支持嵌套虚拟化</strong>，这意味着在 TD 中运行虚拟机是不可行的。在 TD 中使用 VMX 指令会导致未定义指令（UD）异常。但根据 TD 分区架构规范草案，TDX 1.5 版本将来可能支持嵌套虚拟化。</p>
+<h3 id="intel-tmemktme">Intel TME/MKTME</h3>
+<p>TME 首次在第 11 代 Intel Core vPro 移动处理器中引入。该功能旨在防止攻击者通过物理访问计算机内存窃取数据。</p>
+<p><strong>TME 使用单一的瞬时密钥加密整个计算机的内存</strong>。该密钥通过硬件随机数生成器和系统芯片组中的安全措施在启动时生成。内存加密由每个内存控制器上的加密引擎执行。加密过程使用 NIST 标准的 AES-XTS 算法，密钥长度可以是 128 位或 256 位。</p>
+<p>MKTME 是 TME 的扩展，<strong>支持多密钥加密和按页面粒度的内存加密</strong>。对于每个内存事务，MKTME 从物理内存地址中提取<strong>主机密钥标识符（HKID）</strong>，并选择相应的密钥进行内存加密/解密。</p>
+<p>HKID 占据物理地址的高位比特，范围由 BIOS 在系统启动时设置。MKTME 允许软件提供的密钥，并引入了一个新的指令 PCONFIG，用于编程与特定 HKID 关联的密钥和加密模式。这些 HKID-密钥对存储在每个 MKTME 加密引擎的密钥加密表（KET）中。<strong>KET 中的密钥永不离开处理器，也不会暴露给软件。</strong></p>
+<p>MKTME 可以在本地和虚拟化环境中使用。在虚拟化环境中，虚拟机管理程序通过将 HKID 附加到 EPT 中的 VM 物理地址来控制不同虚拟机的内存加密。</p>
+<p><strong>MKTME 与 TDX 的关系</strong></p>
+<p>在虚拟化环境中使用 MKTME 时，虚拟机管理程序必须被信任来控制内存加密，这与保密计算的新威胁模型相冲突。因此，在 TDX 中，<strong>由 TDX 模块负责控制 TD 的内存加密</strong>。HKID 空间被划分为私有 HKID 和共享 HKID。<strong>TDX 模块确保每个 TD 分配一个唯一的私有 HKID</strong>。因此，该 HKID 可以用于表示特定 TD 的身份。私有 HKID 只能用于加密 TD 的私有内存。TDX 模块仍然依赖 MKTME 来保护 TD 的内存。</p>
+<h3 id="intel-sgx">Intel SGX</h3>
+<p>Intel 在 2015 年推出了 SGX（软件保护扩展），与第六代 Core 处理器一起发布，旨在防止内存总线监听和冷启动攻击。它允许开发人员将应用程序划分为不同的部分，并保护选定的代码和数据在飞地（enclaves）内。飞地的内存只能被授权代码访问。SGX 使用基于硬件的内存加密来保护飞地的内容。任何未经授权的访问或篡改飞地内存的行为都会触发异常。</p>
+<p>SGX 向 Intel 的指令集架构（ISA）中添加了 18 条新指令，并使开发人员能够将计算安全地外包到不可信的主机环境中（包括主机应用程序、主机内核、SMM 和外围设备）。SGX 的安全性最终取决于实现其功能的固件和微代码的安全性。</p>
+<p><strong>飞地页面缓存 (EPC)</strong> 是一个特殊的内存区域，用于存放飞地的代码和数据。每一页都使用内存加密引擎（MEE）加密。飞地页面缓存映射（EPCM）存储页面的元数据，例如配置、权限和页面类型。在启动时，会生成密钥，并用于解密 CPU 内部的加密页面内容。密钥由 MEE 控制，不向外部泄露。因此，<strong>只有特定的 CPU 能够解密内存，CPU 会在内部存储这些密钥，防止任何软件访问它们</strong>。此外，特权软件（非飞地）不允许读取或写入 EPC 或 EPCM 页面。</p>
+<p>SGX 提供本地认证和远程认证，用于验证飞地的完整性和真实性。</p>
+<ul>
+<li><strong>本地认证</strong>：用于在同一平台上的两个飞地之间建立信任关系。第一个飞地生成一份报告，并使用第二个飞地的身份信息对其进行签名。第二个飞地检索其报告密钥，并使用此密钥验证报告。<br />
+</li>
+<li><strong>远程认证</strong>：用于向平台外的第三方实体验证飞地的可信性。SGX 使用一个特殊的架构飞地，称为引用飞地（Quoting Enclave，QE），由 Intel 开发并签署。QE 接收来自另一个飞地的报告，在本地验证报告，并通过使用认证密钥对其进行签名，将其转换为远程可验证的"引用"（qote）。远程方可以将该 qote 发送到 Intel 认证服务（IAS），IAS 对 qote 进行验证，以确认并评估飞地的可信度。</li>
+</ul>
+<p>引用飞地（Quoting Enclave，QE）的角色是<strong>为报告转换为引用</strong>提供一个安全且可信的环境，并<strong>确保引用不能被篡改或伪造</strong>。Intel 还提供了数据中心认证原语（DCAP），这是由多个软件包组成的，数据中心可以利用它们部署自己的 ECDSA 认证基础设施以进行 SGX 飞地认证。</p>
+<p>研究人员已经利用 SGX 来提供安全容器（例如，Scone）和为未经修改的应用程序提供屏蔽执行（例如，Haven）。Graphene 是一个基于 SGX 的框架，它提供了在 SGX 飞地内运行未经修改的应用程序及动态库的技术。此外，SGX 还有广泛的应用，包括功能加密系统（如 Iron）、代码划分保护敏感数据和功能（如 Glamdring）、机器学习、安全网络、安全的分布式系统协调（如 SecureKeeper）以及安全的分布式计算等。</p>
+<p>同时，识别 SGX 的漏洞也是一个重要的研究方向。研究人员发现了针对 SGX 的各种攻击向量，例如受控通道攻击、缓存攻击、分支预测攻击和推测执行攻击。</p>
+<p><strong>SGX 与 TDX 的关系</strong></p>
+<p>SGX 和 TDX 在同一平台上保护内存的粒度不同。但在同一平台上，TDX 和 SGX 属于同一可信计算基（TCB），因此它们可以相互进行本地认证。TDX 利用了由 SGX 提供的远程认证机制。TDX 平台的认证报告可以在引用飞地（QE）中验证并签署。</p>
+<p>需要注意的是，<strong>目前在 TD 中运行 SGX 飞地是不被允许的</strong>，因为在 TD 中调用 ENCLS / ENCLV 指令会导致未定义指令（UD）异常。</p>
+<hr />
+<h2 id="tdx-概述">TDX 概述</h2>
+<p>在本节中，我们将概述 TDX，讨论其系统架构、内存保护机制、I/O 模型、认证以及未来计划的功能。</p>
+<h3 id="tdx-系统架构">TDX 系统架构</h3>
+<figure>
+<img src="/assets/QQ_1730016896233.png" alt="QQ_1730016896233" /><figcaption>QQ_1730016896233</figcaption>
+</figure>
+<p>图 1 显示了 TDX 的运行时架构。它由两个关键组件组成：</p>
+<ol type="1">
+<li><strong>TDX 支持的处理器</strong>：提供架构功能，如硬件辅助虚拟化、内存加密/完整性保护，以及认证 TEE 平台的能力。<br />
+</li>
+<li><strong>TDX 模块</strong>：这是一个由 Intel 签署并由 CPU 认证的软件模块，利用 TDX 支持的处理器的特性来促进信任域（TD）的构建、执行和终止，同时强制执行安全保证。TDX 模块提供两组接口函数，一组用于 TDX 友好的虚拟机管理程序，另一组用于 TD。它加载并执行在 SEAM 范围内，这是由 UEFI/BIOS 保留的系统内存部分。P-SEAM 加载器也驻留在 SEAM 范围内，可以安装和更新 TDX 模块。</li>
+</ol>
+<p>安全仲裁模式 (SEAM) 是对 VMX 架构的扩展，提供了两种新的执行模式：SEAM VMX 根模式和 SEAM VMX 非根模式。</p>
+<p>一个 TDX 友好的虚拟机管理程序在传统的 VMX 根模式下运行，并使用 SEAMCALL 指令调用 TDX 模块的主机侧接口函数。当 SEAMCALL 指令执行时，逻辑处理器 (LP) 从 VMX 根模式过渡到 SEAM VMX 根模式，并开始执行 TDX 模块中的代码。一旦 TDX 模块完成任务，它通过执行 SEAMRET 指令返回到 VMX 根模式下的虚拟机管理程序。</p>
+<p>另一方面，TD（信任域）在 SEAM VMX 非根模式下运行。TDX 支持在 TD 中执行未经修改的用户级应用程序，类似于在标准虚拟机中执行的方式。然而，TD 的来宾操作系统内核（在图 1 中显示为 TDX 友好操作系统）需要进行一些修改，以适应底层 TDX 平台，并符合其架构范式和安全要求。这些修改包括处理新的 TDX 异常（通过来宾虚拟化异常（VE）处理程序）、实现类似于超调用的机制以便 TD 与 TDX 模块通信、为 I/O 操作转换内存页面（从私有到共享），以及集成认证支持。具体实现细节可能因操作系统类型而异。例如，经过增强的来宾 Linux 内核的详细实现已在内核文档中进行了描述。</p>
+<p>TD 通过 TD 退出或调用 TDCALL 指令陷入 TDX 模块的上下文中。两种情况下，逻辑处理器 (LP) 都会从 SEAM VMX 非根模式转换到 SEAM VMX 根模式，并开始在 TDX 模块上下文中执行。处理 TDCALL 的来宾侧接口函数以 "TDG" 开头。有关 TDX 上下文切换的详细信息，可以参见第 7.5 节。</p>
+<p>保密计算带来的机密性保障使其成为研究侧信道信息泄漏的主要目标。近年来，CPU 推测执行的系列微架构攻击暴露了一个令人担忧的问题：在架构状态中强制执行的安全域隔离可能与微架构状态不一致。随着 TDX 在市场上变得更加普及，它预计将吸引更多安全研究人员的关注。我们主要着重于审查已集成到 TDX 模块中的现有防御措施，以应对已知的攻击向量。详细信息请参见第 7.8 节。</p>
+<h3 id="tdx-内存保护">TDX 内存保护</h3>
+<p>TDX 利用 VMX 强制执行对 TD 的内存隔离。类似于传统虚拟机，TD 无法访问其他安全域的内存，如 SMM、虚拟机管理程序、TDX 模块和其他虚拟机/TD。使用 VMX，虚拟机管理程序维护扩展页表（EPT）来强制实施内存隔离。然而，由于虚拟机管理程序不再被信任，<strong>TDX 已将内存管理任务转移至 TDX 模块，TDX 模块控制 TD 私有内存的地址转换</strong>。</p>
+<p>TDX 的安全模型中最引人注目的部分是其防护 TD 内存免受特权软件、损坏的设备和主机上不良管理员的攻击。TDX 通过<strong>访问控制</strong>和<strong>加密隔离</strong>来实现这一点。访问控制防止同一台计算机上的其他安全域访问 TD 的数据。加密隔离则防止恶意 DMA 设备或拥有物理访问权限的对手直接读取或篡改 TD 的私有内存。</p>
+<p><strong>内存分区</strong></p>
+<p>启用 TDX 后，整个物理内存空间将被分为两部分：普通内存和安全内存。TD 的敏感数据，包括私有内存、虚拟 CPU 状态及其相关的元数据，都应存储在安全内存中。TD 还可以指定一些内存区域作为共享内存进行 I/O 操作，这些共享区域不会通过 TDX 得到保护，因此属于普通内存。</p>
+<p>所有不在 SEAM 模式下运行的软件都属于普通内存，不允许访问安全内存，无论其权限级别如何。内存控制器是处理器内的一个架构组件，负责执行内存访问检查。</p>
+<p>要将物理页面设为安全内存的一部分，需要启用 TD 所有者位。每个 TD 所有者位与一个内存段相关联，该内存段对应一个缓存行。</p>
+<p>TD 所有者位存储在与这些段关联的错误校正码（ECC）内存中。TDX 模块通过将私有 HKID 附加到物理地址来控制物理内存页面转换为安全内存的过程。HKID 编码在物理地址的高位比特中。私有 HKID 只能用于 TD 和 TDX 模块的加密。</p>
+<p>写入带有私有 HKID 的物理地址时，内存控制器将 TD 所有者位设置为 1；写入不带私有 HKID 的地址时，将清除 TD 所有者位。访问控制在每个缓存行读取时强制执行。</p>
+<p>读取请求通过内存控制器，只有在 SEAM 模式下执行的进程才能读取设置为 1 的缓存行。如果在非 SEAM 模式下读取此类缓存行，请求将会返回全零。</p>
+<p>当构建一个 TD 时，（不可信的）虚拟机管理程序会从普通内存中选择内存页面，将它们转换为安全内存。</p>
+<p>TDX 模块会逐步将这些页面移动到安全内存中，并将其用于每个 TD 的元数据和主存储器。TD 必须显式接受这些页面后，才可将它们用作其主存储器。TDX 模块通过维护一个物理地址元数据表（PAMT）来执行对安全内存设置的完整性检查，有关 PAMT 的详细信息可以在第 7.7 节中找到。</p>
+<p><strong>内存机密性</strong></p>
+<p>TDX 利用 MKTME（第 5.2 节）来加密 TD 的私有内存及其元数据。MKTME 负责透明地对通过内存控制器的读写数据进行加密和解密操作。TDX 模块为 MKTME 配置密钥，这些密钥用于在缓存行被写回内存时对其进行加密。密钥与嵌入在物理地址中的 HKID 相关联。<strong>MKTME 解码 HKID，并使用相关的加密密钥来执行加密操作。</strong></p>
+<p><strong>MKTME 将加密密钥存储在其内部存储器中，从不对外部暴露</strong>。加密密钥只能通过它们的 HKID 来引用。当创建新 TD 时，虚拟机管理程序选择一个未使用的私有 HKID，并由 TDX 模块请求处理器生成与该 HKID 关联的新加密密钥。TDX 模块将这个 &lt;HKID, 密钥&gt; 对绑定到 TD 上。它确保每个 TD 的内存使用不同的加密密钥进行加密。</p>
+<p>MKTME 在缓存行被写回主存储器时使用 AES-128 XTS 加密技术进行加密。加密可以防止一些物理攻击，例如冷启动攻击。有关 MKTME 和 HKID 的更多详细信息，请参见第 8.1 节。</p>
+<p><strong>内存完整性</strong></p>
+<p>TDX 提供了两种不同的机制来确保内存完整性：逻辑完整性 (Li) 和加密完整性 (Ci)。</p>
+<ul>
+<li><p><strong>逻辑完整性 (Li)</strong> 通过使用 TD 所有者位来防止未经授权的软件写入。由于 TDX 只允许在 SEAM 模式下使用私有 HKID，<strong>任何来自 SEAM 模式之外的未经授权的写入操作将清除 TD 的私有内存的 TD 所有者位</strong>。当从内存中读取这些被修改的私有内存时，已清除的 TD 所有者位将触发异常。然而，此功能不能防止对手通过内存的比特翻转（例如，通过 Rowhammer 攻击）来修改内存。</p></li>
+<li><p><strong>加密完整性 (Ci)</strong> 是一个更高级的机制，它解决了 Li 的局限性。除了 TD 所有者位之外，Ci 还在缓存行被写回内存时计算一个<strong>消息认证码 (MAC)</strong>。MAC 使用在系统初始化期间生成的 128 位 MAC 密钥进行计算，并作为内存元数据的一部分在写回时存储。当内存被读取时，MAC 会重新计算。如果内存内容被篡改，则重新计算的 MAC 将与存储的元数据不匹配，从而触发完整性检查。然而，无论是 Li 还是 Ci 都无法检测到内存回放攻击（如果对手能够回滚内存内容和元数据）。我们将在第 8.2 节中提供更多有关内存完整性保护的技术细节。</p></li>
+</ul>
+<h3 id="tdx-io-模型">TDX I/O 模型</h3>
+<p>根据 TDX 的威胁模型，虚拟机管理程序和外围设备被认为是不可信的，不允许直接访问 TD 的私有内存。TD 及其所有者有责任在 I/O 数据离开信任边界之前对其进行保护。这需要通过将 I/O 数据缓冲区封装到共享内存中来完成，共享内存在 GPA 中由共享位标识。虚拟机管理程序或外围设备随后可以将数据进出共享内存。这一模型需要对来宾内核进行修改，以支持该 I/O 模型。此外，传输到 TD 的所有 I/O 数据必须经过仔细检查和验证，因为它们不再被视为可信。</p>
+<p>在 Linux 客户端对 TDX 的支持中，所有 MMIO 区域和 DMA 缓冲区都映射为 TD 中的共享内存。Linux 来宾强制使用 SWIOTLB（软件 I/O 转换缓冲区）在统一的位置分配和转换 DMA 缓冲区。为了防止 I/O 输入中的恶意行为，<strong>只允许有限数量的经过强化的驱动程序在 TD 中运行</strong>。</p>
+<h3 id="tdx-认证">TDX 认证</h3>
+<p>远程认证是一种验证可信执行环境（TEE）身份和可信度的方法。认证方（attester）可以向质询方（challenger）提供证明，以表明计算正在受保护的环境中执行。质询方通过<strong>检查数字签名和比较测量值</strong>来验证证据。</p>
+<p>在支持 TDX 的机器上，认证方在 TD 内运行，负责处理远程认证请求。当收到质询方（如租户）的请求时，认证方通过生成一个 TD 引用（TD Quote）来提供 TD 正确实例化的证据。</p>
+<p>这个引用由 TDX 模块生成，并由引用飞地（Quoting Enclave）签名。它包含 TDX 的可信计算基（TCB）和 TD 中加载的软件组件的测量值。引用还包括由 Intel 颁发的证书链作为信任根。</p>
+<p>在收到引用后，质询方通过检查引用的真实性来验证其可信性，确保认证方在真实的 TDX 平台上运行，并确认 TD 具有预期的软件测量值。如果引用验证成功，质询方可以继续与认证方建立安全通道，或向认证方释放密钥。我们将在第 9 节中详细讨论远程认证的技术细节。</p>
+<h3 id="未来功能">未来功能</h3>
+<p>对于保密虚拟机来说，<strong>实时迁移和可信 I/O</strong> 是至关重要的功能，但目前在 TDX 1.0 中尚未得到支持。然而，根据相关文档，Intel 计划在 TDX 1.5 中支持实时迁移，并在 TDX 2.0 中支持可信 I/O。这些计划正在进行中，可能会在未来发生变化。以下我们简要介绍这两个功能的设计。</p>
+<p><strong>实时迁移</strong></p>
+<p>实时迁移是云服务提供商的一项重要功能，因为它可以让他们在不中断服务的情况下，<strong>将运行中的虚拟机从一台物理主机迁移到另一台物理主机</strong>。这一功能对于硬件升级、软件修补和负载均衡等维护任务至关重要。</p>
+<p>然而，由于保密计算的安全要求，迁移 TD 比迁移传统虚拟机更加复杂。由于虚拟机管理程序被视为不可信，因此它不能直接访问和传输源平台上的 TD 的 CPU 状态和私有内存。此外，租户应能够定义和强制执行迁移策略。例如，如果目标平台未满足策略中规定的 TCB 要求，则应取消迁移。</p>
+<p>Intel 引入了"服务 TD"（Service TD），以扩展 TDX 模块的信任边界。与将 TDX 模块本身过度复杂化和膨胀化相比，将自定义和专门化的功能添加到服务 TD 中更加方便灵活。服务 TD 可以通过 TDX 模块与常规 TD 绑定，并且可以对其资产具有访问权限。</p>
+<p>迁移 TD（MigTD）是专为实时迁移设计的服务 TD。整个实时迁移过程由 TDX 模块和迁移 TD 控制。不可信的虚拟机管理程序（由云服务提供商控制）仅负责通过网络传输已加密的 TD 资产。这些资产包括 TD 的元数据、CPU 状态和私有内存，并通过仅由迁移 TD 和 TDX 模块访问的迁移会话密钥 (MSK) 进行保护。</p>
+<p>源平台和目标平台上都运行着迁移 TD（MigTD）。迁移 TD 分别与源 TD（要迁移的 TD）和目标 TD（最初为等待迁移的 TD 模板）绑定。迁移 TD 负责源平台和目标平台之间的远程认证，并根据安全策略评估其 TCB 级别。一旦平台被认为适合迁移，源迁移 TD 和目标迁移 TD 之间就会建立安全通道。源迁移 TD 生成一个 MSK，并通过此安全通道共享给目标迁移 TD。源和目标迁移 TD 分别将 MSK 编程到相应的 TDX 模块中。源 TDX 模块使用 MSK 对 TD 的资产进行加密和导出，而目标 TDX 模块使用相同的密钥进行解密并将资产导入目标 TD。需要注意的是<strong>，源 TD 和目标 TD 分别分配了独立的 HKID，因此它们受到不同 TD 私钥的保护</strong>。</p>
+<p><strong>可信 I/O</strong></p>
+<p>计算机由各种功能组件组成。然而，保密计算从概念上打破了统一的信任模型。因此，由不同供应商制造的每个组件之间不能再相互信任，这对高效 I/O 造成了严重障碍，因为不可信的设备无法读取和写入 TEE 的私有内存。为了解决这一问题，Intel 提出了 TDX 2.0 中的 <strong>TDX Connect</strong>，旨在将 TD 的信任扩展到外部设备。这需要对设备和 TDX 平台进行更改，以使用兼容的协议来建立相互信任，并启用安全的通信通道。关键原则是，<strong>TD 和设备应能够安全地交换和验证彼此的身份和测量值</strong>。此外，TD 和设备之间的数据路径并不受信任，可能会受到攻击者的拦截。因此，必须建立端到端的安全通道来保护 TD 和设备之间传输的数据。有关 TDX Connect 的详细协议，可以在相关提案中找到。</p>
+<hr />
+<h2 id="tdx-模块">TDX 模块</h2>
+<p>本节对 TDX 模块进行了深入分析。我们首先在第 7.1 节讨论其加载过程，接着在第 7.2 节中解释其物理和线性内存布局。随后，我们在第 7.4 节中描述 TDX 模块用于管理 TD 的元数据，并在第 7.5 节中探讨不同安全域之间的上下文切换过程。此外，我们还介绍了 TDX 模块的 Keyhole 结构（第 7.6 节）及其内存管理（第 7.7 节）。</p>
+<h3 id="加载-tdx-模块">加载 TDX 模块</h3>
+<figure>
+<img src="/assets/QQ_1730018837399.png" alt="QQ_1730018837399" /><figcaption>QQ_1730018837399</figcaption>
+</figure>
+<p>图 2 展示了 TDX 模块的两阶段加载过程。该过程始于加载 Intel 的非持久 SEAM 加载器（NP-SEAM Loader），这是一种 Intel 认证代码模块（ACM）。ACM 是由 Intel 签名的模块，运行在处理器的内部 RAM 中。NP-SEAM Loader 通过 Intel 可信执行技术（TXT）中的 GETSEC[ENTERACCS] 函数进行<strong>身份验证并加载</strong>。NP-SEAM Loader 包含了 Intel 的持久 SEAM（P-SEAM）加载器的镜像，后者会被 NP-SEAM Loader 验证并加载。接着，<strong>P-SEAM 加载器负责安装或更新 TDX 模块</strong>。</p>
+<p>需要注意的是，P-SEAM 加载器和 TDX 模块都被加载到 SEAM 范围（SEAM Range）内，这是<strong>由 UEFI/BIOS 保留的一部分系统内存</strong>。范围的基地址和大小通过 IA32_SEAMRR_PHYS_BASE 和 IA32_SEAMRR_PHYS_MASK MSR（模型特定寄存器）来指定。此范围被划分为模块范围（Module_Range）用于 TDX 模块，以及 P_Seamldr_Range 用于 P-SEAM 加载器。<strong>两个模块都在 SEAM VMX 根模式下运行，并使用 SEAMCALL / SEAMRET 来与外部软件交互</strong>。NP-SEAM 加载器、P-SEAM 加载器和 TDX 模块均由 Intel 提供并签名，形成了用于启动 TDX 模块的信任链。</p>
+<p>P-SEAM 加载器提供了一个 SEAMCALL 接口函数 seamldr_install 用于加载 TDX 模块。TDX 模块的镜像被预加载到一个内存缓冲区（不在 SEAM 范围内）。缓冲区的物理地址和 seam_sigstruct（TDX 模块的签名）被作为参数传递给 seamldr_install。seam_sigstruct 包含 TDX 模块的哈希值和安全版本号 (SVN)、每个逻辑处理器的堆栈页面数量、每个逻辑处理器的数据页面数量，以及全局数据页面的数量。seamldr_install 使用这些数字来确定 TDX 模块的各个内存区域的物理/线性地址和大小。</p>
+<p>seamldr_install 必须在所有逻辑处理器上顺序调用。当它在第一个逻辑处理器上调用时，安装会话启动。在每个逻辑处理器上，seamldr_install 检查当前逻辑处理器是否已经处于另一个逻辑处理器启动的安装会话中，并清除逻辑处理器的 VMCS 缓存。当 seamldr_install 在最后一个逻辑处理器上被调用时，它执行以下操作：</p>
+<ol type="1">
+<li>检查 seamldr_install 的参数，</li>
+<li>验证 TDX 模块的签名，</li>
+<li>检查即将加载的镜像的 SVN，并与已存在的 TDX 模块进行比较，</li>
+<li>确定 SEAM 范围内的 TDX 模块各个内存区域的物理和线性地址及大小：代码区、数据区、堆栈区、页表、Sysinfo_Table、Keyhole 和 Keyhole-Edit（第 7.2 节），</li>
+<li>映射这些区域的物理地址到其线性地址（第 7.2 节），</li>
+<li>将 TDX 模块的二进制镜像加载到 SEAM 范围内，测量镜像，并计算和验证 TDX 模块的哈希值，</li>
+<li>设置 TDX 模块的 Sysinfo_Table，</li>
+<li>在每个逻辑处理器上设置 SEAM 传输 VMCS（第 7.5 节），</li>
+<li>将 TDX 模块的哈希值、SVN 记录到 P-SEAM 加载器的数据区。</li>
+</ol>
+<p>除了用于安装 TDX 模块的 SEAMCALL，P-SEAM 加载器还提供了其他接口函数，用于关闭自身以及检索加载器的系统信息。</p>
+<p><strong>7.2 TDX 模块的内存布局</strong></p>
+<p>这里我们分别讨论 TDX 模块的物理和线性内存布局。</p>
+<p><strong>物理内存布局</strong></p>
+<figure>
+<img src="/assets/QQ_1730018974265.png" alt="QQ_1730018974265" /><figcaption>QQ_1730018974265</figcaption>
+</figure>
+<p>图 3 显示了 TDX 模块在 Module_Range 中的物理内存布局。布局以一个 4 KB 页面开始，该页面包含 TDX 模块的 Sysinfo_Table。Sysinfo_Table 由 NP-SEAM Loader 填充的 2 KB 平台信息和由 P-SEAM Loader 填充的 2 KB 模块信息组成，包括 SEAM 范围的基地址和大小、各个内存区域的线性地址基址、逻辑处理器数量以及私有 HKID 的范围。在 Sysinfo_Table 之后，是每个逻辑处理器的 VMCS 区域。每个逻辑处理器都有一个 4 KB 的 SEAM 传输 VMCS（参见第 7.5 节）。</p>
+<blockquote>
+<p>VMCS（<strong>Virtual Machine Control Structure</strong>，虚拟机控制结构）是 Intel 虚拟化技术（Intel VT-x）中的一个关键数据结构。</p>
+<p>VMCS 使得处理器能够高效地在虚拟机（VM）和虚拟机监控器（VMM，通常是 hypervisor）之间切换。</p>
+</blockquote>
+<p>在每个逻辑处理器的 VMCS 区域之后，是数据区，数据区被划分为每个逻辑处理器的数据区和全局数据区。接着是 TDX 模块的 4 级页表，之后是每个逻辑处理器的堆栈区域，最后是 TDX 模块的可执行代码区。</p>
+<p><strong>线性内存布局</strong></p>
+<figure>
+<img src="/assets/QQ_1730019011073.png" alt="QQ_1730019011073" /><figcaption>QQ_1730019011073</figcaption>
+</figure>
+<p>TDX 模块有其自身的线性地址空间，并维护一个页表来进行地址转换。图 4 展示了 TDX 模块的线性地址空间布局，该布局由 P-SEAM 加载器通过构建 TDX 模块的页表来建立。为了防止内存篡改攻击，P-SEAM 加载器将线性地址的第 34 到 46 位进行随机化，这些位在图中以方框表示。所有区域的线性地址和大小都记录在 Sysinfo_Table 的字段中。对于代码、堆栈、数据和 Sysinfo_Table 的页面表项（PTE）可以提前静态填充，无需在运行时更改页面表。然而，Keyhole 区域用于在 TDX 模块执行期间动态映射外部软件传递的数据。这就需要在 Keyhole 区域之外添加 Keyhole-Edit 区域，以允许在运行时编辑 Keyhole 的映射 PTE。Keyhole 和 Keyhole-Edit 区域的详细讨论可以在第 7.6 节找到。</p>
+<p><strong>7.3 TDX 模块的初始化与配置</strong></p>
+<p>在 TDX 模块加载完成后，主机内核负责初始化和配置 TDX 模块。主机内核通过 SEAMCALL[TDH.SYS.INIT] 来全局初始化 TDX 模块。然后，主机内核在每个逻辑处理器上调用 SEAMCALL[TDH.SYS.LP.INIT]，以检查和初始化每个逻辑处理器的参数，如 Keyhole、数据区和堆栈区（第 7.2 节）。接下来，主机内核分配一个全局私有 HKID，并通过 SEAMCALL[TDH.SYS.CONFIG] 将其传递给 TDX 模块，同时初始化信任域内存区域（TDMR）（第 7.7 节）。每个处理器包上的 SEAMCALL[TDH.SYS.KEY.CONFIG] 会生成一个 TDX 全局私钥，并将该密钥与这个 HKID 绑定。此密钥用于加密 PAMT 和每个 TD 的信任域根（TDR）所占据的内存。最后，主机内核多次调用 SEAMCALL[TDH.SYS.TDMR.INIT]，以逐步初始化每个 TDMR 的 PAMT（第 7.7 节）。</p>
+<p><strong>7.4 信任域的元数据</strong></p>
+<p>TDX 模块负责管理整个 TD 的生命周期。因此，它需要为每个 TD 实例维护元数据。TDX 模块确保对元数据应用内存加密，以防止虚拟机管理程序访问或篡改。</p>
+<figure>
+<img src="/assets/QQ_1730019052343.png" alt="QQ_1730019052343" /><figcaption>QQ_1730019052343</figcaption>
+</figure>
+<p>每个 TD 的元数据由以下控制结构组成：信任域根（TDR）、信任域控制结构（TDCS）、信任域虚拟处理器状态（TDVPS）和安全扩展页表（SEPT）。图 5 展示了这些控制结构之间的关系。</p>
+<ul>
+<li><p><strong>信任域根 (TDR)</strong>：TDR 是在 TD 创建时生成的初始结构，并在 TD 终止时销毁。在 TD 的整个生命周期中，SEAMCALLs 使用相应 TDR 的物理地址来引用 TD。TDR 包含内存加密的关键信息，以及指向 TDCX 页（用于存储 TDCS 的物理内存页）的引用。由于 TDR 在 TD 私钥生成之前创建，因此它通过 TDX 模块的全局私钥来保护。随后的元数据（TDCS、TDVPS 和 SEPT）及 TD 的内存页面可以通过 PAMT 中的所有者属性与 TDR 关联（第 7.7 节）。</p></li>
+<li><p><strong>信任域控制结构 (TDCS)</strong>：TDCS 是一个控制结构，用于在 TD 范围内管理操作并存储状态。它由四个连续的 TDCX 内存页组成，每个页分配给特定用途，如 TD 的管理结构、MSR 位图、SEPT 根页面和一个特殊的零页。TDCS 通过 TD 私钥加密。</p></li>
+<li><p><strong>信任域虚拟处理器状态 (TDVPS)</strong>：TDVPS 是每个 TD 虚拟 CPU 的控制结构。它由六个内存页组成，起始页为 TDVPR 页面，包含对多个 TDVPX 页的引用。第一个 TDVPR 页面存储 VE 信息、虚拟 CPU 管理、来宾状态和来宾 MSR 状态字段。第二个页面是 TD 传输 VMCS（第 7.5 节），控制 TD 的进入和退出。第三个页面是虚拟 APIC 页面，其后是三个存储来宾扩展信息的页面。与 TDCS 一样，TDVPS 也受 TD 私钥的保护。</p></li>
+<li><p><strong>安全扩展页表 (SEPT)</strong>：对于传统的虚拟机，虚拟机管理程序通过 EPT 管理从 GPA 到 HPA 的地址转换。然而，在 TDX 中，来宾地址转换必须受到不可信虚拟机管理程序的保护。为此，TDX 具有两种类型的 EPT：SEPT 和共享 EPT。SEPT 用于 TD 的私有内存地址的转换，并受 TD 私钥保护。SEPT 和 SEPT 根页面的引用存储在 TDCS 中。另一方面，共享 EPT 用于转换由 TD 明确与虚拟机管理程序共享的内存地址（例如用于虚拟化 I/O 的情况），并由虚拟机管理程序控制。TD 的来宾内核可以通过在 GPA 中设置共享位来决定哪些内存页面要共享。共享内存页面不会通过 TD 私钥进行加密。</p></li>
+</ul>
+<p><strong>7.5 TDX 上下文切换</strong></p>
+<figure>
+<img src="/assets/QQ_1730019082229.png" alt="QQ_1730019082229" /><figcaption>QQ_1730019082229</figcaption>
+</figure>
+<p>TDX 的设计必须确保在不同安全域之间进行上下文切换时保持数据的机密性和完整性。上下文切换包括来宾 TD 与 TDX 模块之间的切换，以及不同 TD 之间的切换。在切换过程中，TDX 必须防止跨域信息泄漏，并在离开一个域时清除敏感数据。</p>
+<p>TD 的上下文由信任域虚拟处理器状态（TDVPS）保存。TDVPS 由几个内存页组成，每个内存页存储来宾虚拟 CPU 的不同部分状态，如 VE 信息、管理字段和扩展状态。TDVPS 通过 TD 私钥加密，以防止未经授权的访问。</p>
+<p>在上下文切换期间，逻辑处理器（LP）会从 SEAM VMX 非根模式切换到 SEAM VMX 根模式，并在 SEAM 传输 VMCS 中保存来宾 TD 的状态。SEAM 传输 VMCS 是一个特殊的 VMCS，它驻留在 SEAM 范围内，并通过 TD 私钥加密。每个逻辑处理器都与其专属的 SEAM 传输 VMCS 关联。当 SEAMCALL 指令被执行时，LP 从 SEAM VMX 非根模式切换到 SEAM VMX 根模式，并开始在 TDX 模块上下文中执行。随后，SEAMCALL 执行 SEAMRET 指令，将 LP 切换回 SEAM VMX 非根模式。</p>
+<p><strong>7.6 Keyhole 结构</strong></p>
+<p>由于 TDX 模块不允许直接访问 TD 的私有内存，因此需要一个特殊的机制来对外部软件传递的数据进行加密和解密。Keyhole 区域用于<strong>动态映射外部软件传递的数据，并将其转换为安全内存</strong>。Keyhole 结构包括两个部分：Keyhole 和 Keyhole-Edit。Keyhole 是 TDX 模块的线性地址空间中的一个区域，用于映射外部内存数据，而 Keyhole-Edit 是一个附加区域，用于在运行时编辑 Keyhole 的映射页面表项（PTE）。</p>
+<p><strong>Keyhole 机制</strong></p>
+<p>外部软件可以通过调用 SEAMCALL 来将数据传递到 TDX 模块。数据被传递到 Keyhole 区域中，并使用 PTE 将其映射到 SEAM 范围内的线性地址。Keyhole-Edit 用于管理和更新这些映射。TDX 模块通过 Keyhole 接收数据并将其加密后存储到安全内存中。在处理完成后，Keyhole 区域会被清除，以防止敏感数据泄漏。</p>
+<p><strong>7.7 TDMR 和 PAMT 管理</strong></p>
+<p>TDX 模块使用信任域内存区域（TDMR）来管理整个 TD 的物理内存。每个 TDMR 由多个物理内存页面组成，这些页面由 TDX 模块负责保护和管理。TDMR 的所有内存页面都受到内存加密保护，只有 SEAM 模式下的代码可以访问这些页面。</p>
+<p><strong>物理地址元数据表（PAMT）存储了每个 TDMR 的页面元数据</strong>。PAMT 包含每个物理页面的所有者、权限和状态信息。每个 TDMR 由多个 PAMT 页面组成，PAMT 通过 TD 私钥加密，防止未经授权的访问和篡改。PAMT 中的每个条目都对应一个物理内存页面，记录页面的状态、所有者信息和加密密钥。<strong>TDX 模块利用 PAMT 来验证每个物理内存页面的合法性和完整性</strong>，确保只有经过授权的页面才能作为安全内存使用。</p>
+<p><strong>7.8 侧信道防护</strong></p>
+<p>TDX 通过多种机制来抵御已知的侧信道攻击，例如时序攻击、缓存攻击和推测执行攻击。以下是 TDX 中的一些关键防护措施：</p>
+<ol type="1">
+<li><strong>TLB 刷新和隔离</strong>：在 TD 和非 TD 上下文之间切换时，TDX 模块会刷新翻译后备缓冲区（TLB），防止恶意软件利用 TLB 中的残留信息。</li>
+<li><strong>缓存刷新</strong>：在上下文切换过程中，TDX 模块会刷新处理器的缓存，防止缓存攻击。</li>
+<li><strong>控制流保护</strong>：TDX 依赖于 Intel 的控制流强制技术（CET）来保护控制流的完整性，防止恶意的控制流劫持。</li>
+</ol>
+<p>TDX 模块还采用了其他微架构隔离技术，如分支预测缓冲区隔离和强化的内存随机化，以减少侧信道攻击的风险。对于推测执行漏洞（如 Meltdown 和 Spectre），TDX 依赖于底层处理器的硬件修复措施。</p>
+<p><strong>8. 内存管理的深入分析</strong></p>
+<p>在本节中，我们将深入探讨 TDX 中的内存管理技术，包括 HKID 分配、加密密钥管理、内存完整性保护和内存加密的详细实现。</p>
+<p><strong>8.1 HKID 分配和密钥管理</strong></p>
+<figure>
+<img src="/assets/QQ_1730019260545.png" alt="QQ_1730019260545" /><figcaption>QQ_1730019260545</figcaption>
+</figure>
+<p>TDX 模块利用多密钥内存加密技术 (MKTME) 来保护 TD 的私有内存。每个 TD 都被分配一个唯一的主机密钥标识符 (HKID)，与之关联的加密密钥用于保护 TD 的内存数据。HKID 是物理地址的高位比特，用来标识特定的加密密钥。</p>
+<p>在系统初始化过程中，TDX 模块通过调用<strong>处理器的内置密钥管理功能</strong>来生成密钥。<strong>MKTME 提供的密钥引擎负责生成并管理这些密钥</strong>，并将其与对应的 HKID 关联。处理器通过<strong>内存控制器上的加密引擎来执行加密和解密操作</strong>，密钥永不离开处理器。每个 HKID 代表一个特定的加密密钥，因此多个 TD 之间的加密隔离通过唯一的 HKID 实现。</p>
+<p><strong>8.2 内存完整性保护</strong></p>
+<p>TDX 提供两种内存完整性保护机制：逻辑完整性 (Li) 和加密完整性 (Ci)。Li 通过使用内存的 TD 所有者位来防止未经授权的软件写入。Ci 则通过在写入内存时生成消息认证码 (MAC) 来防止数据篡改。</p>
+<p>当一个 TD 被创建时，TDX 模块会为每个物理页面设置所有者信息，并使用 PAMT 来管理这些元数据。PAMT 存储每个物理页面的状态信息，如页面的所有者、加密状态和权限。TDX 模块会根据 PAMT 中的所有者信息和 TD 所有者位来验证对页面的访问。</p>
+<p>在进行内存操作时，如果检测到任何不符合权限或所有者属性的访问尝试，内存控制器会触发完整性检查异常。对于 TD 的私有内存，所有读写操作都会经过内存加密引擎的处理，防止未经授权的数据篡改或信息泄漏。</p>
+<p><strong>8.3 内存加密的实现</strong></p>
+<p>TDX 依赖 MKTME 提供的内存加密功能来保护 TD 的私有内存。<strong>每个物理页面的 HKID 被嵌入到其物理地址中</strong>，当处理器将数据写入内存时，MKTME 加密引擎会根据 HKID 来选择相应的加密密钥。<strong>MKTME 使用 AES-128 XTS 算法</strong>来对缓存行进行加密和解密。</p>
+<p>HKID 是 MKTME 内存控制器的一部分，由处理器的内存控制器负责解码。处理器为每个 TD 分配一个唯一的私有 HKID，并使用该 HKID 对 TD 的私有内存进行加密。由于每个 TD 都使用不同的加密密钥，因此即使在物理上共享相同的内存区域，也不会出现跨域数据泄露的情况。</p>
+<p><strong>8.4 内存随机化和隔离</strong></p>
+<p>TDX 模块还使用内存地址随机化技术来增强内存隔离。通过在初始化时随机化线性地址的高位，TDX 减少了恶意软件预测和访问 TD 内存的风险。每个 TD 的内存区域在创建时都会进行随机化映射，防止恶意软件利用固定的内存地址进行攻击。</p>
+<p>TDX 模块进一步通过刷新缓存和 TLB 来确保内存隔离。每当在 SEAM 模式和非 SEAM 模式之间切换时，TDX 模块都会执行缓存和 TLB 刷新，以防止恶意软件利用缓存中的残留数据。</p>
+<p><strong>9. 远程认证</strong></p>
+<figure>
+<img src="/assets/QQ_1730019311849.png" alt="QQ_1730019311849" /><figcaption>QQ_1730019311849</figcaption>
+</figure>
+<p>远程认证是 TDX 的一个关键功能，允许外部质询方验证 TDX 平台和 TD 的可信性。远程认证依赖于 SGX 架构中的引用飞地 (QE) 来生成认证引用 (Quote)。以下是远程认证的详细过程。</p>
+<figure>
+<img src="/assets/QQ_1730019435608.png" alt="QQ_1730019435608" /><figcaption>QQ_1730019435608</figcaption>
+</figure>
+<figure>
+<img src="/assets/QQ_1730019455971.png" alt="QQ_1730019455971" /><figcaption>QQ_1730019455971</figcaption>
+</figure>
+<figure>
+<img src="/assets/QQ_1730019484460.png" alt="QQ_1730019484460" /><figcaption>QQ_1730019484460</figcaption>
+</figure>
+<ol type="1">
+<li><p><strong>平台认证</strong>：TDX 模块首先与 QE 进行本地认证。<strong>QE 验证 TDX 模块的哈希值和签名，以确认其在合法的 TDX 模块上运行</strong>。认证成功后，<strong>TDX 模块生成一份包含 TD 测量值的报告，并发送给 QE</strong>。</p></li>
+<li><p><strong>生成引用 (Quote)</strong>：QE 收到报告后，使用认证密钥对其进行签名，生成一个包含 TDX 平台和 TD 的认证引用。引用包括 TD 的测量值、TCB 级别和平台的可信状态。</p></li>
+<li><p><strong>质询方验证</strong>：远程质询方接收到引用后，<strong>通过检查引用中的数字签名和测量值来验证 TD 的可信性</strong>。质询方还可以通过与 Intel 提供的参考数据进行对比，来确认平台的 TCB 状态。</p></li>
+<li><p><strong>建立安全通道</strong>：一旦认证成功，<strong>质询方可以与 TD 进行安全通信</strong>。质询方可以选择向 TD 发送敏感数据或授权密钥，以便 TD 内的应用程序继续执行任务。</p></li>
+</ol>
+<hr />
+<p><strong>10. 实验评估</strong></p>
+<p>为了评估 TDX 的性能和安全性，我们设计了一系列实验，涉及以下几个方面：TDX 的创建和销毁开销、TD 执行开销、内存保护性能、上下文切换开销以及认证过程的性能。我们使用支持 TDX 的 Intel 第四代 Xeon 处理器来进行实验。</p>
+<p><strong>10.1 TDX 创建和销毁开销</strong></p>
+<p>我们测量了创建和销毁 TD 的开销，这包括初始化 SEAM 模式、加载和配置 TDX 模块、为 TD 分配内存以及执行 TDX 的安全检查。实验表明，创建一个 TD 的时间主要取决于所分配的内存大小和 TDX 模块的配置复杂度。销毁 TD 的开销相对较小，因为它只需释放已分配的资源并清除元数据。</p>
+<p>在实验中，我们观察到，创建一个包含 2 GB 内存的 TD 大约需要 200 毫秒，而销毁同样大小的 TD 则仅需 20 毫秒。这些开销在大规模云环境中是可以接受的，因为 TD 的生命周期通常较长，并且这些操作不会频繁发生。</p>
+<p><strong>10.2 TD 执行开销</strong></p>
+<p>我们还评估了 TD 执行开销，即 TD 运行常规应用程序时的性能影响。我们选用了多种基准测试，包括计算密集型任务、内存密集型任务和 I/O 密集型任务。我们将这些任务分别在传统虚拟机和 TD 中运行，并比较其性能。</p>
+<p>实验结果表明，在计算密集型任务中，TD 的性能几乎与传统虚拟机相同，性能开销在 2% 以内。这是因为 TDX 对 CPU 执行路径的影响非常小。然而，对于内存密集型任务，TD 的性能开销略有增加，约为 5%。这是由于 TDX 的内存加密和完整性检查引入了一定的开销。对于 I/O 密集型任务，由于 TD 需要将 I/O 缓冲区映射为共享内存，额外的内存映射操作带来了约 7% 的性能开销。</p>
+<p><strong>10.3 内存保护性能</strong></p>
+<p>我们测量了 TDX 内存保护的性能影响，包括内存加密和完整性检查的开销。实验表明，MKTME 引入的加密开销对于大多数内存操作来说是微乎其微的。我们在内存密集型基准测试中观察到，内存加密带来的性能影响约为 2%，主要源于 AES-128 XTS 加密算法的硬件实现。</p>
+<p>加密完整性检查（Ci）则引入了更高的开销。实验表明，对于频繁的内存写入操作，Ci 的开销约为 5% 至 8%。然而，这种开销可以通过调整应用程序的内存访问模式来缓解。</p>
+<p><strong>10.4 上下文切换开销</strong></p>
+<p>上下文切换是虚拟化环境中的常见操作，因此我们对不同安全域之间的上下文切换开销进行了评估。实验结果显示，从 TD 切换到 TDX 模块或从 TD 切换到其他 TD 所引起的上下文切换开销约为 30 微秒。TDX 模块必须在每次上下文切换时清除缓存和 TLB，并刷新 SEAM 范围内的状态，以防止跨域信息泄漏。</p>
+<p>相比之下，传统虚拟机之间的上下文切换开销通常在 10 微秒左右。TDX 上下文切换的额外开销主要源于增加的安全隔离和数据保护措施。</p>
+<p><strong>10.5 认证性能</strong></p>
+<p>我们还对 TDX 认证过程的性能进行了评估。实验显示，生成和验证 TD 引用的时间分别约为 15 毫秒和 5 毫秒。这个开销与 SGX 认证过程的开销相当。认证过程的性能主要取决于处理器的认证密钥生成和引用飞地（QE）的签名操作。</p>
+<p><strong>11. 总结</strong></p>
+<p>Intel TDX 是一个为虚拟化环境设计的保密计算技术，它提供了加密隔离、内存保护和远程认证等安全功能。通过引入 TDX，云服务提供商可以将特权软件和管理员从可信计算基（TCB）中排除，从而减少潜在的攻击面。本文采用自上而下的方法，对 TDX 的体系结构、内存保护机制、I/O 模型和认证过程进行了详细分析，并与其他保密计算技术进行了比较。</p>
+<p>我们的实验评估表明，TDX 在提供高级安全保护的同时，仅引入了较小的性能开销。未来，随着 TDX 实现实时迁移和可信 I/O 等功能，它在云计算和安全数据托管中的应用前景将更加广阔。</p>
+]]></content>
+      <categories>
+        <category>TEE</category>
+      </categories>
+      <tags>
+        <tag>TDX</tag>
+        <tag>Intel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>前端浏览器缓存机制</title>
+    <url>/posts/50ac740b/</url>
+    <content><![CDATA[<h2 id="前端浏览器缓存机制">前端浏览器缓存机制</h2>
+<p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
+<span id="more"></span>
+<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
+<h4 id="强缓存strong-caching">1. 强缓存（Strong Caching）</h4>
+<p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
+<ul>
+<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p></li>
+<li><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：
+<ul>
+<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
+<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
+<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
+<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
+</ul></li>
+</ul>
+<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
+<h4 id="协商缓存negotiation-caching">2. 协商缓存（Negotiation Caching）</h4>
+<p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
+<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
+<ul>
+<li><strong>Last-Modified &amp; If-Modified-Since</strong>:
+<ul>
+<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
+<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
+</ul></li>
+<li><strong>ETag &amp; If-None-Match</strong>:
+<ul>
+<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
+<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
+</ul></li>
+</ul>
+<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
+<h4 id="哈希与缓存hash">3. 哈希与缓存（Hash）</h4>
+<p><strong>哈希（Hash）</strong>与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
+<p><strong>典型用法</strong>：</p>
+<ul>
+<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
+<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
+</ul>
+<p><strong>总结</strong>：</p>
+<ul>
+<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
+<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
+<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
+</ul>
+<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
+<h3 id="什么是cdn内容分发网络">什么是CDN（内容分发网络）</h3>
+<p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
+<h4 id="cdn的工作原理">CDN的工作原理</h4>
+<ol type="1">
+<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p></li>
+<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p></li>
+<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p></li>
+<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p></li>
+</ol>
+<h4 id="cdn的主要优势">CDN的主要优势</h4>
+<ol type="1">
+<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p></li>
+<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p></li>
+<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p></li>
+<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p></li>
+<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p></li>
+</ol>
+<h4 id="cdn的使用场景">CDN的使用场景</h4>
+<ul>
+<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
+<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
+<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
+</ul>
+<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>编码</title>
+    <url>/posts/6f8a188e/</url>
+    <content><![CDATA[<h2 id="编码">编码</h2>
+<p>今天在复习编译原理的时候，发现对底层的编码都是还停留在听过或者见过的状态，所以决定学习一下有关编码的知识。</p>
+<span id="more"></span>
+<h3 id="编码概述">编码概述</h3>
+<ul>
+<li><strong>定义</strong>：编码是将信息从一种形式或格式转换为另一种形式的过程，以便信息能够被存储、传输或处理。在计算机科学中，编码通常指将人类可读的信息（如文本、图像、声音等）转换为计算机可识别的二进制形式。</li>
+<li><strong>目的</strong>：编码的主要目的是实现信息的有效存储、传输和处理。通过编码，信息可以在不同的系统、设备和网络之间进行交换和共享，同时还能对信息进行加密、压缩等操作以提高安全性、减少存储空间和传输带宽。</li>
+</ul>
+<h3 id="字符编码">字符编码</h3>
+<h4 id="ascii编码">ASCII编码</h4>
+<ul>
+<li><strong>背景与起源</strong>
+<ul>
+<li>1960年代，计算机开始普及，但不同厂商使用不同的编码标准，导致信息交换困难</li>
+<li>1967年，美国标准化组织制定ASCII，实现了计算机间的标准化通信</li>
+</ul></li>
+<li><strong>工作原理</strong>
+<ul>
+<li>使用7位二进制数，可以表示128个字符（2^7 = 128）</li>
+<li>0-31：控制字符（如换行符= 10，回车符 13）</li>
+<li>32-127：可打印字符（如'A' = 65，'a' = 97，'0' = 48）</li>
+</ul></li>
+<li><strong>优点</strong>
+<ul>
+<li>简单易用，是最基础的编码标准</li>
+<li>至今仍被广泛使用，现代编码方案都兼容ASCII</li>
+</ul></li>
+<li><strong>缺点</strong>
+<ul>
+<li>只能表示英文字母和符号，无法表示其他语言字符</li>
+<li>例如：无法表示"中文"、"日本語"等字符</li>
+</ul></li>
+</ul>
+<h4 id="gb2312与gbk">GB2312与GBK</h4>
+<ul>
+<li><strong>GB2312</strong>
+<ul>
+<li><strong>起源</strong>：1980年，中国为解决计算机无法显示汉字问题而制定</li>
+<li><strong>原理</strong>：采用双字节编码
+<ul>
+<li>首字节范围0xA1-0xF7，次字节范围0xA1-0xFE</li>
+<li>加0xA1是为了避开ASCII码的0x00-0x7F区域，确保与ASCII兼容</li>
+<li>分区设计：
+<ul>
+<li>01-09区：特殊符号</li>
+<li>16-55区：一级汉字（3755个常用字）</li>
+<li>56-87区：二级汉字（3008个次常用字）</li>
+<li>10-15区：保留区</li>
+</ul></li>
+<li>每个区94个字符，共94个区</li>
+</ul></li>
+<li><strong>示例</strong>：
+<ul>
+<li>"中"的GB2312编码为0xD6D0（第45区第60个汉字）</li>
+<li>"国"的GB2312编码为0xB9FA（第16区第15个汉字）</li>
+</ul></li>
+</ul></li>
+<li><strong>优点</strong>：
+<ul>
+<li>完全兼容ASCII</li>
+<li>包含6763个常用汉字，满足基本需求</li>
+<li><strong>缺点</strong>：
+<ul>
+<li>汉字数量有限，部分生僻字无法表示</li>
+<li>不支持繁体中文、日韩文字</li>
+</ul></li>
+</ul></li>
+<li><strong>GBK</strong>
+<ul>
+<li><strong>起源</strong>：1995年推出，是GB2312的扩展</li>
+<li><strong>特点</strong>：
+<ul>
+<li>向下完全兼容GB2312</li>
+<li>收录21003个汉字，包括繁体字</li>
+</ul></li>
+<li><strong>示例</strong>：
+<ul>
+<li>"㠭"（生僻字）在GB2312中无法表示，但GBK可以表示</li>
+</ul></li>
+<li><strong>优点</strong>：
+<ul>
+<li>字符集更大，能满足绝大多数中文处理需求</li>
+<li>兼容性好，在中国大陆使用广泛</li>
+</ul></li>
+<li><strong>缺点</strong>：
+<ul>
+<li>不是国际标准，在跨国际平台可能出现乱码</li>
+<li>无法表示其他国家的文字系统</li>
+</ul></li>
+</ul></li>
+</ul>
+<h4 id="unicode与utf编码">Unicode与UTF编码</h4>
+<ul>
+<li><strong>Unicode</strong>
+<ul>
+<li><strong>起源</strong>：
+<ul>
+<li>1991年推出，目标是统一全球所有字符编码</li>
+<li>由于各国编码标准不一，同一个二进制值在不同编码下可能表示不同字符，造成乱码</li>
+</ul></li>
+<li><strong>特点</strong>：
+<ul>
+<li>为每个字符分配唯一编码点（Code Point）</li>
+<li>编码空间从U+0000到U+10FFFF，共17个平面（Plane）</li>
+<li>第0平面（BMP，基本多语言平面）：U+0000至U+FFFF，收录最常用字符</li>
+<li>目前已收录超过14万个字符，包括各国文字、符号、emoji等</li>
+</ul></li>
+<li><strong>重要概念</strong>：
+<ul>
+<li>码点（Code Point）：字符在Unicode字符集中的唯一编号</li>
+<li>平面（Plane）：Unicode编码空间的逻辑分区，每个平面收录65536个字符</li>
+<li>代理对（Surrogate Pair）：使用两个16位值表示BMP之外的字符</li>
+</ul></li>
+<li><strong>示例</strong>：
+<ul>
+<li>"A" → U+0041（基本拉丁字母）</li>
+<li>"中" → U+4E2D（CJK统一表意文字）</li>
+<li>"😀" → U+1F600（补充表意平面，表情符号）</li>
+</ul></li>
+</ul></li>
+<li><strong>UTF-8</strong>
+<ul>
+<li><strong>原理</strong>：变长编码方案，使用1-4个字节表示一个字符
+<ul>
+<li>对于单字节，最高位为0</li>
+<li>对于多字节，第一个字节以几个1开头，就使用几个字节编码</li>
+</ul></li>
+<li><strong>编码规则</strong>： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Unicode范围            UTF-8编码方式</span><br><span class="line">0000-007F: 0xxxxxxx</span><br><span class="line">0080-07FF: 110xxxxx 10xxxxxx</span><br><span class="line">0800-FFFF: 1110xxxx 10xxxxxx 10xxxxxx</span><br><span class="line">10000-10FFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</span><br></pre></td></tr></table></figure></li>
+<li><strong>示例</strong>： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">字符    Unicode编码点     UTF-8编码          二进制表示</span><br><span class="line">A       U+0041           41                01000001</span><br><span class="line">中      U+4E2D           E4 B8 AD          11100100 10111000 10101101</span><br><span class="line">😀      U+1F600          F0 9F 98 80      11110000 10011111 10011000 10000000</span><br></pre></td></tr></table></figure></li>
+<li><strong>优点</strong>：
+<ul>
+<li>完全兼容ASCII</li>
+<li>节省存储空间（常用字符占用字节少）</li>
+<li>自同步（可以从任意位置开始解码）</li>
+<li>无字节序问题</li>
+</ul></li>
+<li><strong>缺点</strong>：
+<ul>
+<li>变长编码使字符定位较慢</li>
+<li>在内存中操作不如定长编码方便</li>
+</ul></li>
+</ul></li>
+<li><strong>UTF-16</strong>
+<ul>
+<li><strong>原理</strong>：
+<ul>
+<li>BMP平面内字符：使用2个字节直接表示</li>
+<li>BMP平面外字符：使用4个字节的代理对（Surrogate Pair）表示</li>
+</ul></li>
+<li><strong>编码规则</strong>：
+<ul>
+<li>BMP字符：直接用16位表示</li>
+<li>非BMP字符：将码点转换为代理对
+<ol type="1">
+<li>码点减去0x10000得到20位数</li>
+<li>高10位加上0xD800得到高位代理</li>
+<li>低10位加上0xDC00得到低位代理</li>
+</ol></li>
+</ul></li>
+<li><strong>示例</strong>： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">字符    Unicode编码点     UTF-16编码        说明</span><br><span class="line">A       U+0041           00 41            BMP内字符</span><br><span class="line">中      U+4E2D           4E 2D            BMP内字符</span><br><span class="line">😀      U+1F600          D83D DE00        代理对表示</span><br></pre></td></tr></table></figure></li>
+<li><strong>优点</strong>：
+<ul>
+<li>处理中日韩文字效率高（大多在BMP平面内）</li>
+<li>Java、JavaScript等语言内部采用此编码</li>
+<li>定长编码便于字符定位</li>
+</ul></li>
+<li><strong>缺点</strong>：
+<ul>
+<li>不兼容ASCII</li>
+<li>存在大小端序问题（需要BOM标记）</li>
+<li>占用空间较大</li>
+<li>代理对处理复杂</li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="数据编码">数据编码</h3>
+<ul>
+<li><strong>数字编码</strong>
+<ul>
+<li><strong>二进制编码</strong>：将数字转换为二进制形式，是计算机处理数字信息的基础。例如，十进制数10的二进制编码是1010。</li>
+<li><strong>BCD编码</strong>：二进制编码的十进制数，将十进制数的每一位分别转换为4位二进制数。例如，十进制数10的BCD编码是0001 0000。</li>
+</ul></li>
+<li><strong>图像编码</strong>
+<ul>
+<li><strong>位图编码</strong>：将图像的每个像素点的颜色信息直接存储起来，常见的位图格式有BMP、PNG等。</li>
+<li><strong>压缩编码</strong>：通过减少图像数据的冗余信息来实现数据压缩，常见的压缩编码格式有JPEG、GIF等。JPEG采用离散余弦变换（DCT）和量化等技术，GIF采用LZW压缩算法。</li>
+</ul></li>
+<li><strong>音频编码</strong>
+<ul>
+<li><strong>PCM编码</strong>：脉冲编码调制，将模拟音频信号转换为数字信号，是音频数字化的基础。PCM编码的音频数据量较大。</li>
+<li><strong>压缩编码</strong>：通过减少音频数据的冗余信息来实现数据压缩，常见的压缩编码格式有MP3、AAC等。MP3采用心理声学模型和变换编码等技术，AAC是MP3的改进版本，具有更高的压缩效率和音质。</li>
+</ul></li>
+</ul>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+      </categories>
+      <tags>
+        <tag>编码</tag>
       </tags>
   </entry>
   <entry>
@@ -1523,700 +2570,6 @@
       </tags>
   </entry>
   <entry>
-    <title>关于Intel TDX的深度思考与技术剖析</title>
-    <url>/posts/b63e909c/</url>
-    <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
-<span id="more"></span>
-<h3 id="引言云时代的信任难题">引言：云时代的信任难题</h3>
-<p>在当前的云计算和联邦学习场景下，数据隐私和计算过程的保密性至关重要。我们常常面临一个核心的信任悖论：我们希望利用云服务商强大的计算能力处理敏感数据，却又不能完全信任服务所在的平台，包括云厂商、甚至是拥有最高权限的租户管理员。如何确保我们的代码和数据在“别人”的服务器上，能够不被窥探、不被篡改地安全运行？可信执行环境（TEE）技术，特别是Intel TDX，为我们提供了破解这一难题的钥匙。</p>
-<h3 id="第一章tee与intel-tdx核心概念">第一章：TEE与Intel TDX核心概念</h3>
-<p>您可以将TEE想象成CPU内部一个被硬件强制隔离的“安全保险库”或“黑盒”。它主要提供以下四种核心保障：</p>
-<ul>
-<li><strong>隔离性 (Isolation)</strong>: 在TEE（Intel TDX中称为Trust Domain）内部运行的代码和数据，与服务器上运行的其他所有软件（包括操作系统、Hypervisor/虚拟机管理器，甚至是拥有物理访问权限的管理员）都是<strong>完全隔离的</strong>。</li>
-<li><strong>机密性 (Confidentiality)</strong>: TEE内的数据在CPU外部（例如在内存条DRAM上）始终是加密的。即使有人用逻辑分析仪去嗅探内存总线，也拿不到明文。</li>
-<li><strong>完整性 (Integrity)</strong>: TEE会确保加载到其内部的代码没有被篡改。</li>
-<li><strong>远程证明 (Remote Attestation)</strong>: 这是TEE的“杀手级特性”。客户端可以在与服务器通信之前，通过一个密码学协议，要求服务器上的TEE 证明自己的身份。这个证明可以告诉客户端：“我是一个货真价实的、由Intel制造的CPU中的TEE，我正在运行的代码就是你期望的那个版本（通过代码哈希值验证），并且我没有被篡改过。”</li>
-</ul>
-<h3 id="第二章信任模型的演进从完全信任到零信任">第二章：信任模型的演进：从完全信任到零信任</h3>
-<p>TEE的出现并非一蹴而就，它的价值体现在计算信任模型的不断演进中。</p>
-<h4 id="传统虚拟化-传统vm">传统虚拟化 (传统VM)</h4>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件 -&gt; Hypervisor -&gt; 虚拟机(VM)</code>。Hypervisor运行在最高权限，完全控制硬件。</li>
-<li><strong>信任模型</strong>: Hypervisor是全能的上帝。它可以随时暂停VM，检查其完整的内存状态，看到所有明文。租户必须<strong>完全信任</strong>云服务商。</li>
-</ul>
-<h4 id="sgx时代-enclave模型">SGX时代 (Enclave模型)</h4>
-<p>为了解决对Hypervisor的信任问题，Intel推出了SGX。</p>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件 -&gt; OS/Hypervisor -&gt; 应用程序 -&gt; Enclave</code>。Enclave是从应用程序的地址空间中“挖”出来的一块受硬件保护的内存区域。</li>
-<li><strong>信任模型</strong>: 信任边界缩小到Enclave内部。Hypervisor/OS无法窥探Enclave，但它仍然管理着整个应用程序和操作系统。这种模型对应用改造要求高，且与外部世界交互繁琐。</li>
-</ul>
-<h4 id="tdx时代-机密虚拟机模型">TDX时代 (机密虚拟机模型)</h4>
-<p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
-<li><strong>信任模型的革命性变化</strong>:
-<ul>
-<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
-<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
-</ul></li>
-</ul>
-<h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
-<p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
-<ul>
-<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
-<ul>
-<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
-<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
-<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
-</ul></li>
-<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
-<ul>
-<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
-<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
-<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
-</ul></li>
-<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
-<ul>
-<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
-<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
-<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
-</ul></li>
-</ul>
-<h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
-<p>仅仅将应用放入TEE环境是不足以保证安全的，开发者必须遵循特定的安全编程模式来管理所有进出TEE的数据流。</p>
-<h4 id="数据处理如何避免明文泄露">4.1 数据处理：如何避免明文泄露</h4>
-<p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
-<ul>
-<li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
-<li><strong>正确（安全）的设计模式</strong>:
-<ul>
-<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
-<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
-</ul></li>
-</ul>
-<h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>
-<p>既然TEE是黑盒，那作为最关键秘密的<strong>密钥，最初是如何安全地进入这个黑盒的？</strong> 这需要通过远程证明和密钥提供（Secret Provisioning）的协同过程来完成。</p>
-<h5 id="密钥的提供-secret-provisioning">密钥的提供 (Secret Provisioning)</h5>
-<p>这个过程就像一次高度安全的、经过身份验证的“隔空投送”。</p>
-<ol type="1">
-<li><strong>TEE发起证明</strong>: TEE应用启动后，请求CPU硬件生成一份包含其代码身份指纹（MRENCLAVE）、开发者身份（MRSIGNER）和临时公钥的<strong>证明报告（Quote）</strong>，并由CPU内嵌的硬件私钥签名。</li>
-<li><strong>密钥所有者验证证明</strong>: 密钥所有者收到Quote后，会进行双重验证：
-<ul>
-<li><strong>硬件验证</strong>: 请求Intel的证明服务器，验证Quote的硬件签名，确保它来自真实的Intel CPU。</li>
-<li><strong>软件验证</strong>: 比对自己手中经过审计的代码哈希值与Quote中的MRENCLAVE，确保TEE中运行的是未经篡改的、正确的代码版本。</li>
-</ul></li>
-<li><strong>安全“投送”密钥</strong>: 验证通过后，密钥所有者完全信任了远端的TEE。它会从Quote中提取出TEE的临时公钥，用它加密真正的私钥，然后将这个加密的“密钥包裹”发回给TEE。</li>
-<li><strong>TEE内部拆解</strong>: TEE应用收到“密钥包裹”后，用自己对应的临时私钥在受保护的内存中解密，安全地获得真实私钥。</li>
-</ol>
-<h5 id="密钥的持久化-sealing">密钥的持久化 (Sealing)</h5>
-<p>为了避免每次重启都重复上述复杂的提供流程，TEE应用在首次获取密钥后，可以利用前述的<strong>Sealing机制</strong>，将其用硬件绑定的密钥加密后，安全地保存在外部磁盘上。重启后，只有在同一台机器上、运行着同样代码的TEE应用，才能成功解封（unseal），将密钥重新加载到内存中。</p>
-<h4 id="io安全警惕自我泄露">4.3 I/O安全：警惕“自我泄露”</h4>
-<p>TEE保护的是计算过程，但它不会自动保护应用的I/O。如果开发者在代码里写了<code>print(private_key)</code>，TEE会忠实地执行，并将这个秘密通过标准输出（stdout）泄露给不受信的Guest OS，最终被租户看到。</p>
-<p>这揭示了TEE安全编程的关键原则：<strong>开发者必须有意识地管理所有进出TEE的信道，视之为潜在的泄露风险。</strong></p>
-<ul>
-<li><p><strong>防御措施1：代码审计（最重要）</strong>: 任何敏感数据变量，绝不能传递给任何执行I/O操作的函数（如<code>print()</code>, <code>log.info()</code>, <code>file.write()</code>）。客户端信任的，正是那个经过审计、确认没有此类行为的代码版本。</p></li>
-<li><p><strong>防御措施2：安全日志系统</strong>: 对日志进行过滤或加密，或在生产环境中完全禁用高风险的日志级别。</p></li>
-<li><p><strong>防御措施3：运行时配置</strong>: 将应用的stdout和stderr重定向到<code>/dev/null</code>，作为一种兜底措施。</p></li>
-</ul>
-<h3 id="第五章tee安全模型的动态性与挑战">第五章：TEE安全模型的动态性与挑战</h3>
-<h4 id="代码篡改不可能完成的任务">5.1 代码篡改：不可能完成的任务</h4>
-<p>从系统管理员的角度看，修改磁盘上的一个脚本文件非常简单。但对于TEE来说，要在不被发现的情况下恶意修改代码，却几乎不可能。</p>
-<p>这里的关键在于区分两个概念：</p>
-<ul>
-<li><p><strong>修改文件内容的能力</strong>: 租户拥有。</p></li>
-<li><p><strong>伪造程序身份的能力</strong>: 租户没有。</p></li>
-</ul>
-<p>TEE安全模型的核心基石是：<strong>代码的任何一丝一毫的改变，都会导致其身份指纹(MRENCLAVE)发生雪崩式的、不可预测的变化。</strong> 当客户端进行远程证明时，它会立刻发现代码指纹与预期的不匹配，从而拒绝信任、中止连接。同样，被修改后的代码也无法解封（unseal）由旧版本代码封存（seal）的秘密。</p>
-<p>因此，租户可以“作恶”，但他无法“隐藏作恶的意图”。在他试图运行恶意代码的那一刻，他就在远程证明的照妖镜下原形毕露了。</p>
-<h4 id="证明的瞬时性与对策">5.2 证明的“瞬时性”与对策</h4>
-<p>远程证明本质上是一个“瞬时快照”，它只证明TEE在生成报告那一刻的身份和状态，本身无法记录历史变化。这带来了潜在的“作恶后改回”的攻击窗口。</p>
-<p>在实践中，必须将远程证明与持续的、有状态的安全协议结合起来，弥补“瞬时性”带来的缺口：</p>
-<ul>
-<li><strong>方案1：会话绑定 (Session Binding)</strong>: 将瞬时证明与当前会话（如TLS会话）的关键信息（如临时公key）绑定。对“瞬时”TEE的信任，被安全地传递给了对“当前整个会话”的信任。任何导致TEE重启或代码变更的行为都会破坏会话，客户端会立刻发现。这足以防止“先证明后作恶”的攻击。</li>
-<li><strong>方案2：可信日志/区块链</strong>: 对于需要更强审计性的场景，可以将TEE每次执行的关键操作（如模型聚合）生成日志条目，并用其身份密钥签名，发布到只能追加、无法修改的存储系统（如区块链）上。这为TEE的瞬时行为提供了不可篡改的历史记录和持久化信任。</li>
-</ul>
-<h3 id="结论">结论</h3>
-<p>Intel TDX等TEE技术通过提供硬件层面的隔离性、机密性、完整性和远程证明能力，从根本上重塑了云环境下的信任模型。它将信任的根基从对“人”或“软件供应商”的主观信任，转移到了对“开源审计过的代码”和“CPU硬件设计”的客观、可验证的信任。</p>
-<p>然而，TEE并非一个能让不安全的代码自动变得安全的“魔法棒”。它提供的是一个<strong>可信的执行环境</strong>，而非一个<strong>可信的应用</strong>。要真正发挥TEE的威力，开发者必须承担起<strong>编写安全代码的责任</strong>，遵循严格的安全编程范式，谨慎管理所有的数据I/O、密钥生命周期和会话状态。</p>
-<p>通过将强大的硬件保障与严谨的软件开发实践相结合，我们才能真正构建出端到端的、能抵御来自特权软件甚至物理攻击的机密计算解决方案。</p>
-<p>以上为个人理解，敬请批评指正。</p>
-]]></content>
-      <categories>
-        <category>TEE</category>
-      </categories>
-      <tags>
-        <tag>TDX</tag>
-        <tag>Intel</tag>
-        <tag>机密计算</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
-<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
-<h3 id="token401问题">token401问题</h3>
-<h4 id="登录401">登录401</h4>
-<p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
-</figure>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<figure>
-<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
-</figure>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<p>发现可以正常读取了</p>
-<h4 id="过期401">过期401</h4>
-<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-<h3 id="数据读取问题">数据读取问题</h3>
-<p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-<h3 id="其他问题">其他问题</h3>
-<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
-]]></content>
-      <categories>
-        <category>Database</category>
-      </categories>
-      <tags>
-        <tag>influxdb</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端浏览器缓存机制</title>
-    <url>/posts/50ac740b/</url>
-    <content><![CDATA[<h2 id="前端浏览器缓存机制">前端浏览器缓存机制</h2>
-<p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
-<span id="more"></span>
-<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
-<h4 id="强缓存strong-caching">1. 强缓存（Strong Caching）</h4>
-<p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
-<ul>
-<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p></li>
-<li><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：
-<ul>
-<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
-<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
-<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
-<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
-</ul></li>
-</ul>
-<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
-<h4 id="协商缓存negotiation-caching">2. 协商缓存（Negotiation Caching）</h4>
-<p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
-<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
-<ul>
-<li><strong>Last-Modified &amp; If-Modified-Since</strong>:
-<ul>
-<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
-<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
-</ul></li>
-<li><strong>ETag &amp; If-None-Match</strong>:
-<ul>
-<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
-<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
-</ul></li>
-</ul>
-<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
-<h4 id="哈希与缓存hash">3. 哈希与缓存（Hash）</h4>
-<p><strong>哈希（Hash）</strong>与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
-<p><strong>典型用法</strong>：</p>
-<ul>
-<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
-<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
-</ul>
-<p><strong>总结</strong>：</p>
-<ul>
-<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
-<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
-<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
-</ul>
-<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
-<h3 id="什么是cdn内容分发网络">什么是CDN（内容分发网络）</h3>
-<p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
-<h4 id="cdn的工作原理">CDN的工作原理</h4>
-<ol type="1">
-<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p></li>
-<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p></li>
-<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p></li>
-<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p></li>
-</ol>
-<h4 id="cdn的主要优势">CDN的主要优势</h4>
-<ol type="1">
-<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p></li>
-<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p></li>
-<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p></li>
-<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p></li>
-<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p></li>
-</ol>
-<h4 id="cdn的使用场景">CDN的使用场景</h4>
-<ul>
-<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
-<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
-<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
-</ul>
-<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux任务控制：从进程管理到后台运行，一篇就够</title>
-    <url>/posts/7a8b9c1d/</url>
-    <content><![CDATA[<p>在Linux系统中，任务控制是每个用户都需要掌握的核心技能。无论是运行长时间的计算任务、管理多个进程，还是在SSH连接断开后保持程序运行，都离不开任务控制技术。本文将从基础概念出发，系统介绍Linux任务控制的完整知识体系，为你提供一份实用的技术指南。</p>
-<span id="more"></span>
-<h3 id="一核心概念进程作业与任务控制">🎯 一、核心概念：进程、作业与任务控制</h3>
-<p>在深入任务控制之前，我们需要先理解几个核心概念：</p>
-<h4 id="进程-vs-作业-vs-任务">1. 进程 vs 作业 vs 任务</h4>
-<table>
-<thead>
-<tr class="header">
-<th>概念</th>
-<th>定义</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>进程 (Process)</strong></td>
-<td>正在运行的程序实例</td>
-<td>有独立的PID，占用系统资源</td>
-</tr>
-<tr class="even">
-<td><strong>作业 (Job)</strong></td>
-<td>Shell管理的进程组</td>
-<td>可以前台/后台运行，支持挂起/恢复</td>
-</tr>
-<tr class="odd">
-<td><strong>任务 (Task)</strong></td>
-<td>用户要完成的工作单元</td>
-<td>可能包含多个进程或作业</td>
-</tr>
-</tbody>
-</table>
-<h4 id="任务控制的基本流程">2. 任务控制的基本流程</h4>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">启动程序 → 前台运行 → [Ctrl+Z] → 挂起 → [bg] → 后台运行</span><br><span class="line">    ↓</span><br><span class="line">[Ctrl+C] → 终止程序</span><br><span class="line">    ↓</span><br><span class="line">[fg] → 恢复到前台</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="二基础操作前台与后台切换">🛠️ 二、基础操作：前台与后台切换</h3>
-<h4 id="前台运行-foreground">1. 前台运行 (Foreground)</h4>
-<p>前台运行是最常见的程序执行方式：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 直接运行程序，占用当前终端</span></span><br><span class="line">python long_running_script.py</span><br><span class="line">npm start</span><br><span class="line">make build</span><br></pre></td></tr></table></figure>
-<p><strong>特点</strong>： - 程序输出直接显示在终端 - 可以通过 <code>Ctrl+C</code> 终止程序 - 程序运行期间无法执行其他命令 - 终端关闭时程序也会终止</p>
-<h4 id="后台运行-background">2. 后台运行 (Background)</h4>
-<p>后台运行让程序在后台执行，不占用终端：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 方法1：启动时直接后台运行</span></span><br><span class="line">python script.py &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2：先前台运行，再挂起并后台运行</span></span><br><span class="line">python script.py</span><br><span class="line"><span class="comment"># 按 Ctrl+Z 挂起</span></span><br><span class="line"><span class="built_in">bg</span>  <span class="comment"># 或 bg %1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法3：使用 nohup 防止SSH断开影响</span></span><br><span class="line"><span class="built_in">nohup</span> python script.py &gt; output.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-<p><strong>关键符号说明</strong>： - <code>&amp;</code>：启动时直接后台运行 - <code>nohup</code>：忽略SIGHUP信号，防止SSH断开时程序终止 - <code>&gt; output.log</code>：重定向标准输出到文件 - <code>2&gt;&amp;1</code>：将错误输出也重定向到标准输出</p>
-<hr />
-<h3 id="三作业管理查看与控制">📋 三、作业管理：查看与控制</h3>
-<h4 id="查看作业状态">1. 查看作业状态</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看当前Shell的所有作业</span></span><br><span class="line"><span class="built_in">jobs</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看详细信息（包含PID）</span></span><br><span class="line"><span class="built_in">jobs</span> -l</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有进程（包括其他Shell的）</span></span><br><span class="line">ps aux | grep python</span><br><span class="line">ps -ef | grep node</span><br></pre></td></tr></table></figure>
-<p><strong>jobs命令输出示例</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">jobs</span></span><br><span class="line">[1]  + running    python data_processing.py</span><br><span class="line">[2]  - suspended  npm start</span><br><span class="line">[3]    running    make build &amp;</span><br></pre></td></tr></table></figure></p>
-<p><strong>状态说明</strong>： - <code>running</code>：正在运行 - <code>suspended</code>：已挂起 - <code>stopped</code>：已停止 - <code>+</code>：当前作业（最近被操作） - <code>-</code>：前一个作业</p>
-<h4 id="作业控制命令">2. 作业控制命令</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 挂起当前前台程序</span></span><br><span class="line">Ctrl+Z</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将挂起的作业放到后台运行</span></span><br><span class="line"><span class="built_in">bg</span> [%job_number]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将后台作业恢复到前台</span></span><br><span class="line"><span class="built_in">fg</span> [%job_number]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止指定作业</span></span><br><span class="line"><span class="built_in">kill</span> %job_number</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂起指定作业</span></span><br><span class="line"><span class="built_in">kill</span> -STOP %job_number</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复挂起的作业</span></span><br><span class="line"><span class="built_in">kill</span> -CONT %job_number</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="四高级技巧进程管理与监控">🔄 四、高级技巧：进程管理与监控</h3>
-<h4 id="使用-screen-进行会话管理">1. 使用 screen 进行会话管理</h4>
-<p><code>screen</code> 是Linux下最强大的终端复用工具：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装screen</span></span><br><span class="line"><span class="built_in">sudo</span> apt install screen  <span class="comment"># Ubuntu/Debian</span></span><br><span class="line"><span class="built_in">sudo</span> yum install screen  <span class="comment"># CentOS/RHEL</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新会话</span></span><br><span class="line">screen -S my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在screen中运行程序</span></span><br><span class="line">python long_running_script.py</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分离会话（程序继续运行）</span></span><br><span class="line">Ctrl+A, D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新连接会话</span></span><br><span class="line">screen -r my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有会话</span></span><br><span class="line">screen -<span class="built_in">ls</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止会话</span></span><br><span class="line">screen -S my_session -X quit</span><br></pre></td></tr></table></figure>
-<h4 id="使用-tmux-进行现代化终端管理">2. 使用 tmux 进行现代化终端管理</h4>
-<p><code>tmux</code> 是比 <code>screen</code> 更现代的终端复用工具：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装tmux</span></span><br><span class="line"><span class="built_in">sudo</span> apt install tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新会话</span></span><br><span class="line">tmux new -s my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分离会话</span></span><br><span class="line">Ctrl+B, D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新连接</span></span><br><span class="line">tmux attach -t my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新窗口</span></span><br><span class="line">Ctrl+B, C</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换窗口</span></span><br><span class="line">Ctrl+B, 0-9</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分割窗格</span></span><br><span class="line">Ctrl+B, %  <span class="comment"># 垂直分割</span></span><br><span class="line">Ctrl+B, <span class="string">&quot;  # 水平分割</span></span><br></pre></td></tr></table></figure>
-<h4 id="使用-systemd-管理服务">3. 使用 systemd 管理服务</h4>
-<p>对于需要长期运行的服务，推荐使用 <code>systemd</code>：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建服务文件</span></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/systemd/system/myapp.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 服务文件内容示例</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=My Python Application</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=myuser</span><br><span class="line">WorkingDirectory=/home/myuser/myapp</span><br><span class="line">ExecStart=/usr/bin/python3 app.py</span><br><span class="line">Restart=always</span><br><span class="line">RestartSec=10</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用并启动服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> myapp</span><br><span class="line"><span class="built_in">sudo</span> systemctl start myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看服务状态</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line"><span class="built_in">sudo</span> journalctl -u myapp -f</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="五实用工具进程监控与管理">🎛️ 五、实用工具：进程监控与管理</h3>
-<h4 id="htop---交互式进程查看器">1. htop - 交互式进程查看器</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装htop</span></span><br><span class="line"><span class="built_in">sudo</span> apt install htop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行htop</span></span><br><span class="line">htop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 常用快捷键</span></span><br><span class="line"><span class="comment"># F1: 帮助</span></span><br><span class="line"><span class="comment"># F2: 设置</span></span><br><span class="line"><span class="comment"># F3: 搜索进程</span></span><br><span class="line"><span class="comment"># F4: 过滤进程</span></span><br><span class="line"><span class="comment"># F5: 树形显示</span></span><br><span class="line"><span class="comment"># F6: 排序</span></span><br><span class="line"><span class="comment"># F9: 发送信号</span></span><br><span class="line"><span class="comment"># F10: 退出</span></span><br></pre></td></tr></table></figure>
-<h4 id="使用-pstree-查看进程树">2. 使用 pstree 查看进程树</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 显示进程树</span></span><br><span class="line">pstree</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示PID</span></span><br><span class="line">pstree -p</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示用户名</span></span><br><span class="line">pstree -u</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示特定进程的子树</span></span><br><span class="line">pstree -p 1234</span><br></pre></td></tr></table></figure>
-<h4 id="使用-lsof-查看文件占用">3. 使用 lsof 查看文件占用</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看特定进程打开的文件</span></span><br><span class="line">lsof -p 1234</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定端口占用的进程</span></span><br><span class="line">lsof -i :8080</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定用户打开的文件</span></span><br><span class="line">lsof -u username</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="六实战场景常见应用案例">🚀 六、实战场景：常见应用案例</h3>
-<h4 id="长时间运行的数据处理">1. 长时间运行的数据处理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据处理任务</span></span><br><span class="line"><span class="built_in">nohup</span> python process_large_dataset.py &gt; processing.log 2&gt;&amp;1 &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看进度</span></span><br><span class="line"><span class="built_in">tail</span> -f processing.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查进程状态</span></span><br><span class="line">ps aux | grep process_large_dataset</span><br></pre></td></tr></table></figure>
-<h4 id="开发环境的多服务管理">2. 开发环境的多服务管理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动前端开发服务器</span></span><br><span class="line">npm start &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动后端API服务器</span></span><br><span class="line">python app.py &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动数据库</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start postgresql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有相关进程</span></span><br><span class="line">ps aux | grep -E <span class="string">&quot;(node|python|postgres)&quot;</span></span><br></pre></td></tr></table></figure>
-<h4 id="批量任务处理">3. 批量任务处理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建任务脚本</span></span><br><span class="line"><span class="built_in">cat</span> &gt; batch_process.sh &lt;&lt; <span class="string">&#x27;EOF&#x27;</span></span><br><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> data/*.csv; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Processing <span class="variable">$file</span>...&quot;</span></span><br><span class="line">    python process.py <span class="string">&quot;<span class="variable">$file</span>&quot;</span> &amp;</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="built_in">wait</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;All files processed!&quot;</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行批量任务</span></span><br><span class="line"><span class="built_in">chmod</span> +x batch_process.sh</span><br><span class="line"><span class="built_in">nohup</span> ./batch_process.sh &gt; batch.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="七注意事项与最佳实践">⚠️ 七、注意事项与最佳实践</h3>
-<h4 id="信号处理">1. 信号处理</h4>
-<p>了解常见的信号类型：</p>
-<table>
-<thead>
-<tr class="header">
-<th>信号</th>
-<th>数值</th>
-<th>含义</th>
-<th>默认行为</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>SIGHUP</td>
-<td>1</td>
-<td>挂起</td>
-<td>终止进程</td>
-</tr>
-<tr class="even">
-<td>SIGINT</td>
-<td>2</td>
-<td>中断 (Ctrl+C)</td>
-<td>终止进程</td>
-</tr>
-<tr class="odd">
-<td>SIGQUIT</td>
-<td>3</td>
-<td>退出 (Ctrl+)</td>
-<td>终止进程并转储核心</td>
-</tr>
-<tr class="even">
-<td>SIGTERM</td>
-<td>15</td>
-<td>终止</td>
-<td>终止进程</td>
-</tr>
-<tr class="odd">
-<td>SIGKILL</td>
-<td>9</td>
-<td>强制终止</td>
-<td>立即终止进程</td>
-</tr>
-</tbody>
-</table>
-<h4 id="资源管理">2. 资源管理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 限制进程资源使用</span></span><br><span class="line"><span class="built_in">ulimit</span> -c 0        <span class="comment"># 禁用核心转储</span></span><br><span class="line"><span class="built_in">ulimit</span> -n 1024     <span class="comment"># 限制文件描述符数量</span></span><br><span class="line"><span class="built_in">ulimit</span> -u 100      <span class="comment"># 限制用户进程数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用nice调整进程优先级</span></span><br><span class="line"><span class="built_in">nice</span> -n 10 python script.py  <span class="comment"># 降低优先级</span></span><br><span class="line"><span class="built_in">sudo</span> renice -n -10 1234      <span class="comment"># 提高优先级</span></span><br></pre></td></tr></table></figure>
-<h4 id="日志管理">3. 日志管理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用logrotate管理日志文件</span></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/logrotate.d/myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置示例</span></span><br><span class="line">/home/myuser/myapp/*.<span class="built_in">log</span> &#123;</span><br><span class="line">    daily</span><br><span class="line">    rotate 7</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    create 644 myuser myuser</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="八总结与检查清单">✅ 八、总结与检查清单</h3>
-<h4 id="基础任务控制命令速查">基础任务控制命令速查</h4>
-<table>
-<thead>
-<tr class="header">
-<th>操作</th>
-<th>命令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>后台运行</td>
-<td><code>command &amp;</code></td>
-<td>启动时直接后台运行</td>
-</tr>
-<tr class="even">
-<td>挂起程序</td>
-<td><code>Ctrl+Z</code></td>
-<td>暂停前台程序</td>
-</tr>
-<tr class="odd">
-<td>后台恢复</td>
-<td><code>bg [%N]</code></td>
-<td>将挂起作业放到后台</td>
-</tr>
-<tr class="even">
-<td>前台恢复</td>
-<td><code>fg [%N]</code></td>
-<td>将后台作业恢复到前台</td>
-</tr>
-<tr class="odd">
-<td>查看作业</td>
-<td><code>jobs [-l]</code></td>
-<td>显示当前Shell的作业</td>
-</tr>
-<tr class="even">
-<td>终止作业</td>
-<td><code>kill %N</code></td>
-<td>终止指定作业</td>
-</tr>
-<tr class="odd">
-<td>忽略挂起</td>
-<td><code>nohup command &amp;</code></td>
-<td>防止SSH断开影响</td>
-</tr>
-</tbody>
-</table>
-<h4 id="高级工具选择指南">高级工具选择指南</h4>
-<table>
-<thead>
-<tr class="header">
-<th>场景</th>
-<th>推荐工具</th>
-<th>优势</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>临时后台任务</td>
-<td><code>nohup</code> + <code>&amp;</code></td>
-<td>简单快速</td>
-</tr>
-<tr class="even">
-<td>多会话管理</td>
-<td><code>screen</code></td>
-<td>稳定可靠</td>
-</tr>
-<tr class="odd">
-<td>现代化终端</td>
-<td><code>tmux</code></td>
-<td>功能丰富</td>
-</tr>
-<tr class="even">
-<td>长期服务</td>
-<td><code>systemd</code></td>
-<td>系统级管理</td>
-</tr>
-<tr class="odd">
-<td>进程监控</td>
-<td><code>htop</code></td>
-<td>交互友好</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="结语">🎉 结语</h3>
-<p>Linux任务控制是系统管理和开发工作中的必备技能。通过掌握这些工具和技巧，你可以：</p>
-<ul>
-<li><strong>提高工作效率</strong>：同时管理多个任务</li>
-<li><strong>保持程序运行</strong>：防止意外断开导致任务中断</li>
-<li><strong>优化资源使用</strong>：合理分配系统资源</li>
-<li><strong>增强系统稳定性</strong>：更好地管理长期运行的服务</li>
-</ul>
-<p>记住：<strong>好的任务控制习惯不仅能提高你的工作效率，还能让你的系统运行得更加稳定可靠。</strong></p>
-<p>Happy Hacking! 🚀</p>
-]]></content>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Shell</tag>
-        <tag>进程管理</tag>
-        <tag>任务控制</tag>
-        <tag>后台运行</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>编码</title>
-    <url>/posts/6f8a188e/</url>
-    <content><![CDATA[<h2 id="编码">编码</h2>
-<p>今天在复习编译原理的时候，发现对底层的编码都是还停留在听过或者见过的状态，所以决定学习一下有关编码的知识。</p>
-<span id="more"></span>
-<h3 id="编码概述">编码概述</h3>
-<ul>
-<li><strong>定义</strong>：编码是将信息从一种形式或格式转换为另一种形式的过程，以便信息能够被存储、传输或处理。在计算机科学中，编码通常指将人类可读的信息（如文本、图像、声音等）转换为计算机可识别的二进制形式。</li>
-<li><strong>目的</strong>：编码的主要目的是实现信息的有效存储、传输和处理。通过编码，信息可以在不同的系统、设备和网络之间进行交换和共享，同时还能对信息进行加密、压缩等操作以提高安全性、减少存储空间和传输带宽。</li>
-</ul>
-<h3 id="字符编码">字符编码</h3>
-<h4 id="ascii编码">ASCII编码</h4>
-<ul>
-<li><strong>背景与起源</strong>
-<ul>
-<li>1960年代，计算机开始普及，但不同厂商使用不同的编码标准，导致信息交换困难</li>
-<li>1967年，美国标准化组织制定ASCII，实现了计算机间的标准化通信</li>
-</ul></li>
-<li><strong>工作原理</strong>
-<ul>
-<li>使用7位二进制数，可以表示128个字符（2^7 = 128）</li>
-<li>0-31：控制字符（如换行符= 10，回车符 13）</li>
-<li>32-127：可打印字符（如'A' = 65，'a' = 97，'0' = 48）</li>
-</ul></li>
-<li><strong>优点</strong>
-<ul>
-<li>简单易用，是最基础的编码标准</li>
-<li>至今仍被广泛使用，现代编码方案都兼容ASCII</li>
-</ul></li>
-<li><strong>缺点</strong>
-<ul>
-<li>只能表示英文字母和符号，无法表示其他语言字符</li>
-<li>例如：无法表示"中文"、"日本語"等字符</li>
-</ul></li>
-</ul>
-<h4 id="gb2312与gbk">GB2312与GBK</h4>
-<ul>
-<li><strong>GB2312</strong>
-<ul>
-<li><strong>起源</strong>：1980年，中国为解决计算机无法显示汉字问题而制定</li>
-<li><strong>原理</strong>：采用双字节编码
-<ul>
-<li>首字节范围0xA1-0xF7，次字节范围0xA1-0xFE</li>
-<li>加0xA1是为了避开ASCII码的0x00-0x7F区域，确保与ASCII兼容</li>
-<li>分区设计：
-<ul>
-<li>01-09区：特殊符号</li>
-<li>16-55区：一级汉字（3755个常用字）</li>
-<li>56-87区：二级汉字（3008个次常用字）</li>
-<li>10-15区：保留区</li>
-</ul></li>
-<li>每个区94个字符，共94个区</li>
-</ul></li>
-<li><strong>示例</strong>：
-<ul>
-<li>"中"的GB2312编码为0xD6D0（第45区第60个汉字）</li>
-<li>"国"的GB2312编码为0xB9FA（第16区第15个汉字）</li>
-</ul></li>
-</ul></li>
-<li><strong>优点</strong>：
-<ul>
-<li>完全兼容ASCII</li>
-<li>包含6763个常用汉字，满足基本需求</li>
-<li><strong>缺点</strong>：
-<ul>
-<li>汉字数量有限，部分生僻字无法表示</li>
-<li>不支持繁体中文、日韩文字</li>
-</ul></li>
-</ul></li>
-<li><strong>GBK</strong>
-<ul>
-<li><strong>起源</strong>：1995年推出，是GB2312的扩展</li>
-<li><strong>特点</strong>：
-<ul>
-<li>向下完全兼容GB2312</li>
-<li>收录21003个汉字，包括繁体字</li>
-</ul></li>
-<li><strong>示例</strong>：
-<ul>
-<li>"㠭"（生僻字）在GB2312中无法表示，但GBK可以表示</li>
-</ul></li>
-<li><strong>优点</strong>：
-<ul>
-<li>字符集更大，能满足绝大多数中文处理需求</li>
-<li>兼容性好，在中国大陆使用广泛</li>
-</ul></li>
-<li><strong>缺点</strong>：
-<ul>
-<li>不是国际标准，在跨国际平台可能出现乱码</li>
-<li>无法表示其他国家的文字系统</li>
-</ul></li>
-</ul></li>
-</ul>
-<h4 id="unicode与utf编码">Unicode与UTF编码</h4>
-<ul>
-<li><strong>Unicode</strong>
-<ul>
-<li><strong>起源</strong>：
-<ul>
-<li>1991年推出，目标是统一全球所有字符编码</li>
-<li>由于各国编码标准不一，同一个二进制值在不同编码下可能表示不同字符，造成乱码</li>
-</ul></li>
-<li><strong>特点</strong>：
-<ul>
-<li>为每个字符分配唯一编码点（Code Point）</li>
-<li>编码空间从U+0000到U+10FFFF，共17个平面（Plane）</li>
-<li>第0平面（BMP，基本多语言平面）：U+0000至U+FFFF，收录最常用字符</li>
-<li>目前已收录超过14万个字符，包括各国文字、符号、emoji等</li>
-</ul></li>
-<li><strong>重要概念</strong>：
-<ul>
-<li>码点（Code Point）：字符在Unicode字符集中的唯一编号</li>
-<li>平面（Plane）：Unicode编码空间的逻辑分区，每个平面收录65536个字符</li>
-<li>代理对（Surrogate Pair）：使用两个16位值表示BMP之外的字符</li>
-</ul></li>
-<li><strong>示例</strong>：
-<ul>
-<li>"A" → U+0041（基本拉丁字母）</li>
-<li>"中" → U+4E2D（CJK统一表意文字）</li>
-<li>"😀" → U+1F600（补充表意平面，表情符号）</li>
-</ul></li>
-</ul></li>
-<li><strong>UTF-8</strong>
-<ul>
-<li><strong>原理</strong>：变长编码方案，使用1-4个字节表示一个字符
-<ul>
-<li>对于单字节，最高位为0</li>
-<li>对于多字节，第一个字节以几个1开头，就使用几个字节编码</li>
-</ul></li>
-<li><strong>编码规则</strong>： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Unicode范围            UTF-8编码方式</span><br><span class="line">0000-007F: 0xxxxxxx</span><br><span class="line">0080-07FF: 110xxxxx 10xxxxxx</span><br><span class="line">0800-FFFF: 1110xxxx 10xxxxxx 10xxxxxx</span><br><span class="line">10000-10FFFF: 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</span><br></pre></td></tr></table></figure></li>
-<li><strong>示例</strong>： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">字符    Unicode编码点     UTF-8编码          二进制表示</span><br><span class="line">A       U+0041           41                01000001</span><br><span class="line">中      U+4E2D           E4 B8 AD          11100100 10111000 10101101</span><br><span class="line">😀      U+1F600          F0 9F 98 80      11110000 10011111 10011000 10000000</span><br></pre></td></tr></table></figure></li>
-<li><strong>优点</strong>：
-<ul>
-<li>完全兼容ASCII</li>
-<li>节省存储空间（常用字符占用字节少）</li>
-<li>自同步（可以从任意位置开始解码）</li>
-<li>无字节序问题</li>
-</ul></li>
-<li><strong>缺点</strong>：
-<ul>
-<li>变长编码使字符定位较慢</li>
-<li>在内存中操作不如定长编码方便</li>
-</ul></li>
-</ul></li>
-<li><strong>UTF-16</strong>
-<ul>
-<li><strong>原理</strong>：
-<ul>
-<li>BMP平面内字符：使用2个字节直接表示</li>
-<li>BMP平面外字符：使用4个字节的代理对（Surrogate Pair）表示</li>
-</ul></li>
-<li><strong>编码规则</strong>：
-<ul>
-<li>BMP字符：直接用16位表示</li>
-<li>非BMP字符：将码点转换为代理对
-<ol type="1">
-<li>码点减去0x10000得到20位数</li>
-<li>高10位加上0xD800得到高位代理</li>
-<li>低10位加上0xDC00得到低位代理</li>
-</ol></li>
-</ul></li>
-<li><strong>示例</strong>： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">字符    Unicode编码点     UTF-16编码        说明</span><br><span class="line">A       U+0041           00 41            BMP内字符</span><br><span class="line">中      U+4E2D           4E 2D            BMP内字符</span><br><span class="line">😀      U+1F600          D83D DE00        代理对表示</span><br></pre></td></tr></table></figure></li>
-<li><strong>优点</strong>：
-<ul>
-<li>处理中日韩文字效率高（大多在BMP平面内）</li>
-<li>Java、JavaScript等语言内部采用此编码</li>
-<li>定长编码便于字符定位</li>
-</ul></li>
-<li><strong>缺点</strong>：
-<ul>
-<li>不兼容ASCII</li>
-<li>存在大小端序问题（需要BOM标记）</li>
-<li>占用空间较大</li>
-<li>代理对处理复杂</li>
-</ul></li>
-</ul></li>
-</ul>
-<h3 id="数据编码">数据编码</h3>
-<ul>
-<li><strong>数字编码</strong>
-<ul>
-<li><strong>二进制编码</strong>：将数字转换为二进制形式，是计算机处理数字信息的基础。例如，十进制数10的二进制编码是1010。</li>
-<li><strong>BCD编码</strong>：二进制编码的十进制数，将十进制数的每一位分别转换为4位二进制数。例如，十进制数10的BCD编码是0001 0000。</li>
-</ul></li>
-<li><strong>图像编码</strong>
-<ul>
-<li><strong>位图编码</strong>：将图像的每个像素点的颜色信息直接存储起来，常见的位图格式有BMP、PNG等。</li>
-<li><strong>压缩编码</strong>：通过减少图像数据的冗余信息来实现数据压缩，常见的压缩编码格式有JPEG、GIF等。JPEG采用离散余弦变换（DCT）和量化等技术，GIF采用LZW压缩算法。</li>
-</ul></li>
-<li><strong>音频编码</strong>
-<ul>
-<li><strong>PCM编码</strong>：脉冲编码调制，将模拟音频信号转换为数字信号，是音频数字化的基础。PCM编码的音频数据量较大。</li>
-<li><strong>压缩编码</strong>：通过减少音频数据的冗余信息来实现数据压缩，常见的压缩编码格式有MP3、AAC等。MP3采用心理声学模型和变换编码等技术，AAC是MP3的改进版本，具有更高的压缩效率和音质。</li>
-</ul></li>
-</ul>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-      </categories>
-      <tags>
-        <tag>编码</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>计算机网络通信漫谈 - 从TCP/IP到gRPC</title>
     <url>/posts/f520f9c/</url>
     <content><![CDATA[<h2 id="计算机通信的层次">计算机通信的层次</h2>
@@ -2274,359 +2627,6 @@
         <tag>gRPC</tag>
         <tag>TLS</tag>
         <tag>HTTP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TDX Note</title>
-    <url>/posts/cbeff3a9/</url>
-    <content><![CDATA[<h2 id="intel-tdx-demystified-a-top-down-approach">Intel TDX Demystified: A Top-Down Approach</h2>
-<p><strong>摘要</strong>：Intel Trust Domain Extensions (TDX) 是一种在第四代 Intel Xeon Scalable 处理器中引入的架构扩展，支持保密计算。TDX 允许在安全仲裁模式 (SEAM) 中部署虚拟机 (VM)，提供加密的 CPU 状态和内存、完整性保护以及远程认证。</p>
-<span id="more"></span>
-<blockquote>
-<p><strong>安全仲裁模式（Secure Arbitration Mode, SEAM）</strong> 是英特尔在其处理器架构中引入的一种硬件安全机制，它允许在处理器中隔离一个由 SEAM 模块（SEAM Module）控制的安全环境，这个模块用于处理一些高度敏感的任务和数据。</p>
-</blockquote>
-<p><strong>简介</strong>：将计算迁移到云基础设施中可以降低成本，但受监管的行业对于将敏感数据移交给第三方云服务提供商仍存在担忧。</p>
-<p>保密计算旨在通过最小化处理器及其供应商的信任根来提供端到端的保护。所有数据必须在整个生命周期中受到保护，从离开其所有者的设备到进入<strong>经过认证的 CPU 封装</strong>。</p>
-<p>TDX 的威胁模型假设特权软件（如<strong>虚拟机管理程序或主机操作系统</strong>）可能是不可信的或具有对抗性的。</p>
-<hr />
-<h2 id="tdx-的概述">TDX 的概述</h2>
-<p>TDX 的目标是保护指定信任域 (TD) 的 CPU 状态和内存的机密性和完整性，并使 TD 所有者能够验证远程平台的真实性。</p>
-<p>TDX 基于一系列技术构建，包括虚拟化技术 (VT)、<strong>多密钥全内存加密 (MKTME)</strong> 和 TDX 模块 (TDX Module)。TDX 还依赖于软件保护扩展 (SGX) 和<strong>数据中心认证原语 (DCAP)</strong> 来进行远程认证。</p>
-<blockquote>
-<ul>
-<li>MKTME 提供了一种机制，使得处理器能够利用多个加密密钥，对内存数据进行加密和解密。</li>
-<li>DCAP 提供了一种机制，使得远程用户或服务可以验证 TDX 环境的可信状态。</li>
-</ul>
-</blockquote>
-<h2 id="安全原则">安全原则</h2>
-<p>消除了对不可信/特权主机软件的层级依赖，并<strong>将虚拟机管理程序和云操作员排除在可信计算基 (TCB) 之外</strong>，从而允许租户以信任的方式安全部署和运行其计算任务。</p>
-<p>TDX 保障 TD 的内存和虚拟 CPU 状态的机密性和完整性，确保这些数据不会被同一台机器上运行的其他安全域访问或篡改。它通过以下机制来实现这一点：</p>
-<ol type="1">
-<li><strong>内存访问控制</strong></li>
-<li><strong>运行时内存加密</strong></li>
-<li><strong>由 Intel 签署的 TDX 模块，负责处理涉及安全敏感的 TD 管理操作</strong></li>
-</ol>
-<p>此外，远程认证为租户提供了 TD 在真实的 TDX 支持的 Intel 处理器上运行的证明。</p>
-<h3 id="内存机密性">内存机密性</h3>
-<p>TD 的数据在处理器封装内以明文形式存储，但当数据从处理器卸载到主存储器时，处理器使用<strong>仅处理器已知的 TD 专用密钥</strong>对其进行加密。</p>
-<p>加密操作在<strong>缓存行粒度</strong>上执行，这使得外围设备无法读取或篡改 TD 的私有内存而不被检测到。当处理器从主存储器加载数据时，处理器<strong>可以检测到任何篡改行为</strong>。</p>
-<blockquote>
-<p>一个缓存行是 CPU 从主存储器<strong>读取或写入数据的基本单位</strong>，通常为 64 字节。这样做是为了提高加密和解密操作的效率，因为 CPU 的数据处理与缓存行的操作直接相关。</p>
-</blockquote>
-<h3 id="cpu-状态机密性">CPU 状态机密性</h3>
-<p>TDX 通过在安全域之间进行上下文切换时<strong>管理 TD 的虚拟 CPU 状态</strong>来保护并发进程的机密性。</p>
-<p>这些状态存储在 <strong>TD 的元数据</strong>中，并在主存储器中通过 TD 的密钥进行保护。上下文切换期间，TDX 会清除或隔离处理器内部的与 TD 相关的特定状态，如翻译后援缓冲 (TLB) 条目或分支预测缓冲，以保持 TD 信息的保护。</p>
-<blockquote>
-<p><strong>元数据（Metadata）</strong> 是指描述数据的数据。它提供了有关某一数据的结构、属性、特征等信息，帮助我们理解、组织和管理这些数据。</p>
-</blockquote>
-<h3 id="执行完整性">执行完整性</h3>
-<p>TDX 保护 TD 执行的完整性，防止主机干扰，确保在预期的状态下恢复 TD 的计算。它能够检测到虚拟 CPU 状态中的恶意变化，以及位于私有内存中的指令的插入、修改或删除。</p>
-<p>然而，TDX 不提供额外的控制流完整性保证。</p>
-<p>TD 所有者有责任使用现有的基于编译或硬件辅助的控制流完整性执行技术，例如控制流强制技术 (CET)。</p>
-<blockquote>
-<p>意味着，如果 TD 的<strong>代码本身有漏洞</strong>，攻击者仍然可以通过某种方式来影响其控制流。</p>
-<p>CET 是一种由英特尔提供的硬件安全特性，用于检测和阻止控制流劫持攻击。</p>
-</blockquote>
-<h3 id="io-保护">I/O 保护</h3>
-<p>外围设备或加速器位于 TD 信任边界之外，不应被允许访问 TD 的私有内存。为了支持虚拟化 I/O，TD 可以选择<strong>显式共享内存</strong>以进行数据传输。</p>
-<p>但是，TDX <strong>不对位于共享内存区域中的数据提供机密性和完整性保护</strong>。TD 所有者有责任实现适当的机制，例如使用传输层安全协议 (TLS) 等安全通信通道，<strong>以保护离开 TD 信任边界的数据</strong>。</p>
-<p>在未来，TDX 2.0 计划包括 TDX Connect 以解决受信 I/O 问题。</p>
-<blockquote>
-<p><strong>TLS（Transport Layer Security）</strong> 是一种用于在计算机网络上提供安全通信的加密协议。它通过加密、数据完整性验证和身份认证来保护数据的传输，防止信息泄露和篡改。</p>
-</blockquote>
-<hr />
-<h2 id="威胁模型">威胁模型</h2>
-<p>TDX 假设对手可能具有<strong>物理或远程访问计算机</strong>的能力，并能够<strong>控制启动固件、系统管理模式 (SMM)、主机操作系统 (OS)、虚拟机管理程序 (Hypervisor) 和外围设备</strong>。</p>
-<p>这些对手的主要目标是获取机密数据或干扰 TD 的执行。需要注意的是，TDX 不能保证可用性，因为对手<strong>可以控制分配给 TD 的所有计算资源</strong>，并发起拒绝服务 (DoS) 攻击。</p>
-<blockquote>
-<p>这里的"可用性"是指虚拟机（TD）能够可靠、持续地执行和运行的能力</p>
-<p><strong>拒绝服务攻击（Denial of Service，简称 DoS）</strong> 是一种网络攻击，它的目的是使目标系统或服务无法正常提供服务。攻击者通过向目标发送大量请求或恶意数据，耗尽目标的资源（如带宽、CPU、内存等），导致合法用户无法访问或使用目标系统或服务。</p>
-</blockquote>
-<p>因此，TDX 的设计必须防止对手采取任何可能破坏 TDX 安全保证的行为。下面，我们总结了对手的能力，并确定了潜在的攻击向量和场景。</p>
-<p>对手可以通过其主机侧接口函数与 TDX 模块进行交互，这些接口函数允许它们构建、初始化、测量和销毁 TD。对手可以按照任意顺序调用这些接口函数，并提供语义上和语法上合法或非法的输入。</p>
-<p>对手可以控制分配给 TD 的计算资源，包括物理内存页、处理器时间和物理/虚拟设备。它们可以在任意时刻中断 TD，并尝试读取和写入任意内存位置，还可以重新配置输入/输出内存管理单元 (IOMMU)。</p>
-<p>对手可以操纵 TD 的输入数据，包括高级配置和电源接口 (ACPI) 表、外围组件互连 (PCI) 配置、特定型号寄存器 (MSR)、内存映射输入/输出 (MMIO)、直接内存访问 (DMA)、模拟设备、主机处理的超调用、随机源和时间概念。</p>
-<p>对手可以进行物理和硬件攻击，例如通过探测总线或通过恶意 DMA 访问主存储器。对于回滚任意内存区域的物理攻击，没有防御措施。然而，<strong>对手不可能提取嵌入处理器芯片中的密钥材料</strong>。威胁模型不包括故障注入或侧信道攻击，如电源扰动、时序和电力分析。</p>
-<p>攻击 TDX 认证在模型范围之内，因为它破坏了信任模型，并可能使对手伪造虚假的 TEE，以从租户处收集机密信息。</p>
-<h3 id="可信计算基-tcb">可信计算基 (TCB)</h3>
-<p>TDX 的 TCB 由<strong>支持 TDX 的 Intel 处理器</strong>及其内置技术（如 VT、MKTME 和 SGX）组成。TCB 还包括由 Intel 签署的软件模块，如 TDX 模块、NP/P-SEAM 加载器，以及用于远程认证的 SGX 架构飞地 (enclaves)。</p>
-<p>在 TD 内运行的软件栈由租户拥有，并被视为 TCB 的一部分。TDX 中使用的加密原语被认为是可靠的，其实现也是安全的，包括随机数的生成和侧信道攻击（如时间攻击）的防护。</p>
-<p>租户必须信任处理器制造商 Intel，以开发、制造、构建和签署用于 TDX 的硬件/软件组件。TDX 模块、NP/P-SEAM 加载器以及 DCAP 的源代码是公开可审计的，允许租户评估其可信度。然而，租户还必须信任 Intel 签署的版本与他们审查的版本一致，这涉及在编译过程中对供应链攻击的保护。</p>
-<p>此外，租户还需要信任 Intel 的供应证书服务 (PCS) 进行远程认证。PCS 最初支持 SGX 认证，现已扩展至包括检索供应证书密钥 (PCK) 证书、撤销列表和 TCB 信息。</p>
-<hr />
-<h2 id="保密计算技术的比较">保密计算技术的比较</h2>
-<p>保密计算技术的共同目标是保护在不可信第三方基础设施上托管的敏感数据和计算，防止未授权访问、篡改和披露。</p>
-<p>主要处理器供应商正在竞争将保密计算功能集成到其芯片中。尽管在实现和术语上存在差异，但这些技术共享基本的安全原则，并具有类似的系统设计，如引入新的执行模式或特权级别，将虚拟机管理功能迁移到经过认证的固件/软件中，确保受信或测量的可信组件的启动，实施内存访问控制，并提供内存加密保护。</p>
-<p>除了 Intel TDX 外，我们还简要介绍了来自其他供应商的保密计算技术，包括 AMD 安全加密虚拟化 (SEV)、IBM 安全执行和受保护执行设施 (PEF)、Arm 保密计算架构 (CCA) 和 RISC-V 保密虚拟机扩展 (CoVE)。</p>
-<figure>
-<img src="/assets/1111.png" alt="已上传的图片" /><figcaption>已上传的图片</figcaption>
-</figure>
-<h3 id="amd-sev">AMD SEV</h3>
-<p>SEV（安全加密虚拟化）是 AMD EPYC 处理器中的一项保密计算功能。它通过在多租户云环境中对虚拟机（VM）内存进行加密来保护敏感数据，防止特权软件或管理员的访问。</p>
-<p>SEV 依赖于 AMD 安全内存加密 (SME) 和 AMD 虚拟化 (AMD-V) 技术，通过强制执行 VM 与虚拟机管理程序之间的加密隔离来确保安全。每个 VM 都分配有一个唯一的临时高级加密标准（AES）密钥，用于运行时的内存加密。</p>
-<p>内存控制器上的 AES 引擎负责加密或解密写入或读取主存储器的数据。每个 VM 的密钥由 <strong>AMD 平台安全处理器 (PSP) 管理</strong>，该处理器是集成在 AMD 系统芯片 (SoC) 内的 32 位 Arm Cortex-A5 微控制器。物理地址的 C 位（第 47 位）决定了内存页面的加密。</p>
-<p>SEV 还提供了远程认证机制，允许 VM 所有者验证 VM 启动测量的可信度及 SEV 平台的可靠性。PSP 生成由 AMD 认证密钥签名的认证报告。VM 所有者可以验证认证报告的真实性及其嵌入的平台/来宾测量信息。</p>
-<p>AMD 已经发布了 SEV 的三代版本。第一代 SEV 仅保护 VM 内存的机密性。第二代 SEV-ES（加密状态）增加了在虚拟机管理程序切换期间对 CPU 寄存器状态的保护，而第三代 SEV-SNP（安全嵌套分页）增加了完整性保护，以防止内存篡改、重放和重映射攻击。</p>
-<p>特别是，SEV-SNP 使用反向映射表 (RMP) 进行内存完整性保护。RMP 追踪每个页面的所有权和权限，以防止未经授权的访问。SEV-SNP 还通过将来宾地址空间划分为四个级别并在 VM 内部提供额外的安全隔离，来引入<strong>虚拟机权限级别 (VMPL)</strong> 功能。</p>
-<h3 id="ibm-保密计算">IBM 保密计算</h3>
-<p>IBM 对保密计算的早期探索可以追溯到对 SecureBlue++ 的研究，该研究在 Mambo CPU 模拟器上运行了一个模拟的 POWER 处理器。今天，IBM 系统支持两种架构的保密计算：IBM Z 和 LinuxONE 上提供的安全执行 (Secure Execution) 以及 OpenPOWER 系统上发布的受保护执行设施 (PEF)。</p>
-<p><strong>IBM 安全执行 (Secure Execution)</strong><br />
-IBM 安全执行自 IBM Z15 和 LinuxONE III 以来提供了对在隔离 TEE 中运行的安全虚拟机 (SVM) 的支持。</p>
-<p>安全执行保护 SVM 中代码和数据的机密性、完整性和真实性，防止任何未经授权的访问和篡改。安全执行利用被称为 Ultravisor 的可信固件执行安全敏感任务来引导和运行 SVM。Ultravisor 在上下文切换期间保护 SVM 的内存和状态，并防止潜在的恶意虚拟机管理程序的入侵。</p>
-<p><strong>IBM PEF (受保护执行设施)</strong><br />
-PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TEE。PEF 固件、用于准备 SVM 的工具和操作系统扩展都是作为开源软件发布的。</p>
-<p>为了保护敏感数据和代码，PEF 引入了一个受信固件——受保护执行 Ultravisor（Ultravisor），该固件通过 CPU 架构变化来屏蔽 SVM 执行并强制执行安全保障。PEF 依赖于系统的安全和受信启动，并在一个新的、最高特权的 CPU 状态（称为 Secure State）中执行 Ultravisor。</p>
-<p>虚拟机管理程序启动 VM，然后调用 Ultravisor 来切换到 SVM。Ultravisor 通过将其移动到受保护的内存来将 VM 转换为 SVM，从而确保这些内存对于不受信任的代码是不可访问的。</p>
-<h3 id="arm-cca">Arm CCA</h3>
-<p>CCA（保密计算架构）是 Armv9 架构中引入的一项技术。传统上，Arm TrustZone 通过将"普通世界"（Normal World）和"安全世界"（Secure World）分隔开来，实现了安全执行。TrustZone 防止普通世界的软件访问安全世界中的数据。</p>
-<p>CCA 引入了"领域管理扩展"（Realm Management Extension，RME），通过添加两个新的世界：领域世界（Realm World）和根世界（Root World），进一步扩展了这种分隔。</p>
-<p>领域世界（Realm World）为保密虚拟机（Confidential VMs）提供了相互不信任的执行环境，隔离工作负载，使其不受其他安全域（包括主机操作系统、虚拟机管理程序、其他领域和 TrustZone）的干扰。</p>
-<p>为了实施地址空间的隔离，CCA 使用了一种扩展的页面表结构——"粒度保护表"（Granule Protection Table，GPT），该结构用于跟踪每个页面的所有权，并将其归属于不同的世界。</p>
-<p>根世界（Root World）中的"监控器"（Monitor）负责创建和管理 GPT，防止虚拟机管理程序或操作系统直接更改它。监控器可以通过更新 GPT 动态地在不同世界之间移动物理内存。CCA 还支持对 CCA 平台及其领域的初始状态进行认证，以确保其安全性。</p>
-<h3 id="risc-v-cove">RISC-V CoVE</h3>
-<p>CoVE（保密虚拟机扩展）是 RISC-V 的一个参考保密计算架构，其受保护的实例被称为 TEE 虚拟机（TVM）。该架构引入了 TEE 安全管理器（TSM）驱动，这是一个 M 模式（RISC-V 中的最高特权级别）固件组件，用于在保密环境和非保密环境之间切换。TSM 驱动通过内存跟踪表（Memory Tracking Table，MTT）跟踪 TVM 的内存页面分配。</p>
-<p>TSM 驱动测量并加载 TSM，它是虚拟机管理程序与 TVM 之间的受信中介。CoVE 定义了一个应用程序二进制接口（ABI），供虚拟机管理程序从 TSM 请求虚拟机管理服务。</p>
-<p>CoVE 采用分层认证架构，从硬件开始，逐层向上加载、测量并认证 TSM 驱动、TSM 和 TVM。每一层都由上一层加载、测量并签署认证。这种方法提供了一个安全的信任链，可以用于验证系统的完整性。TVM 可以从 TSM 获取一个包含从硬件根源认证的证书，为 TVM 和其所运行的软件的真实性验证提供了机制。</p>
-<hr />
-<h2 id="tdx-的构建模块">TDX 的构建模块</h2>
-<p>TDX 依赖于一系列现有的 Intel 技术，包括虚拟化技术 (VT)、全内存加密 (TME)/多密钥全内存加密 (MKTME) 和软件保护扩展 (SGX)。</p>
-<figure>
-<img src="/assets/QQ_1730016861906.png" alt="QQ_1730016861906" /><figcaption>QQ_1730016861906</figcaption>
-</figure>
-<h3 id="intel-vt">Intel VT</h3>
-<p>Intel VT（虚拟化技术）是一组由 Intel 处理器提供的<strong>硬件辅助虚拟化</strong>功能。使用 VT，虚拟机监控程序（VMM）或虚拟机管理程序可以获得比基于软件的虚拟化更好的性能、隔离和安全性。Intel 的 VT 产品组合包括 CPU、内存和 I/O 的虚拟化。</p>
-<p>支持 VT-x 技术的处理器具有一组称为虚拟机扩展（VMX）的特殊指令集，它可以控制虚拟化功能的实现。支持 VT-x 的处理器可以在两种模式下运行：VMX 根模式和 VMX 非根模式。</p>
-<p>虚拟机管理程序运行在 VMX 根模式，而来宾 VM 运行在 VMX 非根模式。VT-x 定义了两种新转换方式：虚拟机进入（VM Entry）和虚拟机退出（VM Exit），用于在来宾和虚拟机管理程序之间切换。</p>
-<p>VMX 的切换信息存储在虚拟机控制结构（VMCS）中，用于记录来宾和主机的状态信息，并控制哪些来宾操作可能引发 VM 退出。</p>
-<p>Intel VT-x 使用扩展页表（EPT）来实现二级地址转换（SLAT）。每个来宾内核维护其页表以将来宾虚拟地址（GVA）转换为来宾物理地址（GPA）。虚拟机管理程序则管理 EPT，将 GPA 映射到主机物理地址（HPA）。</p>
-<p>虚拟机可以使用不同的 I/O 模型，包括基于软件和基于硬件的模型来访问 I/O 设备。基于软件的 I/O 模型包括仿真设备或半虚拟化设备，而基于硬件的 I/O 模型包括直接设备分配、单根 I/O 虚拟化（SR-IOV）设备和可扩展 I/O 虚拟化（S-IOV）设备。</p>
-<p>Intel VT 的定向 I/O（VT-d）功能使得能够隔离和限制设备访问的实体，可以包括 I/O 设备分配、DMA 重映射、中断重映射和中断发布。借助 VT-d 的支持，虚拟机可以通过 IOMMU 的虚拟到物理地址翻译，直接访问物理 I/O 内存。VT-d 还提供了灵活的 I/O 设备分配方式，并消除了虚拟机管理程序处理中断和 DMA 传输的需求。总体而言，<strong>VT-d 提升了虚拟化环境中需要直接访问 I/O 设备时的性能和安全性</strong>。</p>
-<p><strong>VT 与 TDX 的关系</strong></p>
-<p>TDX 是一个基于 VM 的 TEE。它依赖 VT 提供信任域（TD）之间的隔离。在新的威胁模型中，虚拟机管理程序不再被信任，因此管理 TD 的功能被封装在 TDX 模块中。TDX 模块和 TD 运行在新的 SEAM VMX 根/非根模式下，并增加了额外的保护。TDX 仍然依赖 EPT 来管理 GPA 到 HPA 的映射，但<strong>目前为每个 TD 维护两个 EPT</strong>，一个用于私有（加密）内存，另一个用于共享（未加密）内存。</p>
-<p>需要注意的是，<strong>目前 TDX 1.0 中不支持嵌套虚拟化</strong>，这意味着在 TD 中运行虚拟机是不可行的。在 TD 中使用 VMX 指令会导致未定义指令（UD）异常。但根据 TD 分区架构规范草案，TDX 1.5 版本将来可能支持嵌套虚拟化。</p>
-<h3 id="intel-tmemktme">Intel TME/MKTME</h3>
-<p>TME 首次在第 11 代 Intel Core vPro 移动处理器中引入。该功能旨在防止攻击者通过物理访问计算机内存窃取数据。</p>
-<p><strong>TME 使用单一的瞬时密钥加密整个计算机的内存</strong>。该密钥通过硬件随机数生成器和系统芯片组中的安全措施在启动时生成。内存加密由每个内存控制器上的加密引擎执行。加密过程使用 NIST 标准的 AES-XTS 算法，密钥长度可以是 128 位或 256 位。</p>
-<p>MKTME 是 TME 的扩展，<strong>支持多密钥加密和按页面粒度的内存加密</strong>。对于每个内存事务，MKTME 从物理内存地址中提取<strong>主机密钥标识符（HKID）</strong>，并选择相应的密钥进行内存加密/解密。</p>
-<p>HKID 占据物理地址的高位比特，范围由 BIOS 在系统启动时设置。MKTME 允许软件提供的密钥，并引入了一个新的指令 PCONFIG，用于编程与特定 HKID 关联的密钥和加密模式。这些 HKID-密钥对存储在每个 MKTME 加密引擎的密钥加密表（KET）中。<strong>KET 中的密钥永不离开处理器，也不会暴露给软件。</strong></p>
-<p>MKTME 可以在本地和虚拟化环境中使用。在虚拟化环境中，虚拟机管理程序通过将 HKID 附加到 EPT 中的 VM 物理地址来控制不同虚拟机的内存加密。</p>
-<p><strong>MKTME 与 TDX 的关系</strong></p>
-<p>在虚拟化环境中使用 MKTME 时，虚拟机管理程序必须被信任来控制内存加密，这与保密计算的新威胁模型相冲突。因此，在 TDX 中，<strong>由 TDX 模块负责控制 TD 的内存加密</strong>。HKID 空间被划分为私有 HKID 和共享 HKID。<strong>TDX 模块确保每个 TD 分配一个唯一的私有 HKID</strong>。因此，该 HKID 可以用于表示特定 TD 的身份。私有 HKID 只能用于加密 TD 的私有内存。TDX 模块仍然依赖 MKTME 来保护 TD 的内存。</p>
-<h3 id="intel-sgx">Intel SGX</h3>
-<p>Intel 在 2015 年推出了 SGX（软件保护扩展），与第六代 Core 处理器一起发布，旨在防止内存总线监听和冷启动攻击。它允许开发人员将应用程序划分为不同的部分，并保护选定的代码和数据在飞地（enclaves）内。飞地的内存只能被授权代码访问。SGX 使用基于硬件的内存加密来保护飞地的内容。任何未经授权的访问或篡改飞地内存的行为都会触发异常。</p>
-<p>SGX 向 Intel 的指令集架构（ISA）中添加了 18 条新指令，并使开发人员能够将计算安全地外包到不可信的主机环境中（包括主机应用程序、主机内核、SMM 和外围设备）。SGX 的安全性最终取决于实现其功能的固件和微代码的安全性。</p>
-<p><strong>飞地页面缓存 (EPC)</strong> 是一个特殊的内存区域，用于存放飞地的代码和数据。每一页都使用内存加密引擎（MEE）加密。飞地页面缓存映射（EPCM）存储页面的元数据，例如配置、权限和页面类型。在启动时，会生成密钥，并用于解密 CPU 内部的加密页面内容。密钥由 MEE 控制，不向外部泄露。因此，<strong>只有特定的 CPU 能够解密内存，CPU 会在内部存储这些密钥，防止任何软件访问它们</strong>。此外，特权软件（非飞地）不允许读取或写入 EPC 或 EPCM 页面。</p>
-<p>SGX 提供本地认证和远程认证，用于验证飞地的完整性和真实性。</p>
-<ul>
-<li><strong>本地认证</strong>：用于在同一平台上的两个飞地之间建立信任关系。第一个飞地生成一份报告，并使用第二个飞地的身份信息对其进行签名。第二个飞地检索其报告密钥，并使用此密钥验证报告。<br />
-</li>
-<li><strong>远程认证</strong>：用于向平台外的第三方实体验证飞地的可信性。SGX 使用一个特殊的架构飞地，称为引用飞地（Quoting Enclave，QE），由 Intel 开发并签署。QE 接收来自另一个飞地的报告，在本地验证报告，并通过使用认证密钥对其进行签名，将其转换为远程可验证的"引用"（qote）。远程方可以将该 qote 发送到 Intel 认证服务（IAS），IAS 对 qote 进行验证，以确认并评估飞地的可信度。</li>
-</ul>
-<p>引用飞地（Quoting Enclave，QE）的角色是<strong>为报告转换为引用</strong>提供一个安全且可信的环境，并<strong>确保引用不能被篡改或伪造</strong>。Intel 还提供了数据中心认证原语（DCAP），这是由多个软件包组成的，数据中心可以利用它们部署自己的 ECDSA 认证基础设施以进行 SGX 飞地认证。</p>
-<p>研究人员已经利用 SGX 来提供安全容器（例如，Scone）和为未经修改的应用程序提供屏蔽执行（例如，Haven）。Graphene 是一个基于 SGX 的框架，它提供了在 SGX 飞地内运行未经修改的应用程序及动态库的技术。此外，SGX 还有广泛的应用，包括功能加密系统（如 Iron）、代码划分保护敏感数据和功能（如 Glamdring）、机器学习、安全网络、安全的分布式系统协调（如 SecureKeeper）以及安全的分布式计算等。</p>
-<p>同时，识别 SGX 的漏洞也是一个重要的研究方向。研究人员发现了针对 SGX 的各种攻击向量，例如受控通道攻击、缓存攻击、分支预测攻击和推测执行攻击。</p>
-<p><strong>SGX 与 TDX 的关系</strong></p>
-<p>SGX 和 TDX 在同一平台上保护内存的粒度不同。但在同一平台上，TDX 和 SGX 属于同一可信计算基（TCB），因此它们可以相互进行本地认证。TDX 利用了由 SGX 提供的远程认证机制。TDX 平台的认证报告可以在引用飞地（QE）中验证并签署。</p>
-<p>需要注意的是，<strong>目前在 TD 中运行 SGX 飞地是不被允许的</strong>，因为在 TD 中调用 ENCLS / ENCLV 指令会导致未定义指令（UD）异常。</p>
-<hr />
-<h2 id="tdx-概述">TDX 概述</h2>
-<p>在本节中，我们将概述 TDX，讨论其系统架构、内存保护机制、I/O 模型、认证以及未来计划的功能。</p>
-<h3 id="tdx-系统架构">TDX 系统架构</h3>
-<figure>
-<img src="/assets/QQ_1730016896233.png" alt="QQ_1730016896233" /><figcaption>QQ_1730016896233</figcaption>
-</figure>
-<p>图 1 显示了 TDX 的运行时架构。它由两个关键组件组成：</p>
-<ol type="1">
-<li><strong>TDX 支持的处理器</strong>：提供架构功能，如硬件辅助虚拟化、内存加密/完整性保护，以及认证 TEE 平台的能力。<br />
-</li>
-<li><strong>TDX 模块</strong>：这是一个由 Intel 签署并由 CPU 认证的软件模块，利用 TDX 支持的处理器的特性来促进信任域（TD）的构建、执行和终止，同时强制执行安全保证。TDX 模块提供两组接口函数，一组用于 TDX 友好的虚拟机管理程序，另一组用于 TD。它加载并执行在 SEAM 范围内，这是由 UEFI/BIOS 保留的系统内存部分。P-SEAM 加载器也驻留在 SEAM 范围内，可以安装和更新 TDX 模块。</li>
-</ol>
-<p>安全仲裁模式 (SEAM) 是对 VMX 架构的扩展，提供了两种新的执行模式：SEAM VMX 根模式和 SEAM VMX 非根模式。</p>
-<p>一个 TDX 友好的虚拟机管理程序在传统的 VMX 根模式下运行，并使用 SEAMCALL 指令调用 TDX 模块的主机侧接口函数。当 SEAMCALL 指令执行时，逻辑处理器 (LP) 从 VMX 根模式过渡到 SEAM VMX 根模式，并开始执行 TDX 模块中的代码。一旦 TDX 模块完成任务，它通过执行 SEAMRET 指令返回到 VMX 根模式下的虚拟机管理程序。</p>
-<p>另一方面，TD（信任域）在 SEAM VMX 非根模式下运行。TDX 支持在 TD 中执行未经修改的用户级应用程序，类似于在标准虚拟机中执行的方式。然而，TD 的来宾操作系统内核（在图 1 中显示为 TDX 友好操作系统）需要进行一些修改，以适应底层 TDX 平台，并符合其架构范式和安全要求。这些修改包括处理新的 TDX 异常（通过来宾虚拟化异常（VE）处理程序）、实现类似于超调用的机制以便 TD 与 TDX 模块通信、为 I/O 操作转换内存页面（从私有到共享），以及集成认证支持。具体实现细节可能因操作系统类型而异。例如，经过增强的来宾 Linux 内核的详细实现已在内核文档中进行了描述。</p>
-<p>TD 通过 TD 退出或调用 TDCALL 指令陷入 TDX 模块的上下文中。两种情况下，逻辑处理器 (LP) 都会从 SEAM VMX 非根模式转换到 SEAM VMX 根模式，并开始在 TDX 模块上下文中执行。处理 TDCALL 的来宾侧接口函数以 "TDG" 开头。有关 TDX 上下文切换的详细信息，可以参见第 7.5 节。</p>
-<p>保密计算带来的机密性保障使其成为研究侧信道信息泄漏的主要目标。近年来，CPU 推测执行的系列微架构攻击暴露了一个令人担忧的问题：在架构状态中强制执行的安全域隔离可能与微架构状态不一致。随着 TDX 在市场上变得更加普及，它预计将吸引更多安全研究人员的关注。我们主要着重于审查已集成到 TDX 模块中的现有防御措施，以应对已知的攻击向量。详细信息请参见第 7.8 节。</p>
-<h3 id="tdx-内存保护">TDX 内存保护</h3>
-<p>TDX 利用 VMX 强制执行对 TD 的内存隔离。类似于传统虚拟机，TD 无法访问其他安全域的内存，如 SMM、虚拟机管理程序、TDX 模块和其他虚拟机/TD。使用 VMX，虚拟机管理程序维护扩展页表（EPT）来强制实施内存隔离。然而，由于虚拟机管理程序不再被信任，<strong>TDX 已将内存管理任务转移至 TDX 模块，TDX 模块控制 TD 私有内存的地址转换</strong>。</p>
-<p>TDX 的安全模型中最引人注目的部分是其防护 TD 内存免受特权软件、损坏的设备和主机上不良管理员的攻击。TDX 通过<strong>访问控制</strong>和<strong>加密隔离</strong>来实现这一点。访问控制防止同一台计算机上的其他安全域访问 TD 的数据。加密隔离则防止恶意 DMA 设备或拥有物理访问权限的对手直接读取或篡改 TD 的私有内存。</p>
-<p><strong>内存分区</strong></p>
-<p>启用 TDX 后，整个物理内存空间将被分为两部分：普通内存和安全内存。TD 的敏感数据，包括私有内存、虚拟 CPU 状态及其相关的元数据，都应存储在安全内存中。TD 还可以指定一些内存区域作为共享内存进行 I/O 操作，这些共享区域不会通过 TDX 得到保护，因此属于普通内存。</p>
-<p>所有不在 SEAM 模式下运行的软件都属于普通内存，不允许访问安全内存，无论其权限级别如何。内存控制器是处理器内的一个架构组件，负责执行内存访问检查。</p>
-<p>要将物理页面设为安全内存的一部分，需要启用 TD 所有者位。每个 TD 所有者位与一个内存段相关联，该内存段对应一个缓存行。</p>
-<p>TD 所有者位存储在与这些段关联的错误校正码（ECC）内存中。TDX 模块通过将私有 HKID 附加到物理地址来控制物理内存页面转换为安全内存的过程。HKID 编码在物理地址的高位比特中。私有 HKID 只能用于 TD 和 TDX 模块的加密。</p>
-<p>写入带有私有 HKID 的物理地址时，内存控制器将 TD 所有者位设置为 1；写入不带私有 HKID 的地址时，将清除 TD 所有者位。访问控制在每个缓存行读取时强制执行。</p>
-<p>读取请求通过内存控制器，只有在 SEAM 模式下执行的进程才能读取设置为 1 的缓存行。如果在非 SEAM 模式下读取此类缓存行，请求将会返回全零。</p>
-<p>当构建一个 TD 时，（不可信的）虚拟机管理程序会从普通内存中选择内存页面，将它们转换为安全内存。</p>
-<p>TDX 模块会逐步将这些页面移动到安全内存中，并将其用于每个 TD 的元数据和主存储器。TD 必须显式接受这些页面后，才可将它们用作其主存储器。TDX 模块通过维护一个物理地址元数据表（PAMT）来执行对安全内存设置的完整性检查，有关 PAMT 的详细信息可以在第 7.7 节中找到。</p>
-<p><strong>内存机密性</strong></p>
-<p>TDX 利用 MKTME（第 5.2 节）来加密 TD 的私有内存及其元数据。MKTME 负责透明地对通过内存控制器的读写数据进行加密和解密操作。TDX 模块为 MKTME 配置密钥，这些密钥用于在缓存行被写回内存时对其进行加密。密钥与嵌入在物理地址中的 HKID 相关联。<strong>MKTME 解码 HKID，并使用相关的加密密钥来执行加密操作。</strong></p>
-<p><strong>MKTME 将加密密钥存储在其内部存储器中，从不对外部暴露</strong>。加密密钥只能通过它们的 HKID 来引用。当创建新 TD 时，虚拟机管理程序选择一个未使用的私有 HKID，并由 TDX 模块请求处理器生成与该 HKID 关联的新加密密钥。TDX 模块将这个 &lt;HKID, 密钥&gt; 对绑定到 TD 上。它确保每个 TD 的内存使用不同的加密密钥进行加密。</p>
-<p>MKTME 在缓存行被写回主存储器时使用 AES-128 XTS 加密技术进行加密。加密可以防止一些物理攻击，例如冷启动攻击。有关 MKTME 和 HKID 的更多详细信息，请参见第 8.1 节。</p>
-<p><strong>内存完整性</strong></p>
-<p>TDX 提供了两种不同的机制来确保内存完整性：逻辑完整性 (Li) 和加密完整性 (Ci)。</p>
-<ul>
-<li><p><strong>逻辑完整性 (Li)</strong> 通过使用 TD 所有者位来防止未经授权的软件写入。由于 TDX 只允许在 SEAM 模式下使用私有 HKID，<strong>任何来自 SEAM 模式之外的未经授权的写入操作将清除 TD 的私有内存的 TD 所有者位</strong>。当从内存中读取这些被修改的私有内存时，已清除的 TD 所有者位将触发异常。然而，此功能不能防止对手通过内存的比特翻转（例如，通过 Rowhammer 攻击）来修改内存。</p></li>
-<li><p><strong>加密完整性 (Ci)</strong> 是一个更高级的机制，它解决了 Li 的局限性。除了 TD 所有者位之外，Ci 还在缓存行被写回内存时计算一个<strong>消息认证码 (MAC)</strong>。MAC 使用在系统初始化期间生成的 128 位 MAC 密钥进行计算，并作为内存元数据的一部分在写回时存储。当内存被读取时，MAC 会重新计算。如果内存内容被篡改，则重新计算的 MAC 将与存储的元数据不匹配，从而触发完整性检查。然而，无论是 Li 还是 Ci 都无法检测到内存回放攻击（如果对手能够回滚内存内容和元数据）。我们将在第 8.2 节中提供更多有关内存完整性保护的技术细节。</p></li>
-</ul>
-<h3 id="tdx-io-模型">TDX I/O 模型</h3>
-<p>根据 TDX 的威胁模型，虚拟机管理程序和外围设备被认为是不可信的，不允许直接访问 TD 的私有内存。TD 及其所有者有责任在 I/O 数据离开信任边界之前对其进行保护。这需要通过将 I/O 数据缓冲区封装到共享内存中来完成，共享内存在 GPA 中由共享位标识。虚拟机管理程序或外围设备随后可以将数据进出共享内存。这一模型需要对来宾内核进行修改，以支持该 I/O 模型。此外，传输到 TD 的所有 I/O 数据必须经过仔细检查和验证，因为它们不再被视为可信。</p>
-<p>在 Linux 客户端对 TDX 的支持中，所有 MMIO 区域和 DMA 缓冲区都映射为 TD 中的共享内存。Linux 来宾强制使用 SWIOTLB（软件 I/O 转换缓冲区）在统一的位置分配和转换 DMA 缓冲区。为了防止 I/O 输入中的恶意行为，<strong>只允许有限数量的经过强化的驱动程序在 TD 中运行</strong>。</p>
-<h3 id="tdx-认证">TDX 认证</h3>
-<p>远程认证是一种验证可信执行环境（TEE）身份和可信度的方法。认证方（attester）可以向质询方（challenger）提供证明，以表明计算正在受保护的环境中执行。质询方通过<strong>检查数字签名和比较测量值</strong>来验证证据。</p>
-<p>在支持 TDX 的机器上，认证方在 TD 内运行，负责处理远程认证请求。当收到质询方（如租户）的请求时，认证方通过生成一个 TD 引用（TD Quote）来提供 TD 正确实例化的证据。</p>
-<p>这个引用由 TDX 模块生成，并由引用飞地（Quoting Enclave）签名。它包含 TDX 的可信计算基（TCB）和 TD 中加载的软件组件的测量值。引用还包括由 Intel 颁发的证书链作为信任根。</p>
-<p>在收到引用后，质询方通过检查引用的真实性来验证其可信性，确保认证方在真实的 TDX 平台上运行，并确认 TD 具有预期的软件测量值。如果引用验证成功，质询方可以继续与认证方建立安全通道，或向认证方释放密钥。我们将在第 9 节中详细讨论远程认证的技术细节。</p>
-<h3 id="未来功能">未来功能</h3>
-<p>对于保密虚拟机来说，<strong>实时迁移和可信 I/O</strong> 是至关重要的功能，但目前在 TDX 1.0 中尚未得到支持。然而，根据相关文档，Intel 计划在 TDX 1.5 中支持实时迁移，并在 TDX 2.0 中支持可信 I/O。这些计划正在进行中，可能会在未来发生变化。以下我们简要介绍这两个功能的设计。</p>
-<p><strong>实时迁移</strong></p>
-<p>实时迁移是云服务提供商的一项重要功能，因为它可以让他们在不中断服务的情况下，<strong>将运行中的虚拟机从一台物理主机迁移到另一台物理主机</strong>。这一功能对于硬件升级、软件修补和负载均衡等维护任务至关重要。</p>
-<p>然而，由于保密计算的安全要求，迁移 TD 比迁移传统虚拟机更加复杂。由于虚拟机管理程序被视为不可信，因此它不能直接访问和传输源平台上的 TD 的 CPU 状态和私有内存。此外，租户应能够定义和强制执行迁移策略。例如，如果目标平台未满足策略中规定的 TCB 要求，则应取消迁移。</p>
-<p>Intel 引入了"服务 TD"（Service TD），以扩展 TDX 模块的信任边界。与将 TDX 模块本身过度复杂化和膨胀化相比，将自定义和专门化的功能添加到服务 TD 中更加方便灵活。服务 TD 可以通过 TDX 模块与常规 TD 绑定，并且可以对其资产具有访问权限。</p>
-<p>迁移 TD（MigTD）是专为实时迁移设计的服务 TD。整个实时迁移过程由 TDX 模块和迁移 TD 控制。不可信的虚拟机管理程序（由云服务提供商控制）仅负责通过网络传输已加密的 TD 资产。这些资产包括 TD 的元数据、CPU 状态和私有内存，并通过仅由迁移 TD 和 TDX 模块访问的迁移会话密钥 (MSK) 进行保护。</p>
-<p>源平台和目标平台上都运行着迁移 TD（MigTD）。迁移 TD 分别与源 TD（要迁移的 TD）和目标 TD（最初为等待迁移的 TD 模板）绑定。迁移 TD 负责源平台和目标平台之间的远程认证，并根据安全策略评估其 TCB 级别。一旦平台被认为适合迁移，源迁移 TD 和目标迁移 TD 之间就会建立安全通道。源迁移 TD 生成一个 MSK，并通过此安全通道共享给目标迁移 TD。源和目标迁移 TD 分别将 MSK 编程到相应的 TDX 模块中。源 TDX 模块使用 MSK 对 TD 的资产进行加密和导出，而目标 TDX 模块使用相同的密钥进行解密并将资产导入目标 TD。需要注意的是<strong>，源 TD 和目标 TD 分别分配了独立的 HKID，因此它们受到不同 TD 私钥的保护</strong>。</p>
-<p><strong>可信 I/O</strong></p>
-<p>计算机由各种功能组件组成。然而，保密计算从概念上打破了统一的信任模型。因此，由不同供应商制造的每个组件之间不能再相互信任，这对高效 I/O 造成了严重障碍，因为不可信的设备无法读取和写入 TEE 的私有内存。为了解决这一问题，Intel 提出了 TDX 2.0 中的 <strong>TDX Connect</strong>，旨在将 TD 的信任扩展到外部设备。这需要对设备和 TDX 平台进行更改，以使用兼容的协议来建立相互信任，并启用安全的通信通道。关键原则是，<strong>TD 和设备应能够安全地交换和验证彼此的身份和测量值</strong>。此外，TD 和设备之间的数据路径并不受信任，可能会受到攻击者的拦截。因此，必须建立端到端的安全通道来保护 TD 和设备之间传输的数据。有关 TDX Connect 的详细协议，可以在相关提案中找到。</p>
-<hr />
-<h2 id="tdx-模块">TDX 模块</h2>
-<p>本节对 TDX 模块进行了深入分析。我们首先在第 7.1 节讨论其加载过程，接着在第 7.2 节中解释其物理和线性内存布局。随后，我们在第 7.4 节中描述 TDX 模块用于管理 TD 的元数据，并在第 7.5 节中探讨不同安全域之间的上下文切换过程。此外，我们还介绍了 TDX 模块的 Keyhole 结构（第 7.6 节）及其内存管理（第 7.7 节）。</p>
-<h3 id="加载-tdx-模块">加载 TDX 模块</h3>
-<figure>
-<img src="/assets/QQ_1730018837399.png" alt="QQ_1730018837399" /><figcaption>QQ_1730018837399</figcaption>
-</figure>
-<p>图 2 展示了 TDX 模块的两阶段加载过程。该过程始于加载 Intel 的非持久 SEAM 加载器（NP-SEAM Loader），这是一种 Intel 认证代码模块（ACM）。ACM 是由 Intel 签名的模块，运行在处理器的内部 RAM 中。NP-SEAM Loader 通过 Intel 可信执行技术（TXT）中的 GETSEC[ENTERACCS] 函数进行<strong>身份验证并加载</strong>。NP-SEAM Loader 包含了 Intel 的持久 SEAM（P-SEAM）加载器的镜像，后者会被 NP-SEAM Loader 验证并加载。接着，<strong>P-SEAM 加载器负责安装或更新 TDX 模块</strong>。</p>
-<p>需要注意的是，P-SEAM 加载器和 TDX 模块都被加载到 SEAM 范围（SEAM Range）内，这是<strong>由 UEFI/BIOS 保留的一部分系统内存</strong>。范围的基地址和大小通过 IA32_SEAMRR_PHYS_BASE 和 IA32_SEAMRR_PHYS_MASK MSR（模型特定寄存器）来指定。此范围被划分为模块范围（Module_Range）用于 TDX 模块，以及 P_Seamldr_Range 用于 P-SEAM 加载器。<strong>两个模块都在 SEAM VMX 根模式下运行，并使用 SEAMCALL / SEAMRET 来与外部软件交互</strong>。NP-SEAM 加载器、P-SEAM 加载器和 TDX 模块均由 Intel 提供并签名，形成了用于启动 TDX 模块的信任链。</p>
-<p>P-SEAM 加载器提供了一个 SEAMCALL 接口函数 seamldr_install 用于加载 TDX 模块。TDX 模块的镜像被预加载到一个内存缓冲区（不在 SEAM 范围内）。缓冲区的物理地址和 seam_sigstruct（TDX 模块的签名）被作为参数传递给 seamldr_install。seam_sigstruct 包含 TDX 模块的哈希值和安全版本号 (SVN)、每个逻辑处理器的堆栈页面数量、每个逻辑处理器的数据页面数量，以及全局数据页面的数量。seamldr_install 使用这些数字来确定 TDX 模块的各个内存区域的物理/线性地址和大小。</p>
-<p>seamldr_install 必须在所有逻辑处理器上顺序调用。当它在第一个逻辑处理器上调用时，安装会话启动。在每个逻辑处理器上，seamldr_install 检查当前逻辑处理器是否已经处于另一个逻辑处理器启动的安装会话中，并清除逻辑处理器的 VMCS 缓存。当 seamldr_install 在最后一个逻辑处理器上被调用时，它执行以下操作：</p>
-<ol type="1">
-<li>检查 seamldr_install 的参数，</li>
-<li>验证 TDX 模块的签名，</li>
-<li>检查即将加载的镜像的 SVN，并与已存在的 TDX 模块进行比较，</li>
-<li>确定 SEAM 范围内的 TDX 模块各个内存区域的物理和线性地址及大小：代码区、数据区、堆栈区、页表、Sysinfo_Table、Keyhole 和 Keyhole-Edit（第 7.2 节），</li>
-<li>映射这些区域的物理地址到其线性地址（第 7.2 节），</li>
-<li>将 TDX 模块的二进制镜像加载到 SEAM 范围内，测量镜像，并计算和验证 TDX 模块的哈希值，</li>
-<li>设置 TDX 模块的 Sysinfo_Table，</li>
-<li>在每个逻辑处理器上设置 SEAM 传输 VMCS（第 7.5 节），</li>
-<li>将 TDX 模块的哈希值、SVN 记录到 P-SEAM 加载器的数据区。</li>
-</ol>
-<p>除了用于安装 TDX 模块的 SEAMCALL，P-SEAM 加载器还提供了其他接口函数，用于关闭自身以及检索加载器的系统信息。</p>
-<p><strong>7.2 TDX 模块的内存布局</strong></p>
-<p>这里我们分别讨论 TDX 模块的物理和线性内存布局。</p>
-<p><strong>物理内存布局</strong></p>
-<figure>
-<img src="/assets/QQ_1730018974265.png" alt="QQ_1730018974265" /><figcaption>QQ_1730018974265</figcaption>
-</figure>
-<p>图 3 显示了 TDX 模块在 Module_Range 中的物理内存布局。布局以一个 4 KB 页面开始，该页面包含 TDX 模块的 Sysinfo_Table。Sysinfo_Table 由 NP-SEAM Loader 填充的 2 KB 平台信息和由 P-SEAM Loader 填充的 2 KB 模块信息组成，包括 SEAM 范围的基地址和大小、各个内存区域的线性地址基址、逻辑处理器数量以及私有 HKID 的范围。在 Sysinfo_Table 之后，是每个逻辑处理器的 VMCS 区域。每个逻辑处理器都有一个 4 KB 的 SEAM 传输 VMCS（参见第 7.5 节）。</p>
-<blockquote>
-<p>VMCS（<strong>Virtual Machine Control Structure</strong>，虚拟机控制结构）是 Intel 虚拟化技术（Intel VT-x）中的一个关键数据结构。</p>
-<p>VMCS 使得处理器能够高效地在虚拟机（VM）和虚拟机监控器（VMM，通常是 hypervisor）之间切换。</p>
-</blockquote>
-<p>在每个逻辑处理器的 VMCS 区域之后，是数据区，数据区被划分为每个逻辑处理器的数据区和全局数据区。接着是 TDX 模块的 4 级页表，之后是每个逻辑处理器的堆栈区域，最后是 TDX 模块的可执行代码区。</p>
-<p><strong>线性内存布局</strong></p>
-<figure>
-<img src="/assets/QQ_1730019011073.png" alt="QQ_1730019011073" /><figcaption>QQ_1730019011073</figcaption>
-</figure>
-<p>TDX 模块有其自身的线性地址空间，并维护一个页表来进行地址转换。图 4 展示了 TDX 模块的线性地址空间布局，该布局由 P-SEAM 加载器通过构建 TDX 模块的页表来建立。为了防止内存篡改攻击，P-SEAM 加载器将线性地址的第 34 到 46 位进行随机化，这些位在图中以方框表示。所有区域的线性地址和大小都记录在 Sysinfo_Table 的字段中。对于代码、堆栈、数据和 Sysinfo_Table 的页面表项（PTE）可以提前静态填充，无需在运行时更改页面表。然而，Keyhole 区域用于在 TDX 模块执行期间动态映射外部软件传递的数据。这就需要在 Keyhole 区域之外添加 Keyhole-Edit 区域，以允许在运行时编辑 Keyhole 的映射 PTE。Keyhole 和 Keyhole-Edit 区域的详细讨论可以在第 7.6 节找到。</p>
-<p><strong>7.3 TDX 模块的初始化与配置</strong></p>
-<p>在 TDX 模块加载完成后，主机内核负责初始化和配置 TDX 模块。主机内核通过 SEAMCALL[TDH.SYS.INIT] 来全局初始化 TDX 模块。然后，主机内核在每个逻辑处理器上调用 SEAMCALL[TDH.SYS.LP.INIT]，以检查和初始化每个逻辑处理器的参数，如 Keyhole、数据区和堆栈区（第 7.2 节）。接下来，主机内核分配一个全局私有 HKID，并通过 SEAMCALL[TDH.SYS.CONFIG] 将其传递给 TDX 模块，同时初始化信任域内存区域（TDMR）（第 7.7 节）。每个处理器包上的 SEAMCALL[TDH.SYS.KEY.CONFIG] 会生成一个 TDX 全局私钥，并将该密钥与这个 HKID 绑定。此密钥用于加密 PAMT 和每个 TD 的信任域根（TDR）所占据的内存。最后，主机内核多次调用 SEAMCALL[TDH.SYS.TDMR.INIT]，以逐步初始化每个 TDMR 的 PAMT（第 7.7 节）。</p>
-<p><strong>7.4 信任域的元数据</strong></p>
-<p>TDX 模块负责管理整个 TD 的生命周期。因此，它需要为每个 TD 实例维护元数据。TDX 模块确保对元数据应用内存加密，以防止虚拟机管理程序访问或篡改。</p>
-<figure>
-<img src="/assets/QQ_1730019052343.png" alt="QQ_1730019052343" /><figcaption>QQ_1730019052343</figcaption>
-</figure>
-<p>每个 TD 的元数据由以下控制结构组成：信任域根（TDR）、信任域控制结构（TDCS）、信任域虚拟处理器状态（TDVPS）和安全扩展页表（SEPT）。图 5 展示了这些控制结构之间的关系。</p>
-<ul>
-<li><p><strong>信任域根 (TDR)</strong>：TDR 是在 TD 创建时生成的初始结构，并在 TD 终止时销毁。在 TD 的整个生命周期中，SEAMCALLs 使用相应 TDR 的物理地址来引用 TD。TDR 包含内存加密的关键信息，以及指向 TDCX 页（用于存储 TDCS 的物理内存页）的引用。由于 TDR 在 TD 私钥生成之前创建，因此它通过 TDX 模块的全局私钥来保护。随后的元数据（TDCS、TDVPS 和 SEPT）及 TD 的内存页面可以通过 PAMT 中的所有者属性与 TDR 关联（第 7.7 节）。</p></li>
-<li><p><strong>信任域控制结构 (TDCS)</strong>：TDCS 是一个控制结构，用于在 TD 范围内管理操作并存储状态。它由四个连续的 TDCX 内存页组成，每个页分配给特定用途，如 TD 的管理结构、MSR 位图、SEPT 根页面和一个特殊的零页。TDCS 通过 TD 私钥加密。</p></li>
-<li><p><strong>信任域虚拟处理器状态 (TDVPS)</strong>：TDVPS 是每个 TD 虚拟 CPU 的控制结构。它由六个内存页组成，起始页为 TDVPR 页面，包含对多个 TDVPX 页的引用。第一个 TDVPR 页面存储 VE 信息、虚拟 CPU 管理、来宾状态和来宾 MSR 状态字段。第二个页面是 TD 传输 VMCS（第 7.5 节），控制 TD 的进入和退出。第三个页面是虚拟 APIC 页面，其后是三个存储来宾扩展信息的页面。与 TDCS 一样，TDVPS 也受 TD 私钥的保护。</p></li>
-<li><p><strong>安全扩展页表 (SEPT)</strong>：对于传统的虚拟机，虚拟机管理程序通过 EPT 管理从 GPA 到 HPA 的地址转换。然而，在 TDX 中，来宾地址转换必须受到不可信虚拟机管理程序的保护。为此，TDX 具有两种类型的 EPT：SEPT 和共享 EPT。SEPT 用于 TD 的私有内存地址的转换，并受 TD 私钥保护。SEPT 和 SEPT 根页面的引用存储在 TDCS 中。另一方面，共享 EPT 用于转换由 TD 明确与虚拟机管理程序共享的内存地址（例如用于虚拟化 I/O 的情况），并由虚拟机管理程序控制。TD 的来宾内核可以通过在 GPA 中设置共享位来决定哪些内存页面要共享。共享内存页面不会通过 TD 私钥进行加密。</p></li>
-</ul>
-<p><strong>7.5 TDX 上下文切换</strong></p>
-<figure>
-<img src="/assets/QQ_1730019082229.png" alt="QQ_1730019082229" /><figcaption>QQ_1730019082229</figcaption>
-</figure>
-<p>TDX 的设计必须确保在不同安全域之间进行上下文切换时保持数据的机密性和完整性。上下文切换包括来宾 TD 与 TDX 模块之间的切换，以及不同 TD 之间的切换。在切换过程中，TDX 必须防止跨域信息泄漏，并在离开一个域时清除敏感数据。</p>
-<p>TD 的上下文由信任域虚拟处理器状态（TDVPS）保存。TDVPS 由几个内存页组成，每个内存页存储来宾虚拟 CPU 的不同部分状态，如 VE 信息、管理字段和扩展状态。TDVPS 通过 TD 私钥加密，以防止未经授权的访问。</p>
-<p>在上下文切换期间，逻辑处理器（LP）会从 SEAM VMX 非根模式切换到 SEAM VMX 根模式，并在 SEAM 传输 VMCS 中保存来宾 TD 的状态。SEAM 传输 VMCS 是一个特殊的 VMCS，它驻留在 SEAM 范围内，并通过 TD 私钥加密。每个逻辑处理器都与其专属的 SEAM 传输 VMCS 关联。当 SEAMCALL 指令被执行时，LP 从 SEAM VMX 非根模式切换到 SEAM VMX 根模式，并开始在 TDX 模块上下文中执行。随后，SEAMCALL 执行 SEAMRET 指令，将 LP 切换回 SEAM VMX 非根模式。</p>
-<p><strong>7.6 Keyhole 结构</strong></p>
-<p>由于 TDX 模块不允许直接访问 TD 的私有内存，因此需要一个特殊的机制来对外部软件传递的数据进行加密和解密。Keyhole 区域用于<strong>动态映射外部软件传递的数据，并将其转换为安全内存</strong>。Keyhole 结构包括两个部分：Keyhole 和 Keyhole-Edit。Keyhole 是 TDX 模块的线性地址空间中的一个区域，用于映射外部内存数据，而 Keyhole-Edit 是一个附加区域，用于在运行时编辑 Keyhole 的映射页面表项（PTE）。</p>
-<p><strong>Keyhole 机制</strong></p>
-<p>外部软件可以通过调用 SEAMCALL 来将数据传递到 TDX 模块。数据被传递到 Keyhole 区域中，并使用 PTE 将其映射到 SEAM 范围内的线性地址。Keyhole-Edit 用于管理和更新这些映射。TDX 模块通过 Keyhole 接收数据并将其加密后存储到安全内存中。在处理完成后，Keyhole 区域会被清除，以防止敏感数据泄漏。</p>
-<p><strong>7.7 TDMR 和 PAMT 管理</strong></p>
-<p>TDX 模块使用信任域内存区域（TDMR）来管理整个 TD 的物理内存。每个 TDMR 由多个物理内存页面组成，这些页面由 TDX 模块负责保护和管理。TDMR 的所有内存页面都受到内存加密保护，只有 SEAM 模式下的代码可以访问这些页面。</p>
-<p><strong>物理地址元数据表（PAMT）存储了每个 TDMR 的页面元数据</strong>。PAMT 包含每个物理页面的所有者、权限和状态信息。每个 TDMR 由多个 PAMT 页面组成，PAMT 通过 TD 私钥加密，防止未经授权的访问和篡改。PAMT 中的每个条目都对应一个物理内存页面，记录页面的状态、所有者信息和加密密钥。<strong>TDX 模块利用 PAMT 来验证每个物理内存页面的合法性和完整性</strong>，确保只有经过授权的页面才能作为安全内存使用。</p>
-<p><strong>7.8 侧信道防护</strong></p>
-<p>TDX 通过多种机制来抵御已知的侧信道攻击，例如时序攻击、缓存攻击和推测执行攻击。以下是 TDX 中的一些关键防护措施：</p>
-<ol type="1">
-<li><strong>TLB 刷新和隔离</strong>：在 TD 和非 TD 上下文之间切换时，TDX 模块会刷新翻译后备缓冲区（TLB），防止恶意软件利用 TLB 中的残留信息。</li>
-<li><strong>缓存刷新</strong>：在上下文切换过程中，TDX 模块会刷新处理器的缓存，防止缓存攻击。</li>
-<li><strong>控制流保护</strong>：TDX 依赖于 Intel 的控制流强制技术（CET）来保护控制流的完整性，防止恶意的控制流劫持。</li>
-</ol>
-<p>TDX 模块还采用了其他微架构隔离技术，如分支预测缓冲区隔离和强化的内存随机化，以减少侧信道攻击的风险。对于推测执行漏洞（如 Meltdown 和 Spectre），TDX 依赖于底层处理器的硬件修复措施。</p>
-<p><strong>8. 内存管理的深入分析</strong></p>
-<p>在本节中，我们将深入探讨 TDX 中的内存管理技术，包括 HKID 分配、加密密钥管理、内存完整性保护和内存加密的详细实现。</p>
-<p><strong>8.1 HKID 分配和密钥管理</strong></p>
-<figure>
-<img src="/assets/QQ_1730019260545.png" alt="QQ_1730019260545" /><figcaption>QQ_1730019260545</figcaption>
-</figure>
-<p>TDX 模块利用多密钥内存加密技术 (MKTME) 来保护 TD 的私有内存。每个 TD 都被分配一个唯一的主机密钥标识符 (HKID)，与之关联的加密密钥用于保护 TD 的内存数据。HKID 是物理地址的高位比特，用来标识特定的加密密钥。</p>
-<p>在系统初始化过程中，TDX 模块通过调用<strong>处理器的内置密钥管理功能</strong>来生成密钥。<strong>MKTME 提供的密钥引擎负责生成并管理这些密钥</strong>，并将其与对应的 HKID 关联。处理器通过<strong>内存控制器上的加密引擎来执行加密和解密操作</strong>，密钥永不离开处理器。每个 HKID 代表一个特定的加密密钥，因此多个 TD 之间的加密隔离通过唯一的 HKID 实现。</p>
-<p><strong>8.2 内存完整性保护</strong></p>
-<p>TDX 提供两种内存完整性保护机制：逻辑完整性 (Li) 和加密完整性 (Ci)。Li 通过使用内存的 TD 所有者位来防止未经授权的软件写入。Ci 则通过在写入内存时生成消息认证码 (MAC) 来防止数据篡改。</p>
-<p>当一个 TD 被创建时，TDX 模块会为每个物理页面设置所有者信息，并使用 PAMT 来管理这些元数据。PAMT 存储每个物理页面的状态信息，如页面的所有者、加密状态和权限。TDX 模块会根据 PAMT 中的所有者信息和 TD 所有者位来验证对页面的访问。</p>
-<p>在进行内存操作时，如果检测到任何不符合权限或所有者属性的访问尝试，内存控制器会触发完整性检查异常。对于 TD 的私有内存，所有读写操作都会经过内存加密引擎的处理，防止未经授权的数据篡改或信息泄漏。</p>
-<p><strong>8.3 内存加密的实现</strong></p>
-<p>TDX 依赖 MKTME 提供的内存加密功能来保护 TD 的私有内存。<strong>每个物理页面的 HKID 被嵌入到其物理地址中</strong>，当处理器将数据写入内存时，MKTME 加密引擎会根据 HKID 来选择相应的加密密钥。<strong>MKTME 使用 AES-128 XTS 算法</strong>来对缓存行进行加密和解密。</p>
-<p>HKID 是 MKTME 内存控制器的一部分，由处理器的内存控制器负责解码。处理器为每个 TD 分配一个唯一的私有 HKID，并使用该 HKID 对 TD 的私有内存进行加密。由于每个 TD 都使用不同的加密密钥，因此即使在物理上共享相同的内存区域，也不会出现跨域数据泄露的情况。</p>
-<p><strong>8.4 内存随机化和隔离</strong></p>
-<p>TDX 模块还使用内存地址随机化技术来增强内存隔离。通过在初始化时随机化线性地址的高位，TDX 减少了恶意软件预测和访问 TD 内存的风险。每个 TD 的内存区域在创建时都会进行随机化映射，防止恶意软件利用固定的内存地址进行攻击。</p>
-<p>TDX 模块进一步通过刷新缓存和 TLB 来确保内存隔离。每当在 SEAM 模式和非 SEAM 模式之间切换时，TDX 模块都会执行缓存和 TLB 刷新，以防止恶意软件利用缓存中的残留数据。</p>
-<p><strong>9. 远程认证</strong></p>
-<figure>
-<img src="/assets/QQ_1730019311849.png" alt="QQ_1730019311849" /><figcaption>QQ_1730019311849</figcaption>
-</figure>
-<p>远程认证是 TDX 的一个关键功能，允许外部质询方验证 TDX 平台和 TD 的可信性。远程认证依赖于 SGX 架构中的引用飞地 (QE) 来生成认证引用 (Quote)。以下是远程认证的详细过程。</p>
-<figure>
-<img src="/assets/QQ_1730019435608.png" alt="QQ_1730019435608" /><figcaption>QQ_1730019435608</figcaption>
-</figure>
-<figure>
-<img src="/assets/QQ_1730019455971.png" alt="QQ_1730019455971" /><figcaption>QQ_1730019455971</figcaption>
-</figure>
-<figure>
-<img src="/assets/QQ_1730019484460.png" alt="QQ_1730019484460" /><figcaption>QQ_1730019484460</figcaption>
-</figure>
-<ol type="1">
-<li><p><strong>平台认证</strong>：TDX 模块首先与 QE 进行本地认证。<strong>QE 验证 TDX 模块的哈希值和签名，以确认其在合法的 TDX 模块上运行</strong>。认证成功后，<strong>TDX 模块生成一份包含 TD 测量值的报告，并发送给 QE</strong>。</p></li>
-<li><p><strong>生成引用 (Quote)</strong>：QE 收到报告后，使用认证密钥对其进行签名，生成一个包含 TDX 平台和 TD 的认证引用。引用包括 TD 的测量值、TCB 级别和平台的可信状态。</p></li>
-<li><p><strong>质询方验证</strong>：远程质询方接收到引用后，<strong>通过检查引用中的数字签名和测量值来验证 TD 的可信性</strong>。质询方还可以通过与 Intel 提供的参考数据进行对比，来确认平台的 TCB 状态。</p></li>
-<li><p><strong>建立安全通道</strong>：一旦认证成功，<strong>质询方可以与 TD 进行安全通信</strong>。质询方可以选择向 TD 发送敏感数据或授权密钥，以便 TD 内的应用程序继续执行任务。</p></li>
-</ol>
-<hr />
-<p><strong>10. 实验评估</strong></p>
-<p>为了评估 TDX 的性能和安全性，我们设计了一系列实验，涉及以下几个方面：TDX 的创建和销毁开销、TD 执行开销、内存保护性能、上下文切换开销以及认证过程的性能。我们使用支持 TDX 的 Intel 第四代 Xeon 处理器来进行实验。</p>
-<p><strong>10.1 TDX 创建和销毁开销</strong></p>
-<p>我们测量了创建和销毁 TD 的开销，这包括初始化 SEAM 模式、加载和配置 TDX 模块、为 TD 分配内存以及执行 TDX 的安全检查。实验表明，创建一个 TD 的时间主要取决于所分配的内存大小和 TDX 模块的配置复杂度。销毁 TD 的开销相对较小，因为它只需释放已分配的资源并清除元数据。</p>
-<p>在实验中，我们观察到，创建一个包含 2 GB 内存的 TD 大约需要 200 毫秒，而销毁同样大小的 TD 则仅需 20 毫秒。这些开销在大规模云环境中是可以接受的，因为 TD 的生命周期通常较长，并且这些操作不会频繁发生。</p>
-<p><strong>10.2 TD 执行开销</strong></p>
-<p>我们还评估了 TD 执行开销，即 TD 运行常规应用程序时的性能影响。我们选用了多种基准测试，包括计算密集型任务、内存密集型任务和 I/O 密集型任务。我们将这些任务分别在传统虚拟机和 TD 中运行，并比较其性能。</p>
-<p>实验结果表明，在计算密集型任务中，TD 的性能几乎与传统虚拟机相同，性能开销在 2% 以内。这是因为 TDX 对 CPU 执行路径的影响非常小。然而，对于内存密集型任务，TD 的性能开销略有增加，约为 5%。这是由于 TDX 的内存加密和完整性检查引入了一定的开销。对于 I/O 密集型任务，由于 TD 需要将 I/O 缓冲区映射为共享内存，额外的内存映射操作带来了约 7% 的性能开销。</p>
-<p><strong>10.3 内存保护性能</strong></p>
-<p>我们测量了 TDX 内存保护的性能影响，包括内存加密和完整性检查的开销。实验表明，MKTME 引入的加密开销对于大多数内存操作来说是微乎其微的。我们在内存密集型基准测试中观察到，内存加密带来的性能影响约为 2%，主要源于 AES-128 XTS 加密算法的硬件实现。</p>
-<p>加密完整性检查（Ci）则引入了更高的开销。实验表明，对于频繁的内存写入操作，Ci 的开销约为 5% 至 8%。然而，这种开销可以通过调整应用程序的内存访问模式来缓解。</p>
-<p><strong>10.4 上下文切换开销</strong></p>
-<p>上下文切换是虚拟化环境中的常见操作，因此我们对不同安全域之间的上下文切换开销进行了评估。实验结果显示，从 TD 切换到 TDX 模块或从 TD 切换到其他 TD 所引起的上下文切换开销约为 30 微秒。TDX 模块必须在每次上下文切换时清除缓存和 TLB，并刷新 SEAM 范围内的状态，以防止跨域信息泄漏。</p>
-<p>相比之下，传统虚拟机之间的上下文切换开销通常在 10 微秒左右。TDX 上下文切换的额外开销主要源于增加的安全隔离和数据保护措施。</p>
-<p><strong>10.5 认证性能</strong></p>
-<p>我们还对 TDX 认证过程的性能进行了评估。实验显示，生成和验证 TD 引用的时间分别约为 15 毫秒和 5 毫秒。这个开销与 SGX 认证过程的开销相当。认证过程的性能主要取决于处理器的认证密钥生成和引用飞地（QE）的签名操作。</p>
-<p><strong>11. 总结</strong></p>
-<p>Intel TDX 是一个为虚拟化环境设计的保密计算技术，它提供了加密隔离、内存保护和远程认证等安全功能。通过引入 TDX，云服务提供商可以将特权软件和管理员从可信计算基（TCB）中排除，从而减少潜在的攻击面。本文采用自上而下的方法，对 TDX 的体系结构、内存保护机制、I/O 模型和认证过程进行了详细分析，并与其他保密计算技术进行了比较。</p>
-<p>我们的实验评估表明，TDX 在提供高级安全保护的同时，仅引入了较小的性能开销。未来，随着 TDX 实现实时迁移和可信 I/O 等功能，它在云计算和安全数据托管中的应用前景将更加广阔。</p>
-]]></content>
-      <categories>
-        <category>TEE</category>
-      </categories>
-      <tags>
-        <tag>TDX</tag>
-        <tag>Intel</tag>
       </tags>
   </entry>
 </search>
