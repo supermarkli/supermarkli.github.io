@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在团队协作和日常开发中，rebase 和 cherry-pick 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git之路：rebase &amp; cherry-pick">
+<meta property="og:url" content="https://supermarkli.github.io/posts/1566a5aa/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="在团队协作和日常开发中，rebase 和 cherry-pick 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supermarkli.github.io/posts/assets/gitrebase.png">
+<meta property="article:published_time" content="2025-08-05T10:01:30.000Z">
+<meta property="article:modified_time" content="2025-08-05T10:09:42.424Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="Git">
+<meta property="article:tag" content="rebase">
+<meta property="article:tag" content="cherry-pick">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supermarkli.github.io/posts/assets/gitrebase.png">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/1566a5aa/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/1566a5aa/","path":"posts/1566a5aa/","title":"git之路：rebase & cherry-pick"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>git之路：rebase & cherry-pick | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">🧩 一、核心概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%9B%BE%E8%A7%A3%E5%88%86%E6%94%AF%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">🗺️ 二、图解分支操作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BE%E4%B8%AD%E7%BB%93%E6%9E%84%E8%AF%B4%E6%98%8E"><span class="nav-number">2.1.</span> <span class="nav-text">图中结构说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">典型操作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%88%86%E6%94%AF%E4%B8%8E%E6%8F%90%E4%BA%A4"><span class="nav-number">2.2.1.</span> <span class="nav-text">1. 创建分支与提交</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rebase%E6%95%B4%E7%90%86%E5%88%86%E6%94%AF%E5%8E%86%E5%8F%B2"><span class="nav-number">2.2.2.</span> <span class="nav-text">2. rebase：整理分支历史</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cherry-pick%E6%8C%91%E9%80%89%E7%89%B9%E5%AE%9A%E6%8F%90%E4%BA%A4"><span class="nav-number">2.2.3.</span> <span class="nav-text">3. cherry-pick：挑选特定提交</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89rebase-%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">🛠️ 三、rebase 用法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">3.1.</span> <span class="nav-text">1. 基本用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8F-rebase"><span class="nav-number">3.2.</span> <span class="nav-text">2. 交互式 rebase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF"><span class="nav-number">3.3.</span> <span class="nav-text">3. 常见场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.4.</span> <span class="nav-text">4. 注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9Bcherry-pick-%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-number">4.</span> <span class="nav-text">🍒 四、cherry-pick 用法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95-1"><span class="nav-number">4.1.</span> <span class="nav-text">1. 基本用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%B9%E9%87%8F-cherry-pick"><span class="nav-number">4.2.</span> <span class="nav-text">2. 批量 cherry-pick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF-1"><span class="nav-number">4.3.</span> <span class="nav-text">3. 常见场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="nav-number">4.4.</span> <span class="nav-text">4. 注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E5%AE%9E%E6%88%98%E5%B0%8F%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">⚡ 五、实战小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E5%AE%9E%E7%94%A8%E5%BB%BA%E8%AE%AE"><span class="nav-number">6.</span> <span class="nav-text">📝 六、实用建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83"><span class="nav-number">6.1.</span> <span class="nav-text">1. 分支命名规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#commit-%E4%BF%A1%E6%81%AF%E8%A7%84%E8%8C%83"><span class="nav-number">6.2.</span> <span class="nav-text">2. Commit 信息规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C%E5%BB%BA%E8%AE%AE"><span class="nav-number">6.3.</span> <span class="nav-text">3. 团队协作建议</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/aq.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">40</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/1566a5aa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/aq.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="git之路：rebase &amp; cherry-pick | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          git之路：rebase & cherry-pick
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-08-05 18:01:30 / 修改时间：18:09:42" itemprop="dateCreated datePublished" datetime="2025-08-05T18:01:30+08:00">2025-08-05</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别。</p>
+<span id="more"></span>
+<h2 id="一核心概念">🧩 一、核心概念</h2>
+<ul>
+<li><strong>rebase</strong>：变基操作，将一组提交“平移”到另一个分支之上，常用于整理提交历史，让分支结构更线性。</li>
+<li><strong>cherry-pick</strong>：拣选操作，将某个（或某些）特定提交复制到当前分支，适合“挑着搬”功能或修复。</li>
+</ul>
+<h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
+<p>让我们结合下图，直观理解 rebase 和 cherry-pick 的实际效果：</p>
+<figure>
+<img src="../assets/gitrebase.png" alt="git分支操作流程图" /><figcaption>git分支操作流程图</figcaption>
+</figure>
+<h3 id="图中结构说明">图中结构说明</h3>
+<ul>
+<li><code>main</code> 主分支，开发主线</li>
+<li><code>feature/a</code> 功能分支</li>
+<li><code>fixbug/b</code> 修复分支</li>
+<li>各色圆点代表不同的提交（如 c0、c1、c2、c3 等）</li>
+</ul>
+<h3 id="典型操作流程">典型操作流程</h3>
+<h4 id="创建分支与提交">1. 创建分支与提交</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b feature/a</span><br><span class="line"><span class="comment"># ...开发并提交...</span></span><br><span class="line">git commit</span><br><span class="line">git checkout main</span><br><span class="line">git checkout -b fixbug/b</span><br><span class="line"><span class="comment"># ...修复并提交...</span></span><br><span class="line">git commit</span><br></pre></td></tr></table></figure>
+<p>此时，<code>feature/a</code> 和 <code>fixbug/b</code> 分别基于 <code>main</code> 分支各自发展。</p>
+<h4 id="rebase整理分支历史">2. rebase：整理分支历史</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git rebase fixbug/b</span><br></pre></td></tr></table></figure>
+<p>如图所示，rebase 后，<code>main</code> 分支的最新提交（c4'）被“平移”到了 <code>fixbug/b</code> 之后，历史变得更线性，便于后续合并和回溯。</p>
+<blockquote>
+<p><strong>注意</strong>：rebase 会重写提交历史，协作开发时请确保未推送到远程或与团队成员沟通好。</p>
+</blockquote>
+<h4 id="cherry-pick挑选特定提交">3. cherry-pick：挑选特定提交</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git checkout feature/a</span><br><span class="line">git commit</span><br><span class="line">git checkout main</span><br><span class="line">git cherry-pick c2 c4</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+<p>如图右侧所示，<code>main</code> 分支通过 cherry-pick，将 <code>feature/a</code> 上的 c2、c4 两个提交“拣选”过来，其他提交不会被带过来，适合只需要部分功能/修复的场景。</p>
+<hr />
+<h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
+<h3 id="基本用法">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
+<p>将当前分支的提交“平移”到目标分支之后，常用于 feature 分支合并前整理历史。</p>
+<h3 id="交互式-rebase">2. 交互式 rebase</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase -i &lt;commit&gt;</span><br></pre></td></tr></table></figure>
+<p>可以对一系列提交进行 squash、edit、reword 等操作，极大提升提交历史的可读性。</p>
+<h3 id="常见场景">3. 常见场景</h3>
+<ul>
+<li>合并前整理分支</li>
+<li>清理无用提交</li>
+<li>合并多个 commit 为一个（squash）</li>
+</ul>
+<h3 id="注意事项">4. 注意事项</h3>
+<ul>
+<li>rebase 会重写历史，<strong>不要对已推送的分支随意 rebase</strong>。</li>
+<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git rebase --continue</code> 继续。</li>
+</ul>
+<hr />
+<h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
+<h3 id="基本用法-1">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git cherry-pick &lt;commit&gt;</span><br></pre></td></tr></table></figure>
+<p>将指定提交应用到当前分支。</p>
+<h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git cherry-pick &lt;commit1&gt; &lt;commit2&gt; ...</span><br></pre></td></tr></table></figure>
+<p>一次性拣选多个提交。</p>
+<h3 id="常见场景-1">3. 常见场景</h3>
+<ul>
+<li>热修复（hotfix）快速同步到主分支</li>
+<li>只迁移部分功能或 bugfix</li>
+</ul>
+<h3 id="注意事项-1">4. 注意事项</h3>
+<ul>
+<li>cherry-pick 也可能遇到冲突，需手动解决。</li>
+<li>cherry-pick 会生成新的 commit id，不会影响原分支历史。</li>
+</ul>
+<hr />
+<h2 id="五实战小结">⚡ 五、实战小结</h2>
+<ul>
+<li><strong>rebase</strong> 适合整理分支、保持历史整洁，常用于 feature 分支合并前的“清洗”。</li>
+<li><strong>cherry-pick</strong> 适合补丁式迁移，灵活应对 bugfix、hotfix 等需求。</li>
+<li>图示法有助于理解分支变动，建议多用 <code>git log --graph</code> 观察实际效果。</li>
+</ul>
+<hr />
+<h2 id="六实用建议">📝 六、实用建议</h2>
+<h3 id="分支命名规范">1. 分支命名规范</h3>
+<ul>
+<li>功能开发：<code>feature/功能简述</code> 如：<code>feature/login-page</code></li>
+<li>Bug 修复：<code>fix/问题简述</code> 如：<code>fix/login-crash</code></li>
+<li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
+<li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
+</ul>
+<blockquote>
+<p><strong>建议</strong>：分支命名要简洁明了，见名知意，便于团队协作和历史追溯。</p>
+</blockquote>
+<h3 id="commit-信息规范">2. Commit 信息规范</h3>
+<ul>
+<li>标题简明扼要（50 字以内），首字母小写，结尾不加句号</li>
+<li>如需补充详细说明，空一行后写正文，说明动机、影响范围等</li>
+<li><p>推荐格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">feat: 新增用户登录功能</span><br><span class="line">fix: 修复注册页面崩溃问题</span><br><span class="line">docs: 补充 API 使用文档</span><br><span class="line">refactor: 优化数据处理逻辑</span><br></pre></td></tr></table></figure></li>
+<li><p>一次 commit 只做一件事，避免“杂糅式”提交</p></li>
+</ul>
+<h3 id="团队协作建议">3. 团队协作建议</h3>
+<ul>
+<li>合并前先同步主分支，保持分支最新，减少冲突</li>
+<li>重要分支（如 main、release）需保护，禁止直接推送</li>
+<li>充分利用 Pull Request（合并请求）进行代码评审</li>
+<li>养成良好习惯：多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态</li>
+</ul>
+<hr />
+<p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Git/" rel="tag"># Git</a>
+              <a href="/tags/rebase/" rel="tag"># rebase</a>
+              <a href="/tags/cherry-pick/" rel="tag"># cherry-pick</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/shell-startup/" rel="prev" title="Shell 启动脚本：理解 bash、zsh 的启动流程">
+                  <i class="fa fa-angle-left"></i> Shell 启动脚本：理解 bash、zsh 的启动流程
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">69k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:05</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

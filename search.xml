@@ -1,6 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Anaconda Note</title>
+    <url>/posts/7066aaf6/</url>
+    <content><![CDATA[<h2 id="anaconda">Anaconda</h2>
+<p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
+<span id="more"></span>
+<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
+<ol type="1">
+<li><strong>Python</strong>:
+<ul>
+<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
+</ul></li>
+<li><strong>Conda</strong>:
+<ul>
+<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
+<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
+</ul></li>
+<li><strong>Anaconda</strong>:
+<ul>
+<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
+<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
+</ul></li>
+</ol>
+<h3 id="基本命令"><strong>基本命令</strong></h3>
+<ol type="1">
+<li><strong>创建和管理环境</strong>：
+<ul>
+<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
+<li>激活环境：<code>conda activate myenv</code></li>
+<li>退出环境：<code>conda deactivate</code></li>
+<li>列出环境：<code>conda env list</code></li>
+<li>删除环境：<code>conda remove --name myenv --all</code></li>
+</ul></li>
+<li><strong>包管理</strong>：
+<ul>
+<li>安装包：<code>conda install package_name</code></li>
+<li>更新包：<code>conda update package_name</code></li>
+<li>卸载包：<code>conda remove package_name</code></li>
+<li>列出安装的包：<code>conda list</code></li>
+</ul></li>
+<li><strong>环境导出和导入</strong>：
+<ul>
+<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
+<li>导入环境：<code>conda env create -f environment.yml</code></li>
+</ul></li>
+</ol>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>conda</tag>
+        <tag>Python</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CSS Note</title>
+    <url>/posts/752f9918/</url>
+    <content><![CDATA[<h2 id="css心得">CSS心得</h2>
+<p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
+<span id="more"></span>
+<p>body最好设为<strong>overflow:hidden;</strong>这样就不会出现最大页面的滑动框</p>
+<p>color才是字体颜色</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="常见css">常见css</h3>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
+<h3 id="常见flex属性">常见flex属性</h3>
+<p>flex: 1；可以搭配overflow：hidden；使用</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
+<h3 id="技巧可以搭配js实现宽度变化">技巧：可以搭配js实现宽度变化</h3>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="技巧改变列宽">技巧：改变列宽</h3>
+<p>将单元格设为如下</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
+<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
+<ol type="1">
+<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
+<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
+</ol>
+<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
+<p>这里的技巧是color:white;这样不会影响表格的美观</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="技巧表格置顶">技巧：表格置顶</h3>
+<p>outline是为了修复滑动时失去边界的bug</p>
+<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
+<ul>
+<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
+<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
+</ul>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>CSS</category>
+      </categories>
+      <tags>
+        <tag>CSS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DeepSeek本地部署</title>
+    <url>/posts/4f6ed32b/</url>
+    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
+<span id="more"></span>
+<h2 id="下载ollama">下载Ollama</h2>
+<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
+<p>下载地址：https://ollama.com/download/windows</p>
+<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
+<p>如下图所示</p>
+<p><img src="/assets/deepseek部署01.png" /></p>
+<blockquote>
+<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
+</blockquote>
+<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
+<p><img src="/assets/deepseek部署02.png" /></p>
+<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
+<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
+<h2 id="下载deepseek">下载DeepSeek</h2>
+<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
+<p><img src="/assets/deepseek部署03.png" /></p>
+<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
+<p>如下图所示：</p>
+<p><img src="/assets/deepseek部署04.png" /></p>
+<p>最终效果如下图所示：</p>
+<p><img src="/assets/deepseek部署05.png" /></p>
+]]></content>
+      <tags>
+        <tag>本地部署</tag>
+        <tag>DeepSeek</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>2.4G 无线通信笔记</title>
     <url>/posts/a25d78f8/</url>
     <content><![CDATA[<h2 id="什么是2.4g无线通信">什么是2.4G无线通信？</h2>
@@ -183,139 +316,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Anaconda Note</title>
-    <url>/posts/7066aaf6/</url>
-    <content><![CDATA[<h2 id="anaconda">Anaconda</h2>
-<p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
-<span id="more"></span>
-<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
-<ol type="1">
-<li><strong>Python</strong>:
-<ul>
-<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
-</ul></li>
-<li><strong>Conda</strong>:
-<ul>
-<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
-<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
-</ul></li>
-<li><strong>Anaconda</strong>:
-<ul>
-<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
-<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
-</ul></li>
-</ol>
-<h3 id="基本命令"><strong>基本命令</strong></h3>
-<ol type="1">
-<li><strong>创建和管理环境</strong>：
-<ul>
-<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
-<li>激活环境：<code>conda activate myenv</code></li>
-<li>退出环境：<code>conda deactivate</code></li>
-<li>列出环境：<code>conda env list</code></li>
-<li>删除环境：<code>conda remove --name myenv --all</code></li>
-</ul></li>
-<li><strong>包管理</strong>：
-<ul>
-<li>安装包：<code>conda install package_name</code></li>
-<li>更新包：<code>conda update package_name</code></li>
-<li>卸载包：<code>conda remove package_name</code></li>
-<li>列出安装的包：<code>conda list</code></li>
-</ul></li>
-<li><strong>环境导出和导入</strong>：
-<ul>
-<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
-<li>导入环境：<code>conda env create -f environment.yml</code></li>
-</ul></li>
-</ol>
-]]></content>
-      <categories>
-        <category>Python</category>
-      </categories>
-      <tags>
-        <tag>conda</tag>
-        <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CSS Note</title>
-    <url>/posts/752f9918/</url>
-    <content><![CDATA[<h2 id="css心得">CSS心得</h2>
-<p>介绍了之前在手搓前端时遇到的一些css问题以及解决办法</p>
-<span id="more"></span>
-<p>body最好设为<strong>overflow:hidden;</strong>这样就不会出现最大页面的滑动框</p>
-<p>color才是字体颜色</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span>:<span class="number">0px</span>;</span><br><span class="line">    <span class="attribute">display</span>: flex; <span class="comment">/* 使用flex布局，使子元素水平排列 */</span></span><br><span class="line">    <span class="attribute">font-family</span>: Arial, sans-serif; <span class="comment">/* 设置页面的默认字体 */</span></span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100vh</span>;</span><br><span class="line">    <span class="attribute">overflow</span>:hidden;</span><br><span class="line">    <span class="attribute">color</span>:<span class="number">#404040</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<h3 id="常见css">常见css</h3>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">text-align</span>: center;  <span class="comment">/* 文本居中对齐 */</span></span><br><span class="line"><span class="attribute">border</span>: <span class="number">1px</span> solid <span class="number">#ddd</span>; <span class="comment">/* 添加边框 */</span></span><br><span class="line"><span class="attribute">box-shadow</span>: <span class="number">0</span> <span class="number">4px</span> <span class="number">6px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.1</span>); <span class="comment">/* 添加阴影效果 */</span></span><br><span class="line"><span class="attribute">border-radius</span>: <span class="number">8px</span>; <span class="comment">/* 添加圆角 */</span></span><br><span class="line"><span class="attribute">font-size</span>: <span class="number">14px</span>;    <span class="comment">/* 设置文字大小 */</span></span><br><span class="line"><span class="attribute">color</span>: <span class="number">#444444</span>;     <span class="comment">/* 设置文字颜色 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: bold;  <span class="comment">/* 设置文字加粗 */</span></span><br><span class="line"><span class="attribute">font-weight</span>: normal; <span class="comment">/* 确保表头字体不加粗 */</span></span><br><span class="line"><span class="attribute">border</span>: none; <span class="comment">/* 移除按钮边框 */</span></span><br><span class="line"><span class="attribute">cursor</span>: pointer; <span class="comment">/* 鼠标悬停时显示为指针 */</span></span><br><span class="line"><span class="attribute">transition</span>: background-color <span class="number">0.3s</span>; <span class="comment">/* 设置背景颜色的过渡效果 */</span></span><br><span class="line"><span class="attribute">white-space</span>: nowrap;<span class="comment">/* 不允许换行 */</span></span><br><span class="line"><span class="attribute">user-select</span>: none;<span class="comment">/* 不允许选择文字 */</span></span><br><span class="line"><span class="attribute">top</span>: <span class="number">20%</span> <span class="meta">!important</span>;<span class="comment">/* 与容器顶部的距离 */</span></span><br><span class="line"><span class="attribute">overflow</span>: auto;<span class="comment">/* 允许滚动，建议父容器为hidden，且子容器要设置宽度 */</span></span><br><span class="line"><span class="attribute">table-layout</span>:fixed;</span><br><span class="line"> <span class="attribute">z-index</span>: <span class="number">1000</span>; <span class="comment">/* 页面最上面 */</span></span><br></pre></td></tr></table></figure>
-<h3 id="常见flex属性">常见flex属性</h3>
-<p>flex: 1；可以搭配overflow：hidden；使用</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">flex-direction</span>: column; <span class="comment">/* 子元素垂直排列 */</span></span><br><span class="line"><span class="attribute">align-items</span>: center; <span class="comment">/* 子元素水平居中 */</span></span><br><span class="line"><span class="attribute">flex-shrink</span>: <span class="number">0</span>;   <span class="comment">/* 元素不会缩小 */</span> </span><br><span class="line"><span class="selector-class">.filter-button</span><span class="selector-pseudo">:hover</span> &#123;</span><br><span class="line">    <span class="attribute">background-color</span>: <span class="number">#edf9f7</span>; <span class="comment">/* 鼠标悬停时改变背景颜色 */</span></span><br><span class="line">    <span class="attribute">border-bottom-color</span>: <span class="number">#2d6253</span>; </span><br><span class="line">&#125;</span><br><span class="line"><span class="attribute">flex</span>: <span class="number">1</span> ; <span class="comment">/* 占据剩余的宽度 */</span></span><br><span class="line"><span class="attribute">justify-content</span>: space-between;<span class="comment">/* 占满一行 */</span></span><br><span class="line"><span class="attribute">gap</span>: <span class="number">10px</span> <span class="number">20px</span>; <span class="comment">/* 设置行间距为10px，列间距为20px */</span></span><br></pre></td></tr></table></figure>
-<h3 id="技巧可以搭配js实现宽度变化">技巧：可以搭配js实现宽度变化</h3>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.sidebar-container</span><span class="selector-class">.expanded</span> &#123;<span class="attribute">width</span>: <span class="number">16%</span>; <span class="comment">/* 扩展后的宽度 */</span>&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;filterButton&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            sidebar.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            tb1.<span class="property">classList</span>.<span class="title function_">toggle</span>(<span class="string">&#x27;expanded&#x27;</span>);</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">textContent</span> = <span class="variable language_">this</span>.<span class="property">textContent</span> === <span class="string">&#x27;»&#x27;</span> ? <span class="string">&#x27;«&#x27;</span> : <span class="string">&#x27;»&#x27;</span>;</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="技巧改变列宽">技巧：改变列宽</h3>
-<p>将单元格设为如下</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="attribute">overflow</span>: hidden;</span><br><span class="line"><span class="attribute">text-overflow</span>: ellipsis; <span class="comment">/* ... */</span></span><br></pre></td></tr></table></figure>
-<p>想要改变列宽必须设为fixed；<code>table-layout</code> 是一个控制表格布局算法的 CSS 属性。它有两个主要值：</p>
-<ol type="1">
-<li><strong>auto</strong>（默认值）：表格及其列的宽度根据内容动态调整。</li>
-<li><strong>fixed</strong>：表格及其列的宽度根据表格的宽度和列的宽度定义来确定，不考虑内容。</li>
-</ol>
-<p>由于 <code>table-layout: fixed;</code> 的布局计算仅依赖于表格和列的宽度定义，而不依赖于内容，因此它能够显著加快表格的渲染速度，特别是在大数据量的表格中。</p>
-<p>这里的技巧是color:white;这样不会影响表格的美观</p>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span> <span class="selector-class">.resize-handle</span> &#123;</span><br><span class="line">    <span class="attribute">position</span>: absolute;</span><br><span class="line">    <span class="attribute">right</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">5px</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">    <span class="attribute">cursor</span>: col-resize;</span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;</span><br><span class="line">    <span class="attribute">color</span>:white;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="技巧表格置顶">技巧：表格置顶</h3>
-<p>outline是为了修复滑动时失去边界的bug</p>
-<p>当元素使用 <code>position: sticky</code> 时，它的表现如下：</p>
-<ul>
-<li>元素在容器内是相对定位的，当滚动到某个阈值时，它变成固定定位。</li>
-<li>该元素会在父元素的特定位置（由 <code>top</code>, <code>right</code>, <code>bottom</code>, <code>left</code> 属性定义）开始“粘滞”。</li>
-</ul>
-<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">th</span>&#123;</span><br><span class="line">    <span class="attribute">position</span>:sticky;</span><br><span class="line">    <span class="attribute">top</span>:<span class="number">0</span>;</span><br><span class="line">    <span class="attribute">border</span>: none;</span><br><span class="line">    <span class="attribute">outline-color</span>: <span class="number">#ddd</span>;</span><br><span class="line">    <span class="attribute">outline-style</span>: solid;</span><br><span class="line">    <span class="attribute">outline-width</span>: <span class="number">1px</span>;</span><br><span class="line">    <span class="attribute">background-color</span>: white; <span class="comment">/* 设置表头背景颜色 */</span></span><br><span class="line">    <span class="attribute">user-select</span>: none; <span class="comment">/* 标准语法 */</span></span><br><span class="line">    <span class="attribute">z-index</span>: <span class="number">1</span>;  <span class="comment">/* 确保表头在内容上方 */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>CSS</category>
-      </categories>
-      <tags>
-        <tag>CSS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>DeepSeek本地部署</title>
-    <url>/posts/4f6ed32b/</url>
-    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
-<span id="more"></span>
-<h2 id="下载ollama">下载Ollama</h2>
-<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
-<p>下载地址：https://ollama.com/download/windows</p>
-<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
-<p>如下图所示</p>
-<p><img src="/assets/deepseek部署01.png" /></p>
-<blockquote>
-<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
-</blockquote>
-<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
-<p><img src="/assets/deepseek部署02.png" /></p>
-<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
-<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
-<h2 id="下载deepseek">下载DeepSeek</h2>
-<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
-<p><img src="/assets/deepseek部署03.png" /></p>
-<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
-<p>如下图所示：</p>
-<p><img src="/assets/deepseek部署04.png" /></p>
-<p>最终效果如下图所示：</p>
-<p><img src="/assets/deepseek部署05.png" /></p>
-]]></content>
-      <tags>
-        <tag>本地部署</tag>
-        <tag>DeepSeek</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Dotfiles</title>
     <url>/posts/e5afd7e1/</url>
     <content><![CDATA[<p>在 Linux 或 macOS 系统中，那些以点（<code>.</code>）开头的文件和文件夹，即 <code>dotfiles</code>（如 <code>.bashrc</code>, <code>.gitconfig</code>），是塑造我们数字环境的灵魂。它们记录了从终端提示符的美化，到编辑器（如 Vim/Neovim）的每一个快捷键，再到窗口管理器的布局规则。一个精心调教的 <code>dotfiles</code> 集合，是我们追求效率与个性的直接体现。</p>
@@ -473,6 +473,151 @@
       </tags>
   </entry>
   <entry>
+    <title>TLS Note</title>
+    <url>/posts/32f5e233/</url>
+    <content><![CDATA[<h2 id="什么是tls">1. 什么是TLS</h2>
+<p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
+<span id="more"></span>
+<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
+<h2 id="tls的主要功能">2. TLS的主要功能</h2>
+<p>TLS提供以下三个主要的安全服务：</p>
+<h3 id="身份认证">2.1 身份认证</h3>
+<p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
+<h3 id="数据加密">2.2 数据加密</h3>
+<p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
+<h3 id="完整性校验">2.3 完整性校验</h3>
+<p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
+<h2 id="tls的版本演进">3. TLS的版本演进</h2>
+<p>TLS协议经历了多个版本的演进：</p>
+<ul>
+<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
+<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
+<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
+<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
+<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
+<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
+</ul>
+<h2 id="tls的密码学原理">4. TLS的密码学原理</h2>
+<h3 id="对称加密">4.1 对称加密</h3>
+<ul>
+<li>使用相同的密钥进行加密和解密</li>
+<li>常用算法：AES、ChaCha20</li>
+<li>用于加密传输的数据</li>
+</ul>
+<h3 id="非对称加密">4.2 非对称加密</h3>
+<ul>
+<li>使用公钥加密，私钥解密</li>
+<li>常用算法：RSA、ECDSA</li>
+<li>用于密钥交换和身份认证</li>
+</ul>
+<h3 id="数字证书">4.3 数字证书</h3>
+<ul>
+<li>X.509格式证书</li>
+<li>包含服务器的公钥和身份信息</li>
+<li>由CA机构签名认证</li>
+</ul>
+<h3 id="消息认证码">4.4 消息认证码</h3>
+<ul>
+<li>HMAC算法</li>
+<li>确保消息完整性</li>
+<li>防止数据被篡改</li>
+</ul>
+<h2 id="tls握手过程">5. TLS握手过程</h2>
+<p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
+<h3 id="client-hello">5.1 Client Hello</h3>
+<ul>
+<li>客户端发送支持的TLS版本</li>
+<li>支持的加密套件列表</li>
+<li>随机数（Client Random）</li>
+<li>会话ID（如果是恢复会话）</li>
+</ul>
+<h3 id="server-hello">5.2 Server Hello</h3>
+<ul>
+<li>服务器选择TLS版本</li>
+<li>选择加密套件</li>
+<li>随机数（Server Random）</li>
+<li>服务器证书</li>
+</ul>
+<h3 id="密钥交换">5.3 密钥交换</h3>
+<ul>
+<li>客户端验证服务器证书</li>
+<li>生成预主密钥（Pre-master Secret）</li>
+<li>使用服务器公钥加密预主密钥</li>
+<li>计算主密钥（Master Secret）</li>
+</ul>
+<h3 id="完成握手">5.4 完成握手</h3>
+<ul>
+<li>切换到加密通信</li>
+<li>验证握手消息的完整性</li>
+<li>开始安全数据传输</li>
+</ul>
+<h2 id="tls的应用场景">6. TLS的应用场景</h2>
+<h3 id="https">6.1 HTTPS</h3>
+<ul>
+<li>最常见的TLS应用</li>
+<li>为HTTP提供安全传输</li>
+<li>网站必备的安全保障</li>
+</ul>
+<h3 id="安全邮件">6.2 安全邮件</h3>
+<ul>
+<li>SMTPS</li>
+<li>IMAPS</li>
+<li>POP3S</li>
+</ul>
+<h3 id="vpn">6.3 VPN</h3>
+<ul>
+<li>OpenVPN</li>
+<li>其他基于TLS的VPN协议</li>
+</ul>
+<h2 id="常见攻击与防范">7. 常见攻击与防范</h2>
+<h3 id="中间人攻击">7.1 中间人攻击</h3>
+<ul>
+<li>攻击者冒充服务器</li>
+<li>通过证书验证防范</li>
+<li>使用可信CA签发的证书</li>
+</ul>
+<h3 id="降级攻击">7.2 降级攻击</h3>
+<ul>
+<li>强制使用低版本协议</li>
+<li>禁用不安全的协议版本</li>
+<li>启用降级保护机制</li>
+</ul>
+<h3 id="重放攻击">7.3 重放攻击</h3>
+<ul>
+<li>重放已捕获的数据包</li>
+<li>使用随机数和时间戳</li>
+<li>会话标识符唯一性</li>
+</ul>
+<h2 id="最佳实践">8. 最佳实践</h2>
+<h3 id="协议配置">8.1 协议配置</h3>
+<ul>
+<li>仅启用TLS 1.2及以上版本</li>
+<li>使用强加密套件</li>
+<li>启用前向保密</li>
+</ul>
+<h3 id="证书管理">8.2 证书管理</h3>
+<ul>
+<li>及时更新证书</li>
+<li>使用适当的密钥长度</li>
+<li>正确配置证书链</li>
+</ul>
+<h3 id="安全监控">8.3 安全监控</h3>
+<ul>
+<li>记录TLS错误日志</li>
+<li>监控证书有效期</li>
+<li>定期安全评估</li>
+</ul>
+]]></content>
+      <categories>
+        <category>通信协议</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>加密</tag>
+        <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>关于Intel TDX的深度思考与技术剖析</title>
     <url>/posts/b63e909c/</url>
     <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
@@ -598,222 +743,6 @@
         <tag>TDX</tag>
         <tag>Intel</tag>
         <tag>机密计算</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>终端与Shell：从入门到看懂，一篇就够</title>
-    <url>/posts/82543a5f/</url>
-    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
-<span id="more"></span>
-<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
-<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
-<h4 id="三层模型">1. 三层模型</h4>
-<p>命令行交互的世界可以被清晰地划分为三层：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
-<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
-<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
-<table>
-<thead>
-<tr class="header">
-<th>现实场景</th>
-<th>对应技术</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>你手机里的「外卖 App 界面」</td>
-<td><strong>终端 Terminal</strong></td>
-<td>显示菜单、字体、动画，本身不做饭</td>
-</tr>
-<tr class="even">
-<td>你选的「厨师」</td>
-<td><strong>Shell</strong></td>
-<td>读懂你的菜单（命令），指挥厨房做菜</td>
-</tr>
-<tr class="odd">
-<td>厨房里的「食材/灶具/电」</td>
-<td><strong>内核/程序</strong></td>
-<td>真正读写文件、启动进程、调用硬件</td>
-</tr>
-</tbody>
-</table>
-<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
-<hr />
-<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
-<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
-<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
-<ul>
-<li><strong>主要功能</strong>:
-<ul>
-<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
-<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
-<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
-<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
-</ul></li>
-<li><strong>主流实现</strong>:
-<ul>
-<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
-<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
-<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
-</ul></li>
-</ul>
-<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
-<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
-<ul>
-<li><strong>主要功能</strong>:
-<ul>
-<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
-<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
-<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
-<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
-</ul></li>
-<li><strong>主流实现</strong>:
-<ul>
-<li><strong>POSIX 家族 (Linux/macOS)</strong>:
-<ul>
-<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
-<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
-<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
-</ul></li>
-<li><strong>Windows 家族</strong>:
-<ul>
-<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
-<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
-</ul></li>
-</ul></li>
-</ul>
-<hr />
-<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
-<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>属于哪一层</th>
-<th>简单一句话说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>cmd.exe</strong></td>
-<td>Shell</td>
-<td>Windows 最老的命令解释器，功能简单。</td>
-</tr>
-<tr class="even">
-<td><strong>PowerShell</strong></td>
-<td>Shell</td>
-<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
-</tr>
-<tr class="odd">
-<td><strong>bash</strong></td>
-<td>Shell</td>
-<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
-</tr>
-<tr class="even">
-<td><strong>zsh</strong></td>
-<td>Shell</td>
-<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
-</tr>
-<tr class="odd">
-<td><strong>Windows Terminal</strong></td>
-<td>终端</td>
-<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
-</tr>
-<tr class="even">
-<td><strong>iTerm2</strong></td>
-<td>终端</td>
-<td>macOS 平台功能最强大的终端之一。</td>
-</tr>
-<tr class="odd">
-<td><strong>WSL</strong></td>
-<td>系统兼容层</td>
-<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
-</tr>
-<tr class="even">
-<td><strong>Oh My Zsh</strong></td>
-<td>zsh 配置框架</td>
-<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
-</tr>
-<tr class="odd">
-<td><strong>Powerlevel10k</strong></td>
-<td>zsh 主题</td>
-<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
-<h4 id="windows-平台">1. Windows 平台</h4>
-<ul>
-<li><strong>现代组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>Windows Terminal</code></li>
-<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
-</ul></li>
-<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h4 id="macos-平台">2. macOS 平台</h4>
-<ul>
-<li><strong>主流组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>iTerm2</code></li>
-<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
-</ul></li>
-<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
-</ul>
-<h4 id="linux-平台">3. Linux 平台</h4>
-<ul>
-<li><strong>常见组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
-<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
-</ul></li>
-<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
-</ul>
-<hr />
-<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>误区</th>
-<th>正解</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Windows Terminal 就是一个新的 Shell</td>
-<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
-</tr>
-<tr class="even">
-<td>Git Bash 是一个终端</td>
-<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
-</tr>
-<tr class="odd">
-<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
-<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="六终极总结">✅ 六、终极总结</h3>
-<blockquote>
-<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
-<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
-</blockquote>
-<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
-<p>Happy Hacking! 🎉</p>
-]]></content>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Terminal</tag>
-        <tag>Shell</tag>
-        <tag>Windows</tag>
-        <tag>macOS</tag>
       </tags>
   </entry>
   <entry>
@@ -1167,6 +1096,222 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       <tags>
         <tag>TDX</tag>
         <tag>Intel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>终端与Shell：从入门到看懂，一篇就够</title>
+    <url>/posts/82543a5f/</url>
+    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
+<span id="more"></span>
+<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
+<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
+<h4 id="三层模型">1. 三层模型</h4>
+<p>命令行交互的世界可以被清晰地划分为三层：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
+<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
+<table>
+<thead>
+<tr class="header">
+<th>现实场景</th>
+<th>对应技术</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>你手机里的「外卖 App 界面」</td>
+<td><strong>终端 Terminal</strong></td>
+<td>显示菜单、字体、动画，本身不做饭</td>
+</tr>
+<tr class="even">
+<td>你选的「厨师」</td>
+<td><strong>Shell</strong></td>
+<td>读懂你的菜单（命令），指挥厨房做菜</td>
+</tr>
+<tr class="odd">
+<td>厨房里的「食材/灶具/电」</td>
+<td><strong>内核/程序</strong></td>
+<td>真正读写文件、启动进程、调用硬件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
+<hr />
+<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
+<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
+<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
+<ul>
+<li><strong>主要功能</strong>:
+<ul>
+<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
+<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
+<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
+<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
+</ul></li>
+<li><strong>主流实现</strong>:
+<ul>
+<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
+<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
+<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
+</ul></li>
+</ul>
+<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
+<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
+<ul>
+<li><strong>主要功能</strong>:
+<ul>
+<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
+<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
+<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
+<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
+</ul></li>
+<li><strong>主流实现</strong>:
+<ul>
+<li><strong>POSIX 家族 (Linux/macOS)</strong>:
+<ul>
+<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
+<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
+<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
+</ul></li>
+<li><strong>Windows 家族</strong>:
+<ul>
+<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
+<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
+</ul></li>
+</ul></li>
+</ul>
+<hr />
+<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
+<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>属于哪一层</th>
+<th>简单一句话说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>cmd.exe</strong></td>
+<td>Shell</td>
+<td>Windows 最老的命令解释器，功能简单。</td>
+</tr>
+<tr class="even">
+<td><strong>PowerShell</strong></td>
+<td>Shell</td>
+<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
+</tr>
+<tr class="odd">
+<td><strong>bash</strong></td>
+<td>Shell</td>
+<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
+</tr>
+<tr class="even">
+<td><strong>zsh</strong></td>
+<td>Shell</td>
+<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
+</tr>
+<tr class="odd">
+<td><strong>Windows Terminal</strong></td>
+<td>终端</td>
+<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
+</tr>
+<tr class="even">
+<td><strong>iTerm2</strong></td>
+<td>终端</td>
+<td>macOS 平台功能最强大的终端之一。</td>
+</tr>
+<tr class="odd">
+<td><strong>WSL</strong></td>
+<td>系统兼容层</td>
+<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
+</tr>
+<tr class="even">
+<td><strong>Oh My Zsh</strong></td>
+<td>zsh 配置框架</td>
+<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
+</tr>
+<tr class="odd">
+<td><strong>Powerlevel10k</strong></td>
+<td>zsh 主题</td>
+<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
+<h4 id="windows-平台">1. Windows 平台</h4>
+<ul>
+<li><strong>现代组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>Windows Terminal</code></li>
+<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
+</ul></li>
+<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="macos-平台">2. macOS 平台</h4>
+<ul>
+<li><strong>主流组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>iTerm2</code></li>
+<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
+</ul></li>
+<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
+</ul>
+<h4 id="linux-平台">3. Linux 平台</h4>
+<ul>
+<li><strong>常见组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
+<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
+</ul></li>
+<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
+</ul>
+<hr />
+<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Windows Terminal 就是一个新的 Shell</td>
+<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
+</tr>
+<tr class="even">
+<td>Git Bash 是一个终端</td>
+<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
+</tr>
+<tr class="odd">
+<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
+<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="六终极总结">✅ 六、终极总结</h3>
+<blockquote>
+<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
+<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
+</blockquote>
+<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
+<p>Happy Hacking! 🎉</p>
+]]></content>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Terminal</tag>
+        <tag>Shell</tag>
+        <tag>Windows</tag>
+        <tag>macOS</tag>
       </tags>
   </entry>
   <entry>
@@ -1859,6 +2004,121 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
+    <title>git之路：rebase &amp; cherry-pick</title>
+    <url>/posts/1566a5aa/</url>
+    <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别。</p>
+<span id="more"></span>
+<h2 id="一核心概念">🧩 一、核心概念</h2>
+<ul>
+<li><strong>rebase</strong>：变基操作，将一组提交“平移”到另一个分支之上，常用于整理提交历史，让分支结构更线性。</li>
+<li><strong>cherry-pick</strong>：拣选操作，将某个（或某些）特定提交复制到当前分支，适合“挑着搬”功能或修复。</li>
+</ul>
+<h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
+<p>让我们结合下图，直观理解 rebase 和 cherry-pick 的实际效果：</p>
+<figure>
+<img src="../assets/gitrebase.png" alt="git分支操作流程图" /><figcaption>git分支操作流程图</figcaption>
+</figure>
+<h3 id="图中结构说明">图中结构说明</h3>
+<ul>
+<li><code>main</code> 主分支，开发主线</li>
+<li><code>feature/a</code> 功能分支</li>
+<li><code>fixbug/b</code> 修复分支</li>
+<li>各色圆点代表不同的提交（如 c0、c1、c2、c3 等）</li>
+</ul>
+<h3 id="典型操作流程">典型操作流程</h3>
+<h4 id="创建分支与提交">1. 创建分支与提交</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout -b feature/a</span><br><span class="line"><span class="comment"># ...开发并提交...</span></span><br><span class="line">git commit</span><br><span class="line">git checkout main</span><br><span class="line">git checkout -b fixbug/b</span><br><span class="line"><span class="comment"># ...修复并提交...</span></span><br><span class="line">git commit</span><br></pre></td></tr></table></figure>
+<p>此时，<code>feature/a</code> 和 <code>fixbug/b</code> 分别基于 <code>main</code> 分支各自发展。</p>
+<h4 id="rebase整理分支历史">2. rebase：整理分支历史</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git rebase fixbug/b</span><br></pre></td></tr></table></figure>
+<p>如图所示，rebase 后，<code>main</code> 分支的最新提交（c4'）被“平移”到了 <code>fixbug/b</code> 之后，历史变得更线性，便于后续合并和回溯。</p>
+<blockquote>
+<p><strong>注意</strong>：rebase 会重写提交历史，协作开发时请确保未推送到远程或与团队成员沟通好。</p>
+</blockquote>
+<h4 id="cherry-pick挑选特定提交">3. cherry-pick：挑选特定提交</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout feature/a</span><br><span class="line">git commit</span><br><span class="line">git checkout main</span><br><span class="line">git cherry-pick c2 c4</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+<p>如图右侧所示，<code>main</code> 分支通过 cherry-pick，将 <code>feature/a</code> 上的 c2、c4 两个提交“拣选”过来，其他提交不会被带过来，适合只需要部分功能/修复的场景。</p>
+<hr />
+<h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
+<h3 id="基本用法">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
+<p>将当前分支的提交“平移”到目标分支之后，常用于 feature 分支合并前整理历史。</p>
+<h3 id="交互式-rebase">2. 交互式 rebase</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git rebase -i &lt;commit&gt;</span><br></pre></td></tr></table></figure>
+<p>可以对一系列提交进行 squash、edit、reword 等操作，极大提升提交历史的可读性。</p>
+<h3 id="常见场景">3. 常见场景</h3>
+<ul>
+<li>合并前整理分支</li>
+<li>清理无用提交</li>
+<li>合并多个 commit 为一个（squash）</li>
+</ul>
+<h3 id="注意事项">4. 注意事项</h3>
+<ul>
+<li>rebase 会重写历史，<strong>不要对已推送的分支随意 rebase</strong>。</li>
+<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git rebase --continue</code> 继续。</li>
+</ul>
+<hr />
+<h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
+<h3 id="基本用法-1">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick &lt;commit&gt;</span><br></pre></td></tr></table></figure>
+<p>将指定提交应用到当前分支。</p>
+<h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick &lt;commit1&gt; &lt;commit2&gt; ...</span><br></pre></td></tr></table></figure>
+<p>一次性拣选多个提交。</p>
+<h3 id="常见场景-1">3. 常见场景</h3>
+<ul>
+<li>热修复（hotfix）快速同步到主分支</li>
+<li>只迁移部分功能或 bugfix</li>
+</ul>
+<h3 id="注意事项-1">4. 注意事项</h3>
+<ul>
+<li>cherry-pick 也可能遇到冲突，需手动解决。</li>
+<li>cherry-pick 会生成新的 commit id，不会影响原分支历史。</li>
+</ul>
+<hr />
+<h2 id="五实战小结">⚡ 五、实战小结</h2>
+<ul>
+<li><strong>rebase</strong> 适合整理分支、保持历史整洁，常用于 feature 分支合并前的“清洗”。</li>
+<li><strong>cherry-pick</strong> 适合补丁式迁移，灵活应对 bugfix、hotfix 等需求。</li>
+<li>图示法有助于理解分支变动，建议多用 <code>git log --graph</code> 观察实际效果。</li>
+</ul>
+<hr />
+<h2 id="六实用建议">📝 六、实用建议</h2>
+<h3 id="分支命名规范">1. 分支命名规范</h3>
+<ul>
+<li>功能开发：<code>feature/功能简述</code> 如：<code>feature/login-page</code></li>
+<li>Bug 修复：<code>fix/问题简述</code> 如：<code>fix/login-crash</code></li>
+<li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
+<li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
+</ul>
+<blockquote>
+<p><strong>建议</strong>：分支命名要简洁明了，见名知意，便于团队协作和历史追溯。</p>
+</blockquote>
+<h3 id="commit-信息规范">2. Commit 信息规范</h3>
+<ul>
+<li>标题简明扼要（50 字以内），首字母小写，结尾不加句号</li>
+<li>如需补充详细说明，空一行后写正文，说明动机、影响范围等</li>
+<li><p>推荐格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">feat: 新增用户登录功能</span><br><span class="line">fix: 修复注册页面崩溃问题</span><br><span class="line">docs: 补充 API 使用文档</span><br><span class="line">refactor: 优化数据处理逻辑</span><br></pre></td></tr></table></figure></li>
+<li><p>一次 commit 只做一件事，避免“杂糅式”提交</p></li>
+</ul>
+<h3 id="团队协作建议">3. 团队协作建议</h3>
+<ul>
+<li>合并前先同步主分支，保持分支最新，减少冲突</li>
+<li>重要分支（如 main、release）需保护，禁止直接推送</li>
+<li>充分利用 Pull Request（合并请求）进行代码评审</li>
+<li>养成良好习惯：多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态</li>
+</ul>
+<hr />
+<p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
+]]></content>
+      <tags>
+        <tag>Git</tag>
+        <tag>rebase</tag>
+        <tag>cherry-pick</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>influxdb Connection Problem</title>
     <url>/posts/dbeb2432/</url>
     <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
@@ -1899,151 +2159,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </categories>
       <tags>
         <tag>influxdb</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TLS Note</title>
-    <url>/posts/32f5e233/</url>
-    <content><![CDATA[<h2 id="什么是tls">1. 什么是TLS</h2>
-<p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
-<span id="more"></span>
-<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
-<h2 id="tls的主要功能">2. TLS的主要功能</h2>
-<p>TLS提供以下三个主要的安全服务：</p>
-<h3 id="身份认证">2.1 身份认证</h3>
-<p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
-<h3 id="数据加密">2.2 数据加密</h3>
-<p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
-<h3 id="完整性校验">2.3 完整性校验</h3>
-<p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
-<h2 id="tls的版本演进">3. TLS的版本演进</h2>
-<p>TLS协议经历了多个版本的演进：</p>
-<ul>
-<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
-<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
-<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
-<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
-<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
-<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
-</ul>
-<h2 id="tls的密码学原理">4. TLS的密码学原理</h2>
-<h3 id="对称加密">4.1 对称加密</h3>
-<ul>
-<li>使用相同的密钥进行加密和解密</li>
-<li>常用算法：AES、ChaCha20</li>
-<li>用于加密传输的数据</li>
-</ul>
-<h3 id="非对称加密">4.2 非对称加密</h3>
-<ul>
-<li>使用公钥加密，私钥解密</li>
-<li>常用算法：RSA、ECDSA</li>
-<li>用于密钥交换和身份认证</li>
-</ul>
-<h3 id="数字证书">4.3 数字证书</h3>
-<ul>
-<li>X.509格式证书</li>
-<li>包含服务器的公钥和身份信息</li>
-<li>由CA机构签名认证</li>
-</ul>
-<h3 id="消息认证码">4.4 消息认证码</h3>
-<ul>
-<li>HMAC算法</li>
-<li>确保消息完整性</li>
-<li>防止数据被篡改</li>
-</ul>
-<h2 id="tls握手过程">5. TLS握手过程</h2>
-<p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
-<h3 id="client-hello">5.1 Client Hello</h3>
-<ul>
-<li>客户端发送支持的TLS版本</li>
-<li>支持的加密套件列表</li>
-<li>随机数（Client Random）</li>
-<li>会话ID（如果是恢复会话）</li>
-</ul>
-<h3 id="server-hello">5.2 Server Hello</h3>
-<ul>
-<li>服务器选择TLS版本</li>
-<li>选择加密套件</li>
-<li>随机数（Server Random）</li>
-<li>服务器证书</li>
-</ul>
-<h3 id="密钥交换">5.3 密钥交换</h3>
-<ul>
-<li>客户端验证服务器证书</li>
-<li>生成预主密钥（Pre-master Secret）</li>
-<li>使用服务器公钥加密预主密钥</li>
-<li>计算主密钥（Master Secret）</li>
-</ul>
-<h3 id="完成握手">5.4 完成握手</h3>
-<ul>
-<li>切换到加密通信</li>
-<li>验证握手消息的完整性</li>
-<li>开始安全数据传输</li>
-</ul>
-<h2 id="tls的应用场景">6. TLS的应用场景</h2>
-<h3 id="https">6.1 HTTPS</h3>
-<ul>
-<li>最常见的TLS应用</li>
-<li>为HTTP提供安全传输</li>
-<li>网站必备的安全保障</li>
-</ul>
-<h3 id="安全邮件">6.2 安全邮件</h3>
-<ul>
-<li>SMTPS</li>
-<li>IMAPS</li>
-<li>POP3S</li>
-</ul>
-<h3 id="vpn">6.3 VPN</h3>
-<ul>
-<li>OpenVPN</li>
-<li>其他基于TLS的VPN协议</li>
-</ul>
-<h2 id="常见攻击与防范">7. 常见攻击与防范</h2>
-<h3 id="中间人攻击">7.1 中间人攻击</h3>
-<ul>
-<li>攻击者冒充服务器</li>
-<li>通过证书验证防范</li>
-<li>使用可信CA签发的证书</li>
-</ul>
-<h3 id="降级攻击">7.2 降级攻击</h3>
-<ul>
-<li>强制使用低版本协议</li>
-<li>禁用不安全的协议版本</li>
-<li>启用降级保护机制</li>
-</ul>
-<h3 id="重放攻击">7.3 重放攻击</h3>
-<ul>
-<li>重放已捕获的数据包</li>
-<li>使用随机数和时间戳</li>
-<li>会话标识符唯一性</li>
-</ul>
-<h2 id="最佳实践">8. 最佳实践</h2>
-<h3 id="协议配置">8.1 协议配置</h3>
-<ul>
-<li>仅启用TLS 1.2及以上版本</li>
-<li>使用强加密套件</li>
-<li>启用前向保密</li>
-</ul>
-<h3 id="证书管理">8.2 证书管理</h3>
-<ul>
-<li>及时更新证书</li>
-<li>使用适当的密钥长度</li>
-<li>正确配置证书链</li>
-</ul>
-<h3 id="安全监控">8.3 安全监控</h3>
-<ul>
-<li>记录TLS错误日志</li>
-<li>监控证书有效期</li>
-<li>定期安全评估</li>
-</ul>
-]]></content>
-      <categories>
-        <category>通信协议</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>加密</tag>
-        <tag>HTTPS</tag>
       </tags>
   </entry>
   <entry>
