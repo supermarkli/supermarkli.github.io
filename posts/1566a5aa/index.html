@@ -21,22 +21,20 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="在团队协作和日常开发中，rebase 和 cherry-pick 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别。">
+    <meta name="description" content="在团队协作和日常开发中，rebase 和 cherry-pick 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="git之路：rebase &amp; cherry-pick">
 <meta property="og:url" content="https://supermarkli.github.io/posts/1566a5aa/index.html">
 <meta property="og:site_name" content="吃糠咽菜">
-<meta property="og:description" content="在团队协作和日常开发中，rebase 和 cherry-pick 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别。">
+<meta property="og:description" content="在团队协作和日常开发中，rebase 和 cherry-pick 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://supermarkli.github.io/assets/gitrebase.png">
 <meta property="article:published_time" content="2025-08-05T10:01:30.000Z">
-<meta property="article:modified_time" content="2025-08-06T08:49:16.502Z">
+<meta property="article:modified_time" content="2025-08-06T09:03:52.594Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="Git">
 <meta property="article:tag" content="Rebase">
 <meta property="article:tag" content="Cherry-pick">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://supermarkli.github.io/assets/gitrebase.png">
 
 
 <link rel="canonical" href="https://supermarkli.github.io/posts/1566a5aa/">
@@ -173,7 +171,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">🧩 一、核心概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%9B%BE%E8%A7%A3%E5%88%86%E6%94%AF%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">🗺️ 二、图解分支操作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BE%E4%B8%AD%E7%BB%93%E6%9E%84%E8%AF%B4%E6%98%8E"><span class="nav-number">2.1.</span> <span class="nav-text">图中结构说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">典型操作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%88%86%E6%94%AF%E4%B8%8E%E6%8F%90%E4%BA%A4"><span class="nav-number">2.2.1.</span> <span class="nav-text">1. 创建分支与提交</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rebase%E6%95%B4%E7%90%86%E5%88%86%E6%94%AF%E5%8E%86%E5%8F%B2"><span class="nav-number">2.2.2.</span> <span class="nav-text">2. rebase：整理分支历史</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cherry-pick%E6%8C%91%E9%80%89%E7%89%B9%E5%AE%9A%E6%8F%90%E4%BA%A4"><span class="nav-number">2.2.3.</span> <span class="nav-text">3. cherry-pick：挑选特定提交</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89rebase-%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">🛠️ 三、rebase 用法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">3.1.</span> <span class="nav-text">1. 基本用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8F-rebase"><span class="nav-number">3.2.</span> <span class="nav-text">2. 交互式 rebase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF"><span class="nav-number">3.3.</span> <span class="nav-text">3. 常见场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.4.</span> <span class="nav-text">4. 注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9Bcherry-pick-%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-number">4.</span> <span class="nav-text">🍒 四、cherry-pick 用法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95-1"><span class="nav-number">4.1.</span> <span class="nav-text">1. 基本用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%B9%E9%87%8F-cherry-pick"><span class="nav-number">4.2.</span> <span class="nav-text">2. 批量 cherry-pick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF-1"><span class="nav-number">4.3.</span> <span class="nav-text">3. 常见场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="nav-number">4.4.</span> <span class="nav-text">4. 注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E5%AE%9E%E6%88%98%E5%B0%8F%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">⚡ 五、实战小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E5%AE%9E%E7%94%A8%E5%BB%BA%E8%AE%AE"><span class="nav-number">6.</span> <span class="nav-text">📝 六、实用建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83"><span class="nav-number">6.1.</span> <span class="nav-text">1. 分支命名规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#commit-%E4%BF%A1%E6%81%AF%E8%A7%84%E8%8C%83"><span class="nav-number">6.2.</span> <span class="nav-text">2. Commit 信息规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C%E5%BB%BA%E8%AE%AE"><span class="nav-number">6.3.</span> <span class="nav-text">3. 团队协作建议</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">🧩 一、核心概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%9B%BE%E8%A7%A3%E5%88%86%E6%94%AF%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">🗺️ 二、图解分支操作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BE-1-rebase-%E5%B7%A5%E4%BD%9C%E6%B5%81%E4%B8%BB%E5%B9%B2%E6%9B%B4%E6%96%B0%E5%90%8E%E5%B0%86%E5%8A%9F%E8%83%BD%E5%88%86%E6%94%AF%E5%8F%98%E5%9F%BA%E5%88%B0%E6%9C%80%E6%96%B0-main"><span class="nav-number">2.1.</span> <span class="nav-text">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BE-2-cherry-pick-%E5%B7%A5%E4%BD%9C%E6%B5%81%E4%BB%8E-featurea-%E6%8B%A3%E9%80%89-c2-%E5%88%B0-main"><span class="nav-number">2.2.</span> <span class="nav-text">图 2 · Cherry-pick 工作流（从 feature&#x2F;a 拣选 c2 到 main）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E8%AE%BE%E5%AE%9A"><span class="nav-number">2.3.</span> <span class="nav-text">场景设定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rebase%E5%90%8C%E6%AD%A5%E4%B8%BB%E5%B9%B2%E4%BF%9D%E6%8C%81%E7%BA%BF%E6%80%A7%E5%8E%86%E5%8F%B2"><span class="nav-number">2.4.</span> <span class="nav-text">1. Rebase：同步主干，保持线性历史</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cherry-pick%E6%8C%91%E9%80%89%E7%89%B9%E5%AE%9A%E6%8F%90%E4%BA%A4"><span class="nav-number">2.5.</span> <span class="nav-text">2. Cherry-pick：挑选特定提交</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89rebase-%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">🛠️ 三、rebase 用法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">3.1.</span> <span class="nav-text">1. 基本用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8F-rebase"><span class="nav-number">3.2.</span> <span class="nav-text">2. 交互式 rebase</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.3.</span> <span class="nav-text">3. 注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9Bcherry-pick-%E7%94%A8%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-number">4.</span> <span class="nav-text">🍒 四、cherry-pick 用法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95-1"><span class="nav-number">4.1.</span> <span class="nav-text">1. 基本用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%B9%E9%87%8F-cherry-pick"><span class="nav-number">4.2.</span> <span class="nav-text">2. 批量 cherry-pick</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1"><span class="nav-number">4.3.</span> <span class="nav-text">3. 注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rebase-vs.-merge%E9%BB%84%E9%87%91%E5%87%86%E5%88%99%E4%B8%8E%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C"><span class="nav-number">5.</span> <span class="nav-text">👑 Rebase vs. Merge：黄金准则与团队协作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E6%98%AF%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">5.1.</span> <span class="nav-text">为什么这是最佳实践？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E7%9A%84%E5%BC%80%E5%8F%91%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="nav-number">5.2.</span> <span class="nav-text">推荐的开发工作流</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E5%AE%9E%E6%88%98%E5%B0%8F%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">⚡ 五、实战小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E5%AE%9E%E7%94%A8%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.</span> <span class="nav-text">📝 六、实用建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83"><span class="nav-number">7.1.</span> <span class="nav-text">1. 分支命名规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#commit-%E4%BF%A1%E6%81%AF%E8%A7%84%E8%8C%83"><span class="nav-number">7.2.</span> <span class="nav-text">2. Commit 信息规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%A2%E9%98%9F%E5%8D%8F%E4%BD%9C%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.3.</span> <span class="nav-text">3. 团队协作建议</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -270,7 +268,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-08-06 16:49:16" itemprop="dateModified" datetime="2025-08-06T16:49:16+08:00">2025-08-06</time>
+      <time title="修改时间：2025-08-06 17:03:52" itemprop="dateModified" datetime="2025-08-06T17:03:52+08:00">2025-08-06</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -300,14 +298,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>2k</span>
+      <span>4.7k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>4 分钟</span>
+      <span>9 分钟</span>
     </span>
 </div>
 
@@ -317,81 +315,92 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别。</p>
+    <div class="post-body" itemprop="articleBody"><p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
 <span id="more"></span>
 <h2 id="一核心概念">🧩 一、核心概念</h2>
 <ul>
-<li><strong>rebase</strong>：变基操作，将一组提交“平移”到另一个分支之上，常用于整理提交历史，让分支结构更线性。</li>
-<li><strong>cherry-pick</strong>：拣选操作，将某个（或某些）特定提交复制到当前分支，适合“挑着搬”功能或修复。</li>
+<li><strong>rebase (变基)</strong>：将当前分支的一系列提交“重放”到另一个目标分支之上。其核心用途是<strong>整理个人分支的提交历史</strong>，使其在并入主干时保持线性、清晰。</li>
+<li><strong>cherry-pick (拣选)</strong>：将某个（或某些）特定的提交<strong>复制</strong>到当前分支。它像摘樱桃一样，适合“挑着搬运”某个功能或紧急修复。</li>
 </ul>
 <h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
-<p>让我们结合下图，直观理解 rebase 和 cherry-pick 的实际效果：</p>
-<figure>
-<img src="/assets/gitrebase.png" alt="git分支操作流程图" /><figcaption>git分支操作流程图</figcaption>
-</figure>
-<h3 id="图中结构说明">图中结构说明</h3>
+<p>下面的两幅 Mermaid 图示分别演示了 Rebase 和 Cherry-pick 在典型协作场景中的作用。将代码块直接放入支持 Mermaid 的 Markdown 环境即可自动渲染。</p>
+<h3 id="图-1-rebase-工作流主干更新后将功能分支变基到最新-main">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    subgraph main[&quot;main 分支&quot;]</span><br><span class="line">        c0((c0)) --&gt; c1((c1)) --&gt; c3((c3))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph feature_before[&quot;feature/a (rebase 前)&quot;]</span><br><span class="line">        c1 --&gt; c2((c2)) --&gt; c4((c4))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph feature_after[&quot;feature/a (rebase 后)&quot;]</span><br><span class="line">        c3 --&gt; c2r((&quot;c2&#x27;&quot;)) --&gt; c4r((&quot;c4&#x27;&quot;))</span><br><span class="line">    end</span><br></pre></td></tr></table></figure>
+<h3 id="图-2-cherry-pick-工作流从-featurea-拣选-c2-到-main">图 2 · Cherry-pick 工作流（从 feature/a 拣选 c2 到 main）</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    subgraph init[&quot;初始历史&quot;]</span><br><span class="line">        c0c((c0)) --&gt; c1c((c1))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph mainc[&quot;main 分支&quot;]</span><br><span class="line">        c1c --&gt; c3c((c3))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph featurec[&quot;feature/a 分支&quot;]</span><br><span class="line">        c1c --&gt; c2c((c2)) --&gt; c4c((c4))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    %% Cherry-pick 把 c2c 的改动应用到 main 上生成 c5</span><br><span class="line">    c3c --&gt; c5((c5))</span><br><span class="line">    style c5 fill:#bbf,stroke:#333,stroke-width:2px</span><br></pre></td></tr></table></figure>
+<h3 id="场景设定">场景设定</h3>
 <ul>
-<li><code>main</code> 主分支，开发主线</li>
-<li><code>feature/a</code> 功能分支</li>
-<li><code>fixbug/b</code> 修复分支</li>
-<li>各色圆点代表不同的提交（如 c0、c1、c2、c3 等）</li>
+<li><code>main</code> 是我们的主分支，开发主线从 <code>c0</code> -&gt; <code>c1</code> 开始。</li>
+<li>从 <code>c1</code> 拉取了一个 <code>feature/a</code> 分支进行功能开发，并提交了 <code>c2</code> 和 <code>c4</code>。</li>
+<li>在此期间，另一位同事完成了 <code>fixbug/b</code> 分支，并将其合并回 <code>main</code>，使得 <code>main</code> 分支前进到 <code>c3</code>。</li>
 </ul>
-<h3 id="典型操作流程">典型操作流程</h3>
-<h4 id="创建分支与提交">1. 创建分支与提交</h4>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git checkout -b feature/a</span><br><span class="line"><span class="comment"># ...开发并提交...</span></span><br><span class="line">git commit</span><br><span class="line">git checkout main</span><br><span class="line">git checkout -b fixbug/b</span><br><span class="line"><span class="comment"># ...修复并提交...</span></span><br><span class="line">git commit</span><br></pre></td></tr></table></figure>
-<p>此时，<code>feature/a</code> 和 <code>fixbug/b</code> 分别基于 <code>main</code> 分支各自发展。</p>
-<h4 id="rebase整理分支历史">2. rebase：整理分支历史</h4>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git rebase fixbug/b</span><br></pre></td></tr></table></figure>
-<p>如图所示，rebase 后，<code>main</code> 分支的最新提交变成了 <code>c3</code>，即 <code>main</code> 的历史被“平移”到了 <code>fixbug/b</code> 之后，分支结构变得更线性，便于后续合并和回溯。</p>
-<blockquote>
-<p><strong>注意</strong>：rebase 会重写提交历史，协作开发时请确保未推送到远程或与团队成员沟通好。</p>
-</blockquote>
-<h4 id="cherry-pick挑选特定提交">3. cherry-pick：挑选特定提交</h4>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git checkout feature/a</span><br><span class="line">git commit</span><br><span class="line">git checkout main</span><br><span class="line">git cherry-pick c2 c4</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
-<p>如图右侧所示，<code>main</code> 分支通过 cherry-pick，将 <code>feature/a</code> 上的 c2、c4 两个提交“拣选”过来，其他提交不会被带过来，适合只需要部分功能/修复的场景。</p>
+<p>此时，你的 <code>feature/a</code> 分支就“落后”于 <code>main</code> 分支了。在准备合并你的功能之前，最好的做法是先将 <code>main</code> 的最新更改同步到 <code>feature/a</code> 分支。这里，<code>rebase</code> 就是最佳选择。</p>
+<h3 id="rebase同步主干保持线性历史">1. Rebase：同步主干，保持线性历史</h3>
+<p>为了让 <code>feature/a</code> 的历史记录更清晰，我们执行变基操作，将 <code>feature/a</code> 的提交“重放”到最新的 <code>main</code> 分支上。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 确保你的功能分支是当前分支</span></span><br><span class="line">git checkout feature/a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 拉取远程主分支的最新代码（好习惯）</span></span><br><span class="line">git fetch origin main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 将当前分支变基到最新的 main 分支上</span></span><br><span class="line">git rebase origin/main <span class="comment"># 或者 git rebase main</span></span><br></pre></td></tr></table></figure>
+<p>执行后，Git 会在内部执行以下操作： 1. 找到 <code>feature/a</code> 和 <code>main</code> 的共同祖先 <code>c1</code>。 2. 暂存 <code>feature/a</code> 在 <code>c1</code> 之后独有的提交（<code>c2</code>, <code>c4</code>）。 3. 将 <code>feature/a</code> 分支的指针指向 <code>main</code> 的最新提交 <code>c3</code>。 4. 将刚刚暂存的提交 <code>c2</code> 和 <code>c4</code> 重新应用（Replay）在 <code>c3</code> 之后，生成两个<strong>内容相同但ID不同</strong>的新提交 <code>c2'</code> 和 <code>c4'</code>。</p>
+<p>最终，<code>feature/a</code> 的历史就变成了 <code>c0 -&gt; c1 -&gt; c3 -&gt; c2' -&gt; c4'</code>。它看起来就像是你从最新的 <code>main</code> 分支拉取代码然后才开始开发的一样，历史记录干净、线性，非常便于后续的合并和代码审查。</p>
+<p>这个操作完美地诠释了 <code>rebase</code> 在个人开发分支上的核心用途：<strong>保持与主干同步，并维持一个清晰的线性历史。</strong></p>
+<h3 id="cherry-pick挑选特定提交">2. Cherry-pick：挑选特定提交</h3>
+<p>现在，我们换一个场景。假设 <code>feature/a</code> 上的 <code>c2</code> 是一个非常紧急的修复，需要立即上线，但 <code>c4</code> 还没开发完。这时就可以用 <code>cherry-pick</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到需要接收修复的主分支</span></span><br><span class="line">git checkout main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 从 feature/a 分支拣选 c2 提交</span></span><br><span class="line">git cherry-pick c2</span><br></pre></td></tr></table></figure>
+<p>如图右侧所示，<code>main</code> 分支通过 <code>cherry-pick</code>，将 <code>feature/a</code> 上的 <code>c2</code> 提交“拣选”过来，生成了一个新的提交 <code>c5</code>。其他提交 (<code>c4</code>) 不会被带过来，完美满足了只需要部分功能/修复的场景。</p>
 <hr />
 <h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
 <h3 id="基本用法">1. 基本用法</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
-<p>将当前分支的提交“平移”到目标分支之后，常用于 feature 分支合并前整理历史。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将当前分支变基到 &lt;目标分支&gt; 上</span></span><br><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
 <h3 id="交互式-rebase">2. 交互式 rebase</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase -i &lt;commit&gt;</span><br></pre></td></tr></table></figure>
-<p>可以对一系列提交进行 squash、edit、reword 等操作，极大提升提交历史的可读性。</p>
-<h3 id="常见场景">3. 常见场景</h3>
+<p>这是 <code>rebase</code> 的一大神器，常用于合并、修改、整理当前分支的提交。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -i 代表 --interactive（交互式）</span></span><br><span class="line"><span class="comment"># HEAD~3 表示整理当前分支最新的 3 个提交</span></span><br><span class="line">git rebase -i HEAD~3</span><br></pre></td></tr></table></figure>
+<p>执行后会打开一个编辑器，你可以对指定范围的提交进行 <code>squash</code> (合并)、<code>edit</code> (修改)、<code>reword</code> (修改提交信息) 等精细化操作，极大提升提交历史的可读性。</p>
+<h3 id="注意事项">3. 注意事项</h3>
 <ul>
-<li>合并前整理分支</li>
-<li>清理无用提交</li>
-<li>合并多个 commit 为一个（squash）</li>
-</ul>
-<h3 id="注意事项">4. 注意事项</h3>
-<ul>
-<li>rebase 会重写历史，<strong>不要对已推送的分支随意 rebase</strong>。</li>
-<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git rebase --continue</code> 继续。</li>
+<li>rebase 会重写历史，<strong>永远不要对已经推送并被他人使用的公共分支（如 main）进行 rebase</strong>。</li>
+<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git add .</code> 将文件标记为已解决，然后用 <code>git rebase --continue</code> 继续。</li>
 </ul>
 <hr />
 <h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
 <h3 id="基本用法-1">1. 基本用法</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git cherry-pick &lt;commit&gt;</span><br></pre></td></tr></table></figure>
-<p>将指定提交应用到当前分支。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git cherry-pick &lt;commit-hash&gt;</span><br></pre></td></tr></table></figure>
+<p>将指定的 <code>&lt;commit-hash&gt;</code> 应用到当前分支，生成一个新的提交。</p>
 <h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git cherry-pick &lt;commit1&gt; &lt;commit2&gt; ...</span><br></pre></td></tr></table></figure>
-<p>一次性拣选多个提交。</p>
-<h3 id="常见场景-1">3. 常见场景</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拣选多个不连续的提交</span></span><br><span class="line">git cherry-pick &lt;commit-1&gt; &lt;commit-2&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拣选一个连续的提交范围（不包含 commit-A）</span></span><br><span class="line">git cherry-pick &lt;commit-A&gt;..&lt;commit-B&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="注意事项-1">3. 注意事项</h3>
 <ul>
-<li>热修复（hotfix）快速同步到主分支</li>
-<li>只迁移部分功能或 bugfix</li>
+<li>cherry-pick 也可能遇到冲突，需手动解决并 <code>commit</code>。</li>
+<li>cherry-pick 会生成<strong>新的 commit id</strong>，因为它是在新的分支上下文中应用变更。</li>
 </ul>
-<h3 id="注意事项-1">4. 注意事项</h3>
+<hr />
+<h2 id="rebase-vs.-merge黄金准则与团队协作">👑 Rebase vs. Merge：黄金准则与团队协作</h2>
+<p>我们已经看到了 <code>rebase</code> 的强大之处，但它也是一把双刃剑，因为它会<strong>重写提交历史</strong>。这就引出了 Git 协作中一条最重要的准则：</p>
+<blockquote>
+<p><strong>黄金准则：在自己的私有分支上自由地 rebase，但永远不要 rebase 一个公共的、共享的分支。</strong></p>
+</blockquote>
+<p>换句话说： - <strong><code>rebase</code> 用来“整理”自己</strong>：在你的个人功能分支（如 <code>feature/a</code>）上，使用 <code>rebase</code> 来同步 <code>main</code> 分支的更新。这属于你自己的“私事”，目的是让你的工作成果能干净地对接到主线上。 - <strong><code>merge</code> 用来“汇合”他人</strong>：当你的功能分支准备好被合并到 <code>main</code> 或 <code>develop</code> 这样的公共分支时，应该使用 <code>git merge</code>（通常是通过 GitHub/GitLab 上的 Pull Request/Merge Request）来完成。这次合并会产生一个合并提交（Merge Commit），清晰地记录了“在某个时间点，我们将 <code>feature/a</code> 的所有成果汇入了主线”这一事实。</p>
+<h3 id="为什么这是最佳实践">为什么这是最佳实践？</h3>
+<ol type="1">
+<li><strong>清晰且可追溯的历史</strong>：通过 <code>rebase</code> 保持功能分支的线性，使得 <code>main</code> 分支的历史由一个个清晰的功能块（通过 merge commit 连接）组成，而不是一个混乱交织的网络。阅读 <code>git log</code> 会非常轻松。</li>
+<li><strong>避免团队混乱</strong>：如果你 rebase 了一个公共分支（例如 <code>main</code>），所有基于旧的 <code>main</code> 进行开发的同事都会在下一次 <code>git pull</code> 时遇到严重的问题。他们的本地历史和被你重写过的远程历史产生了冲突，需要非常复杂的操作才能修复，这会给整个团队带来灾难。</li>
+</ol>
+<h3 id="推荐的开发工作流">推荐的开发工作流</h3>
+<p>一个标准的、健壮的开发工作流如下：</p>
+<ol type="1">
+<li><strong>开始新任务</strong>： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git pull origin main</span><br><span class="line">git checkout -b feature/new-login</span><br></pre></td></tr></table></figure></li>
+<li><strong>开心写代码并提交</strong>： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ... coding and committing ...</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add username field&quot;</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add password field&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>定期与主干同步</strong>（使用 Rebase）： <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 当 main 分支有更新时</span></span><br><span class="line">git fetch origin main</span><br><span class="line">git rebase origin/main</span><br><span class="line"><span class="comment"># 如果有冲突，解决冲突后 git rebase --continue</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>发起合并请求</strong>：
 <ul>
-<li>cherry-pick 也可能遇到冲突，需手动解决。</li>
-<li>cherry-pick 会生成新的 commit id，不会影响原分支历史。</li>
-</ul>
+<li>将你“整理”好的分支推送到远程：<code>git push origin feature/new-login --force-with-lease</code> (<code>--force-with-lease</code> 是比 <code>--force</code> 更安全的选择，因为它不会覆盖他人的工作)。</li>
+<li>在代码托管平台（如 GitHub）上创建 Pull Request，请求将 <code>feature/new-login</code> 合并到 <code>main</code>。</li>
+<li>团队成员进行代码审查，最终由维护者点击“Merge”按钮，将你的功能安全地汇入主线。</li>
+</ul></li>
+</ol>
 <hr />
 <h2 id="五实战小结">⚡ 五、实战小结</h2>
 <ul>
-<li><strong>rebase</strong> 适合整理分支、保持历史整洁，常用于 feature 分支合并前的“清洗”。</li>
-<li><strong>cherry-pick</strong> 适合补丁式迁移，灵活应对 bugfix、hotfix 等需求。</li>
-<li>图示法有助于理解分支变动，建议多用 <code>git log --graph</code> 观察实际效果。</li>
+<li><strong>rebase</strong>：核心用途是在<strong>个人开发分支</strong>上同步主干分支的变更，以保持提交历史的<strong>整洁和线性</strong>。它是合并到公共分支前的“自我修养”。</li>
+<li><strong>cherry-pick</strong>：核心用途是<strong>精确复制</strong>一个或多个提交到其他分支，适合跨分支应用热修复或挑选特定功能。</li>
+<li><strong>黄金准则</strong>：永远记住在私有分支上 rebase，在公共分支上 merge。</li>
 </ul>
 <hr />
 <h2 id="六实用建议">📝 六、实用建议</h2>
@@ -402,23 +411,22 @@
 <li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
 <li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
 </ul>
-<blockquote>
-<p><strong>建议</strong>：分支命名要简洁明了，见名知意，便于团队协作和历史追溯。</p>
-</blockquote>
 <h3 id="commit-信息规范">2. Commit 信息规范</h3>
 <ul>
-<li>标题简明扼要（50 字以内），首字母小写，结尾不加句号</li>
-<li>如需补充详细说明，空一行后写正文，说明动机、影响范围等</li>
-<li><p>推荐格式：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">feat: 新增用户登录功能</span><br><span class="line">fix: 修复注册页面崩溃问题</span><br><span class="line">docs: 补充 API 使用文档</span><br><span class="line">refactor: 优化数据处理逻辑</span><br></pre></td></tr></table></figure></li>
-<li><p>一次 commit 只做一件事，避免“杂糅式”提交</p></li>
+<li>推荐格式（Angular 规范）：<code>type(scope): subject</code>
+<ul>
+<li><code>type</code>: <code>feat</code>, <code>fix</code>, <code>docs</code>, <code>style</code>, <code>refactor</code>, <code>test</code>, <code>chore</code></li>
+<li><code>scope</code>: 影响范围（可选）</li>
+<li><code>subject</code>: 简短描述</li>
+</ul></li>
+<li>一次 commit 只做一件事，保持原子性。</li>
 </ul>
 <h3 id="团队协作建议">3. 团队协作建议</h3>
 <ul>
-<li>合并前先同步主分支，保持分支最新，减少冲突</li>
-<li>重要分支（如 main、release）需保护，禁止直接推送</li>
-<li>充分利用 Pull Request（合并请求）进行代码评审</li>
-<li>养成良好习惯：多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态</li>
+<li><strong>合并前先同步</strong>：在将功能分支合并到 <code>main</code> 之前，应先在自己的分支上执行 <code>git rebase main</code> 来同步最新代码，这能极大减少最终合并时的冲突。</li>
+<li><strong>保护公共分支</strong>：像 <code>main</code>、<code>release</code> 这样的重要分支应设置为受保护状态，禁止 <code>force push</code>，所有变更都必须通过 Pull Request (PR) 进行。</li>
+<li><strong>拥抱代码评审</strong>：充分利用 Pull Request 进行代码评审，这是保证代码质量和知识共享的最佳途径。</li>
+<li><strong>勤于观察状态</strong>：养成良好习惯，多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态，做到心中有数。</li>
 </ul>
 <hr />
 <p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
@@ -478,13 +486,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">72k</span>
+    <span title="站点总字数">74k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">2:10</span>
+    <span title="站点阅读时长">2:15</span>
   </span>
 </div>
 <div class="busuanzi-count">
