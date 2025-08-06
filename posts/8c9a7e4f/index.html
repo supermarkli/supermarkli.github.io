@@ -298,7 +298,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>2.7k</span>
+      <span>2.6k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -358,7 +358,30 @@
 <li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
 </ol>
 <p>至此，一次安全又高效的通信便完成了。</p>
-<p>我们可以用下面这个流程图来清晰地展示这个过程： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant Sender as 发送方</span><br><span class="line">    participant Receiver as 接收方</span><br><span class="line"></span><br><span class="line">    Note over Sender, Receiver: 混合加密流程</span><br><span class="line"></span><br><span class="line">    Sender-&gt;&gt;Sender: 1. 生成临时对称密钥 (Session Key)</span><br><span class="line">    Sender-&gt;&gt;Sender: 2. 用对称密钥加密&lt;br/&gt;大量数据 (AES)</span><br><span class="line">    </span><br><span class="line">    rect rgba(255, 220, 220, 0.4)</span><br><span class="line">        note right of Sender: 获取接收方的公钥</span><br><span class="line">        Sender-&gt;&gt;Sender: 3. 用接收方的公钥加密&lt;br/&gt;对称密钥 (RSA)</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    Sender-&gt;&gt;Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]</span><br><span class="line">    </span><br><span class="line">    rect rgba(220, 255, 220, 0.4)</span><br><span class="line">        Receiver-&gt;&gt;Receiver: 5. 用自己的私钥解密&lt;br/&gt;对称密钥</span><br><span class="line">        note right of Receiver: 获得对称密钥</span><br><span class="line">        Receiver-&gt;&gt;Receiver: 6. 用对称密钥解密&lt;br/&gt;大量数据</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    Receiver-&gt;&gt;Sender: 通信已安全建立</span><br></pre></td></tr></table></figure></p>
+我们可以用下面这个流程图来清晰地展示这个过程：
+<pre class="mermaid">sequenceDiagram
+    participant Sender as 发送方
+    participant Receiver as 接收方
+
+    Note over Sender, Receiver: 混合加密流程
+
+    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
+    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
+    
+    rect rgba(255, 220, 220, 0.4)
+        note right of Sender: 获取接收方的公钥
+        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
+    end
+    
+    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
+    
+    rect rgba(220, 255, 220, 0.4)
+        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
+        note right of Receiver: 获得对称密钥
+        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
+    end
+    
+    Receiver->>Sender: 通信已安全建立</pre>
 <h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
 <p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
 <ul>
@@ -429,7 +452,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">2:15</span>
+    <span title="站点阅读时长">2:14</span>
   </span>
 </div>
 <div class="busuanzi-count">

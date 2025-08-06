@@ -298,14 +298,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>4.7k</span>
+      <span>4.5k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>9 分钟</span>
+      <span>8 分钟</span>
     </span>
 </div>
 
@@ -325,9 +325,35 @@
 <h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
 <p>下面的两幅 Mermaid 图示分别演示了 Rebase 和 Cherry-pick 在典型协作场景中的作用。将代码块直接放入支持 Mermaid 的 Markdown 环境即可自动渲染。</p>
 <h3 id="图-1-rebase-工作流主干更新后将功能分支变基到最新-main">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    subgraph main[&quot;main 分支&quot;]</span><br><span class="line">        c0((c0)) --&gt; c1((c1)) --&gt; c3((c3))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph feature_before[&quot;feature/a (rebase 前)&quot;]</span><br><span class="line">        c1 --&gt; c2((c2)) --&gt; c4((c4))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph feature_after[&quot;feature/a (rebase 后)&quot;]</span><br><span class="line">        c3 --&gt; c2r((&quot;c2&#x27;&quot;)) --&gt; c4r((&quot;c4&#x27;&quot;))</span><br><span class="line">    end</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TD
+    subgraph main["main 分支"]
+        c0((c0)) --> c1((c1)) --> c3((c3))
+    end
+
+    subgraph feature_before["feature/a (rebase 前)"]
+        c1 --> c2((c2)) --> c4((c4))
+    end
+
+    subgraph feature_after["feature/a (rebase 后)"]
+        c3 --> c2r(("c2'")) --> c4r(("c4'"))
+    end</pre>
 <h3 id="图-2-cherry-pick-工作流从-featurea-拣选-c2-到-main">图 2 · Cherry-pick 工作流（从 feature/a 拣选 c2 到 main）</h3>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    subgraph init[&quot;初始历史&quot;]</span><br><span class="line">        c0c((c0)) --&gt; c1c((c1))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph mainc[&quot;main 分支&quot;]</span><br><span class="line">        c1c --&gt; c3c((c3))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    subgraph featurec[&quot;feature/a 分支&quot;]</span><br><span class="line">        c1c --&gt; c2c((c2)) --&gt; c4c((c4))</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    %% Cherry-pick 把 c2c 的改动应用到 main 上生成 c5</span><br><span class="line">    c3c --&gt; c5((c5))</span><br><span class="line">    style c5 fill:#bbf,stroke:#333,stroke-width:2px</span><br></pre></td></tr></table></figure>
+<pre class="mermaid">flowchart TD
+    subgraph init["初始历史"]
+        c0c((c0)) --> c1c((c1))
+    end
+
+    subgraph mainc["main 分支"]
+        c1c --> c3c((c3))
+    end
+
+    subgraph featurec["feature/a 分支"]
+        c1c --> c2c((c2)) --> c4c((c4))
+    end
+
+    %% Cherry-pick 把 c2c 的改动应用到 main 上生成 c5
+    c3c --> c5((c5))
+    style c5 fill:#bbf,stroke:#333,stroke-width:2px</pre>
 <h3 id="场景设定">场景设定</h3>
 <ul>
 <li><code>main</code> 是我们的主分支，开发主线从 <code>c0</code> -&gt; <code>c1</code> 开始。</li>
@@ -492,7 +518,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">2:15</span>
+    <span title="站点阅读时长">2:14</span>
   </span>
 </div>
 <div class="busuanzi-count">
