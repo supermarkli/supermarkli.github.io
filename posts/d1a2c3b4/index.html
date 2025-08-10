@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="如果把 CPU 比作“多才多艺的总管”，GPU 更像“高效的流水线工厂”：CPU 擅长复杂分支与少量任务的低延迟处理，GPU 擅长大量相同&#x2F;相似任务的高吞吐处理。本文先给出关键概念，再用 CPU 对比串起 GPU 的架构、执行模型、内存层次与性能要点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GPU 工作原理：和 CPU 有何不同？">
+<meta property="og:url" content="https://supermarkli.github.io/posts/d1a2c3b4/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="如果把 CPU 比作“多才多艺的总管”，GPU 更像“高效的流水线工厂”：CPU 擅长复杂分支与少量任务的低延迟处理，GPU 擅长大量相同&#x2F;相似任务的高吞吐处理。本文先给出关键概念，再用 CPU 对比串起 GPU 的架构、执行模型、内存层次与性能要点。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-10T09:38:06.000Z">
+<meta property="article:modified_time" content="2025-08-10T10:48:12.556Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="GPU">
+<meta property="article:tag" content="CPU">
+<meta property="article:tag" content="并行计算">
+<meta property="article:tag" content="计算机基础">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/d1a2c3b4/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/d1a2c3b4/","path":"posts/d1a2c3b4/","title":"GPU 工作原理：和 CPU 有何不同？"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>GPU 工作原理：和 CPU 有何不同？ | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">📚 核心概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cpu-vs-gpu%E8%AE%BE%E8%AE%A1%E5%8F%96%E8%88%8D%E4%B8%80%E5%9B%BE%E7%9C%8B%E6%87%82"><span class="nav-number">2.</span> <span class="nav-text">🆚 CPU vs GPU：设计取舍一图看懂</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gpu-%E6%9E%B6%E6%9E%84%E9%80%9F%E5%86%99%E6%8A%BD%E8%B1%A1"><span class="nav-number">3.</span> <span class="nav-text">🧩 GPU 架构速写（抽象）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#smcu-%E8%AF%A6%E8%A7%A3%E5%81%9A%E4%BB%80%E4%B9%88-%E6%80%8E%E4%B9%88%E8%B0%83%E5%BA%A6"><span class="nav-number">3.1.</span> <span class="nav-text">SM&#x2F;CU 详解（做什么 + 怎么调度）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E6%A8%A1%E5%9E%8Bsimt-%E4%B8%8E-warp-%E5%A6%82%E4%BD%95%E9%85%8D%E5%90%88"><span class="nav-number">4.</span> <span class="nav-text">⚙️ 执行模型：SIMT 与 Warp 如何配合</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%88%86%E6%AD%A7%E4%BC%9A%E9%99%8D%E4%BD%8E%E5%88%A9%E7%94%A8%E7%8E%87"><span class="nav-number">4.1.</span> <span class="nav-text">为什么分歧会降低利用率</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%82%E6%AC%A1%E4%B8%8E%E6%95%B0%E6%8D%AE%E8%B7%AF%E5%BE%84%E8%B6%8A%E8%BF%91%E8%B6%8A%E5%BF%AB"><span class="nav-number">5.</span> <span class="nav-text">📦 内存层次与数据路径（越近越快）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%82%E6%AC%A1%E8%A1%A5%E5%85%85%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98-vs-%E7%BC%93%E5%AD%98%E4%BA%8B%E5%8A%A1%E4%B8%8E-bank"><span class="nav-number">5.1.</span> <span class="nav-text">内存层次补充（共享内存 vs 缓存、事务与 bank）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pcie-%E4%B8%8E-nvlink-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">5.2.</span> <span class="nav-text">PCIe 与 NVLink 是什么？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BB%B6%E8%BF%9F-vs-%E5%B8%A6%E5%AE%BD"><span class="nav-number">5.3.</span> <span class="nav-text">延迟 vs 带宽</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E8%A6%81%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">🚀 性能要点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="nav-number">7.</span> <span class="nav-text">🧪 最小工作流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E6%9C%80%E5%B0%8F-cuda-kernel%E7%9B%B4%E8%A7%89%E5%BB%BA%E7%AB%8B"><span class="nav-number">8.</span> <span class="nav-text">🧾 示例：最小 CUDA Kernel（直觉建立）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%95%E6%97%B6%E7%94%A8-gpu%E4%BD%95%E6%97%B6%E7%94%A8-cpu"><span class="nav-number">9.</span> <span class="nav-text">🤔 何时用 GPU，何时用 CPU？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="nav-number">10.</span> <span class="nav-text">🧨 常见误区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%AD%A7%E5%8F%AF%E8%A7%86%E5%8C%96%E6%97%A0%E5%88%86%E6%AD%A7-vs-%E6%9C%89%E5%88%86%E6%AD%A7"><span class="nav-number">11.</span> <span class="nav-text">👀 分歧可视化（无分歧 vs 有分歧）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">12.</span> <span class="nav-text">✅ 小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E5%AD%98%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%AF%94aos-vs-soa%E5%90%88%E5%B9%B6%E8%AE%BF%E5%AD%98%E6%9B%B4%E5%8F%8B%E5%A5%BD"><span class="nav-number">13.</span> <span class="nav-text">🧭 访存模式对比：AoS vs SoA（合并访存更友好）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%A0%E9%87%8F%E6%A0%B8%E5%BF%83%E4%B8%8E%E6%B7%B7%E5%90%88%E7%B2%BE%E5%BA%A6dl-%E5%B8%B8%E8%A7%81"><span class="nav-number">14.</span> <span class="nav-text">🧱 张量核心与混合精度（DL 常见）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E4%B8%8E%E5%B7%A5%E5%85%B7%E5%85%A5%E9%97%A8%E5%8F%AA%E7%9C%8B%E8%BF%99%E4%BA%9B"><span class="nav-number">15.</span> <span class="nav-text">🧰 性能指标与工具（入门只看这些）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%9D%91%E6%B8%85%E5%8D%95%E9%81%BF%E5%9D%91%E9%80%9F%E8%A7%88"><span class="nav-number">16.</span> <span class="nav-text">⚠️ 常见坑清单（避坑速览）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA-%E8%AE%BE%E5%A4%87%E6%95%B0%E6%8D%AE%E9%80%9A%E9%81%93%E4%BC%98%E5%8C%96"><span class="nav-number">17.</span> <span class="nav-text">🔗 主机-设备数据通道优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A-gpu-%E4%B8%8E%E9%80%9A%E4%BF%A1%E5%85%A5%E9%97%A8%E5%90%91"><span class="nav-number">18.</span> <span class="nav-text">🧬 多 GPU 与通信（入门向）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AF%E8%AF%AD%E9%80%9F%E6%9F%A51-%E8%A1%8C%E5%AE%9A%E4%B9%89-%E7%9C%81%E6%B5%81"><span class="nav-number">19.</span> <span class="nav-text">📒 术语速查（1 行定义 + 省流）</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">54</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/d1a2c3b4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="GPU 工作原理：和 CPU 有何不同？ | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          GPU 工作原理：和 CPU 有何不同？
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-08-10 17:38:06 / 修改时间：18:48:12" itemprop="dateCreated datePublished" datetime="2025-08-10T17:38:06+08:00">2025-08-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">计算机基础</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E7%A1%AC%E4%BB%B6%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">硬件体系结构</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>如果把 CPU 比作“多才多艺的总管”，GPU 更像“高效的流水线工厂”：CPU 擅长复杂分支与少量任务的低延迟处理，GPU 擅长大量相同/相似任务的高吞吐处理。本文先给出关键概念，再用 CPU 对比串起 GPU 的架构、执行模型、内存层次与性能要点。</p>
+<span id="more"></span>
+<h3 id="核心概念">📚 核心概念</h3>
+<ul>
+<li>指令级并行 ILP（Instruction-Level Parallelism）
+<ul>
+<li>定义：单线程内部，多条彼此独立的指令可乱序/并行执行以提高吞吐。</li>
+<li>省流：一个人能同时“烧水+等电梯”，就更快。</li>
+</ul></li>
+<li>数据级并行 DLP（Data-Level Parallelism）
+<ul>
+<li>定义：对大量数据元素执行相同算子，实现并行化。</li>
+<li>省流：100 份相同盒饭，开 100 条流水线一起装。</li>
+</ul></li>
+<li>SIMD 与 SIMT
+<ul>
+<li>定义：SIMD（Single Instruction Multiple Data）单指令多数据；SIMT（Single Instruction Multiple Threads）以线程为抽象、底层按 SIMD 成组执行。</li>
+<li>省流：SIMT 就是把一群线程捆成小队，表面各自执行，实际“一声令下齐步走”。</li>
+</ul></li>
+<li>Warp/Wavefront 与 SM/CU（以 NVIDIA/AMD 为例）
+<ul>
+<li>定义：NVIDIA 将 32 个线程编成一个 Warp，AMD 将 64 个线程编成一个 Wavefront；它们在 SM（Streaming Multiprocessor）/CU（Compute Unit）上被调度执行。</li>
+<li><p>省流：先分“班级”（Warp/Wavefront），再分“年级”（Block），最后“全校”（Grid）一起上课，老师（调度器）轮流点名。</p></li>
+<li>分歧 Divergence</li>
+<li>定义：同一 Warp 内线程走不同控制分支，会被拆分顺序执行，导致利用率下降。</li>
+<li><p>省流：本来排队一起过闸，结果有人走旁门，只能分两拨依次过。</p></li>
+</ul></li>
+<li>访存合并 Coalescing
+<ul>
+<li>定义：相邻线程访问相邻地址能够合并为更少、更宽的内存事务，提高带宽利用率。</li>
+<li>省流：把零碎快递打包成一箱寄，省钱省时间。</li>
+</ul></li>
+<li>占用率 Occupancy
+<ul>
+<li>定义：某 SM 上活跃 Warps 数量与硬件上限之比，影响隐藏延迟能力。</li>
+<li>省流：教室能坐 100 人，只来了 30 人，空位越多越“冷清”。</li>
+</ul></li>
+<li>内存层次
+<ul>
+<li>定义：寄存器 → 共享内存/L1 → L2 → 全局显存（GDDR/HBM） → 主机内存（经 PCIe/NVLink）。容量越大通常延迟越高。</li>
+<li>省流：越近越快、越远越慢；把常用东西放在手边。</li>
+</ul></li>
+</ul>
+<h3 id="cpu-vs-gpu设计取舍一图看懂">🆚 CPU vs GPU：设计取舍一图看懂</h3>
+<table>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>CPU</th>
+<th>GPU</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>目标</td>
+<td>低延迟、强控制、通用</td>
+<td>高吞吐、大规模并行</td>
+</tr>
+<tr class="even">
+<td>核心</td>
+<td>少量大核，复杂控制与大缓存</td>
+<td>大量简化计算单元，轻控制、多并行</td>
+</tr>
+<tr class="odd">
+<td>缓存</td>
+<td>多级大缓存（L1/L2/L3）</td>
+<td>更小的 L1/共享 + 中等 L2 + 超高显存带宽</td>
+</tr>
+<tr class="even">
+<td>并行</td>
+<td>强 ILP/少量线程</td>
+<td>强 DLP/海量线程（Warp/Wavefront）</td>
+</tr>
+<tr class="odd">
+<td>分支</td>
+<td>复杂分支友好</td>
+<td>分歧代价高，需要规避</td>
+</tr>
+<tr class="even">
+<td>典型场景</td>
+<td>系统服务、事务处理、复杂逻辑</td>
+<td>图形渲染、矩阵/向量计算、深度学习</td>
+</tr>
+</tbody>
+</table>
+<h3 id="gpu-架构速写抽象">🧩 GPU 架构速写（抽象）</h3>
+<ul>
+<li>指挥与前端：命令处理、硬件队列、前端调度。</li>
+<li>计算集群：多个 SM（NVIDIA）/CU（AMD），含标量/向量 ALU、特殊函数单元（SFU）、张量单元（新架构）。</li>
+<li>调度：Warp/Wavefront 由调度器轮换发射，遇访存延迟切换到其他 Warp 以隐藏延迟。</li>
+<li>存储：每 SM 有寄存器与共享内存/L1，全局共享 L2，高带宽显存承载大数据；主机经 PCIe/NVLink 互联。</li>
+</ul>
+<pre>
+<code class="mermaid">
+
+graph LR
+    Host[主机&#x2F;驱动] --&gt; Queue[命令队列]
+    Queue --&gt; GPU[GPU]
+    GPU --&gt; SM1[计算单元 SM&#x2F;CU]
+    GPU --&gt; SM2[计算单元 SM&#x2F;CU]
+    SM1 --&gt; W1[Warp&#x2F;Wavefront 调度]
+    SM2 --&gt; W2[Warp&#x2F;Wavefront 调度]
+    GPU --&gt; L2[L2 缓存]
+    L2 --&gt; VRAM[显存 GDDR&#x2F;HBM]
+</code>
+</pre>
+<h4 id="smcu-详解做什么-怎么调度">SM/CU 详解（做什么 + 怎么调度）</h4>
+<ul>
+<li>组成：一个 SM/CU 内通常包含多条算术逻辑管线（标量/向量 ALU）、特殊函数单元（SFU，计算 sin/cos/exp 等）、加载/存储单元（LD/ST）、有的架构还包含张量/矩阵加速单元；配套有寄存器文件与可配置的共享内存/L1。</li>
+<li>调度：每个 SM 有多个 Warp 调度器，会从“就绪”的 Warps 中挑选并在每个周期向执行管线发射指令；当某 Warp 因访存/依赖而“阻塞”时，切换到其他 Warp 以隐藏延迟。</li>
+<li>资源约束：每个 SM 的寄存器总量与共享内存容量是固定的。单线程寄存器用得越多、单 Block 共享内存占得越多，可并发常驻的 Warps/Blocks 就越少（占用率下降）。</li>
+<li>省流：
+<ul>
+<li>SM 就像一间“装了多套设备”的大教室：算术机、函数机、搬运机（LD/ST）。</li>
+<li>老师（调度器）盯着好几班（Warps），谁准备好了就先让谁上机做题；有人卡住等资料（访存），就先让别的班做题。</li>
+<li>班里每个学生（线程）要用的课本（寄存器）越多，教室能同时容纳的班级就越少。</li>
+</ul></li>
+</ul>
+<h3 id="执行模型simt-与-warp-如何配合">⚙️ 执行模型：SIMT 与 Warp 如何配合</h3>
+<ul>
+<li>编程视角：写“每线程”的内核函数（kernel），通过 Grid/Block 组织。这里的“每线程”指逻辑线程（thread），非 warp；硬件会把若干逻辑线程打包为 warp 锁步执行，但不改变以单线程为编程抽象的模型。</li>
+<li>硬件视角：线程被分成 Warp/Wavefront 成组执行；遇分歧需串行化；遇访存等待就“切 Warp”。</li>
+<li>Warp 尺寸：NVIDIA 常见 32，AMD 常见 64（概念相同）。</li>
+</ul>
+<h4 id="为什么分歧会降低利用率">为什么分歧会降低利用率</h4>
+<ul>
+<li>SIMT 锁步：一个 warp（如 32 线程）必须“同一步执行同一条指令”。if 分叉后，硬件用掩码把不相关线程关掉，先跑一支，再跑另一支。</li>
+<li>串行两段各自的并行：例如 20 线程走 if、12 线程走 else → 先以 20/32 利用率跑 if，再以 12/32 利用率跑 else；总时间≈两段时间相加，平均利用率下降。</li>
+<li>不能靠预测/乱序补救：GPU 的面积和功耗主要花在“海量算力+寄存器”上，没有为单条控制流配备很强的分支预测/乱序执行硬件；它擅长通过“切到别的 warp”隐藏内存延迟，但同一 warp 的分支分歧仍要分段跑完，无法被这种切换抵消。</li>
+</ul>
+<h3 id="内存层次与数据路径越近越快">📦 内存层次与数据路径（越近越快）</h3>
+<ul>
+<li>寄存器：每线程私有，最快；数量限制影响占用率。</li>
+<li>共享内存（近似 L1）：Block 内共享、低延迟；注意 bank 冲突与容量。</li>
+<li>L2：片上缓存，所有 SM 共享。</li>
+<li>全局显存：带宽高、延迟大；优先合并访存、减少随机访问。</li>
+<li>主机内存：经 PCIe/NVLink；数据迁移应成批、异步化。</li>
+</ul>
+<pre>
+<code class="mermaid">
+
+graph TD
+    Reg[寄存器&#x2F;每线程] --&gt; SMem[共享内存&#x2F;每SM]
+    SMem --&gt; L2[L2 缓存]
+    L2 --&gt; VRAM[显存]
+    VRAM --&gt; Host[主机内存(PCIe&#x2F;NVLink)]
+</code>
+</pre>
+<h4 id="内存层次补充共享内存-vs-缓存事务与-bank">内存层次补充（共享内存 vs 缓存、事务与 bank）</h4>
+<ul>
+<li>共享内存 vs L1：共享内存是软件可控的片上 SRAM，线程块内可见；L1/统一缓存由硬件自动管理。很多架构将“共享内存与 L1”设计为可配比的同一物理池。</li>
+<li>合并访存：Warp 内线程按连续地址访问时，可合并为较少的 32/64/128B 事务，降低总事务数；随机/跨步访问会放大事务数与延迟。</li>
+<li>Bank 冲突：共享内存被划分为多个 bank，同时访问落在同一 bank 的多个地址会产生串行化（冲突），需要通过数据排布/步长调整避免。</li>
+<li>省流：
+<ul>
+<li>共享内存像你们班的“黑板贴”，大家商量好怎么贴，就能少跑回后仓（显存）。</li>
+<li>合并访存像“集中下单一起发货”，比一个个零碎下单更省事。</li>
+<li>bank 冲突像“同时挤同一扇门”，需要分流。</li>
+</ul></li>
+</ul>
+<h4 id="pcie-与-nvlink-是什么">PCIe 与 NVLink 是什么？</h4>
+<ul>
+<li>PCIe：主机与 GPU 常用的通用互联总线，按代际与通道数提供不同带宽（例如 PCIe 4.0 x16 单向理论带宽约 ~32 GB/s，PCIe 5.0 x16 约 ~64 GB/s），延迟相对更高。</li>
+<li>NVLink：面向 GPU-GPU/GPU-CPU 的高带宽、低延迟互联，支持点对点直连与多链路聚合，典型带宽远高于同代 PCIe，并支持内存一致性/地址空间统一的特性（随架构而异）。</li>
+<li>省流：
+<ul>
+<li>PCIe 像“城市主干道”，什么车都能走，但高峰会慢；</li>
+<li>NVLink 像“GPU 之间修的高速专用通道”，路更宽、收费站更少，GPU 彼此传东西更快更省时间。</li>
+</ul></li>
+</ul>
+<h4 id="延迟-vs-带宽">延迟 vs 带宽</h4>
+<ul>
+<li>延迟 Latency
+<ul>
+<li>定义：从发出请求到收到第一个结果的等待时间，单位常用 ns/µs/ms，越小越好。</li>
+<li>省流：起步反应快不快。</li>
+</ul></li>
+<li>带宽 Bandwidth
+<ul>
+<li>定义：单位时间可传输的数据量，单位常用 GB/s，越大越好。</li>
+<li>省流：路有多宽、一次能过多少车。</li>
+</ul></li>
+<li>典型量级（直觉参考）
+<ul>
+<li>寄存器/共享内存：延迟极低（纳秒级），带宽很高。</li>
+<li>显存（GDDR/HBM）：延迟更高（数百纳秒），带宽极高。</li>
+<li>NVLink：延迟低于 PCIe、带宽高于 PCIe。</li>
+<li>PCIe：延迟微秒级，带宽取决于代际与通道数。</li>
+</ul></li>
+<li>为什么重要（GPU 如何对抗高延迟）
+<ul>
+<li>省流：通过“切 Warp/提占用率”隐藏等待；用共享内存/合并访存把热数据放近身；用异步拷贝与计算重叠，减少干等。</li>
+</ul></li>
+</ul>
+<h3 id="性能要点">🚀 性能要点</h3>
+<ul>
+<li>访存合并：相邻线程访问相邻地址。</li>
+<li>共享内存分块（tiling）：把重复数据留近身，减显存往返。</li>
+<li>占用率权衡：寄存器/共享内存用得越多，并发度可能越低。</li>
+<li>控制流优化：减少同 Warp 内分歧，可用重排/掩码等方式。</li>
+<li>传输重叠：异步拷贝、多 Stream 藏 PCIe 延迟。</li>
+</ul>
+<h3 id="最小工作流">🧪 最小工作流</h3>
+<ol type="1">
+<li>主机准备/加载数据；</li>
+<li>复制到显存（或使用统一内存/页迁移）；</li>
+<li>启动 kernel（grid, block）；</li>
+<li>同步/异步收集结果，可与下批次流水线并行。</li>
+</ol>
+<h3 id="示例最小-cuda-kernel直觉建立">🧾 示例：最小 CUDA Kernel（直觉建立）</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// vadd.cu</span></span><br><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">vadd</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* a, <span class="type">const</span> <span class="type">float</span>* b, <span class="type">float</span>* y, <span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> i = blockIdx.x * blockDim.x + threadIdx.x; <span class="comment">// 逻辑“每线程”索引</span></span><br><span class="line">  <span class="keyword">if</span> (i &lt; n) y[i] = a[i] + b[i];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">thresh_abs</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* x, <span class="type">float</span>* y, <span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">  <span class="keyword">if</span> (i &lt; n) y[i] = (x[i] &gt; <span class="number">0.f</span>) ? x[i] : -x[i]; <span class="comment">// 分支：若 warp 内正负混杂会产生分歧</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 启动（host）</span></span><br><span class="line"><span class="comment">// int threads = 256; int blocks = (n + threads - 1) / threads;</span></span><br><span class="line"><span class="comment">// vadd&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(d_a, d_b, d_y, n);</span></span><br></pre></td></tr></table></figure>
+<p>省流：每个逻辑线程处理一个元素；Grid/Block 决定并行规模；分支一致更快。</p>
+<h3 id="何时用-gpu何时用-cpu">🤔 何时用 GPU，何时用 CPU？</h3>
+<ul>
+<li>适合 GPU：高算术密度、强 DLP、可分块重用数据（如矩阵乘、卷积、光线追踪）。</li>
+<li>适合 CPU：复杂分支、状态机密集、数据量小且延迟敏感（如事务、编译器前端）。</li>
+</ul>
+<p>小清单： - 单请求首响应（µs 级）/强交互/大量系统调用 → 倾向 CPU - 高算术密度/规则批处理/大规模并行 → 倾向 GPU</p>
+<h3 id="常见误区">🧨 常见误区</h3>
+<ul>
+<li>“GPU 频率高就一定更快？”——吞吐取决于并行度与访存模式。</li>
+<li>“线程越多越好？”——资源配额有限，盲堆线程会掉占用率或引入开销。</li>
+<li>“分支无所谓？”——同 Warp 分歧会串行化，是吞吐杀手。</li>
+</ul>
+<h3 id="分歧可视化无分歧-vs-有分歧">👀 分歧可视化（无分歧 vs 有分歧）</h3>
+<pre>
+<code class="mermaid">
+
+graph TD
+  A[Warp(32) 无分歧] --&gt; A1[一步完成 同步执行]
+  B[Warp(32) 有分歧: 20 if &#x2F; 12 else] --&gt; B1[先跑 if: 20 活动&#x2F;12 掩码]
+  B1 --&gt; B2[再跑 else: 12 活动&#x2F;20 掩码]
+</code>
+</pre>
+<h3 id="小结">✅ 小结</h3>
+<ul>
+<li>一句话记忆：GPU 用“成群线程”换吞吐，用“切 Warp”藏延迟；真正的性能来自“对齐访问 + 合理占用 + 少分歧 + 数据重用”。</li>
+</ul>
+<hr />
+<h3 id="访存模式对比aos-vs-soa合并访存更友好">🧭 访存模式对比：AoS vs SoA（合并访存更友好）</h3>
+<ul>
+<li>AoS（Array of Structs） <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Pt</span> &#123; <span class="type">float</span> x,y,z; &#125;;</span><br><span class="line">Pt* pts; <span class="comment">// pts[i].x 连续性差，warp 取 x 会跨步</span></span><br></pre></td></tr></table></figure></li>
+<li><p>SoA（Struct of Arrays） <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Pts</span> &#123; <span class="type">float</span>* x; <span class="type">float</span>* y; <span class="type">float</span>* z; &#125;;</span><br><span class="line"><span class="comment">// 连续访问 x[i] 更易合并为少量内存事务</span></span><br></pre></td></tr></table></figure></p></li>
+<li>假设一个 warp 有 32 个线程，每个线程要读一个 <code>float x</code>（4 字节）。</li>
+<li>如果是 AoS：内存像这样排 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x0 y0 z0 | x1 y1 z1 | x2 y2 z2 | ...   // 每个点的 x、y、z 挨在一起</span><br></pre></td></tr></table></figure> 第 i 个线程要读 <code>xi</code>，地址间隔是“一个点的大小”（约 12 字节），即 0, 12, 24, 36, ... 32 个地址跨越范围≈ 32 × 12 = 384 字节，比较分散，需要多次内存事务才能取完。</li>
+<li><p>如果是 SoA：内存像这样排 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x0 x1 x2 x3 ... x31 | y0 y1 ... | z0 z1 ...   // 所有 x 连在一起</span><br></pre></td></tr></table></figure> 32 个线程读取 <code>x0..x31</code> 对应地址正好是连续的 128 字节（32 × 4B），硬件可以“一次/极少数几次”就打包取齐（称为合并访存）。</p></li>
+</ul>
+<p>经验法则：让“相邻线程 → 访问相邻地址”。读 x 用 SoA 更容易一次性打包；读整点（x,y,z 都要）时 AoS 也未必差，但要注意对齐与访问顺序。</p>
+<p>省流：相邻线程访问相邻地址（SoA）→ 合并事务更容易，带宽利用更高。</p>
+<h3 id="张量核心与混合精度dl-常见">🧱 张量核心与混合精度（DL 常见）</h3>
+<ul>
+<li>张量核心/Tensor Core：面向矩阵乘累加（MMA）的专用单元，吞吐远高于标量/向量 ALU。</li>
+<li>混合精度：TF32/FP16/BF16 以轻微精度损失换显著吞吐提升（常见于训练/推理）。 省流：矩阵算子走“专用快车道”，吞吐更猛；前提是算子形状/对齐满足要求。</li>
+</ul>
+<h3 id="性能指标与工具入门只看这些">🧰 性能指标与工具（入门只看这些）</h3>
+<ul>
+<li>指标：
+<ul>
+<li>warp_execution_efficiency（分歧/掩码影响）</li>
+<li>achieved_occupancy（占用率）</li>
+<li>dram__throughput / l2__hit_rate（显存带宽与 L2 命中）</li>
+<li>sm__throughput（核心忙闲）</li>
+</ul></li>
+<li>工具：
+<ul>
+<li>Nsight Compute（内核级剖析）</li>
+<li>Nsight Systems（全局时间线与重叠）</li>
+<li>compute-sanitizer（memcheck/racecheck）</li>
+</ul></li>
+</ul>
+<h3 id="常见坑清单避坑速览">⚠️ 常见坑清单（避坑速览）</h3>
+<ul>
+<li>寄存器溢出到“本地内存”（栈）→ 延迟飙升</li>
+<li>共享内存 bank 冲突/容量不足 → 吞吐打折</li>
+<li>未对齐/跨步访存 → 合并失败，事务增多</li>
+<li>kernel 太小 → 启动/调度开销占比过大</li>
+<li>统一内存频繁页迁移 → 带宽/延迟抖动</li>
+</ul>
+<h3 id="主机-设备数据通道优化">🔗 主机-设备数据通道优化</h3>
+<ul>
+<li>固定页内存（pinned）+ cudaMemcpyAsync → 提升带宽、支持拷贝与计算重叠</li>
+<li>双缓冲/多 stream → pipeline 化生产与消费</li>
+<li>P2P/NVLink（多 GPU）→ 绕开主机内存，直连更快</li>
+</ul>
+<h3 id="多-gpu-与通信入门向">🧬 多 GPU 与通信（入门向）</h3>
+<ul>
+<li>NCCL：多 GPU 通信库，提供 all-reduce/all-gather/broadcast 等原语</li>
+<li>拓扑：同节点内优先 NVLink/同交换域，跨节点看 IB/RoCE；拓扑差异决定带宽与延迟</li>
+</ul>
+<h3 id="术语速查1-行定义-省流">📒 术语速查（1 行定义 + 省流）</h3>
+<table>
+<thead>
+<tr class="header">
+<th>术语</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ILP</td>
+<td>单线程内的指令级并行</td>
+<td>一人多活</td>
+</tr>
+<tr class="even">
+<td>DLP</td>
+<td>多数据上的同算子并行</td>
+<td>开多条线</td>
+</tr>
+<tr class="odd">
+<td>SIMT</td>
+<td>线程抽象下的 SIMD 执行</td>
+<td>小队齐步走</td>
+</tr>
+<tr class="even">
+<td>Warp</td>
+<td>成组锁步的线程集合</td>
+<td>班级</td>
+</tr>
+<tr class="odd">
+<td>Occupancy</td>
+<td>活跃 warps/上限 比例</td>
+<td>教室坐满没</td>
+</tr>
+<tr class="even">
+<td>Coalescing</td>
+<td>相邻访存合并为少事务</td>
+<td>集中发货</td>
+</tr>
+<tr class="odd">
+<td>Latency</td>
+<td>首字节等待时间</td>
+<td>起步反应</td>
+</tr>
+<tr class="even">
+<td>Bandwidth</td>
+<td>单位时间传输量</td>
+<td>路有多宽</td>
+</tr>
+</tbody>
+</table>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/GPU/" rel="tag"># GPU</a>
+              <a href="/tags/CPU/" rel="tag"># CPU</a>
+              <a href="/tags/%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97/" rel="tag"># 并行计算</a>
+              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" rel="tag"># 计算机基础</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/3b71e21f/" rel="prev" title="Linux 包管理：从入门到进阶的实战指南">
+                  <i class="fa fa-angle-left"></i> Linux 包管理：从入门到进阶的实战指南
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">88k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:39</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
