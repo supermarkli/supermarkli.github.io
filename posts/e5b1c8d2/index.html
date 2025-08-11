@@ -21,15 +21,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？本文给出零踩坑、可复制的完整步骤，只保留必须关注的关键点。">
+    <meta name="description" content="想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？">
 <meta property="og:type" content="article">
-<meta property="og:title" content="H100 服务器 CUDA + PyTorch 环境速配指南（阶段 0 &#x2F; Day-1）">
+<meta property="og:title" content="H100 服务器 CUDA + PyTorch 环境速配指南">
 <meta property="og:url" content="https://supermarkli.github.io/posts/e5b1c8d2/index.html">
 <meta property="og:site_name" content="吃糠咽菜">
-<meta property="og:description" content="想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？本文给出零踩坑、可复制的完整步骤，只保留必须关注的关键点。">
+<meta property="og:description" content="想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-08-11T09:20:08.000Z">
-<meta property="article:modified_time" content="2025-08-11T09:35:22.651Z">
+<meta property="article:modified_time" content="2025-08-11T09:37:54.995Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="CUDA">
 <meta property="article:tag" content="PyTorch">
@@ -41,10 +41,10 @@
 <link rel="canonical" href="https://supermarkli.github.io/posts/e5b1c8d2/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/e5b1c8d2/","path":"posts/e5b1c8d2/","title":"H100 服务器 CUDA + PyTorch 环境速配指南（阶段 0 / Day-1）"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/e5b1c8d2/","path":"posts/e5b1c8d2/","title":"H100 服务器 CUDA + PyTorch 环境速配指南"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>H100 服务器 CUDA + PyTorch 环境速配指南（阶段 0 / Day-1） | 吃糠咽菜</title>
+<title>H100 服务器 CUDA + PyTorch 环境速配指南 | 吃糠咽菜</title>
   
 
 
@@ -248,12 +248,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="H100 服务器 CUDA + PyTorch 环境速配指南（阶段 0 &#x2F; Day-1） | 吃糠咽菜">
+      <meta itemprop="name" content="H100 服务器 CUDA + PyTorch 环境速配指南 | 吃糠咽菜">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          H100 服务器 CUDA + PyTorch 环境速配指南（阶段 0 / Day-1）
+          H100 服务器 CUDA + PyTorch 环境速配指南
         </h1>
 
         <div class="post-meta-container">
@@ -265,7 +265,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-08-11 17:20:08 / 修改时间：17:35:22" itemprop="dateCreated datePublished" datetime="2025-08-11T17:20:08+08:00">2025-08-11</time>
+      <time title="创建时间：2025-08-11 17:20:08 / 修改时间：17:37:54" itemprop="dateCreated datePublished" datetime="2025-08-11T17:20:08+08:00">2025-08-11</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -295,7 +295,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>4.3k</span>
+      <span>4.2k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -312,7 +312,7 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？本文给出<strong>零踩坑、可复制</strong>的完整步骤，只保留必须关注的关键点。</p>
+    <div class="post-body" itemprop="articleBody"><p>想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？</p>
 <span id="more"></span>
 <h3 id="基本概念速读">📚 基本概念速读</h3>
 <table>
