@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="📚 核心概念速读    名称 一句话定义 省流     Kernel 在 GPU 上并行执行的函数 把循环搬进 GPU   __global__ 修饰 Kernel，CPU 端调用 “这函数在 GPU 上跑”   threadIdx.* &#x2F; blockIdx.* 线程&#x2F;块坐标 每线程自带“学号”   &lt;&lt;&lt; grid, block &gt;&gt;&gt; Kernel 启动">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CUDA核心概念与内存层次">
+<meta property="og:url" content="https://supermarkli.github.io/posts/d4b8f045/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="📚 核心概念速读    名称 一句话定义 省流     Kernel 在 GPU 上并行执行的函数 把循环搬进 GPU   __global__ 修饰 Kernel，CPU 端调用 “这函数在 GPU 上跑”   threadIdx.* &#x2F; blockIdx.* 线程&#x2F;块坐标 每线程自带“学号”   &lt;&lt;&lt; grid, block &gt;&gt;&gt; Kernel 启动">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-13T04:11:31.000Z">
+<meta property="article:modified_time" content="2025-08-13T04:18:37.896Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="note,coding,life">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/d4b8f045/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/d4b8f045/","path":"posts/d4b8f045/","title":"CUDA核心概念与内存层次"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CUDA核心概念与内存层次 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 核心概念速读</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel-%E5%9F%BA%E7%A1%80__global__-%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%B4%A2%E5%BC%95"><span class="nav-number"></span> <span class="nav-text">1️⃣ Kernel 基础：__global__ 与线程索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%BB%84%E7%BB%87grid-block-thread-warp"><span class="nav-number"></span> <span class="nav-text">2️⃣ 线程组织：Grid &#x2F; Block &#x2F; Thread &#x2F; Warp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E4%B8%8E%E5%90%8C%E6%AD%A5"><span class="nav-number"></span> <span class="nav-text">3️⃣ 错误处理与同步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%82%E6%AC%A1%E4%B8%8E%E8%AE%BF%E5%AD%98"><span class="nav-number"></span> <span class="nav-text">4️⃣ 内存层次与访存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E5%B9%B6%E8%AE%BF%E5%AD%98-coalescing"><span class="nav-number"></span> <span class="nav-text">5️⃣ 合并访存 (Coalescing)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98-bank-%E5%86%B2%E7%AA%81%E4%B8%8E-1-padding"><span class="nav-number"></span> <span class="nav-text">6️⃣ 共享内存 Bank 冲突与 +1 Padding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA-%E8%AE%BE%E5%A4%87%E6%8B%B7%E8%B4%9D"><span class="nav-number"></span> <span class="nav-text">7️⃣ 主机 ↔ 设备拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E5%B0%8F%E6%8A%84"><span class="nav-number"></span> <span class="nav-text">🔎 调试小抄</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">📝 小结</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/d4b8f045/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CUDA核心概念与内存层次 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CUDA核心概念与内存层次
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-08-13 12:11:31 / 修改时间：12:18:37" itemprop="dateCreated datePublished" datetime="2025-08-13T12:11:31+08:00">2025-08-13</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+<h3 id="核心概念速读">📚 核心概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>一句话定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kernel</td>
+<td>在 GPU 上并行执行的函数</td>
+<td>把循环搬进 GPU</td>
+</tr>
+<tr class="even">
+<td><code>__global__</code></td>
+<td>修饰 Kernel，CPU 端调用</td>
+<td>“这函数在 GPU 上跑”</td>
+</tr>
+<tr class="odd">
+<td><code>threadIdx.*</code> / <code>blockIdx.*</code></td>
+<td>线程/块坐标</td>
+<td>每线程自带“学号”</td>
+</tr>
+<tr class="even">
+<td><code>&lt;&lt;&lt; grid, block &gt;&gt;&gt;</code></td>
+<td>Kernel 启动语法</td>
+<td>告诉 GPU “来几拨人干活”</td>
+</tr>
+<tr class="odd">
+<td>Warp (32 线程)</td>
+<td>锁步执行的最小调度单元</td>
+<td>小队齐步走 (SIMT)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>省流：写 Kernel → 设 Grid/Block → GPU 并行跑 → <code>cudaDeviceSynchronize()</code> 等结果。</p>
+</blockquote>
+<hr />
+<h2 id="kernel-基础__global__-与线程索引">1️⃣ Kernel 基础：<code>__global__</code> 与线程索引</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">saxpy</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* x, <span class="type">const</span> <span class="type">float</span>* y, <span class="type">float</span>* out, <span class="type">float</span> a, <span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> i = blockIdx.x * blockDim.x + threadIdx.x; <span class="comment">// 全局索引</span></span><br><span class="line">    <span class="keyword">if</span> (i &lt; n) out[i] = a * x[i] + y[i];          <span class="comment">// 每线程做一件小事</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// host 端调用</span></span><br><span class="line"><span class="type">int</span> threads = <span class="number">256</span>;</span><br><span class="line"><span class="type">int</span> blocks  = (n + threads - <span class="number">1</span>) / threads;</span><br><span class="line">saxpy&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(d_x, d_y, d_out, <span class="number">2.0f</span>, n);</span><br><span class="line"><span class="built_in">CUDA_CHECK</span>(<span class="built_in">cudaGetLastError</span>());      <span class="comment">// 立即检查 launch 错误</span></span><br><span class="line"><span class="built_in">CUDA_CHECK</span>(<span class="built_in">cudaDeviceSynchronize</span>()); <span class="comment">// 等待 GPU 跑完</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>__global__</code>：声明 <strong>GPU 执行 / CPU 调用</strong> 的函数。</li>
+<li><code>threadIdx.&#123;x,y,z&#125;</code>：线程在 <strong>Block 内</strong> 的局部坐标。</li>
+<li><code>blockIdx.&#123;x,y,z&#125;</code>：Block 在 <strong>Grid 内</strong> 的坐标。</li>
+<li><code>blockDim.&#123;x,y,z&#125;</code>：Block 尺寸；<code>gridDim.&#123;x,y,z&#125;</code>：Grid 尺寸。</li>
+</ul>
+<p>💡 <strong>实用技巧</strong>：把索引计算抽成 <code>int gid = threadIdx.x + blockIdx.x * blockDim.x;</code>，后续 <code>gid += blockDim.x * gridDim.x</code> 可轻松“网格跨步循环”。</p>
+<h2 id="线程组织grid-block-thread-warp">2️⃣ 线程组织：Grid / Block / Thread / Warp</h2>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    G[Grid] --&gt; B1[Block 0]
+    G --&gt; B2[Block 1]
+    B1 --&gt; T0[Thread 0]
+    B1 --&gt; T1[Thread 1]
+    B1 --&gt; T2[...]
+    B1 --&gt; T31[Thread 31]
+    subgraph Warp &#x3D; 32 Threads
+      T0 --- T31
+    end
+</code>
+</pre>
+<ul>
+<li><strong>Grid</strong>：一次 Kernel Launch 的“全班”；最大可达数十亿线程。</li>
+<li><strong>Block</strong>：可在 SM 间调度迁移的独立单元；内部可用 <code>__syncthreads()</code> 同步。</li>
+<li><strong>Thread</strong>：最细粒度执行体；寄存器私有。</li>
+<li><strong>Warp (32)</strong>：硬件锁步组；SIMT 让 32 线程执行同一指令。</li>
+</ul>
+<blockquote>
+<p>⚠️ 分歧 (Divergence)：同一 Warp 内线程 <strong>if/else</strong> 走不同分支 → 硬件掩码串行 → 吞吐掉队。</p>
+</blockquote>
+<h2 id="错误处理与同步">3️⃣ 错误处理与同步</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 28%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>API</th>
+<th>作用</th>
+<th>建议用法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>cudaGetLastError()</code></td>
+<td>捕获 <strong>Kernel Launch</strong> 级错误</td>
+<td>Launch 后立刻调用一次</td>
+</tr>
+<tr class="even">
+<td><code>cudaDeviceSynchronize()</code></td>
+<td>CPU 等 GPU 完成 &amp; 捕获运行时错误</td>
+<td>调试阶段在关键点加；生产用 Events/Streams 替代</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>省流：<strong>能跑就不代表对</strong>——GPU 错误多在 <strong>异步</strong> 回来，<code>cudaDeviceSynchronize()</code> 是最终裁判。</p>
+</blockquote>
+<hr />
+<h2 id="内存层次与访存">4️⃣ 内存层次与访存</h2>
+<table>
+<thead>
+<tr class="header">
+<th>层次</th>
+<th>可见范围</th>
+<th>容量</th>
+<th>延迟</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>寄存器</td>
+<td>线程</td>
+<td>KB 级</td>
+<td>🟢 最低</td>
+<td>私有临时变量</td>
+</tr>
+<tr class="even">
+<td>Shared</td>
+<td>Block</td>
+<td>64~100 KB</td>
+<td>🟢 低</td>
+<td>Block 内数据复用</td>
+</tr>
+<tr class="odd">
+<td>L2 Cache</td>
+<td>全 GPU</td>
+<td>MB 级</td>
+<td>🟡 中</td>
+<td>缓解全局访存</td>
+</tr>
+<tr class="even">
+<td>Global</td>
+<td>全 GPU</td>
+<td>GB 级</td>
+<td>🔴 高</td>
+<td>大规模数据</td>
+</tr>
+<tr class="odd">
+<td>Constant / Texture</td>
+<td>全 GPU</td>
+<td>64 KB / 48 KB</td>
+<td>🟢(只读缓存)</td>
+<td>只读 &amp; 空间局部性</td>
+</tr>
+</tbody>
+</table>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    Reg[寄存器] --&gt; Shm[共享内存]
+    Shm --&gt; L2[L2 Cache]
+    L2 --&gt; Mem[全局显存]
+    Mem --&gt; Host[主机内存]
+</code>
+</pre>
+<h2 id="合并访存-coalescing">5️⃣ 合并访存 (Coalescing)</h2>
+<p>同一个 Warp 的 32 线程若 <strong>按地址连续</strong> 访问，可被 GPU <strong>合并为 1~2 次 32/64/128B 事务</strong>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 好：线程 i 访问 a[i]</span></span><br><span class="line"><span class="type">float</span> v = a[threadIdx.x + blockIdx.x * blockDim.x];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 坏：线程 i 访问 a[i * stride]</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>省流：相邻线程 → 相邻地址 → 带宽“打包发货”🚚。</p>
+</blockquote>
+<h2 id="共享内存-bank-冲突与-1-padding">6️⃣ 共享内存 Bank 冲突与 +1 Padding</h2>
+<ul>
+<li>Shared Mem 被划分为 <strong>32 个 bank</strong></li>
+<li>同一时钟，同一 bank 多访问 = 冲突 → 串行化</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__shared__ <span class="type">float</span> tile[<span class="number">32</span>][<span class="number">33</span>]; <span class="comment">// 33 可避开 col 冲突</span></span><br></pre></td></tr></table></figure>
+<p>在 <code>32×32</code> Tile 转置中，将列加 1 (<strong>+1 Padding</strong>) 让每行起始地址错开，<strong>一行对应一 bank</strong>，零代价消除冲突。</p>
+<h2 id="主机-设备拷贝">7️⃣ 主机 ↔ 设备拷贝</h2>
+<table>
+<thead>
+<tr class="header">
+<th>方式</th>
+<th>主机缓冲</th>
+<th>带宽</th>
+<th>支持异步？</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>cudaMemcpy()</code></td>
+<td>pageable</td>
+<td>🟠 中</td>
+<td>❌</td>
+</tr>
+<tr class="even">
+<td><code>cudaMemcpy()</code> + <code>cudaHostAlloc()</code></td>
+<td>pinned</td>
+<td>🟢 高</td>
+<td>❌</td>
+</tr>
+<tr class="odd">
+<td><code>cudaMemcpyAsync()</code> + pinned + Stream</td>
+<td>pinned</td>
+<td>🟢 高</td>
+<td>✅ <strong>可与计算重叠</strong></td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cudaHostAlloc</span>(&amp;h_buf, bytes, cudaHostAllocDefault); <span class="comment">// pinned</span></span><br><span class="line"><span class="built_in">cudaMemcpyAsync</span>(d_buf, h_buf, bytes, cudaMemcpyHostToDevice, stream);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>建议：<strong>大块数据 + 频繁拷贝</strong> ⇒ 用 pinned + Async；小脚本一次性拷贝无脑 <code>cudaMemcpy</code> 也行。</p>
+</blockquote>
+<hr />
+<h2 id="调试小抄">🔎 调试小抄</h2>
+<ol type="1">
+<li><code>cuda-memcheck ./a.out</code>：越界/初始化等内存错误。</li>
+<li><code>nvprof --print-gpu-trace ./a.out</code>：粗粒度 Timeline。</li>
+<li>Nsight Compute / Nsight Systems：瓶颈定位。</li>
+</ol>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ul>
+<li><strong>Kernel 三件套</strong>：<code>__global__</code> + 线程索引 + <code>&lt;&lt;&lt;grid, block&gt;&gt;&gt;</code>。</li>
+<li><strong>线程组织公式</strong>：Warp(32) ⊂ Block ⊂ Grid，分歧少、Occupancy 高。</li>
+<li><strong>访存第一性原理</strong>：相邻访问 + Tile 复用 + 避免 bank 冲突。</li>
+<li><strong>拷贝优化</strong>：Pinned + Async Stream，让 PCIe 传输“打多路复用”。</li>
+</ul>
+<blockquote>
+<p>记住一句话：<strong>GPU 用“成群线程”换吞吐，用“切 Warp”藏延迟，性能归根结底是访存模式与并行度的艺术 ✨</strong></p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/e5b1c8d2/" rel="prev" title="H100 服务器 CUDA + PyTorch 环境速配指南">
+                  <i class="fa fa-angle-left"></i> H100 服务器 CUDA + PyTorch 环境速配指南
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">95k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:52</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
