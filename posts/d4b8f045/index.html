@@ -29,7 +29,7 @@
 <meta property="og:description" content="想在一张图看懂 GPU 的线程组织与内存层次？本文用表格 + Mermaid 图 + 代码示例，3 分钟带你摸清 Kernel、Warp、合并访存与 bank 冲突的底层逻辑。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-08-13T04:11:31.000Z">
-<meta property="article:modified_time" content="2025-08-13T04:27:58.196Z">
+<meta property="article:modified_time" content="2025-08-13T04:29:47.988Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="note,coding,life">
 <meta name="twitter:card" content="summary">
@@ -262,7 +262,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-08-13 12:11:31 / 修改时间：12:27:58" itemprop="dateCreated datePublished" datetime="2025-08-13T12:11:31+08:00">2025-08-13</time>
+      <time title="创建时间：2025-08-13 12:11:31 / 修改时间：12:29:47" itemprop="dateCreated datePublished" datetime="2025-08-13T12:11:31+08:00">2025-08-13</time>
     </span>
 
   
@@ -279,14 +279,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>2.9k</span>
+      <span>3.4k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>5 分钟</span>
+      <span>6 分钟</span>
     </span>
 </div>
 
@@ -340,6 +340,11 @@
 </blockquote>
 <hr />
 <h2 id="kernel-基础__global__-与线程索引">1️⃣ Kernel 基础：<code>__global__</code> 与线程索引</h2>
+<p>在真正调用 CUDA API 前，<strong>建议先写一个通用错误检查宏</strong>，否则内核即使失败也可能“静默”通过编译与运行，难以及时发现问题。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简易错误检查：若调用返回非 cudaSuccess，则打印信息并退出</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CUDA_CHECK(call)                                                          \</span></span><br><span class="line"><span class="meta">    do &#123;                                                                         \</span></span><br><span class="line"><span class="meta">        cudaError_t err__ = (call);                                              \</span></span><br><span class="line"><span class="meta">        <span class="keyword">if</span> (err__ != cudaSuccess) &#123;                                              \</span></span><br><span class="line"><span class="meta">            fprintf(stderr, <span class="string">&quot;CUDA Error %s:%d: %s\n&quot;</span>, __FILE__, __LINE__,      \</span></span><br><span class="line"><span class="meta">                    cudaGetErrorString(err__));                                  \</span></span><br><span class="line"><span class="meta">            exit(EXIT_FAILURE);                                                  \</span></span><br><span class="line"><span class="meta">        &#125;                                                                        \</span></span><br><span class="line"><span class="meta">    &#125; while (0)</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>不写 <code>CUDA_CHECK</code> 也<strong>能跑</strong>，但如果 Launch 参数超界、显存不足或其他运行时错误，就会在 <code>cudaDeviceSynchronize()</code> 处返回非零状态；若从未检查，你会在结果错乱时才发现。宏的成本极低，却能第一时间定位错误，强烈推荐写上。</p>
+</blockquote>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">saxpy</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* x, <span class="type">const</span> <span class="type">float</span>* y, <span class="type">float</span>* out, <span class="type">float</span> a, <span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> i = blockIdx.x * blockDim.x + threadIdx.x; <span class="comment">// 全局索引</span></span><br><span class="line">    <span class="keyword">if</span> (i &lt; n) out[i] = a * x[i] + y[i];          <span class="comment">// 每线程做一件小事</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// host 端调用</span></span><br><span class="line"><span class="type">int</span> threads = <span class="number">256</span>;</span><br><span class="line"><span class="type">int</span> blocks  = (n + threads - <span class="number">1</span>) / threads;</span><br><span class="line">saxpy&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(d_x, d_y, d_out, <span class="number">2.0f</span>, n);</span><br><span class="line"><span class="built_in">CUDA_CHECK</span>(<span class="built_in">cudaGetLastError</span>());      <span class="comment">// 立即检查 launch 错误</span></span><br><span class="line"><span class="built_in">CUDA_CHECK</span>(<span class="built_in">cudaDeviceSynchronize</span>()); <span class="comment">// 等待 GPU 跑完</span></span><br></pre></td></tr></table></figure>
 <ul>
 <li><code>__global__</code>：声明 <strong>GPU 执行 / CPU 调用</strong> 的函数。</li>

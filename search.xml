@@ -184,62 +184,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Anaconda Note</title>
-    <url>/posts/7066aaf6/</url>
-    <content><![CDATA[<h2 id="anaconda">Anaconda</h2>
-<p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
-<span id="more"></span>
-<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
-<ol type="1">
-<li><strong>Python</strong>:
-<ul>
-<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
-</ul></li>
-<li><strong>Conda</strong>:
-<ul>
-<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
-<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
-</ul></li>
-<li><strong>Anaconda</strong>:
-<ul>
-<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
-<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
-</ul></li>
-</ol>
-<h3 id="基本命令"><strong>基本命令</strong></h3>
-<ol type="1">
-<li><strong>创建和管理环境</strong>：
-<ul>
-<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
-<li>激活环境：<code>conda activate myenv</code></li>
-<li>退出环境：<code>conda deactivate</code></li>
-<li>列出环境：<code>conda env list</code></li>
-<li>删除环境：<code>conda remove --name myenv --all</code></li>
-</ul></li>
-<li><strong>包管理</strong>：
-<ul>
-<li>安装包：<code>conda install package_name</code></li>
-<li>更新包：<code>conda update package_name</code></li>
-<li>卸载包：<code>conda remove package_name</code></li>
-<li>列出安装的包：<code>conda list</code></li>
-</ul></li>
-<li><strong>环境导出和导入</strong>：
-<ul>
-<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
-<li>导入环境：<code>conda env create -f environment.yml</code></li>
-</ul></li>
-</ol>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Python</category>
-      </categories>
-      <tags>
-        <tag>Conda</tag>
-        <tag>Python</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CSS Note</title>
     <url>/posts/752f9918/</url>
     <content><![CDATA[<h2 id="css心得">CSS心得</h2>
@@ -554,6 +498,11 @@
 </blockquote>
 <hr />
 <h2 id="kernel-基础__global__-与线程索引">1️⃣ Kernel 基础：<code>__global__</code> 与线程索引</h2>
+<p>在真正调用 CUDA API 前，<strong>建议先写一个通用错误检查宏</strong>，否则内核即使失败也可能“静默”通过编译与运行，难以及时发现问题。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 简易错误检查：若调用返回非 cudaSuccess，则打印信息并退出</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> CUDA_CHECK(call)                                                          \</span></span><br><span class="line"><span class="meta">    do &#123;                                                                         \</span></span><br><span class="line"><span class="meta">        cudaError_t err__ = (call);                                              \</span></span><br><span class="line"><span class="meta">        <span class="keyword">if</span> (err__ != cudaSuccess) &#123;                                              \</span></span><br><span class="line"><span class="meta">            fprintf(stderr, <span class="string">&quot;CUDA Error %s:%d: %s\n&quot;</span>, __FILE__, __LINE__,      \</span></span><br><span class="line"><span class="meta">                    cudaGetErrorString(err__));                                  \</span></span><br><span class="line"><span class="meta">            exit(EXIT_FAILURE);                                                  \</span></span><br><span class="line"><span class="meta">        &#125;                                                                        \</span></span><br><span class="line"><span class="meta">    &#125; while (0)</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>不写 <code>CUDA_CHECK</code> 也<strong>能跑</strong>，但如果 Launch 参数超界、显存不足或其他运行时错误，就会在 <code>cudaDeviceSynchronize()</code> 处返回非零状态；若从未检查，你会在结果错乱时才发现。宏的成本极低，却能第一时间定位错误，强烈推荐写上。</p>
+</blockquote>
 <figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">saxpy</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* x, <span class="type">const</span> <span class="type">float</span>* y, <span class="type">float</span>* out, <span class="type">float</span> a, <span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> i = blockIdx.x * blockDim.x + threadIdx.x; <span class="comment">// 全局索引</span></span><br><span class="line">    <span class="keyword">if</span> (i &lt; n) out[i] = a * x[i] + y[i];          <span class="comment">// 每线程做一件小事</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// host 端调用</span></span><br><span class="line"><span class="type">int</span> threads = <span class="number">256</span>;</span><br><span class="line"><span class="type">int</span> blocks  = (n + threads - <span class="number">1</span>) / threads;</span><br><span class="line">saxpy&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(d_x, d_y, d_out, <span class="number">2.0f</span>, n);</span><br><span class="line"><span class="built_in">CUDA_CHECK</span>(<span class="built_in">cudaGetLastError</span>());      <span class="comment">// 立即检查 launch 错误</span></span><br><span class="line"><span class="built_in">CUDA_CHECK</span>(<span class="built_in">cudaDeviceSynchronize</span>()); <span class="comment">// 等待 GPU 跑完</span></span><br></pre></td></tr></table></figure>
 <ul>
 <li><code>__global__</code>：声明 <strong>GPU 执行 / CPU 调用</strong> 的函数。</li>
@@ -818,6 +767,62 @@ flowchart TD
         <tag>Git</tag>
         <tag>工具</tag>
         <tag>Dotfiles</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Anaconda Note</title>
+    <url>/posts/7066aaf6/</url>
+    <content><![CDATA[<h2 id="anaconda">Anaconda</h2>
+<p>Anaconda 是一个强大的数据科学和机器学习工具包，简化了 Python 环境和包的管理。</p>
+<span id="more"></span>
+<p>梳理一下 <code>conda</code>、<code>Anaconda</code> 和 <code>Python</code> 之间的关系：</p>
+<ol type="1">
+<li><strong>Python</strong>:
+<ul>
+<li>Python 是一种广泛使用的高级编程语言，以其简洁易读的语法和强大的库支持著称。Python 的核心功能是提供编程语言基础，供开发者用来编写各种应用程序。</li>
+</ul></li>
+<li><strong>Conda</strong>:
+<ul>
+<li>Conda 是一个开源的<strong>包管理和环境管理系统</strong>。它能够安装、更新和卸载软件包，同时管理多个项目的环境，确保不同项目的依赖不会互相干扰。Conda 可以管理任何编程语言的软件包，但在 Python 的上下文中，它主要用于 Python 包和环境的管理。</li>
+<li>Conda 与 Python 的关系是，<strong>Conda 可以用来安装 Python 及其库，并且能够创建隔离的 Python 环境</strong>。这样，你可以在同一台计算机上维护多个 Python 版本和不同版本的库。</li>
+</ul></li>
+<li><strong>Anaconda</strong>:
+<ul>
+<li>Anaconda 是一个包含 Python 和 Conda 的开源发行版。它提供了一个包含大量数据科学和机器学习库的环境，预装了 Conda、Python 以及许多常用的数据科学工具（如 NumPy、Pandas、Matplotlib、SciPy 等）。</li>
+<li>Anaconda 的目标是简化科学计算和数据分析的过程，提供一个即开即用的开发环境，免去手动安装各种工具和库的麻烦。</li>
+</ul></li>
+</ol>
+<h3 id="基本命令"><strong>基本命令</strong></h3>
+<ol type="1">
+<li><strong>创建和管理环境</strong>：
+<ul>
+<li>创建新环境：<code>conda create --name myenv python=3.9</code></li>
+<li>激活环境：<code>conda activate myenv</code></li>
+<li>退出环境：<code>conda deactivate</code></li>
+<li>列出环境：<code>conda env list</code></li>
+<li>删除环境：<code>conda remove --name myenv --all</code></li>
+</ul></li>
+<li><strong>包管理</strong>：
+<ul>
+<li>安装包：<code>conda install package_name</code></li>
+<li>更新包：<code>conda update package_name</code></li>
+<li>卸载包：<code>conda remove package_name</code></li>
+<li>列出安装的包：<code>conda list</code></li>
+</ul></li>
+<li><strong>环境导出和导入</strong>：
+<ul>
+<li>导出环境：<code>conda env export &gt; environment.yml</code></li>
+<li>导入环境：<code>conda env create -f environment.yml</code></li>
+</ul></li>
+</ol>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Conda</tag>
+        <tag>Python</tag>
       </tags>
   </entry>
   <entry>
@@ -1330,133 +1335,6 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>NFC Note</title>
-    <url>/posts/78289205/</url>
-    <content><![CDATA[<h2 id="什么是nfc">什么是NFC？</h2>
-<p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
-<span id="more"></span>
-<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
-<figure>
-<img src="/assets/NFC-image.png" alt="alt text" /><figcaption>alt text</figcaption>
-</figure>
-<h3 id="nfc是怎么工作的">NFC是怎么工作的？</h3>
-<p>想象一下，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
-<ol type="1">
-<li><strong>基本原理</strong>
-<ul>
-<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
-<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
-<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
-<li>数据传输速率可达424Kbps</li>
-</ul></li>
-<li><strong>为什么要靠得这么近？</strong>
-<ul>
-<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
-<li>近场通信使用感应耦合（而不是电磁波传播）</li>
-<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
-</ul></li>
-</ol>
-<blockquote>
-<p><strong>调制解调技术</strong></p>
-<p>想象用手电筒给远处的朋友发信号：</p>
-<ol type="1">
-<li><strong>什么是调制？</strong>
-<ul>
-<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
-<li>NFC中主要使用两种调制方式：
-<ul>
-<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
-<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
-</ul></li>
-</ul></li>
-<li><strong>为什么要调制？</strong>
-<ul>
-<li>原始数据（比如1和0）不能直接传输</li>
-<li>需要把数据"搭载"在13.56MHz的载波信号上</li>
-<li>就像把信息写在纸飞机上才能传递给别人</li>
-</ul></li>
-<li><strong>解调是什么？</strong>
-<ul>
-<li>接收方需要从收到的信号中"提取"出原始数据</li>
-<li>就像接收方要从纸飞机上读取信息</li>
-<li>或者从手电筒的闪烁中理解传递的含义</li>
-</ul></li>
-</ol>
-</blockquote>
-<h3 id="nfc能做什么">NFC能做什么？</h3>
-<p>NFC有三种常见的使用方式：</p>
-<ol type="1">
-<li><strong>读写模式</strong>
-<ul>
-<li>就像用手机碰一碰地铁站的时刻表海报</li>
-<li>或者用手机读取商品上的电子标签</li>
-</ul></li>
-<li><strong>手机支付模式</strong>
-<ul>
-<li>手机变身成公交卡、银行卡</li>
-<li>碰一碰就能付款</li>
-</ul></li>
-<li><strong>设备互联模式</strong>
-<ul>
-<li>两个手机之间传照片</li>
-<li>新耳机和手机快速配对</li>
-</ul></li>
-</ol>
-<h3 id="nfc的特点">NFC的特点</h3>
-<ol type="1">
-<li><strong>超级方便</strong>
-<ul>
-<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
-<li>支持双向通信，设备可以自动切换读写角色</li>
-</ul></li>
-<li><strong>很安全</strong>
-<ul>
-<li>物理层：通信距离限制</li>
-<li>协议层：支持AES-128等加密算法</li>
-<li>应用层：可集成安全单元（SE）存储敏感数据</li>
-</ul></li>
-<li><strong>省电</strong>
-<ul>
-<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
-<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
-<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
-</ul></li>
-</ol>
-<h3 id="生活中的nfc应用">生活中的NFC应用</h3>
-<ol type="1">
-<li><strong>支付场景</strong>
-<ul>
-<li>手机付款（Apple Pay、微信/支付宝碰一碰）</li>
-<li>刷公交地铁</li>
-<li>超市购物</li>
-</ul></li>
-<li><strong>智能家居</strong>
-<ul>
-<li>碰一碰开门</li>
-<li>碰一碰控制家电</li>
-<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
-</ul></li>
-<li><strong>便捷生活</strong>
-<ul>
-<li>门禁卡</li>
-<li>打卡签到</li>
-<li>快速连接蓝牙设备</li>
-</ul></li>
-</ol>
-<h2 id="总结">总结</h2>
-<p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>网络与通信</category>
-      </categories>
-      <tags>
-        <tag>无线通信</tag>
-        <tag>NFC</tag>
-        <tag>RFID</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Linux 包管理：从入门到进阶的实战指南</title>
     <url>/posts/3b71e21f/</url>
     <content><![CDATA[<p>如果把发行版比作操作系统的“应用商店”，包管理器就是开发与运维最常用的“装、删、查、管”工具。本文从概念到实操、从单机到团队，给出一份可以落地的学习大纲与命令速查，帮助你跨发行版高效工作。</p>
@@ -1654,6 +1532,280 @@ FileSystem --&gt; App[&quot;应用可用&quot;]
       </tags>
   </entry>
   <entry>
+    <title>NFC Note</title>
+    <url>/posts/78289205/</url>
+    <content><![CDATA[<h2 id="什么是nfc">什么是NFC？</h2>
+<p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
+<span id="more"></span>
+<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
+<figure>
+<img src="/assets/NFC-image.png" alt="alt text" /><figcaption>alt text</figcaption>
+</figure>
+<h3 id="nfc是怎么工作的">NFC是怎么工作的？</h3>
+<p>想象一下，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
+<ol type="1">
+<li><strong>基本原理</strong>
+<ul>
+<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
+<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
+<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
+<li>数据传输速率可达424Kbps</li>
+</ul></li>
+<li><strong>为什么要靠得这么近？</strong>
+<ul>
+<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
+<li>近场通信使用感应耦合（而不是电磁波传播）</li>
+<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
+</ul></li>
+</ol>
+<blockquote>
+<p><strong>调制解调技术</strong></p>
+<p>想象用手电筒给远处的朋友发信号：</p>
+<ol type="1">
+<li><strong>什么是调制？</strong>
+<ul>
+<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
+<li>NFC中主要使用两种调制方式：
+<ul>
+<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
+<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
+</ul></li>
+</ul></li>
+<li><strong>为什么要调制？</strong>
+<ul>
+<li>原始数据（比如1和0）不能直接传输</li>
+<li>需要把数据"搭载"在13.56MHz的载波信号上</li>
+<li>就像把信息写在纸飞机上才能传递给别人</li>
+</ul></li>
+<li><strong>解调是什么？</strong>
+<ul>
+<li>接收方需要从收到的信号中"提取"出原始数据</li>
+<li>就像接收方要从纸飞机上读取信息</li>
+<li>或者从手电筒的闪烁中理解传递的含义</li>
+</ul></li>
+</ol>
+</blockquote>
+<h3 id="nfc能做什么">NFC能做什么？</h3>
+<p>NFC有三种常见的使用方式：</p>
+<ol type="1">
+<li><strong>读写模式</strong>
+<ul>
+<li>就像用手机碰一碰地铁站的时刻表海报</li>
+<li>或者用手机读取商品上的电子标签</li>
+</ul></li>
+<li><strong>手机支付模式</strong>
+<ul>
+<li>手机变身成公交卡、银行卡</li>
+<li>碰一碰就能付款</li>
+</ul></li>
+<li><strong>设备互联模式</strong>
+<ul>
+<li>两个手机之间传照片</li>
+<li>新耳机和手机快速配对</li>
+</ul></li>
+</ol>
+<h3 id="nfc的特点">NFC的特点</h3>
+<ol type="1">
+<li><strong>超级方便</strong>
+<ul>
+<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
+<li>支持双向通信，设备可以自动切换读写角色</li>
+</ul></li>
+<li><strong>很安全</strong>
+<ul>
+<li>物理层：通信距离限制</li>
+<li>协议层：支持AES-128等加密算法</li>
+<li>应用层：可集成安全单元（SE）存储敏感数据</li>
+</ul></li>
+<li><strong>省电</strong>
+<ul>
+<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
+<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
+<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
+</ul></li>
+</ol>
+<h3 id="生活中的nfc应用">生活中的NFC应用</h3>
+<ol type="1">
+<li><strong>支付场景</strong>
+<ul>
+<li>手机付款（Apple Pay、微信/支付宝碰一碰）</li>
+<li>刷公交地铁</li>
+<li>超市购物</li>
+</ul></li>
+<li><strong>智能家居</strong>
+<ul>
+<li>碰一碰开门</li>
+<li>碰一碰控制家电</li>
+<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
+</ul></li>
+<li><strong>便捷生活</strong>
+<ul>
+<li>门禁卡</li>
+<li>打卡签到</li>
+<li>快速连接蓝牙设备</li>
+</ul></li>
+</ol>
+<h2 id="总结">总结</h2>
+<p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>网络与通信</category>
+      </categories>
+      <tags>
+        <tag>无线通信</tag>
+        <tag>NFC</tag>
+        <tag>RFID</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TLS Note</title>
+    <url>/posts/32f5e233/</url>
+    <content><![CDATA[<h2 id="什么是tls">1. 什么是TLS</h2>
+<p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
+<span id="more"></span>
+<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
+<h2 id="tls的主要功能">2. TLS的主要功能</h2>
+<p>TLS提供以下三个主要的安全服务：</p>
+<h3 id="身份认证">2.1 身份认证</h3>
+<p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
+<h3 id="数据加密">2.2 数据加密</h3>
+<p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
+<h3 id="完整性校验">2.3 完整性校验</h3>
+<p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
+<h2 id="tls的版本演进">3. TLS的版本演进</h2>
+<p>TLS协议经历了多个版本的演进：</p>
+<ul>
+<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
+<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
+<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
+<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
+<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
+<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
+</ul>
+<h2 id="tls的密码学原理">4. TLS的密码学原理</h2>
+<h3 id="对称加密">4.1 对称加密</h3>
+<ul>
+<li>使用相同的密钥进行加密和解密</li>
+<li>常用算法：AES、ChaCha20</li>
+<li>用于加密传输的数据</li>
+</ul>
+<h3 id="非对称加密">4.2 非对称加密</h3>
+<ul>
+<li>使用公钥加密，私钥解密</li>
+<li>常用算法：RSA、ECDSA</li>
+<li>用于密钥交换和身份认证</li>
+</ul>
+<h3 id="数字证书">4.3 数字证书</h3>
+<ul>
+<li>X.509格式证书</li>
+<li>包含服务器的公钥和身份信息</li>
+<li>由CA机构签名认证</li>
+</ul>
+<h3 id="消息认证码">4.4 消息认证码</h3>
+<ul>
+<li>HMAC算法</li>
+<li>确保消息完整性</li>
+<li>防止数据被篡改</li>
+</ul>
+<h2 id="tls握手过程">5. TLS握手过程</h2>
+<p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
+<h3 id="client-hello">5.1 Client Hello</h3>
+<ul>
+<li>客户端发送支持的TLS版本</li>
+<li>支持的加密套件列表</li>
+<li>随机数（Client Random）</li>
+<li>会话ID（如果是恢复会话）</li>
+</ul>
+<h3 id="server-hello">5.2 Server Hello</h3>
+<ul>
+<li>服务器选择TLS版本</li>
+<li>选择加密套件</li>
+<li>随机数（Server Random）</li>
+<li>服务器证书</li>
+</ul>
+<h3 id="密钥交换">5.3 密钥交换</h3>
+<ul>
+<li>客户端验证服务器证书</li>
+<li>生成预主密钥（Pre-master Secret）</li>
+<li>使用服务器公钥加密预主密钥</li>
+<li>计算主密钥（Master Secret）</li>
+</ul>
+<h3 id="完成握手">5.4 完成握手</h3>
+<ul>
+<li>切换到加密通信</li>
+<li>验证握手消息的完整性</li>
+<li>开始安全数据传输</li>
+</ul>
+<h2 id="tls的应用场景">6. TLS的应用场景</h2>
+<h3 id="https">6.1 HTTPS</h3>
+<ul>
+<li>最常见的TLS应用</li>
+<li>为HTTP提供安全传输</li>
+<li>网站必备的安全保障</li>
+</ul>
+<h3 id="安全邮件">6.2 安全邮件</h3>
+<ul>
+<li>SMTPS</li>
+<li>IMAPS</li>
+<li>POP3S</li>
+</ul>
+<h3 id="vpn">6.3 VPN</h3>
+<ul>
+<li>OpenVPN</li>
+<li>其他基于TLS的VPN协议</li>
+</ul>
+<h2 id="常见攻击与防范">7. 常见攻击与防范</h2>
+<h3 id="中间人攻击">7.1 中间人攻击</h3>
+<ul>
+<li>攻击者冒充服务器</li>
+<li>通过证书验证防范</li>
+<li>使用可信CA签发的证书</li>
+</ul>
+<h3 id="降级攻击">7.2 降级攻击</h3>
+<ul>
+<li>强制使用低版本协议</li>
+<li>禁用不安全的协议版本</li>
+<li>启用降级保护机制</li>
+</ul>
+<h3 id="重放攻击">7.3 重放攻击</h3>
+<ul>
+<li>重放已捕获的数据包</li>
+<li>使用随机数和时间戳</li>
+<li>会话标识符唯一性</li>
+</ul>
+<h2 id="最佳实践">8. 最佳实践</h2>
+<h3 id="协议配置">8.1 协议配置</h3>
+<ul>
+<li>仅启用TLS 1.2及以上版本</li>
+<li>使用强加密套件</li>
+<li>启用前向保密</li>
+</ul>
+<h3 id="证书管理">8.2 证书管理</h3>
+<ul>
+<li>及时更新证书</li>
+<li>使用适当的密钥长度</li>
+<li>正确配置证书链</li>
+</ul>
+<h3 id="安全监控">8.3 安全监控</h3>
+<ul>
+<li>记录TLS错误日志</li>
+<li>监控证书有效期</li>
+<li>定期安全评估</li>
+</ul>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>网络与通信</category>
+      </categories>
+      <tags>
+        <tag>TLS</tag>
+        <tag>网络安全</tag>
+        <tag>加密</tag>
+        <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>关于Intel TDX的深度思考与技术剖析</title>
     <url>/posts/b63e909c/</url>
     <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
@@ -1780,6 +1932,226 @@ FileSystem --&gt; App[&quot;应用可用&quot;]
         <tag>TDX</tag>
         <tag>TEE</tag>
         <tag>Intel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>终端与Shell：从入门到看懂，一篇就够</title>
+    <url>/posts/82543a5f/</url>
+    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
+<span id="more"></span>
+<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
+<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
+<h4 id="三层模型">1. 三层模型</h4>
+<p>命令行交互的世界可以被清晰地划分为三层：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
+<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
+<table>
+<thead>
+<tr class="header">
+<th>现实场景</th>
+<th>对应技术</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>你手机里的「外卖 App 界面」</td>
+<td><strong>终端 Terminal</strong></td>
+<td>显示菜单、字体、动画，本身不做饭</td>
+</tr>
+<tr class="even">
+<td>你选的「厨师」</td>
+<td><strong>Shell</strong></td>
+<td>读懂你的菜单（命令），指挥厨房做菜</td>
+</tr>
+<tr class="odd">
+<td>厨房里的「食材/灶具/电」</td>
+<td><strong>内核/程序</strong></td>
+<td>真正读写文件、启动进程、调用硬件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
+<hr />
+<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
+<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
+<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
+<ul>
+<li><strong>主要功能</strong>:
+<ul>
+<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
+<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
+<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
+<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
+</ul></li>
+<li><strong>主流实现</strong>:
+<ul>
+<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
+<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
+<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
+</ul></li>
+</ul>
+<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
+<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
+<ul>
+<li><strong>主要功能</strong>:
+<ul>
+<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
+<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
+<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
+<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
+</ul></li>
+<li><strong>主流实现</strong>:
+<ul>
+<li><strong>POSIX 家族 (Linux/macOS)</strong>:
+<ul>
+<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
+<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
+<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
+</ul></li>
+<li><strong>Windows 家族</strong>:
+<ul>
+<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
+<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
+</ul></li>
+</ul></li>
+</ul>
+<hr />
+<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
+<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>属于哪一层</th>
+<th>简单一句话说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>cmd.exe</strong></td>
+<td>Shell</td>
+<td>Windows 最老的命令解释器，功能简单。</td>
+</tr>
+<tr class="even">
+<td><strong>PowerShell</strong></td>
+<td>Shell</td>
+<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
+</tr>
+<tr class="odd">
+<td><strong>bash</strong></td>
+<td>Shell</td>
+<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
+</tr>
+<tr class="even">
+<td><strong>zsh</strong></td>
+<td>Shell</td>
+<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
+</tr>
+<tr class="odd">
+<td><strong>Windows Terminal</strong></td>
+<td>终端</td>
+<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
+</tr>
+<tr class="even">
+<td><strong>iTerm2</strong></td>
+<td>终端</td>
+<td>macOS 平台功能最强大的终端之一。</td>
+</tr>
+<tr class="odd">
+<td><strong>WSL</strong></td>
+<td>系统兼容层</td>
+<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
+</tr>
+<tr class="even">
+<td><strong>Oh My Zsh</strong></td>
+<td>zsh 配置框架</td>
+<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
+</tr>
+<tr class="odd">
+<td><strong>Powerlevel10k</strong></td>
+<td>zsh 主题</td>
+<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
+<h4 id="windows-平台">1. Windows 平台</h4>
+<ul>
+<li><strong>现代组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>Windows Terminal</code></li>
+<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
+</ul></li>
+<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="macos-平台">2. macOS 平台</h4>
+<ul>
+<li><strong>主流组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>iTerm2</code></li>
+<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
+</ul></li>
+<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
+</ul>
+<h4 id="linux-平台">3. Linux 平台</h4>
+<ul>
+<li><strong>常见组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
+<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
+</ul></li>
+<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
+</ul>
+<hr />
+<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Windows Terminal 就是一个新的 Shell</td>
+<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
+</tr>
+<tr class="even">
+<td>Git Bash 是一个终端</td>
+<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
+</tr>
+<tr class="odd">
+<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
+<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="六终极总结">✅ 六、终极总结</h3>
+<blockquote>
+<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
+<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
+</blockquote>
+<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
+<p>Happy Hacking! 🎉</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Terminal</tag>
+        <tag>Shell</tag>
+        <tag>Windows</tag>
+        <tag>macOS</tag>
       </tags>
   </entry>
   <entry>
@@ -2135,373 +2507,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
         <tag>TDX</tag>
         <tag>TEE</tag>
         <tag>Intel</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TLS Note</title>
-    <url>/posts/32f5e233/</url>
-    <content><![CDATA[<h2 id="什么是tls">1. 什么是TLS</h2>
-<p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
-<span id="more"></span>
-<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
-<h2 id="tls的主要功能">2. TLS的主要功能</h2>
-<p>TLS提供以下三个主要的安全服务：</p>
-<h3 id="身份认证">2.1 身份认证</h3>
-<p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
-<h3 id="数据加密">2.2 数据加密</h3>
-<p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
-<h3 id="完整性校验">2.3 完整性校验</h3>
-<p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
-<h2 id="tls的版本演进">3. TLS的版本演进</h2>
-<p>TLS协议经历了多个版本的演进：</p>
-<ul>
-<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
-<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
-<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
-<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
-<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
-<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
-</ul>
-<h2 id="tls的密码学原理">4. TLS的密码学原理</h2>
-<h3 id="对称加密">4.1 对称加密</h3>
-<ul>
-<li>使用相同的密钥进行加密和解密</li>
-<li>常用算法：AES、ChaCha20</li>
-<li>用于加密传输的数据</li>
-</ul>
-<h3 id="非对称加密">4.2 非对称加密</h3>
-<ul>
-<li>使用公钥加密，私钥解密</li>
-<li>常用算法：RSA、ECDSA</li>
-<li>用于密钥交换和身份认证</li>
-</ul>
-<h3 id="数字证书">4.3 数字证书</h3>
-<ul>
-<li>X.509格式证书</li>
-<li>包含服务器的公钥和身份信息</li>
-<li>由CA机构签名认证</li>
-</ul>
-<h3 id="消息认证码">4.4 消息认证码</h3>
-<ul>
-<li>HMAC算法</li>
-<li>确保消息完整性</li>
-<li>防止数据被篡改</li>
-</ul>
-<h2 id="tls握手过程">5. TLS握手过程</h2>
-<p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
-<h3 id="client-hello">5.1 Client Hello</h3>
-<ul>
-<li>客户端发送支持的TLS版本</li>
-<li>支持的加密套件列表</li>
-<li>随机数（Client Random）</li>
-<li>会话ID（如果是恢复会话）</li>
-</ul>
-<h3 id="server-hello">5.2 Server Hello</h3>
-<ul>
-<li>服务器选择TLS版本</li>
-<li>选择加密套件</li>
-<li>随机数（Server Random）</li>
-<li>服务器证书</li>
-</ul>
-<h3 id="密钥交换">5.3 密钥交换</h3>
-<ul>
-<li>客户端验证服务器证书</li>
-<li>生成预主密钥（Pre-master Secret）</li>
-<li>使用服务器公钥加密预主密钥</li>
-<li>计算主密钥（Master Secret）</li>
-</ul>
-<h3 id="完成握手">5.4 完成握手</h3>
-<ul>
-<li>切换到加密通信</li>
-<li>验证握手消息的完整性</li>
-<li>开始安全数据传输</li>
-</ul>
-<h2 id="tls的应用场景">6. TLS的应用场景</h2>
-<h3 id="https">6.1 HTTPS</h3>
-<ul>
-<li>最常见的TLS应用</li>
-<li>为HTTP提供安全传输</li>
-<li>网站必备的安全保障</li>
-</ul>
-<h3 id="安全邮件">6.2 安全邮件</h3>
-<ul>
-<li>SMTPS</li>
-<li>IMAPS</li>
-<li>POP3S</li>
-</ul>
-<h3 id="vpn">6.3 VPN</h3>
-<ul>
-<li>OpenVPN</li>
-<li>其他基于TLS的VPN协议</li>
-</ul>
-<h2 id="常见攻击与防范">7. 常见攻击与防范</h2>
-<h3 id="中间人攻击">7.1 中间人攻击</h3>
-<ul>
-<li>攻击者冒充服务器</li>
-<li>通过证书验证防范</li>
-<li>使用可信CA签发的证书</li>
-</ul>
-<h3 id="降级攻击">7.2 降级攻击</h3>
-<ul>
-<li>强制使用低版本协议</li>
-<li>禁用不安全的协议版本</li>
-<li>启用降级保护机制</li>
-</ul>
-<h3 id="重放攻击">7.3 重放攻击</h3>
-<ul>
-<li>重放已捕获的数据包</li>
-<li>使用随机数和时间戳</li>
-<li>会话标识符唯一性</li>
-</ul>
-<h2 id="最佳实践">8. 最佳实践</h2>
-<h3 id="协议配置">8.1 协议配置</h3>
-<ul>
-<li>仅启用TLS 1.2及以上版本</li>
-<li>使用强加密套件</li>
-<li>启用前向保密</li>
-</ul>
-<h3 id="证书管理">8.2 证书管理</h3>
-<ul>
-<li>及时更新证书</li>
-<li>使用适当的密钥长度</li>
-<li>正确配置证书链</li>
-</ul>
-<h3 id="安全监控">8.3 安全监控</h3>
-<ul>
-<li>记录TLS错误日志</li>
-<li>监控证书有效期</li>
-<li>定期安全评估</li>
-</ul>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>网络与通信</category>
-      </categories>
-      <tags>
-        <tag>TLS</tag>
-        <tag>网络安全</tag>
-        <tag>加密</tag>
-        <tag>HTTPS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>终端与Shell：从入门到看懂，一篇就够</title>
-    <url>/posts/82543a5f/</url>
-    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
-<span id="more"></span>
-<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
-<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
-<h4 id="三层模型">1. 三层模型</h4>
-<p>命令行交互的世界可以被清晰地划分为三层：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
-<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
-<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
-<table>
-<thead>
-<tr class="header">
-<th>现实场景</th>
-<th>对应技术</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>你手机里的「外卖 App 界面」</td>
-<td><strong>终端 Terminal</strong></td>
-<td>显示菜单、字体、动画，本身不做饭</td>
-</tr>
-<tr class="even">
-<td>你选的「厨师」</td>
-<td><strong>Shell</strong></td>
-<td>读懂你的菜单（命令），指挥厨房做菜</td>
-</tr>
-<tr class="odd">
-<td>厨房里的「食材/灶具/电」</td>
-<td><strong>内核/程序</strong></td>
-<td>真正读写文件、启动进程、调用硬件</td>
-</tr>
-</tbody>
-</table>
-<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
-<hr />
-<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
-<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
-<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
-<ul>
-<li><strong>主要功能</strong>:
-<ul>
-<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
-<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
-<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
-<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
-</ul></li>
-<li><strong>主流实现</strong>:
-<ul>
-<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
-<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
-<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
-</ul></li>
-</ul>
-<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
-<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
-<ul>
-<li><strong>主要功能</strong>:
-<ul>
-<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
-<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
-<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
-<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
-</ul></li>
-<li><strong>主流实现</strong>:
-<ul>
-<li><strong>POSIX 家族 (Linux/macOS)</strong>:
-<ul>
-<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
-<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
-<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
-</ul></li>
-<li><strong>Windows 家族</strong>:
-<ul>
-<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
-<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
-</ul></li>
-</ul></li>
-</ul>
-<hr />
-<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
-<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>属于哪一层</th>
-<th>简单一句话说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>cmd.exe</strong></td>
-<td>Shell</td>
-<td>Windows 最老的命令解释器，功能简单。</td>
-</tr>
-<tr class="even">
-<td><strong>PowerShell</strong></td>
-<td>Shell</td>
-<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
-</tr>
-<tr class="odd">
-<td><strong>bash</strong></td>
-<td>Shell</td>
-<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
-</tr>
-<tr class="even">
-<td><strong>zsh</strong></td>
-<td>Shell</td>
-<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
-</tr>
-<tr class="odd">
-<td><strong>Windows Terminal</strong></td>
-<td>终端</td>
-<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
-</tr>
-<tr class="even">
-<td><strong>iTerm2</strong></td>
-<td>终端</td>
-<td>macOS 平台功能最强大的终端之一。</td>
-</tr>
-<tr class="odd">
-<td><strong>WSL</strong></td>
-<td>系统兼容层</td>
-<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
-</tr>
-<tr class="even">
-<td><strong>Oh My Zsh</strong></td>
-<td>zsh 配置框架</td>
-<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
-</tr>
-<tr class="odd">
-<td><strong>Powerlevel10k</strong></td>
-<td>zsh 主题</td>
-<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
-<h4 id="windows-平台">1. Windows 平台</h4>
-<ul>
-<li><strong>现代组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>Windows Terminal</code></li>
-<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
-</ul></li>
-<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h4 id="macos-平台">2. macOS 平台</h4>
-<ul>
-<li><strong>主流组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>iTerm2</code></li>
-<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
-</ul></li>
-<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
-</ul>
-<h4 id="linux-平台">3. Linux 平台</h4>
-<ul>
-<li><strong>常见组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
-<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
-</ul></li>
-<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
-</ul>
-<hr />
-<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>误区</th>
-<th>正解</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Windows Terminal 就是一个新的 Shell</td>
-<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
-</tr>
-<tr class="even">
-<td>Git Bash 是一个终端</td>
-<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
-</tr>
-<tr class="odd">
-<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
-<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="六终极总结">✅ 六、终极总结</h3>
-<blockquote>
-<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
-<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
-</blockquote>
-<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
-<p>Happy Hacking! 🎉</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Terminal</tag>
-        <tag>Shell</tag>
-        <tag>Windows</tag>
-        <tag>macOS</tag>
       </tags>
   </entry>
   <entry>
@@ -3194,6 +3199,51 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
+<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
+<h3 id="token401问题">token401问题</h3>
+<h4 id="登录401">登录401</h4>
+<p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
+</figure>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<figure>
+<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
+</figure>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<p>发现可以正常读取了</p>
+<h4 id="过期401">过期401</h4>
+<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据读取问题">数据读取问题</h3>
+<p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<h3 id="其他问题">其他问题</h3>
+<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>InfluxDB</tag>
+        <tag>数据库</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>git之路：rebase &amp; cherry-pick</title>
     <url>/posts/1566a5aa/</url>
     <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
@@ -3374,48 +3424,82 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
-<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
-<h3 id="token401问题">token401问题</h3>
-<h4 id="登录401">登录401</h4>
-<p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
-</figure>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<figure>
-<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
-</figure>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<p>发现可以正常读取了</p>
-<h4 id="过期401">过期401</h4>
-<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-<h3 id="数据读取问题">数据读取问题</h3>
-<p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-<h3 id="其他问题">其他问题</h3>
-<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
+    <title>Shell 启动脚本：理解 bash、zsh 的启动流程</title>
+    <url>/posts/shell-startup/</url>
+    <content><![CDATA[<p>如果你是一个经常使用 shell 的用户，几乎肯定会在主目录下有一个 <code>.bash_profile</code> 或 <code>.bashrc</code> 脚本，通常包含各种调整，比如设置环境变量（将某个目录添加到 <code>$PATH</code>）、告诉 shell 做聪明的事情（如 <code>set -o noclobber</code>）以及为命令添加各种别名（如 <code>alias please=sudo</code>）。</p>
+<p>（如果你真的很有条理，你会把所有点文件都放在某个仓库中，这样你就可以在所有工作的机器上保持设置同步。）</p>
+<p>无论如何，我怀疑很少有人知道 <code>.bash_profile</code> 和 <code>.bashrc</code> 这样的文件实际上什么时候被执行。当我刚开始时，我只是按照别人的建议把东西放在 <code>.bashrc</code> 中，然后当它不工作时，就放到 <code>.bash_profile</code> 中。我可以在这里停下来，只描述 bash 的启动过程（尽管它很愚蠢），但有一个复杂的情况是，我在几年前切换到了 zsh（并且没有回头），但偶尔会在没有安装 zsh 的机器上使用 bash。</p>
+<span id="more"></span>
+<h2 id="shell-启动脚本的复杂性">Shell 启动脚本的复杂性</h2>
+<p>为了优雅地处理这种情况，我需要能够在它们自己的文件中指定特定于 bash 或 zsh 的内容，然后在通用启动文件中指定任何符合 POSIX 标准的 shell（如别名和环境变量）都能理解的内容。</p>
+<p>我对这个问题的解决方案是定义一些新的点文件文件夹，每个 shell 一个（<code>.bash/</code>、<code>.zsh/</code> 和 <code>.sh/</code>），还有一个用于 shell 无关文件（<code>.shell/</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.bash/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.sh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">.shell/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.zsh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br></pre></td></tr></table></figure>
+<h2 id="不同类型的-shell">不同类型的 Shell</h2>
+<p>"But!" 你说，"这些不同的文件在这里做什么？" 啊，我很高兴你问了。有两种类型的 shell：</p>
+<ul>
+<li><strong>[非]交互式 shell</strong>（你向它们输入 / shell 脚本）</li>
+<li><strong>[非]登录 shell</strong>（首次登录时运行的 shell / 子 shell）</li>
+</ul>
+<p>所有 shell 都会首先运行 <code>env</code>，然后登录 shell 会运行 <code>login</code>，然后交互式 shell 会运行 <code>interactive</code>。完成后，登录 shell 会运行 <code>logout</code>。</p>
+<h2 id="在哪里放置内容">在哪里放置内容</h2>
+<p>这完全取决于它什么时候需要运行。</p>
+<ul>
+<li>如果它正在设置 / 修改环境变量，它应该放在 <code>login</code> 中</li>
+<li>如果它是别名或终端特定的环境变量（例如，<code>GREP_COLOR</code>），它应该放在 <code>interactive</code> 中</li>
+<li>在我的 <code>.shell/env</code> 文件中，我设置了 <code>umask</code>，还定义了一些有用的函数来修改冒号分隔的路径环境变量（如 <code>$PATH</code>）</li>
+</ul>
+<p>即使你不采用我方案中的其他任何东西，我也建议你看看我的函数在做什么，这与像 <code>export PATH=$PATH:/path/to/dir</code> 这样的东西不同。</p>
+<p>这种特定模式太常见了，如果你考虑 <code>$PATH</code>（或任何你的变量，如 <code>$LD_LIBRARY_PATH</code>）没有设置的情况，它会非常危险。然后，值将是 <code>:/path/to/dir</code>，这通常意味着 <code>/path/to/dir</code> 和当前目录，这通常既是意外行为又是安全问题。</p>
+<p>使用我的实现（见 <code>.shell/env_functions</code>），你可以从任何冒号分隔的环境变量中追加、前置和删除目录，当追加或前置时，你保证该目录只会在该变量中出现一次。</p>
+<h2 id="shell-启动流程详解">Shell 启动流程详解</h2>
+<h3 id="bash-启动流程">Bash 启动流程</h3>
+<p>Bash 的启动流程相对复杂，因为它有多种模式：</p>
+<ol type="1">
+<li><strong>登录 shell</strong>：当 bash 以 <code>-l</code> 参数启动或作为登录 shell 启动时</li>
+<li><strong>交互式 shell</strong>：当 bash 以交互模式启动时</li>
+<li><strong>非交互式 shell</strong>：当 bash 执行脚本时</li>
+<li><strong>远程 shell</strong>：当 bash 检测到通过 ssh 或 rsh 启动时</li>
+</ol>
+<h3 id="zsh-启动流程">Zsh 启动流程</h3>
+<p>Zsh 的启动流程更加简洁和一致：</p>
+<ol type="1">
+<li><strong>全局配置文件</strong>：<code>/etc/zshenv</code>、<code>/etc/zprofile</code>、<code>/etc/zshrc</code>、<code>/etc/zlogout</code></li>
+<li><strong>用户配置文件</strong>：<code>~/.zshenv</code>、<code>~/.zprofile</code>、<code>~/.zshrc</code>、<code>~/.zlogout</code></li>
+</ol>
+<h3 id="启动文件执行顺序">启动文件执行顺序</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zprofile → ~/.zprofile → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">交互式非登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">非交互式 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv</span><br></pre></td></tr></table></figure>
+<h2 id="实际应用建议">实际应用建议</h2>
+<h3 id="环境变量管理">1. 环境变量管理</h3>
+<p>避免使用 <code>export PATH=$PATH:/new/path</code> 这种模式，因为它可能导致重复和空路径问题。相反，使用更安全的方法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安全的路径添加函数</span></span><br><span class="line"><span class="function"><span class="title">path_append</span></span>() &#123;</span><br><span class="line">    <span class="built_in">local</span> var_name=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> new_path=<span class="string">&quot;<span class="variable">$2</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> current_path=<span class="string">&quot;<span class="variable">$&#123;!var_name&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [[ -z <span class="string">&quot;<span class="variable">$current_path</span>&quot;</span> ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> [[ <span class="string">&quot;:<span class="variable">$current_path</span>:&quot;</span> != *<span class="string">&quot;:<span class="variable">$new_path</span>:&quot;</span>* ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$current_path</span>:<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">path_append PATH <span class="string">&quot;/usr/local/bin&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="条件加载">2. 条件加载</h3>
+<p>根据 shell 类型和交互性条件性地加载配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 只在交互式 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o interactive ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/interactive</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只在登录 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o login ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/login</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h3 id="跨-shell-兼容性">3. 跨 Shell 兼容性</h3>
+<p>为了在不同 shell 之间保持兼容性，使用 POSIX 兼容的语法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用 POSIX 兼容的语法</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$SHELL</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    */bash)</span><br><span class="line">        <span class="built_in">source</span> ~/.bash/specific</span><br><span class="line">        ;;</span><br><span class="line">    */zsh)</span><br><span class="line">        <span class="built_in">source</span> ~/.zsh/specific</span><br><span class="line">        ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+<h2 id="总结">总结</h2>
+<p>理解 shell 启动脚本的执行顺序对于正确配置你的环境至关重要。通过采用模块化的方法，你可以：</p>
+<ol type="1">
+<li><strong>保持配置的整洁</strong>：将不同类型的配置分离到不同的文件中</li>
+<li><strong>提高可维护性</strong>：每个文件都有明确的职责</li>
+<li><strong>增强可移植性</strong>：在不同机器和 shell 之间轻松迁移配置</li>
+<li><strong>避免常见陷阱</strong>：如路径重复、环境变量污染等问题</li>
+</ol>
+<p>记住，shell 启动脚本的执行顺序可能因操作系统、shell 版本和编译选项而异。最好的方法是测试你自己的系统，并根据需要调整配置。</p>
+<hr />
+<p><strong>参考来源：</strong> <a href="https://blog.flowblok.id.au/2013-02/shell-startup-scripts.html">Shell startup scripts - flowblok's blog</a></p>
 ]]></content>
       <categories>
-        <category>软件开发</category>
-        <category>数据库</category>
+        <category>技术工具</category>
+        <category>Linux</category>
       </categories>
       <tags>
-        <tag>InfluxDB</tag>
-        <tag>数据库</tag>
+        <tag>Linux</tag>
+        <tag>Shell</tag>
+        <tag>Bash</tag>
+        <tag>Zsh</tag>
+        <tag>系统配置</tag>
       </tags>
   </entry>
   <entry>
@@ -3685,85 +3769,6 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>Shell 启动脚本：理解 bash、zsh 的启动流程</title>
-    <url>/posts/shell-startup/</url>
-    <content><![CDATA[<p>如果你是一个经常使用 shell 的用户，几乎肯定会在主目录下有一个 <code>.bash_profile</code> 或 <code>.bashrc</code> 脚本，通常包含各种调整，比如设置环境变量（将某个目录添加到 <code>$PATH</code>）、告诉 shell 做聪明的事情（如 <code>set -o noclobber</code>）以及为命令添加各种别名（如 <code>alias please=sudo</code>）。</p>
-<p>（如果你真的很有条理，你会把所有点文件都放在某个仓库中，这样你就可以在所有工作的机器上保持设置同步。）</p>
-<p>无论如何，我怀疑很少有人知道 <code>.bash_profile</code> 和 <code>.bashrc</code> 这样的文件实际上什么时候被执行。当我刚开始时，我只是按照别人的建议把东西放在 <code>.bashrc</code> 中，然后当它不工作时，就放到 <code>.bash_profile</code> 中。我可以在这里停下来，只描述 bash 的启动过程（尽管它很愚蠢），但有一个复杂的情况是，我在几年前切换到了 zsh（并且没有回头），但偶尔会在没有安装 zsh 的机器上使用 bash。</p>
-<span id="more"></span>
-<h2 id="shell-启动脚本的复杂性">Shell 启动脚本的复杂性</h2>
-<p>为了优雅地处理这种情况，我需要能够在它们自己的文件中指定特定于 bash 或 zsh 的内容，然后在通用启动文件中指定任何符合 POSIX 标准的 shell（如别名和环境变量）都能理解的内容。</p>
-<p>我对这个问题的解决方案是定义一些新的点文件文件夹，每个 shell 一个（<code>.bash/</code>、<code>.zsh/</code> 和 <code>.sh/</code>），还有一个用于 shell 无关文件（<code>.shell/</code>）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.bash/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.sh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">.shell/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.zsh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br></pre></td></tr></table></figure>
-<h2 id="不同类型的-shell">不同类型的 Shell</h2>
-<p>"But!" 你说，"这些不同的文件在这里做什么？" 啊，我很高兴你问了。有两种类型的 shell：</p>
-<ul>
-<li><strong>[非]交互式 shell</strong>（你向它们输入 / shell 脚本）</li>
-<li><strong>[非]登录 shell</strong>（首次登录时运行的 shell / 子 shell）</li>
-</ul>
-<p>所有 shell 都会首先运行 <code>env</code>，然后登录 shell 会运行 <code>login</code>，然后交互式 shell 会运行 <code>interactive</code>。完成后，登录 shell 会运行 <code>logout</code>。</p>
-<h2 id="在哪里放置内容">在哪里放置内容</h2>
-<p>这完全取决于它什么时候需要运行。</p>
-<ul>
-<li>如果它正在设置 / 修改环境变量，它应该放在 <code>login</code> 中</li>
-<li>如果它是别名或终端特定的环境变量（例如，<code>GREP_COLOR</code>），它应该放在 <code>interactive</code> 中</li>
-<li>在我的 <code>.shell/env</code> 文件中，我设置了 <code>umask</code>，还定义了一些有用的函数来修改冒号分隔的路径环境变量（如 <code>$PATH</code>）</li>
-</ul>
-<p>即使你不采用我方案中的其他任何东西，我也建议你看看我的函数在做什么，这与像 <code>export PATH=$PATH:/path/to/dir</code> 这样的东西不同。</p>
-<p>这种特定模式太常见了，如果你考虑 <code>$PATH</code>（或任何你的变量，如 <code>$LD_LIBRARY_PATH</code>）没有设置的情况，它会非常危险。然后，值将是 <code>:/path/to/dir</code>，这通常意味着 <code>/path/to/dir</code> 和当前目录，这通常既是意外行为又是安全问题。</p>
-<p>使用我的实现（见 <code>.shell/env_functions</code>），你可以从任何冒号分隔的环境变量中追加、前置和删除目录，当追加或前置时，你保证该目录只会在该变量中出现一次。</p>
-<h2 id="shell-启动流程详解">Shell 启动流程详解</h2>
-<h3 id="bash-启动流程">Bash 启动流程</h3>
-<p>Bash 的启动流程相对复杂，因为它有多种模式：</p>
-<ol type="1">
-<li><strong>登录 shell</strong>：当 bash 以 <code>-l</code> 参数启动或作为登录 shell 启动时</li>
-<li><strong>交互式 shell</strong>：当 bash 以交互模式启动时</li>
-<li><strong>非交互式 shell</strong>：当 bash 执行脚本时</li>
-<li><strong>远程 shell</strong>：当 bash 检测到通过 ssh 或 rsh 启动时</li>
-</ol>
-<h3 id="zsh-启动流程">Zsh 启动流程</h3>
-<p>Zsh 的启动流程更加简洁和一致：</p>
-<ol type="1">
-<li><strong>全局配置文件</strong>：<code>/etc/zshenv</code>、<code>/etc/zprofile</code>、<code>/etc/zshrc</code>、<code>/etc/zlogout</code></li>
-<li><strong>用户配置文件</strong>：<code>~/.zshenv</code>、<code>~/.zprofile</code>、<code>~/.zshrc</code>、<code>~/.zlogout</code></li>
-</ol>
-<h3 id="启动文件执行顺序">启动文件执行顺序</h3>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zprofile → ~/.zprofile → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">交互式非登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">非交互式 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv</span><br></pre></td></tr></table></figure>
-<h2 id="实际应用建议">实际应用建议</h2>
-<h3 id="环境变量管理">1. 环境变量管理</h3>
-<p>避免使用 <code>export PATH=$PATH:/new/path</code> 这种模式，因为它可能导致重复和空路径问题。相反，使用更安全的方法：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安全的路径添加函数</span></span><br><span class="line"><span class="function"><span class="title">path_append</span></span>() &#123;</span><br><span class="line">    <span class="built_in">local</span> var_name=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> new_path=<span class="string">&quot;<span class="variable">$2</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> current_path=<span class="string">&quot;<span class="variable">$&#123;!var_name&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [[ -z <span class="string">&quot;<span class="variable">$current_path</span>&quot;</span> ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> [[ <span class="string">&quot;:<span class="variable">$current_path</span>:&quot;</span> != *<span class="string">&quot;:<span class="variable">$new_path</span>:&quot;</span>* ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$current_path</span>:<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">path_append PATH <span class="string">&quot;/usr/local/bin&quot;</span></span><br></pre></td></tr></table></figure>
-<h3 id="条件加载">2. 条件加载</h3>
-<p>根据 shell 类型和交互性条件性地加载配置：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 只在交互式 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o interactive ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/interactive</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只在登录 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o login ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/login</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
-<h3 id="跨-shell-兼容性">3. 跨 Shell 兼容性</h3>
-<p>为了在不同 shell 之间保持兼容性，使用 POSIX 兼容的语法：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用 POSIX 兼容的语法</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$SHELL</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    */bash)</span><br><span class="line">        <span class="built_in">source</span> ~/.bash/specific</span><br><span class="line">        ;;</span><br><span class="line">    */zsh)</span><br><span class="line">        <span class="built_in">source</span> ~/.zsh/specific</span><br><span class="line">        ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
-<h2 id="总结">总结</h2>
-<p>理解 shell 启动脚本的执行顺序对于正确配置你的环境至关重要。通过采用模块化的方法，你可以：</p>
-<ol type="1">
-<li><strong>保持配置的整洁</strong>：将不同类型的配置分离到不同的文件中</li>
-<li><strong>提高可维护性</strong>：每个文件都有明确的职责</li>
-<li><strong>增强可移植性</strong>：在不同机器和 shell 之间轻松迁移配置</li>
-<li><strong>避免常见陷阱</strong>：如路径重复、环境变量污染等问题</li>
-</ol>
-<p>记住，shell 启动脚本的执行顺序可能因操作系统、shell 版本和编译选项而异。最好的方法是测试你自己的系统，并根据需要调整配置。</p>
-<hr />
-<p><strong>参考来源：</strong> <a href="https://blog.flowblok.id.au/2013-02/shell-startup-scripts.html">Shell startup scripts - flowblok's blog</a></p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Shell</tag>
-        <tag>Bash</tag>
-        <tag>Zsh</tag>
-        <tag>系统配置</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>前端浏览器缓存机制</title>
     <url>/posts/50ac740b/</url>
     <content><![CDATA[<h2 id="前端浏览器缓存机制">前端浏览器缓存机制</h2>
@@ -3846,98 +3851,6 @@ flowchart TD
         <tag>前端</tag>
         <tag>浏览器</tag>
         <tag>缓存</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>混合加密入门：集安全与效率于一身的艺术</title>
-    <url>/posts/8c9a7e4f/</url>
-    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
-<ul>
-<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
-<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
-</ul>
-<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
-<span id="more"></span>
-<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
-<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
-<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
-<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
-<ul>
-<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
-<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
-<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
-<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
-</ul>
-<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
-<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
-<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
-<ul>
-<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
-<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
-</ul>
-<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
-<ul>
-<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
-<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
-<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
-</ul>
-<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
-<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
-<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
-<p>它的执行流程如同一场精心编排的双人舞：</p>
-<ol type="1">
-<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
-<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
-<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
-<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
-<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
-<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
-</ol>
-<p>至此，一次安全又高效的通信便完成了。</p>
-我们可以用下面这个流程图来清晰地展示这个过程：
-<pre class="mermaid">sequenceDiagram
-    participant Sender as 发送方
-    participant Receiver as 接收方
-
-    Note over Sender, Receiver: 混合加密流程
-
-    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
-    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
-    
-    rect rgba(255, 220, 220, 0.4)
-        note right of Sender: 获取接收方的公钥
-        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
-    end
-    
-    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
-    
-    rect rgba(220, 255, 220, 0.4)
-        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
-        note right of Receiver: 获得对称密钥
-        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
-    end
-    
-    Receiver->>Sender: 通信已安全建立</pre>
-<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
-<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
-<ul>
-<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
-<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
-<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
-<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
-</ul>
-<h3 id="四总结">✨ 四、总结</h3>
-<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
-<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>加密</tag>
-        <tag>密码学</tag>
-        <tag>安全</tag>
       </tags>
   </entry>
   <entry>
@@ -4204,6 +4117,98 @@ flowchart TD
         <tag>网络协议</tag>
         <tag>gRPC</tag>
         <tag>HTTP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>混合加密入门：集安全与效率于一身的艺术</title>
+    <url>/posts/8c9a7e4f/</url>
+    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
+<ul>
+<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
+<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
+</ul>
+<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
+<span id="more"></span>
+<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
+<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
+<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
+<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
+<ul>
+<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
+<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
+<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
+<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
+</ul>
+<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
+<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
+<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
+<ul>
+<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
+<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
+</ul>
+<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
+<ul>
+<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
+<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
+<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
+</ul>
+<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
+<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
+<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
+<p>它的执行流程如同一场精心编排的双人舞：</p>
+<ol type="1">
+<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
+<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
+<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
+<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
+<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
+<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
+</ol>
+<p>至此，一次安全又高效的通信便完成了。</p>
+我们可以用下面这个流程图来清晰地展示这个过程：
+<pre class="mermaid">sequenceDiagram
+    participant Sender as 发送方
+    participant Receiver as 接收方
+
+    Note over Sender, Receiver: 混合加密流程
+
+    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
+    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
+    
+    rect rgba(255, 220, 220, 0.4)
+        note right of Sender: 获取接收方的公钥
+        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
+    end
+    
+    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
+    
+    rect rgba(220, 255, 220, 0.4)
+        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
+        note right of Receiver: 获得对称密钥
+        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
+    end
+    
+    Receiver->>Sender: 通信已安全建立</pre>
+<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
+<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
+<ul>
+<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
+<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
+<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
+<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
+</ul>
+<h3 id="四总结">✨ 四、总结</h3>
+<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
+<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>加密</tag>
+        <tag>密码学</tag>
+        <tag>安全</tag>
       </tags>
   </entry>
 </search>
