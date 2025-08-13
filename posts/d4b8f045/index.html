@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://supermarkli.github.io/assets/bank_conflict.png">
 <meta property="article:published_time" content="2025-08-13T04:11:31.000Z">
-<meta property="article:modified_time" content="2025-08-13T05:44:57.675Z">
+<meta property="article:modified_time" content="2025-08-13T05:57:01.775Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="note,coding,life">
 <meta name="twitter:card" content="summary">
@@ -264,7 +264,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-08-13 12:11:31 / 修改时间：13:44:57" itemprop="dateCreated datePublished" datetime="2025-08-13T12:11:31+08:00">2025-08-13</time>
+      <time title="创建时间：2025-08-13 12:11:31 / 修改时间：13:57:01" itemprop="dateCreated datePublished" datetime="2025-08-13T12:11:31+08:00">2025-08-13</time>
     </span>
 
   
@@ -281,14 +281,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3.7k</span>
+      <span>4.2k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>7 分钟</span>
+      <span>8 分钟</span>
     </span>
 </div>
 
@@ -489,6 +489,17 @@ flowchart TD
 <li><strong>理想</strong>：不同线程去不同通道 → 并行一次性通过 🟢。</li>
 <li><strong>冲突</strong>：多辆车挤同一通道 → 排队串行，性能打折 🔴。</li>
 </ul>
+<blockquote>
+<p><strong>常见触发 Bank 冲突的模式（未做 +1 时）</strong><br />
+1. <strong>同列访问</strong>：矩阵转置/列拷贝，线程 (i,j 固定) → 地址步长 = 32×4B。<br />
+2. <strong>Stride 为 32 的倍数</strong>：Tile 宽度 32、64… 行间起点对齐同 bank。<br />
+3. <strong>跨步写入</strong>：线程 i 访问 <code>base + i*32</code> 等模 32 重合的地址。<br />
+4. <strong>纯行或纯列归约</strong>：只动 <code>x</code> 或 <code>y</code>，导致多线程集中一个 bank。<br />
+5. <strong>稀疏 gather/scatter</strong>：索引映射使 <code>(addr/4)&amp;31</code> 分布极度不均。</p>
+<p><strong>+1 Padding 的效果？</strong><br />
+• ✅ 有效：前 3 类（同列访问、stride 为 32 的倍数、跨步 32）——本质都是 <em>行间步长=32k</em>，加 1 立刻破坏同 bank 对齐。<br />
+• ❌ 无效：纯行/列归约与高随机 gather/scatter——冲突来源是线程集中到同一地址或分布不可控，单靠填充无法分散，需要换算法或分段访问。</p>
+</blockquote>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__shared__ <span class="type">float</span> tile[<span class="number">32</span>][<span class="number">33</span>]; <span class="comment">// 33 = 32 + 1   (列方向额外 +1 填充)</span></span><br></pre></td></tr></table></figure>
 <p><img src="/assets/bank_conflict.png" /></p>
 <p>为什么 +1 就能避开冲突？</p>
@@ -501,6 +512,9 @@ flowchart TD
 </li>
 <li>结果：32 行分别落到 32 个 bank，<strong>所有线程同时访问首元素</strong> → 零冲突。</li>
 </ol>
+<blockquote>
+<p><strong>Bank 冲突为什么只看 Warp 内同周期？</strong> GPU 每个时钟只让 <em>一个</em> Warp 的共享内存指令发射 → 冲突检测仅在这 32 线程之间进行；下一 Warp 要等上一 Warp 完成后才发射，时间上已错开，不会相互叠加。</p>
+</blockquote>
 <h2 id="主机-设备拷贝">7️⃣ 主机 ↔ 设备拷贝</h2>
 <p>拷贝链路可以类比 <strong>“快递寄包裹”</strong>：</p>
 <table>
@@ -617,7 +631,7 @@ flowchart TD
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">2:54</span>
+    <span title="站点阅读时长">2:55</span>
   </span>
 </div>
 <div class="busuanzi-count">
