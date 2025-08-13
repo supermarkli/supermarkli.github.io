@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="想看懂卷积、池化公式却老被 NCHW、stride 搞糊涂？本文聚焦 张量布局 → 常见算子 → 形状计算公式，用一篇梳理基础概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tensor 基础：布局、算子与形状推导">
+<meta property="og:url" content="https://supermarkli.github.io/posts/f1e2d3c4/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="想看懂卷积、池化公式却老被 NCHW、stride 搞糊涂？本文聚焦 张量布局 → 常见算子 → 形状计算公式，用一篇梳理基础概念。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-13T13:00:00.000Z">
+<meta property="article:modified_time" content="2025-08-13T07:45:04.058Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="深度学习">
+<meta property="article:tag" content="张量">
+<meta property="article:tag" content="形状推导">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/f1e2d3c4/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/f1e2d3c4/","path":"posts/f1e2d3c4/","title":"Tensor 基础：布局、算子与形状推导"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Tensor 基础：布局、算子与形状推导 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9C%81%E6%B5%81%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">📚 省流表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%A0%E9%87%8F%E4%B8%8E%E5%B8%83%E5%B1%80%E4%BB%8E%E6%95%B0%E5%AD%97%E5%88%B0%E5%A4%9A%E7%BB%B4%E6%95%B0%E7%BB%84"><span class="nav-number"></span> <span class="nav-text">1️⃣ 张量与布局：从数字到多维数组</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%BC%A0%E9%87%8F-tensor"><span class="nav-number">1.</span> <span class="nav-text">什么是张量 (Tensor)？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BD%95%E9%9C%80%E8%A6%81-nchw-%E8%BF%99%E7%A7%8D%E5%B8%83%E5%B1%80"><span class="nav-number">2.</span> <span class="nav-text">为何需要 NCHW 这种布局？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#nchw-vs-nhwc%E6%9C%89%E5%95%A5%E5%8C%BA%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">NCHW vs NHWC：有啥区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%B7%E7%A7%AF-convolution%E5%83%8F%E7%94%A8%E6%BB%A4%E9%95%9C%E6%8F%90%E5%8F%96%E7%89%B9%E5%BE%81"><span class="nav-number"></span> <span class="nav-text">2️⃣ 卷积 (Convolution)：像用“滤镜”提取特征</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%B7%E7%A7%AF%E7%9A%84%E4%BA%94%E4%B8%AA%E5%85%B3%E9%94%AE%E5%8F%82%E6%95%B0"><span class="nav-number">1.</span> <span class="nav-text">卷积的五个关键参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E5%90%91%E5%8D%B7%E7%A7%AF-forward-conv"><span class="nav-number">2.</span> <span class="nav-text">正向卷积 (Forward Conv)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E7%BD%AE%E5%8D%B7%E7%A7%AF-transposed-conv"><span class="nav-number">3.</span> <span class="nav-text">转置卷积 (Transposed Conv)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B1%A0%E5%8C%96-pooling%E7%BB%99%E7%89%B9%E5%BE%81%E5%9B%BE%E7%98%A6%E8%BA%AB%E5%87%8F%E8%B4%9F"><span class="nav-number"></span> <span class="nav-text">3️⃣ 池化 (Pooling)：给特征图“瘦身减负”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#max-avg-pooling"><span class="nav-number">1.</span> <span class="nav-text">Max &#x2F; Avg Pooling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E9%80%82%E5%BA%94%E6%B1%A0%E5%8C%96-adaptive-pooling"><span class="nav-number">2.</span> <span class="nav-text">自适应池化 (Adaptive Pooling)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%85%83-%E7%9F%A9%E9%98%B5%E7%AE%97%E5%AD%90%E5%BD%A2%E7%8A%B6%E8%A7%84%E5%88%99"><span class="nav-number"></span> <span class="nav-text">4️⃣ 二元 &#x2F; 矩阵算子形状规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%90%E5%85%83%E7%B4%A0-element-wise-%E8%BF%90%E7%AE%97%E5%8A%A0%E5%87%8F%E4%B9%98%E9%99%A4"><span class="nav-number">1.</span> <span class="nav-text">1. 逐元素 (Element-wise) 运算：加减乘除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%A9%E9%98%B5%E4%B9%98%E6%B3%95-matmul-bmm"><span class="nav-number">2.</span> <span class="nav-text">2. 矩阵乘法 (MatMul &#x2F; BMM)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%BC%E6%8E%A5-concatenation"><span class="nav-number">3.</span> <span class="nav-text">3. 拼接 (Concatenation)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#python-%E5%8F%96%E6%95%B4%E4%B8%8E-z3-%E7%BA%A6%E6%9D%9F%E7%BB%86%E8%8A%82"><span class="nav-number"></span> <span class="nav-text">5️⃣ Python 取整与 Z3 约束细节</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BD%95%E9%9C%80%E8%A6%81-%E5%90%91%E4%B8%8B%E5%8F%96%E6%95%B4"><span class="nav-number">1.</span> <span class="nav-text">为何需要 &#x2F;&#x2F; (向下取整)？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#z3-%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%E5%8F%96%E6%95%B4"><span class="nav-number">2.</span> <span class="nav-text">Z3 如何理解取整？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BD%95%E8%A6%81%E9%99%90%E5%88%B6%E5%A4%A7%E5%B0%8F-231"><span class="nav-number">3.</span> <span class="nav-text">为何要限制大小 (&lt; 2**31)？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#z3%E7%94%A8%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F%E5%8F%8D%E6%8E%A8%E5%90%88%E6%B3%95%E5%8F%82%E6%95%B0"><span class="nav-number"></span> <span class="nav-text">6️⃣ Z3：用数学公式反推合法参数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#z3-%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%A7%AF%E6%9C%A8"><span class="nav-number">1.</span> <span class="nav-text">1. Z3 的基本积木</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E5%85%AC%E5%BC%8F%E5%BD%93%E8%A7%84%E5%88%99%E5%8F%8D%E6%8E%A8%E5%8D%B7%E7%A7%AF%E5%8F%82%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">2. 用公式当规则：反推卷积参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%89%BE%E5%88%B0%E4%B8%8D%E5%90%8C%E7%9A%84%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">3. 如何找到“不同的”解？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AB%98%E7%BA%A7%E8%A7%84%E5%88%99-forall%E5%A4%84%E7%90%86-concat"><span class="nav-number">4.</span> <span class="nav-text">4. 高级规则 ForAll：处理 Concat</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E5%A4%A7%E6%A1%86%E6%9E%B6%E5%8F%82%E6%95%B0%E6%98%A0%E5%B0%84%E5%90%8C%E4%B8%80%E5%8A%9F%E8%83%BD%E4%B8%8D%E5%90%8C%E5%8F%AB%E6%B3%95"><span class="nav-number"></span> <span class="nav-text">7️⃣ 三大框架参数映射：同一功能，不同叫法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0%E6%96%B9%E8%A8%80%E5%AF%B9%E7%85%A7%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">核心参数“方言”对照表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%B7%AE%E5%BC%82%E4%B8%8E%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">关键差异与代码示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#padding-%E7%9A%84%E5%A4%A7%E5%9D%91"><span class="nav-number">2.1.</span> <span class="nav-text">1. Padding 的大坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F-data_format"><span class="nav-number">2.2.</span> <span class="nav-text">2. 数据格式 data_format</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E7%AE%97%E5%AD%90%E6%94%AF%E6%8C%81%E6%83%85%E5%86%B5"><span class="nav-number">3.</span> <span class="nav-text">特殊算子支持情况</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">📝 小结</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">61</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/f1e2d3c4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Tensor 基础：布局、算子与形状推导 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Tensor 基础：布局、算子与形状推导
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-08-13 21:00:00 / 修改时间：15:45:04" itemprop="dateCreated datePublished" datetime="2025-08-13T21:00:00+08:00">2025-08-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">深度学习</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">计算机基础</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>想看懂卷积、池化公式却老被 <code>NCHW</code>、<code>stride</code> 搞糊涂？本文聚焦 <strong>张量布局 → 常见算子 → 形状计算公式</strong>，用一篇梳理基础概念。</p>
+<span id="more"></span>
+<h3 id="省流表">📚 省流表</h3>
+<table>
+<thead>
+<tr class="header">
+<th>主题</th>
+<th>一句话记忆</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>张量</td>
+<td>带维度的多维数组（shape + dtype）</td>
+</tr>
+<tr class="even">
+<td>NCHW/NCDHW</td>
+<td>batch/通道在前，空间维在后，GPU 友好</td>
+</tr>
+<tr class="odd">
+<td>卷积族公式</td>
+<td><code>OUT = ⌊(IN + 2P - D*(K-1) -1)/S⌋ +1</code></td>
+</tr>
+<tr class="even">
+<td>池化族公式</td>
+<td>与卷积同型；Adaptive 反推 kernel/stride</td>
+</tr>
+<tr class="odd">
+<td>二元/MatMul</td>
+<td>Element-wise 要同形；<code>BMM</code> 需 <code>m</code> 匹配</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="张量与布局从数字到多维数组">1️⃣ 张量与布局：从数字到多维数组</h2>
+<h3 id="什么是张量-tensor">什么是张量 (Tensor)？</h3>
+<p>想象一下： - <strong>0D 张量 (标量)</strong>：一个孤零零的数字，比如 <code>5</code>。 - <strong>1D 张量 (向量)</strong>：一排数字，像 Python 列表 <code>[1, 2, 3, 4]</code>。</p>
+<blockquote>
+<p><strong>等等，Python 列表哪来的 <code>shape</code> 和 <code>dtype</code>？</strong><br />
+好问题！Python 列表本身没有。我们说的张量，其实是深度学习框架（如 PyTorch）里的一个特殊对象。框架会“接收”你的 Python 列表，然后把它“包装”成一个真正的张量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 这是一个普通的 Python 列表</span></span><br><span class="line">data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. PyTorch 把它包装成一个 Tensor 对象</span></span><br><span class="line">tensor_1d = torch.tensor(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 现在，这个对象就有 shape 和 dtype 属性了</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.shape)  <span class="comment"># 输出: torch.Size([4])，表示这是一个长度为4的1D张量</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.dtype)  <span class="comment"># 输出: torch.int64，框架自动推断出是整数类型</span></span><br></pre></td></tr></table></figure>
+<p>✨ 所以，张量是“<strong>数据 + 描述信息（形状、类型）</strong>”的组合体。</p>
+</blockquote>
+<ul>
+<li><strong>2D 张量 (矩阵)</strong>：一个表格，有行有列，像 Excel 工作表。</li>
+<li><strong>3D 张量</strong>：一沓叠起来的表格，比如一张彩色图片（高 × 宽 × 3个颜色通道）。</li>
+<li><strong>4D 张量</strong>：一堆 3D 张量，比如 <strong>一批</strong> 彩色图片。</li>
+</ul>
+<blockquote>
+<p>✨ <strong>一句话：</strong> 张量就是“多维数组”，用来装深度学习模型处理的数据。每个张量都有两个核心属性： - <strong><code>shape</code> (形状)</strong>：一个元组，告诉你每个维度有多大。例如 <code>(64, 3, 224, 224)</code>。 - <strong><code>dtype</code> (数据类型)</strong>：说明里面存的是什么类型的数，比如 <code>float32</code> (小数) 或 <code>int8</code> (整数)。</p>
+</blockquote>
+<h3 id="为何需要-nchw-这种布局">为何需要 NCHW 这种布局？</h3>
+<p>处理图片时，我们需要用一种标准方式来组织数据。<code>NCHW</code> 就是最流行的一种“打包格式”。</p>
+<table>
+<thead>
+<tr class="header">
+<th>字母</th>
+<th>含义</th>
+<th>🌰 举例：一张 <code>(3, 224, 224)</code> 的 RGB 图片</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>N</strong></td>
+<td><strong>Number / Batch</strong> (数量)</td>
+<td>一次处理 64 张图片，<code>N=64</code></td>
+</tr>
+<tr class="even">
+<td><strong>C</strong></td>
+<td><strong>Channel</strong> (通道)</td>
+<td>红/绿/蓝 3 个通道, <code>C=3</code></td>
+</tr>
+<tr class="odd">
+<td><strong>H</strong></td>
+<td><strong>Height</strong> (高度)</td>
+<td>图片高 224 像素, <code>H=224</code></td>
+</tr>
+<tr class="even">
+<td><strong>W</strong></td>
+<td><strong>Width</strong> (宽度)</td>
+<td>图片宽 224 像素, <code>W=224</code></td>
+</tr>
+</tbody>
+</table>
+<p>所以，一个 <code>(64, 3, 224, 224)</code> 的张量，意思就是“<strong>64 张、3 通道、224×224 大小的图片</strong>”。</p>
+<h3 id="nchw-vs-nhwc有啥区别">NCHW vs NHWC：有啥区别？</h3>
+<ul>
+<li><strong><code>NCHW</code> (channels_first)</strong>：<code>(N, C, H, W)</code>
+<ul>
+<li><strong>GPU 友好</strong>：CUDA/cuDNN 库针对这种布局做了优化，相邻通道的数据在内存里更连续，访问快。</li>
+<li>PyTorch/Paddle 默认。</li>
+</ul></li>
+<li><strong><code>NHWC</code> (channels_last)</strong>：<code>(N, H, W, C)</code>
+<ul>
+<li><strong>CPU/TPU 友好</strong>：某些硬件访存模式更适合通道在最后。</li>
+<li>TensorFlow 默认。</li>
+</ul></li>
+</ul>
+<blockquote>
+<p>省流：搞不清就用 <code>NCHW</code>，它是 GPU 上的“高速公路”。代码里看到 <code>permute(0, 2, 3, 1)</code> 就是在做 <code>NCHW</code> → <code>NHWC</code> 的切换。</p>
+</blockquote>
+<hr />
+<h2 id="卷积-convolution像用滤镜提取特征">2️⃣ 卷积 (Convolution)：像用“滤镜”提取特征</h2>
+<p>想象一下你给照片加滤镜（比如“锐化”或“模糊”），卷积做的就是类似的事情。它用一个小的“<strong>滤镜</strong>”（称为 <strong>Kernel</strong> 或卷积核），在输入图片上一点点地滑动，计算出每个区域的特征值，最后汇集成一张新的“特征图”。</p>
+<h3 id="卷积的五个关键参数">卷积的五个关键参数</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">符号</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">🌰 生活化比喻</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">输入尺寸</td>
+<td style="text-align: left;"><code>I</code></td>
+<td style="text-align: left;">图片的宽或高</td>
+<td style="text-align: left;">一块 10x10 的大巧克力</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kernel</td>
+<td style="text-align: left;"><code>K</code></td>
+<td style="text-align: left;">滤镜/卷积核的大小</td>
+<td style="text-align: left;">一个 3x3 的饼干模具</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Padding</td>
+<td style="text-align: left;"><code>P</code></td>
+<td style="text-align: left;">在图片边缘填充几圈0</td>
+<td style="text-align: left;">在巧克力周围加一圈奶油，防止模具出界</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Stride</td>
+<td style="text-align: left;"><code>S</code></td>
+<td style="text-align: left;">滤镜每次滑动的步长</td>
+<td style="text-align: left;">模具每次向右/下移动几格</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dilation</td>
+<td style="text-align: left;"><code>D</code></td>
+<td style="text-align: left;">Kernel内部元素的间距</td>
+<td style="text-align: left;">模具上的图案本身有多稀疏</td>
+</tr>
+</tbody>
+</table>
+<h3 id="正向卷积-forward-conv">正向卷积 (Forward Conv)</h3>
+<p>这是最常见的卷积，用来<strong>缩小</strong>特征图，<strong>提取</strong>特征。</p>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - D·(K-1) - 1) / S⌋ + 1</code></p>
+</blockquote>
+<p><strong>公式拆解：</strong></p>
+<ol type="1">
+<li><code>D·(K-1) + 1</code>：这是考虑了空洞（Dilation）之后，卷积核覆盖的实际范围。如果 <code>D=1</code>，它就等于 <code>K</code>。</li>
+<li><code>I + 2P</code>：这是输入图片在两边都加上了 <code>P</code> 圈“奶油”之后的总宽度。</li>
+<li><code>(I + 2P) - (D·(K-1) + 1)</code>：这是模具可以在奶油巧克力上滑动的“总距离”。</li>
+<li>除以 <code>S</code> 再 <code>+1</code>：计算在这个总距离上，以 <code>S</code> 为步长，总共能挪动几步（结果向下取整）。</li>
+</ol>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 输入 <code>I=5</code>, Kernel <code>K=3</code>, Padding <code>P=1</code>, Stride <code>S=2</code>, Dilation <code>D=1</code>。 - 加上 padding 后的总宽度是 <code>5 + 2*1 = 7</code>。 - Kernel 覆盖范围是 <code>1*(3-1)+1 = 3</code>。 - 滑动总距离是 <code>7 - 3 = 4</code>。 - 能滑几步？<code>4 / 2 = 2</code> 步。 - 总共能摆放几次？<code>2 + 1 = 3</code> 次。所以输出 <code>OUT=3</code>。</p>
+</blockquote>
+<h3 id="转置卷积-transposed-conv">转置卷积 (Transposed Conv)</h3>
+<p>也叫“反卷积”，但这个名字不准确。它的作用和正向卷积相反，常用来<strong>放大</strong>特征图（上采样）。</p>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = (I - 1)·S - 2P + D·(K-1) + 1</code></p>
+<p>把它想象成“从特征图反推原图尺寸”的过程，或者“用一个画笔（Kernel）在小画布上画，画出一个大图”。公式的每一项都是正向卷积的“逆运算”。</p>
+</blockquote>
+<hr />
+<h2 id="池化-pooling给特征图瘦身减负">3️⃣ 池化 (Pooling)：给特征图“瘦身减负”</h2>
+<p>如果说卷积是“精加工提取特征”，那么池化就是“<strong>粗加工，信息压缩</strong>”。它同样用一个小窗口在图上滑动，但计算规则更简单：只取窗口内的最大值（Max Pooling）或平均值（Average Pooling）。</p>
+<p><strong>为什么需要池化？</strong> 1. <strong>降低计算量</strong>：特征图变小了，后续计算更快。 2. <strong>防止过拟合</strong>：保留最主要的特征，丢掉一些不重要的细节。 3. <strong>增加感受野</strong>：让后面的卷积能看到更大范围的原始信息。</p>
+<h3 id="max-avg-pooling">Max / Avg Pooling</h3>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - K) / S⌋ + 1</code></p>
+<p>（和卷积公式一样，只是没有 Dilation）</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：Max Pooling</strong> 假设有一个 4x4 的输入，用一个 2x2 的窗口、步长为 2 来做最大池化： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">输入:             窗口1: [[1, 2],    窗口2: [[3, 4],</span><br><span class="line">[[1, 2, 3, 4],     [5, 6]] → max=6        [7, 8]] → max=8</span><br><span class="line"> [5, 6, 7, 8],</span><br><span class="line"> [9, 1, 2, 3],    窗口3: [[9, 1],    窗口4: [[2, 3],</span><br><span class="line"> [4, 5, 6, 7]]     [4, 5]] → max=9        [6, 7]] → max=7</span><br><span class="line"></span><br><span class="line">输出 (2x2):</span><br><span class="line">[[6, 8],</span><br><span class="line"> [9, 7]]</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="自适应池化-adaptive-pooling">自适应池化 (Adaptive Pooling)</h3>
+<p>这是个“懒人”池化。你<strong>不需要关心 K、P、S 是多少</strong>，直接告诉它你想要多大的输出就行了。</p>
+<blockquote>
+<p><strong>用法</strong>：<code>AdaptiveMaxPool2d(output_size=7)</code></p>
+<p>框架会自动计算出合适的 K 和 S，把任意大小的输入都变成 <code>7x7</code>。这在连接卷积层和全连接层时特别有用。</p>
+</blockquote>
+<hr />
+<h2 id="二元-矩阵算子形状规则">4️⃣ 二元 / 矩阵算子形状规则</h2>
+<h3 id="逐元素-element-wise-运算加减乘除">1. 逐元素 (Element-wise) 运算：加减乘除</h3>
+<p>这是最简单的运算，就像小学数学题，把两个形状完全一样的表格，对应位置的数字做加减法。</p>
+<blockquote>
+<p><strong>规则</strong>：两个张量的形状必须完全一样。</p>
+<p>🌰 <strong>示例：</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A = [[1, 2],    B = [[5, 6],    A + B = [[1+5, 2+6],</span><br><span class="line">     [3, 4]]         [7, 8]]             [3+7, 4+8]]</span><br><span class="line"></span><br><span class="line"># 结果: [[6, 8], [10, 12]]</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p><strong>✨ 进阶：广播 (Broadcasting)</strong></p>
+<p>如果两个张量形状<strong>不完全一样</strong>，但又“兼容”，框架会自动“扩展”那个小一点的张量，让它们能够运算。这个过程就叫广播。</p>
+<blockquote>
+<p>🌰 <strong>示例：给矩阵的每一行都加上一个向量</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">A = [[1, 2, 3],    B = [10, 20, 30]</span><br><span class="line">     [4, 5, 6]]</span><br><span class="line"></span><br><span class="line"># 框架会自动把 B “复制”成两行，变成 [[10, 20, 30], [10, 20, 30]]</span><br><span class="line"># 然后再和 A 做逐元素相加。</span><br><span class="line">A + B = [[11, 22, 33],</span><br><span class="line">         [14, 25, 36]]</span><br></pre></td></tr></table></figure> 广播非常强大，能省去很多手动的 <code>for</code> 循环。</p>
+</blockquote>
+<h3 id="矩阵乘法-matmul-bmm">2. 矩阵乘法 (MatMul / BMM)</h3>
+<p>矩阵乘法不是对应位置相乘，规则要特殊一些。</p>
+<blockquote>
+<p><strong>规则</strong>：对于 <code>A @ B</code> (在 Python 里 <code>@</code> 是矩阵乘法的运算符)，A 的 <strong>列数</strong> 必须等于 B 的 <strong>行数</strong>。 - <code>A (n, m)</code> @ <code>B (m, p)</code> → <code>C (n, p)</code></p>
+<p>把它想象成“配对消除”：中间的 <code>m</code> 维配对后消失，剩下两头的 <code>n</code> 和 <code>p</code> 组成新形状。</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 一个 <code>(2, 3)</code> 矩阵乘以一个 <code>(3, 4)</code> 矩阵： - <code>A</code> 有 2 行 3 列 - <code>B</code> 有 3 行 4 列 - A 的列数 (3) == B 的行数 (3)，可以相乘！ - 结果 <code>C</code> 的形状是 <code>(2, 4)</code>。</p>
+</blockquote>
+<p><strong>✨ 进阶：批量矩阵乘法 (BMM - Batched Matrix Multiplication)</strong></p>
+<p>如果想一次性做好几组独立的矩阵乘法，就可以用 BMM。</p>
+<blockquote>
+<p><strong>规则</strong>：<code>A (b, n, m)</code> @ <code>B (b, m, p)</code> → <code>C (b, n, p)</code></p>
+<p><code>b</code> 是 <code>batch_size</code>，代表有多少组。除了 <code>b</code> 必须相等，每一组内的 <code>n, m, p</code> 规则和普通矩阵乘法一样。</p>
+</blockquote>
+<h3 id="拼接-concatenation">3. 拼接 (Concatenation)</h3>
+<p>拼接就是把几个张量“粘”在一起，变成一个更大的张量。</p>
+<blockquote>
+<p><strong>规则</strong>：除了你要拼接的那个维度（<code>axis</code> 或 <code>dim</code>），其他所有维度的大小都必须完全一致。</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 两个形状为 <code>(2, 3)</code> 的张量 <code>A</code> 和 <code>B</code>。</p>
+<ul>
+<li><p><strong>沿 <code>axis=0</code> (行) 拼接</strong>：像叠罗汉一样上下拼接。 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">A = [[1, 1, 1],    B = [[2, 2, 2],</span><br><span class="line">     [1, 1, 1]]         [2, 2, 2]]</span><br><span class="line"># 结果形状 (4, 3)</span><br><span class="line">[[1, 1, 1],</span><br><span class="line"> [1, 1, 1],</span><br><span class="line"> [2, 2, 2],</span><br><span class="line"> [2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>沿 <code>axis=1</code> (列) 拼接</strong>：像火车车厢一样左右拼接。 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 结果形状 (2, 6)</span><br><span class="line">[[1, 1, 1, 2, 2, 2],</span><br><span class="line"> [1, 1, 1, 2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="python-取整与-z3-约束细节">5️⃣ Python 取整与 Z3 约束细节</h2>
+<h3 id="为何需要-向下取整">为何需要 <code>//</code> (向下取整)？</h3>
+<p>在计算卷积或池化输出尺寸时，公式 <code>(I + 2P - K) / S + 1</code> 很容易算出小数，比如 <code>(10 - 3) / 2 = 3.5</code>。但像素数不可能是小数，我们必须把它变成整数。</p>
+<ul>
+<li><strong><code>/</code> (普通除法)</strong>：<code>7 / 2 = 3.5</code></li>
+<li><strong><code>//</code> (地板除法)</strong>：<code>7 // 2 = 3</code> (直接扔掉小数部分，往小了取)</li>
+</ul>
+<blockquote>
+<p>✨ <strong>核心：</strong> 深度学习里的形状计算，用的都是<strong>向下取整</strong>。所以你在代码里会看到 <code>//</code> 而不是 <code>/</code>。</p>
+</blockquote>
+<h3 id="z3-如何理解取整">Z3 如何理解取整？</h3>
+<p>Z3 的整数除法 <code>/</code> 在处理正数时，行为和 Python 的 <code>//</code> 一模一样。这就是为什么在给 Z3 添加规则时，我们总是先加一条：</p>
+<p><code>solver.add(H_in &gt; 0, K &gt; 0, S &gt; 0, ...)</code></p>
+<blockquote>
+<p>这条规则相当于告诉 Z3：“别去想那些负数或者零的情况，咱们只在正数范围内玩耍。” 这样就保证了 Z3 的数学模型和框架的实际计算结果能对得上。</p>
+</blockquote>
+<h3 id="为何要限制大小-231">为何要限制大小 (<code>&lt; 2**31</code>)？</h3>
+<p>在 <code>ops.py</code> 里，我们还常会加一条 <code>dim &lt; 2**31</code> 的约束。</p>
+<blockquote>
+<p><strong>生活化比喻：</strong> 这就像你让朋友猜一个数字，但你先告诉他：“这个数在 1 到 100 之间”。这会让他猜得更快，而不是天马行空地去想。</p>
+</blockquote>
+<p><strong>主要原因有两个：</strong> 1. <strong>现实限制</strong>：GPU 内存有限，不可能创建一个几百亿维度的张量。<code>2**31-1</code> 是很多框架内部表示维度大小的上限。 2. <strong>求解效率</strong>：给 Z3 一个明确的范围，可以极大地缩小它的“搜索空间”，让它在几秒钟内就找到答案，而不是花几个小时去尝试那些不切实际的超大数字。</p>
+<hr />
+<h2 id="z3用数学公式反推合法参数">6️⃣ Z3：用数学公式反推合法参数</h2>
+<p>Z3 是一个“约束求解器”。你可以把它想象成一个<strong>超级聪明的数独程序</strong>。</p>
+<blockquote>
+<p><strong>工作流程：</strong> 1. <strong>你提供规则</strong>：比如“这一行数字不能重复”、“这一格必须是 5”。 2. <strong>它负责寻找答案</strong>：Z3 会自动尝试所有可能性，找出一个或多个满足你所有规则的数字组合。</p>
+</blockquote>
+<p>在我们的场景里，规则就是算子的“形状计算公式”，答案就是一组“合法的张量形状和参数”。</p>
+<h3 id="z3-的基本积木">1. Z3 的基本积木</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> Int, Solver, And, sat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 声明变量：告诉 Z3，这些是我要你帮忙找的未知数</span></span><br><span class="line">H_in = Int(<span class="string">&#x27;H_in&#x27;</span>)  <span class="comment"># 输入高度</span></span><br><span class="line">K = Int(<span class="string">&#x27;K&#x27;</span>)        <span class="comment"># Kernel 大小</span></span><br><span class="line">P = Int(<span class="string">&#x27;P&#x27;</span>)        <span class="comment"># Padding</span></span><br><span class="line">S = Int(<span class="string">&#x27;S&#x27;</span>)        <span class="comment"># Stride</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建一个求解器实例</span></span><br><span class="line">solver = Solver()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加规则 (Constraints)</span></span><br><span class="line">solver.add(H_in &gt; <span class="number">0</span>, K &gt; <span class="number">0</span>, P &gt;= <span class="number">0</span>, S &gt; <span class="number">0</span>)  <span class="comment"># 所有参数必须是正数（Padding可以为0）</span></span><br><span class="line">solver.add(K &lt; H_in)  <span class="comment"># Kernel 不能比输入还大</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 求解并读取结果</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:  <span class="comment"># sat 的意思是 &quot;satisfiable&quot;，即“有解”</span></span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;找到一组解: H_in=<span class="subst">&#123;model[H_in]&#125;</span>, K=<span class="subst">&#123;model[K]&#125;</span>, ...&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;无解！&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="用公式当规则反推卷积参数">2. 用公式当规则：反推卷积参数</h3>
+<p>现在，我们把卷积的输出公式也加进去当规则：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ...接上文...</span></span><br><span class="line">H_out = Int(<span class="string">&#x27;H_out&#x27;</span>)</span><br><span class="line"><span class="comment"># 已知输出必须是 7</span></span><br><span class="line">solver.add(H_out == <span class="number">7</span>)</span><br><span class="line"><span class="comment"># 把公式加进去</span></span><br><span class="line">solver.add(H_out == (H_in + <span class="number">2</span>*P - K)//S + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次求解</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:</span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="comment"># Z3 会给出一组能让 H_out 等于 7 的 H_in, K, P, S</span></span><br><span class="line">    <span class="built_in">print</span>(model) <span class="comment"># 例如: [K = 3, S = 2, P = 1, H_in = 13, H_out = 7]</span></span><br></pre></td></tr></table></figure>
+<h3 id="如何找到不同的解">3. 如何找到“不同的”解？</h3>
+<p>为了测试更多情况，我们需要 Z3 给出和上次不一样的答案。</p>
+<blockquote>
+<p><strong>方法</strong>：在找到一组解（比如 <code>H_in = 13</code>）之后，往求解器里追加一条新规则：<code>solver.add(H_in != 13)</code>，然后再 <code>solver.check()</code>，它就会去找下一组解了。</p>
+</blockquote>
+<p><strong><code>universal_hash</code> 是做什么的？</strong> 它是一种更高级的“制造不同”的方法。有时只排除一个变量 (<code>H_in != 13</code>)，Z3 给出的新解可能只是其他变量稍微变了一下，不够“多样”。<code>universal_hash</code> 会把所有变量的值都“搅乱”一下，再添加不等约束，这样更容易驱动 Z3 去探索一个全新的、差异更大的解空间。</p>
+<h3 id="高级规则-forall处理-concat">4. 高级规则 <code>ForAll</code>：处理 Concat</h3>
+<p>对于 Concat 算子，规则是“除了拼接的那个维度，其他维度的大小都必须一样”。用 <code>ForAll</code> 就能优雅地表达这个规则。</p>
+<blockquote>
+<p><code>ForAll([i], Implies(i != concat_dim, shape_A[i] == shape_B[i]))</code></p>
+<p><strong>翻译成人话就是：</strong> “对于<strong>所有的</strong>维度 <code>i</code>，<strong>如果</strong> <code>i</code> 不是我们正在拼接的那个维度，<strong>那么</strong> <code>shape_A</code> 在 <code>i</code> 上的大小必须等于 <code>shape_B</code> 在 <code>i</code> 上的大小。”</p>
+</blockquote>
+<hr />
+<h2 id="三大框架参数映射同一功能不同叫法">7️⃣ 三大框架参数映射：同一功能，不同叫法</h2>
+<p>PyTorch, PaddlePaddle, TensorFlow (Keras) 是三个最主流的深度学习框架。它们都有卷积、池化这些功能，但就像不同地方的方言，它们给这些功能的参数起了不同的名字。</p>
+<h3 id="核心参数方言对照表">核心参数“方言”对照表</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">通用概念</th>
+<th style="text-align: left;">PyTorch</th>
+<th style="text-align: left;">PaddlePaddle</th>
+<th style="text-align: left;">TensorFlow (Keras)</th>
+<th style="text-align: left;">🗣️ 备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">输入通道数</td>
+<td style="text-align: left;"><code>in_channels</code></td>
+<td style="text-align: left;"><code>in_channels</code></td>
+<td style="text-align: left;">(自动推断)</td>
+<td style="text-align: left;">Keras 根据输入形状自动识别</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">输出通道数</td>
+<td style="text-align: left;"><code>out_channels</code></td>
+<td style="text-align: left;"><code>out_channels</code></td>
+<td style="text-align: left;"><code>filters</code></td>
+<td style="text-align: left;">TF 叫“滤波器数量”</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">卷积核大小</td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;">这个大家都一样</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">步长</td>
+<td style="text-align: left;"><code>stride</code></td>
+<td style="text-align: left;"><code>stride</code></td>
+<td style="text-align: left;"><code>strides</code></td>
+<td style="text-align: left;">TF 喜欢用复数形式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">填充</td>
+<td style="text-align: left;"><code>padding</code> (int)</td>
+<td style="text-align: left;"><code>padding</code> (int/str)</td>
+<td style="text-align: left;"><code>padding</code> (str)</td>
+<td style="text-align: left;"><strong>这个坑最多！</strong> (见下文)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">空洞卷积</td>
+<td style="text-align: left;"><code>dilation</code></td>
+<td style="text-align: left;"><code>dilation</code></td>
+<td style="text-align: left;"><code>dilation_rate</code></td>
+<td style="text-align: left;">TF 叫“空洞率”</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">分组卷积</td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;">基本一致</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">数据格式</td>
+<td style="text-align: left;">(默认 NCHW)</td>
+<td style="text-align: left;">(默认 NCHW)</td>
+<td style="text-align: left;">(默认 NHWC)</td>
+<td style="text-align: left;"><strong>TF/Keras 默认通道在后！</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="关键差异与代码示例">关键差异与代码示例</h3>
+<h4 id="padding-的大坑">1. Padding 的大坑</h4>
+<ul>
+<li><strong>PyTorch/Paddle</strong>：<code>padding=1</code> 表示在图片四周都填充 1 圈 0。</li>
+<li><strong>TensorFlow/Keras</strong>：<code>padding</code> 只能是字符串 <code>'valid'</code> (不填充) 或 <code>'same'</code> (自动计算填充，让输出和输入尺寸差不多)。如果你想精确控制填充几圈，必须<strong>单独用一个 <code>ZeroPadding2D</code> 层</strong>。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># PyTorch: 一步到位</span></span><br><span class="line">conv_torch = torch.nn.Conv2d(in_channels=<span class="number">3</span>, out_channels=<span class="number">16</span>, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># TensorFlow/Keras: 两步走</span></span><br><span class="line">model_tf = tf.keras.Sequential([</span><br><span class="line">    tf.keras.layers.ZeroPadding2D(padding=<span class="number">1</span>),</span><br><span class="line">    tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>)</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
+<h4 id="数据格式-data_format">2. 数据格式 <code>data_format</code></h4>
+<p>因为 PyTorch/Paddle 默认 <code>NCHW</code> (channels-first)，而 Keras 默认 <code>NHWC</code> (channels-last)，跨框架复现代码时，一定要在 Keras 层里加上 <code>data_format='channels_first'</code> 来保持统一！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Keras 里保持和 PyTorch 一样的 NCHW 格式</span></span><br><span class="line">conv_keras = tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>, data_format=<span class="string">&#x27;channels_first&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="特殊算子支持情况">特殊算子支持情况</h3>
+<ul>
+<li><strong>转置卷积</strong>：TF/Keras 的 <code>Conv2DTranspose</code> 不支持 <code>groups</code> 参数。</li>
+<li><strong>某些算子</strong>：有些高级或不常用的算子，可能只有一个或两个框架支持。</li>
+</ul>
+<blockquote>
+<p>省流：写代码前，先查一下目标框架的官方文档，看好参数名叫什么、支持哪些功能。尤其是 <strong>Padding 和 data_format</strong>，是新手最容易踩的两个坑。</p>
+</blockquote>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ul>
+<li>布局先行：牢记 <code>NCHW</code> / <code>NCDHW</code> 与各维意义。<br />
+</li>
+<li>掌握卷积/池化公式，<strong>一眼能推形状</strong>。<br />
+</li>
+<li><code>//</code> 取整配合 “&gt;0” 约束，确保 SMT 结果一致。<br />
+</li>
+<li>参数映射时注意三框架差异，踩坑前先看文档。</li>
+</ul>
+<blockquote>
+<p>省流：<strong>布局→公式→约束→映射</strong> 四步打通，你的 Tensor 基础就算扎牢啦 📐✨</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+              <a href="/tags/%E5%BC%A0%E9%87%8F/" rel="tag"># 张量</a>
+              <a href="/tags/%E5%BD%A2%E7%8A%B6%E6%8E%A8%E5%AF%BC/" rel="tag"># 形状推导</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/6a8247a7/" rel="prev" title="Python 语法与工程骨架">
+                  <i class="fa fa-angle-left"></i> Python 语法与工程骨架
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">107k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:15</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

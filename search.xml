@@ -508,6 +508,78 @@
       </tags>
   </entry>
   <entry>
+    <title>DeepSeek本地部署</title>
+    <url>/posts/4f6ed32b/</url>
+    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
+<span id="more"></span>
+<h2 id="下载ollama">下载Ollama</h2>
+<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
+<p>下载地址：https://ollama.com/download/windows</p>
+<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
+<p>如下图所示</p>
+<p><img src="/assets/deepseek部署01.png" /></p>
+<blockquote>
+<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
+</blockquote>
+<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
+<p><img src="/assets/deepseek部署02.png" /></p>
+<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
+<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
+<h2 id="下载deepseek">下载DeepSeek</h2>
+<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
+<p><img src="/assets/deepseek部署03.png" /></p>
+<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
+<p>如下图所示：</p>
+<p><img src="/assets/deepseek部署04.png" /></p>
+<p>最终效果如下图所示：</p>
+<p><img src="/assets/deepseek部署05.png" /></p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>人工智能</category>
+      </categories>
+      <tags>
+        <tag>大语言模型</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Dotfiles</title>
+    <url>/posts/e5afd7e1/</url>
+    <content><![CDATA[<p>在 Linux 或 macOS 系统中，那些以点（<code>.</code>）开头的文件和文件夹，即 <code>dotfiles</code>（如 <code>.bashrc</code>, <code>.gitconfig</code>），是塑造我们数字环境的灵魂。它们记录了从终端提示符的美化，到编辑器（如 Vim/Neovim）的每一个快捷键，再到窗口管理器的布局规则。一个精心调教的 <code>dotfiles</code> 集合，是我们追求效率与个性的直接体现。</p>
+<p>然而，随着我们配置的日益精细和跨设备工作的常态化，一个问题浮出水面：如何优雅、高效地管理这些散落在主目录各处的“灵魂碎片”？ <span id="more"></span></p>
+<h3 id="传统方案的困境在简单与复杂之间挣扎">传统方案的困境：在简单与复杂之间挣扎</h3>
+<p>我们通常会经历几个阶段： 1. <strong>蛮荒时代的手动复制</strong>：在新设备上凭记忆和手动拷贝来恢复环境，低效、易错且令人沮丧。 2. <strong>自动化脚本的萌芽</strong>：编写 Shell 脚本来批量创建软链接（<code>ln -s</code>）。这是一种进步，但随着配置文件的增删，维护脚本本身成了一件麻烦事，我们等于是在用一个配置文件去管理另一堆配置文件。 3. <strong>Git 裸仓库的炫技</strong>：使用 <code>git bare repository</code> 是一个更高级的方案，它允许我们直接在主目录下用 Git 进行版本控制。功能非常强大，但其命令相对晦涩（需要一个特殊的别名），心智负担较重，破坏了 Git 操作的直观性。</p>
+<p>这些方案，要么过于简陋，要么过于复杂。我们真正需要的，是一种既直观又强大，能够清晰地将“配置的存储”与“配置的部署”分离开的工具。这正是 GNU Stow 的舞台。</p>
+<h3 id="stow-的哲学一个优雅的符号链接农场">Stow 的哲学：一个优雅的“符号链接农场”</h3>
+<p><code>Stow</code> 本质上是一个“符号链接农场管理器”（Symlink Farm Manager）。这个比喻非常精妙地揭示了它的核心工作原理。</p>
+<p>想象一下： * 你的 <code>~/dotfiles</code> 目录是一个<strong>农场</strong>。 * 农场里的每一个子目录（如 <code>nvim</code>, <code>git</code>, <code>zsh</code>）都是一种<strong>作物</strong>（配置包）。 * 你的主目录 <code>~</code> 是需要播种的<strong>土地</strong>。</p>
+<p><code>stow</code> 命令所做的，就是将你在“农场”里精心培育的“作物”，自动“播种”到“土地”的正确位置上。它通过创建符号链接（symlink）来实现这一点，这些链接就像是作物的根系，从主目录的指定位置（如 <code>~/.config/nvim</code>）精确地指向农场里的源文件（<code>~/dotfiles/nvim/.config/nvim</code>）。</p>
+<p>这种模式的核心是<strong>“关注点分离”</strong>（Separation of Concerns）： 1. <strong>配置的源码</strong>：你的 <code>dotfiles</code> 仓库是所有配置的唯一“真理之源”（Single Source of Truth）。它结构清晰，按应用模块化组织，非常适合用 Git进行版本控制。 2. <strong>配置的部署</strong>：主目录 <code>~</code> 下的配置文件只是指向源码的“指针”（软链接）。它们让应用能够正常工作，但其本身不包含任何实际配置内容。</p>
+<p>你不再需要编写 <code>ln -s a b</code> 这样的命令式脚本，而是通过在 <code>dotfiles</code> 仓库里组织文件结构这种<strong>声明式</strong>的方式，来定义你的环境应该是什么样子。<code>stow</code> 会负责实现它。</p>
+<h3 id="选择-stow-的核心优势">选择 Stow 的核心优势</h3>
+<ol type="1">
+<li><p><strong>绝对直观 (Intuitive)</strong> <code>stow</code> 最具颠覆性的一点在于它的目录结构映射。你在 <code>~/dotfiles/nvim/</code> 下看到的目录结构，就是 <code>stow</code> 将要在 <code>~</code> 目录下为你创建的软链接结构。这种“所见即所得”的设计，使得理解和维护配置变得异常简单。</p></li>
+<li><p><strong>高度模块化 (Modular)</strong> 每个应用的配置都封装在独立的目录中。这意味着你可以像乐高积木一样组合你的环境。想启用 Neovim 配置？<code>stow nvim</code>。想暂时禁用 Zsh 配置来调试问题？<code>stow -D zsh</code>。想在不同机器上使用不同的 Git 配置？只需选择性地 <code>stow</code> 即可。这种模块化能力是脚本或裸仓库方案难以比拟的。</p></li>
+<li><p><strong>极致的可移植性 (Portable)</strong> 当 <code>stow</code> 与 <code>git</code> 结合，配置新机器的体验将得到升华。整个过程简化为三步： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 克隆你的配置仓库</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/your/dotfiles.git ~/dotfiles</span><br><span class="line"><span class="comment"># 2. 进入目录</span></span><br><span class="line"><span class="built_in">cd</span> ~/dotfiles</span><br><span class="line"><span class="comment"># 3. 按需“安装”你的配置</span></span><br><span class="line">stow git zsh nvim</span><br></pre></td></tr></table></figure> 几条命令，一个熟悉的环境便跃然屏上。</p></li>
+<li><p><strong>安全且健壮 (Robust)</strong> <code>stow</code> 在执行操作前会进行检查。如果它发现目标位置已经存在一个文件或目录（而不是一个指向自己的软链接），它会报错并停止，防止意外覆盖你的重要文件。它足够智能，会自动创建缺失的父目录，也会在卸载时清理空目录。</p></li>
+</ol>
+<h3 id="结论大道至简">结论：大道至简</h3>
+<p>在 dotfiles 管理的江湖里，<code>stow</code> 并非屠龙之技，而是一招一式都直击痛点的“无招胜有招”。它放弃了复杂的逻辑，回归到对文件系统结构最朴素的映射，通过“软链接农场”这一简单而强大的模型，完美地平衡了易用性、功能性与可维护性。</p>
+<p>如果你正在寻找一种能让你重拾对配置文件掌控感的方法，<code>stow</code> 值得一试。它将帮助你打造一个真正属于自己的、可轻松漫游于多台设备间的个性化高效环境。</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Git</tag>
+        <tag>工具</tag>
+        <tag>Dotfiles</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CUDA核心概念与内存层次</title>
     <url>/posts/d4b8f045/</url>
     <content><![CDATA[<p>想在一张图看懂 GPU 的线程组织与内存层次？本文用表格 + Mermaid 图 + 代码示例，3 分钟带你摸清 Kernel、Warp、合并访存与 bank 冲突的底层逻辑。</p>
@@ -808,229 +880,6 @@ flowchart TD
 <p>记住一句话：<strong>GPU 用“成群线程”换吞吐，用“切 Warp”藏延迟，性能归根结底是访存模式与并行度的艺术 ✨</strong></p>
 </blockquote>
 ]]></content>
-  </entry>
-  <entry>
-    <title>DeepSeek本地部署</title>
-    <url>/posts/4f6ed32b/</url>
-    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
-<span id="more"></span>
-<h2 id="下载ollama">下载Ollama</h2>
-<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
-<p>下载地址：https://ollama.com/download/windows</p>
-<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
-<p>如下图所示</p>
-<p><img src="/assets/deepseek部署01.png" /></p>
-<blockquote>
-<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
-</blockquote>
-<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
-<p><img src="/assets/deepseek部署02.png" /></p>
-<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
-<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
-<h2 id="下载deepseek">下载DeepSeek</h2>
-<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
-<p><img src="/assets/deepseek部署03.png" /></p>
-<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
-<p>如下图所示：</p>
-<p><img src="/assets/deepseek部署04.png" /></p>
-<p>最终效果如下图所示：</p>
-<p><img src="/assets/deepseek部署05.png" /></p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>人工智能</category>
-      </categories>
-      <tags>
-        <tag>大语言模型</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Dotfiles</title>
-    <url>/posts/e5afd7e1/</url>
-    <content><![CDATA[<p>在 Linux 或 macOS 系统中，那些以点（<code>.</code>）开头的文件和文件夹，即 <code>dotfiles</code>（如 <code>.bashrc</code>, <code>.gitconfig</code>），是塑造我们数字环境的灵魂。它们记录了从终端提示符的美化，到编辑器（如 Vim/Neovim）的每一个快捷键，再到窗口管理器的布局规则。一个精心调教的 <code>dotfiles</code> 集合，是我们追求效率与个性的直接体现。</p>
-<p>然而，随着我们配置的日益精细和跨设备工作的常态化，一个问题浮出水面：如何优雅、高效地管理这些散落在主目录各处的“灵魂碎片”？ <span id="more"></span></p>
-<h3 id="传统方案的困境在简单与复杂之间挣扎">传统方案的困境：在简单与复杂之间挣扎</h3>
-<p>我们通常会经历几个阶段： 1. <strong>蛮荒时代的手动复制</strong>：在新设备上凭记忆和手动拷贝来恢复环境，低效、易错且令人沮丧。 2. <strong>自动化脚本的萌芽</strong>：编写 Shell 脚本来批量创建软链接（<code>ln -s</code>）。这是一种进步，但随着配置文件的增删，维护脚本本身成了一件麻烦事，我们等于是在用一个配置文件去管理另一堆配置文件。 3. <strong>Git 裸仓库的炫技</strong>：使用 <code>git bare repository</code> 是一个更高级的方案，它允许我们直接在主目录下用 Git 进行版本控制。功能非常强大，但其命令相对晦涩（需要一个特殊的别名），心智负担较重，破坏了 Git 操作的直观性。</p>
-<p>这些方案，要么过于简陋，要么过于复杂。我们真正需要的，是一种既直观又强大，能够清晰地将“配置的存储”与“配置的部署”分离开的工具。这正是 GNU Stow 的舞台。</p>
-<h3 id="stow-的哲学一个优雅的符号链接农场">Stow 的哲学：一个优雅的“符号链接农场”</h3>
-<p><code>Stow</code> 本质上是一个“符号链接农场管理器”（Symlink Farm Manager）。这个比喻非常精妙地揭示了它的核心工作原理。</p>
-<p>想象一下： * 你的 <code>~/dotfiles</code> 目录是一个<strong>农场</strong>。 * 农场里的每一个子目录（如 <code>nvim</code>, <code>git</code>, <code>zsh</code>）都是一种<strong>作物</strong>（配置包）。 * 你的主目录 <code>~</code> 是需要播种的<strong>土地</strong>。</p>
-<p><code>stow</code> 命令所做的，就是将你在“农场”里精心培育的“作物”，自动“播种”到“土地”的正确位置上。它通过创建符号链接（symlink）来实现这一点，这些链接就像是作物的根系，从主目录的指定位置（如 <code>~/.config/nvim</code>）精确地指向农场里的源文件（<code>~/dotfiles/nvim/.config/nvim</code>）。</p>
-<p>这种模式的核心是<strong>“关注点分离”</strong>（Separation of Concerns）： 1. <strong>配置的源码</strong>：你的 <code>dotfiles</code> 仓库是所有配置的唯一“真理之源”（Single Source of Truth）。它结构清晰，按应用模块化组织，非常适合用 Git进行版本控制。 2. <strong>配置的部署</strong>：主目录 <code>~</code> 下的配置文件只是指向源码的“指针”（软链接）。它们让应用能够正常工作，但其本身不包含任何实际配置内容。</p>
-<p>你不再需要编写 <code>ln -s a b</code> 这样的命令式脚本，而是通过在 <code>dotfiles</code> 仓库里组织文件结构这种<strong>声明式</strong>的方式，来定义你的环境应该是什么样子。<code>stow</code> 会负责实现它。</p>
-<h3 id="选择-stow-的核心优势">选择 Stow 的核心优势</h3>
-<ol type="1">
-<li><p><strong>绝对直观 (Intuitive)</strong> <code>stow</code> 最具颠覆性的一点在于它的目录结构映射。你在 <code>~/dotfiles/nvim/</code> 下看到的目录结构，就是 <code>stow</code> 将要在 <code>~</code> 目录下为你创建的软链接结构。这种“所见即所得”的设计，使得理解和维护配置变得异常简单。</p></li>
-<li><p><strong>高度模块化 (Modular)</strong> 每个应用的配置都封装在独立的目录中。这意味着你可以像乐高积木一样组合你的环境。想启用 Neovim 配置？<code>stow nvim</code>。想暂时禁用 Zsh 配置来调试问题？<code>stow -D zsh</code>。想在不同机器上使用不同的 Git 配置？只需选择性地 <code>stow</code> 即可。这种模块化能力是脚本或裸仓库方案难以比拟的。</p></li>
-<li><p><strong>极致的可移植性 (Portable)</strong> 当 <code>stow</code> 与 <code>git</code> 结合，配置新机器的体验将得到升华。整个过程简化为三步： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 克隆你的配置仓库</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/your/dotfiles.git ~/dotfiles</span><br><span class="line"><span class="comment"># 2. 进入目录</span></span><br><span class="line"><span class="built_in">cd</span> ~/dotfiles</span><br><span class="line"><span class="comment"># 3. 按需“安装”你的配置</span></span><br><span class="line">stow git zsh nvim</span><br></pre></td></tr></table></figure> 几条命令，一个熟悉的环境便跃然屏上。</p></li>
-<li><p><strong>安全且健壮 (Robust)</strong> <code>stow</code> 在执行操作前会进行检查。如果它发现目标位置已经存在一个文件或目录（而不是一个指向自己的软链接），它会报错并停止，防止意外覆盖你的重要文件。它足够智能，会自动创建缺失的父目录，也会在卸载时清理空目录。</p></li>
-</ol>
-<h3 id="结论大道至简">结论：大道至简</h3>
-<p>在 dotfiles 管理的江湖里，<code>stow</code> 并非屠龙之技，而是一招一式都直击痛点的“无招胜有招”。它放弃了复杂的逻辑，回归到对文件系统结构最朴素的映射，通过“软链接农场”这一简单而强大的模型，完美地平衡了易用性、功能性与可维护性。</p>
-<p>如果你正在寻找一种能让你重拾对配置文件掌控感的方法，<code>stow</code> 值得一试。它将帮助你打造一个真正属于自己的、可轻松漫游于多台设备间的个性化高效环境。</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Git</tag>
-        <tag>工具</tag>
-        <tag>Dotfiles</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>开源许可证速查：MIT、Apache 2.0、GPL v3 怎么选？</title>
-    <url>/posts/c3f2a1b9/</url>
-    <content><![CDATA[<p>面对五花八门的开源许可证，最常被问到的无非三件事：能不能商用？能不能改了闭源？要不要写专利和修改声明？这篇文章用一张速查表和几条决策准则，帮你在 1 分钟内选对证。</p>
-<span id="more"></span>
-<h2 id="先看结论速查表">🧭 先看结论（速查表）</h2>
-<table>
-<thead>
-<tr class="header">
-<th>特性</th>
-<th>MIT 许可证</th>
-<th>Apache 2.0 许可证</th>
-<th>GPL 许可证 (v3)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>类型</td>
-<td>宽松（Permissive）</td>
-<td>宽松（Permissive）</td>
-<td>传染共享（Copyleft）</td>
-</tr>
-<tr class="even">
-<td>商业使用</td>
-<td>允许</td>
-<td>允许</td>
-<td>允许</td>
-</tr>
-<tr class="odd">
-<td>修改后闭源</td>
-<td>允许</td>
-<td>允许</td>
-<td>不允许</td>
-</tr>
-<tr class="even">
-<td>需要包含原许可证</td>
-<td>是</td>
-<td>是</td>
-<td>是</td>
-</tr>
-<tr class="odd">
-<td>需要说明修改</td>
-<td>否</td>
-<td>是</td>
-<td>是</td>
-</tr>
-<tr class="even">
-<td>专利授权</td>
-<td>无明确说明</td>
-<td>明确授权</td>
-<td>明确授权</td>
-</tr>
-<tr class="odd">
-<td>“传染性”</td>
-<td>无</td>
-<td>无</td>
-<td>强</td>
-</tr>
-</tbody>
-</table>
-<p>图表要点：如果你希望“随便用、闭源也行”，首选 MIT 或 Apache 2.0；如果你希望“别人用到你的代码时必须开源”，选择 GPL v3。</p>
-<hr />
-<h2 id="三大许可证一口气读懂">🧩 三大许可证，一口气读懂</h2>
-<h3 id="mit最宽松落地最简单">✅ MIT：最宽松、落地最简单</h3>
-<ul>
-<li>核心义务：在再分发时保留原始版权与许可证文本。</li>
-<li>适用场景：前端库、工具脚本、样例项目、教育项目等，希望最低合规成本、最大化传播。</li>
-<li>风险点：没有明确的专利授权条款，企业法务更偏好 Apache 2.0。</li>
-</ul>
-<h3 id="apache-2.0工程团队的默认首选">✅ Apache 2.0：工程团队的默认首选</h3>
-<ul>
-<li>核心义务：保留 <code>LICENSE</code> 与 <code>NOTICE</code>，对修改做合理标识；自带专利授权与专利反诉终止条款。</li>
-<li>适用场景：需要进入企业或商业产品的库/服务；关注专利风险的项目。</li>
-<li>亮点：与 MIT 同样宽松，但合规边界更清晰，专利条款更友好。</li>
-</ul>
-<h3 id="gpl-v3强-copyleft确保改动也开源">🔁 GPL v3：强 Copyleft，确保改动也开源</h3>
-<ul>
-<li>核心义务：凡分发衍生作品，必须以 GPL 兼容方式开源全部相关源代码，并保留许可证与修改说明。</li>
-<li>适用场景：你希望代码永远开源、阻止他人闭源使用改动成果（例如工具链、基础软件）。</li>
-<li>注意：对闭源商业分发不友好；与部分生态的许可证兼容性较差。</li>
-</ul>
-<hr />
-<h2 id="怎么选用这-4-个问题秒定">🧠 怎么选？用这 4 个问题秒定</h2>
-<ol type="1">
-<li>你是否希望别人基于你的代码做出的产品可以闭源？
-<ul>
-<li>是 → 选 MIT 或 Apache 2.0</li>
-<li>否 → 选 GPL v3（若是网络服务场景且更在意“通过网络提供服务”也触发开源义务，可考虑 AGPL）</li>
-</ul></li>
-<li>你是否担心专利纠纷？
-<ul>
-<li>是 → 优先 Apache 2.0（自带明确专利授权与防滥诉条款）</li>
-<li>否 → MIT 也可</li>
-</ul></li>
-<li>你的目标用户是谁？
-<ul>
-<li>企业/商业产品集成 → Apache 2.0 更易被法务接受</li>
-<li>个人/教学/社区 Demo → MIT 简洁好用</li>
-</ul></li>
-<li>你是否需要与其他许可证兼容？
-<ul>
-<li>npm/Go/Rust 等社区通用库 → MIT/Apache 2.0 兼容面更广</li>
-<li>想“强制开源传递” → GPL 系列</li>
-</ul></li>
-</ol>
-<hr />
-<h2 id="合规清单实操">🗂️ 合规清单（实操）</h2>
-<ul>
-<li>在仓库根目录放置 <code>LICENSE</code> 文件；Apache 2.0 另需 <code>NOTICE</code>（列出版权与声明）。</li>
-<li>再分发二进制或源代码时，携带原始许可证文本；Apache 2.0 对“修改过的文件”做适当标注。</li>
-<li>第三方依赖合规：记录依赖及其许可证；打包/发行时附上对应的 <code>LICENSE/NOTICE</code> 汇总。</li>
-<li>版权年份与持有人保持最新；多人或公司名义应统一口径。</li>
-<li>公司项目：与法务确认是否需要额外的贡献者许可协议（CLA）。</li>
-</ul>
-<hr />
-<h2 id="常见误区">❓ 常见误区</h2>
-<ul>
-<li>“用了 GPL 的库就必须把我的 SaaS 也开源？”——如果只是通过网络调用且未分发程序，GPL 的触发较弱，但 AGPL 明确将“网络提供服务”纳入义务，注意区分。</li>
-<li>“MIT 就没有任何限制？”——仍需保留版权与许可证文本；没有专利条款并不等于无限责任。</li>
-<li>“Apache 2.0 一定要每个文件头都加版权声明吗？”——并非强制，但为便于溯源，核心文件加上版权头是常见实践。</li>
-</ul>
-<hr />
-<h2 id="模板与参考">📎 模板与参考</h2>
-<ul>
-<li>官方文本：
-<ul>
-<li>MIT：<a href="https://opensource.org/license/mit/">Open Source Initiative</a></li>
-<li>Apache 2.0：<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></li>
-<li>GPL v3：<a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPLv3</a></li>
-</ul></li>
-<li>模板生成：<code>choosealicense.com</code> 提供多语言示例与合规提示。</li>
-</ul>
-<hr />
-<h2 id="小结">✨ 小结</h2>
-<ul>
-<li>想要传播最广、合规成本最低：选 <strong>MIT</strong>。</li>
-<li>想兼顾企业合规与专利风险：选 <strong>Apache 2.0</strong>。</li>
-<li>想确保改动继续开源并回馈社区：选 <strong>GPL v3</strong>（或在“网络服务”场景下考虑 <strong>AGPL</strong>）。</li>
-</ul>
-<p>把本文表格收藏到书签，你的许可证选择基本不会错。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>开源</category>
-      </categories>
-      <tags>
-        <tag>开源</tag>
-        <tag>License</tag>
-        <tag>许可证</tag>
-      </tags>
   </entry>
   <entry>
     <title>GPU 工作原理：和 CPU 有何不同？</title>
@@ -1585,6 +1434,157 @@ FileSystem --&gt; App[&quot;应用可用&quot;]
         <tag>Linux</tag>
         <tag>包管理</tag>
         <tag>Package</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>开源许可证速查：MIT、Apache 2.0、GPL v3 怎么选？</title>
+    <url>/posts/c3f2a1b9/</url>
+    <content><![CDATA[<p>面对五花八门的开源许可证，最常被问到的无非三件事：能不能商用？能不能改了闭源？要不要写专利和修改声明？这篇文章用一张速查表和几条决策准则，帮你在 1 分钟内选对证。</p>
+<span id="more"></span>
+<h2 id="先看结论速查表">🧭 先看结论（速查表）</h2>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>MIT 许可证</th>
+<th>Apache 2.0 许可证</th>
+<th>GPL 许可证 (v3)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>类型</td>
+<td>宽松（Permissive）</td>
+<td>宽松（Permissive）</td>
+<td>传染共享（Copyleft）</td>
+</tr>
+<tr class="even">
+<td>商业使用</td>
+<td>允许</td>
+<td>允许</td>
+<td>允许</td>
+</tr>
+<tr class="odd">
+<td>修改后闭源</td>
+<td>允许</td>
+<td>允许</td>
+<td>不允许</td>
+</tr>
+<tr class="even">
+<td>需要包含原许可证</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr class="odd">
+<td>需要说明修改</td>
+<td>否</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr class="even">
+<td>专利授权</td>
+<td>无明确说明</td>
+<td>明确授权</td>
+<td>明确授权</td>
+</tr>
+<tr class="odd">
+<td>“传染性”</td>
+<td>无</td>
+<td>无</td>
+<td>强</td>
+</tr>
+</tbody>
+</table>
+<p>图表要点：如果你希望“随便用、闭源也行”，首选 MIT 或 Apache 2.0；如果你希望“别人用到你的代码时必须开源”，选择 GPL v3。</p>
+<hr />
+<h2 id="三大许可证一口气读懂">🧩 三大许可证，一口气读懂</h2>
+<h3 id="mit最宽松落地最简单">✅ MIT：最宽松、落地最简单</h3>
+<ul>
+<li>核心义务：在再分发时保留原始版权与许可证文本。</li>
+<li>适用场景：前端库、工具脚本、样例项目、教育项目等，希望最低合规成本、最大化传播。</li>
+<li>风险点：没有明确的专利授权条款，企业法务更偏好 Apache 2.0。</li>
+</ul>
+<h3 id="apache-2.0工程团队的默认首选">✅ Apache 2.0：工程团队的默认首选</h3>
+<ul>
+<li>核心义务：保留 <code>LICENSE</code> 与 <code>NOTICE</code>，对修改做合理标识；自带专利授权与专利反诉终止条款。</li>
+<li>适用场景：需要进入企业或商业产品的库/服务；关注专利风险的项目。</li>
+<li>亮点：与 MIT 同样宽松，但合规边界更清晰，专利条款更友好。</li>
+</ul>
+<h3 id="gpl-v3强-copyleft确保改动也开源">🔁 GPL v3：强 Copyleft，确保改动也开源</h3>
+<ul>
+<li>核心义务：凡分发衍生作品，必须以 GPL 兼容方式开源全部相关源代码，并保留许可证与修改说明。</li>
+<li>适用场景：你希望代码永远开源、阻止他人闭源使用改动成果（例如工具链、基础软件）。</li>
+<li>注意：对闭源商业分发不友好；与部分生态的许可证兼容性较差。</li>
+</ul>
+<hr />
+<h2 id="怎么选用这-4-个问题秒定">🧠 怎么选？用这 4 个问题秒定</h2>
+<ol type="1">
+<li>你是否希望别人基于你的代码做出的产品可以闭源？
+<ul>
+<li>是 → 选 MIT 或 Apache 2.0</li>
+<li>否 → 选 GPL v3（若是网络服务场景且更在意“通过网络提供服务”也触发开源义务，可考虑 AGPL）</li>
+</ul></li>
+<li>你是否担心专利纠纷？
+<ul>
+<li>是 → 优先 Apache 2.0（自带明确专利授权与防滥诉条款）</li>
+<li>否 → MIT 也可</li>
+</ul></li>
+<li>你的目标用户是谁？
+<ul>
+<li>企业/商业产品集成 → Apache 2.0 更易被法务接受</li>
+<li>个人/教学/社区 Demo → MIT 简洁好用</li>
+</ul></li>
+<li>你是否需要与其他许可证兼容？
+<ul>
+<li>npm/Go/Rust 等社区通用库 → MIT/Apache 2.0 兼容面更广</li>
+<li>想“强制开源传递” → GPL 系列</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="合规清单实操">🗂️ 合规清单（实操）</h2>
+<ul>
+<li>在仓库根目录放置 <code>LICENSE</code> 文件；Apache 2.0 另需 <code>NOTICE</code>（列出版权与声明）。</li>
+<li>再分发二进制或源代码时，携带原始许可证文本；Apache 2.0 对“修改过的文件”做适当标注。</li>
+<li>第三方依赖合规：记录依赖及其许可证；打包/发行时附上对应的 <code>LICENSE/NOTICE</code> 汇总。</li>
+<li>版权年份与持有人保持最新；多人或公司名义应统一口径。</li>
+<li>公司项目：与法务确认是否需要额外的贡献者许可协议（CLA）。</li>
+</ul>
+<hr />
+<h2 id="常见误区">❓ 常见误区</h2>
+<ul>
+<li>“用了 GPL 的库就必须把我的 SaaS 也开源？”——如果只是通过网络调用且未分发程序，GPL 的触发较弱，但 AGPL 明确将“网络提供服务”纳入义务，注意区分。</li>
+<li>“MIT 就没有任何限制？”——仍需保留版权与许可证文本；没有专利条款并不等于无限责任。</li>
+<li>“Apache 2.0 一定要每个文件头都加版权声明吗？”——并非强制，但为便于溯源，核心文件加上版权头是常见实践。</li>
+</ul>
+<hr />
+<h2 id="模板与参考">📎 模板与参考</h2>
+<ul>
+<li>官方文本：
+<ul>
+<li>MIT：<a href="https://opensource.org/license/mit/">Open Source Initiative</a></li>
+<li>Apache 2.0：<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></li>
+<li>GPL v3：<a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPLv3</a></li>
+</ul></li>
+<li>模板生成：<code>choosealicense.com</code> 提供多语言示例与合规提示。</li>
+</ul>
+<hr />
+<h2 id="小结">✨ 小结</h2>
+<ul>
+<li>想要传播最广、合规成本最低：选 <strong>MIT</strong>。</li>
+<li>想兼顾企业合规与专利风险：选 <strong>Apache 2.0</strong>。</li>
+<li>想确保改动继续开源并回馈社区：选 <strong>GPL v3</strong>（或在“网络服务”场景下考虑 <strong>AGPL</strong>）。</li>
+</ul>
+<p>把本文表格收藏到书签，你的许可证选择基本不会错。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>开源</category>
+      </categories>
+      <tags>
+        <tag>开源</tag>
+        <tag>License</tag>
+        <tag>许可证</tag>
       </tags>
   </entry>
   <entry>
@@ -2163,6 +2163,618 @@ flowchart TD
       </tags>
   </entry>
   <entry>
+    <title>Tensor 基础：布局、算子与形状推导</title>
+    <url>/posts/f1e2d3c4/</url>
+    <content><![CDATA[<p>想看懂卷积、池化公式却老被 <code>NCHW</code>、<code>stride</code> 搞糊涂？本文聚焦 <strong>张量布局 → 常见算子 → 形状计算公式</strong>，用一篇梳理基础概念。</p>
+<span id="more"></span>
+<h3 id="省流表">📚 省流表</h3>
+<table>
+<thead>
+<tr class="header">
+<th>主题</th>
+<th>一句话记忆</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>张量</td>
+<td>带维度的多维数组（shape + dtype）</td>
+</tr>
+<tr class="even">
+<td>NCHW/NCDHW</td>
+<td>batch/通道在前，空间维在后，GPU 友好</td>
+</tr>
+<tr class="odd">
+<td>卷积族公式</td>
+<td><code>OUT = ⌊(IN + 2P - D*(K-1) -1)/S⌋ +1</code></td>
+</tr>
+<tr class="even">
+<td>池化族公式</td>
+<td>与卷积同型；Adaptive 反推 kernel/stride</td>
+</tr>
+<tr class="odd">
+<td>二元/MatMul</td>
+<td>Element-wise 要同形；<code>BMM</code> 需 <code>m</code> 匹配</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="张量与布局从数字到多维数组">1️⃣ 张量与布局：从数字到多维数组</h2>
+<h3 id="什么是张量-tensor">什么是张量 (Tensor)？</h3>
+<p>想象一下： - <strong>0D 张量 (标量)</strong>：一个孤零零的数字，比如 <code>5</code>。 - <strong>1D 张量 (向量)</strong>：一排数字，像 Python 列表 <code>[1, 2, 3, 4]</code>。</p>
+<blockquote>
+<p><strong>等等，Python 列表哪来的 <code>shape</code> 和 <code>dtype</code>？</strong><br />
+好问题！Python 列表本身没有。我们说的张量，其实是深度学习框架（如 PyTorch）里的一个特殊对象。框架会“接收”你的 Python 列表，然后把它“包装”成一个真正的张量。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 这是一个普通的 Python 列表</span></span><br><span class="line">data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. PyTorch 把它包装成一个 Tensor 对象</span></span><br><span class="line">tensor_1d = torch.tensor(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 现在，这个对象就有 shape 和 dtype 属性了</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.shape)  <span class="comment"># 输出: torch.Size([4])，表示这是一个长度为4的1D张量</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.dtype)  <span class="comment"># 输出: torch.int64，框架自动推断出是整数类型</span></span><br></pre></td></tr></table></figure>
+<p>✨ 所以，张量是“<strong>数据 + 描述信息（形状、类型）</strong>”的组合体。</p>
+</blockquote>
+<ul>
+<li><strong>2D 张量 (矩阵)</strong>：一个表格，有行有列，像 Excel 工作表。</li>
+<li><strong>3D 张量</strong>：一沓叠起来的表格，比如一张彩色图片（高 × 宽 × 3个颜色通道）。</li>
+<li><strong>4D 张量</strong>：一堆 3D 张量，比如 <strong>一批</strong> 彩色图片。</li>
+</ul>
+<blockquote>
+<p>✨ <strong>一句话：</strong> 张量就是“多维数组”，用来装深度学习模型处理的数据。每个张量都有两个核心属性： - <strong><code>shape</code> (形状)</strong>：一个元组，告诉你每个维度有多大。例如 <code>(64, 3, 224, 224)</code>。 - <strong><code>dtype</code> (数据类型)</strong>：说明里面存的是什么类型的数，比如 <code>float32</code> (小数) 或 <code>int8</code> (整数)。</p>
+</blockquote>
+<h3 id="为何需要-nchw-这种布局">为何需要 NCHW 这种布局？</h3>
+<p>处理图片时，我们需要用一种标准方式来组织数据。<code>NCHW</code> 就是最流行的一种“打包格式”。</p>
+<table>
+<thead>
+<tr class="header">
+<th>字母</th>
+<th>含义</th>
+<th>🌰 举例：一张 <code>(3, 224, 224)</code> 的 RGB 图片</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>N</strong></td>
+<td><strong>Number / Batch</strong> (数量)</td>
+<td>一次处理 64 张图片，<code>N=64</code></td>
+</tr>
+<tr class="even">
+<td><strong>C</strong></td>
+<td><strong>Channel</strong> (通道)</td>
+<td>红/绿/蓝 3 个通道, <code>C=3</code></td>
+</tr>
+<tr class="odd">
+<td><strong>H</strong></td>
+<td><strong>Height</strong> (高度)</td>
+<td>图片高 224 像素, <code>H=224</code></td>
+</tr>
+<tr class="even">
+<td><strong>W</strong></td>
+<td><strong>Width</strong> (宽度)</td>
+<td>图片宽 224 像素, <code>W=224</code></td>
+</tr>
+</tbody>
+</table>
+<p>所以，一个 <code>(64, 3, 224, 224)</code> 的张量，意思就是“<strong>64 张、3 通道、224×224 大小的图片</strong>”。</p>
+<h3 id="nchw-vs-nhwc有啥区别">NCHW vs NHWC：有啥区别？</h3>
+<ul>
+<li><strong><code>NCHW</code> (channels_first)</strong>：<code>(N, C, H, W)</code>
+<ul>
+<li><strong>GPU 友好</strong>：CUDA/cuDNN 库针对这种布局做了优化，相邻通道的数据在内存里更连续，访问快。</li>
+<li>PyTorch/Paddle 默认。</li>
+</ul></li>
+<li><strong><code>NHWC</code> (channels_last)</strong>：<code>(N, H, W, C)</code>
+<ul>
+<li><strong>CPU/TPU 友好</strong>：某些硬件访存模式更适合通道在最后。</li>
+<li>TensorFlow 默认。</li>
+</ul></li>
+</ul>
+<blockquote>
+<p>省流：搞不清就用 <code>NCHW</code>，它是 GPU 上的“高速公路”。代码里看到 <code>permute(0, 2, 3, 1)</code> 就是在做 <code>NCHW</code> → <code>NHWC</code> 的切换。</p>
+</blockquote>
+<hr />
+<h2 id="卷积-convolution像用滤镜提取特征">2️⃣ 卷积 (Convolution)：像用“滤镜”提取特征</h2>
+<p>想象一下你给照片加滤镜（比如“锐化”或“模糊”），卷积做的就是类似的事情。它用一个小的“<strong>滤镜</strong>”（称为 <strong>Kernel</strong> 或卷积核），在输入图片上一点点地滑动，计算出每个区域的特征值，最后汇集成一张新的“特征图”。</p>
+<h3 id="卷积的五个关键参数">卷积的五个关键参数</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">符号</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">🌰 生活化比喻</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">输入尺寸</td>
+<td style="text-align: left;"><code>I</code></td>
+<td style="text-align: left;">图片的宽或高</td>
+<td style="text-align: left;">一块 10x10 的大巧克力</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kernel</td>
+<td style="text-align: left;"><code>K</code></td>
+<td style="text-align: left;">滤镜/卷积核的大小</td>
+<td style="text-align: left;">一个 3x3 的饼干模具</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Padding</td>
+<td style="text-align: left;"><code>P</code></td>
+<td style="text-align: left;">在图片边缘填充几圈0</td>
+<td style="text-align: left;">在巧克力周围加一圈奶油，防止模具出界</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Stride</td>
+<td style="text-align: left;"><code>S</code></td>
+<td style="text-align: left;">滤镜每次滑动的步长</td>
+<td style="text-align: left;">模具每次向右/下移动几格</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dilation</td>
+<td style="text-align: left;"><code>D</code></td>
+<td style="text-align: left;">Kernel内部元素的间距</td>
+<td style="text-align: left;">模具上的图案本身有多稀疏</td>
+</tr>
+</tbody>
+</table>
+<h3 id="正向卷积-forward-conv">正向卷积 (Forward Conv)</h3>
+<p>这是最常见的卷积，用来<strong>缩小</strong>特征图，<strong>提取</strong>特征。</p>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - D·(K-1) - 1) / S⌋ + 1</code></p>
+</blockquote>
+<p><strong>公式拆解：</strong></p>
+<ol type="1">
+<li><code>D·(K-1) + 1</code>：这是考虑了空洞（Dilation）之后，卷积核覆盖的实际范围。如果 <code>D=1</code>，它就等于 <code>K</code>。</li>
+<li><code>I + 2P</code>：这是输入图片在两边都加上了 <code>P</code> 圈“奶油”之后的总宽度。</li>
+<li><code>(I + 2P) - (D·(K-1) + 1)</code>：这是模具可以在奶油巧克力上滑动的“总距离”。</li>
+<li>除以 <code>S</code> 再 <code>+1</code>：计算在这个总距离上，以 <code>S</code> 为步长，总共能挪动几步（结果向下取整）。</li>
+</ol>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 输入 <code>I=5</code>, Kernel <code>K=3</code>, Padding <code>P=1</code>, Stride <code>S=2</code>, Dilation <code>D=1</code>。 - 加上 padding 后的总宽度是 <code>5 + 2*1 = 7</code>。 - Kernel 覆盖范围是 <code>1*(3-1)+1 = 3</code>。 - 滑动总距离是 <code>7 - 3 = 4</code>。 - 能滑几步？<code>4 / 2 = 2</code> 步。 - 总共能摆放几次？<code>2 + 1 = 3</code> 次。所以输出 <code>OUT=3</code>。</p>
+</blockquote>
+<h3 id="转置卷积-transposed-conv">转置卷积 (Transposed Conv)</h3>
+<p>也叫“反卷积”，但这个名字不准确。它的作用和正向卷积相反，常用来<strong>放大</strong>特征图（上采样）。</p>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = (I - 1)·S - 2P + D·(K-1) + 1</code></p>
+<p>把它想象成“从特征图反推原图尺寸”的过程，或者“用一个画笔（Kernel）在小画布上画，画出一个大图”。公式的每一项都是正向卷积的“逆运算”。</p>
+</blockquote>
+<hr />
+<h2 id="池化-pooling给特征图瘦身减负">3️⃣ 池化 (Pooling)：给特征图“瘦身减负”</h2>
+<p>如果说卷积是“精加工提取特征”，那么池化就是“<strong>粗加工，信息压缩</strong>”。它同样用一个小窗口在图上滑动，但计算规则更简单：只取窗口内的最大值（Max Pooling）或平均值（Average Pooling）。</p>
+<p><strong>为什么需要池化？</strong> 1. <strong>降低计算量</strong>：特征图变小了，后续计算更快。 2. <strong>防止过拟合</strong>：保留最主要的特征，丢掉一些不重要的细节。 3. <strong>增加感受野</strong>：让后面的卷积能看到更大范围的原始信息。</p>
+<h3 id="max-avg-pooling">Max / Avg Pooling</h3>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - K) / S⌋ + 1</code></p>
+<p>（和卷积公式一样，只是没有 Dilation）</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：Max Pooling</strong> 假设有一个 4x4 的输入，用一个 2x2 的窗口、步长为 2 来做最大池化： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入:             窗口1: [[1, 2],    窗口2: [[3, 4],</span><br><span class="line">[[1, 2, 3, 4],     [5, 6]] → max=6        [7, 8]] → max=8</span><br><span class="line"> [5, 6, 7, 8],</span><br><span class="line"> [9, 1, 2, 3],    窗口3: [[9, 1],    窗口4: [[2, 3],</span><br><span class="line"> [4, 5, 6, 7]]     [4, 5]] → max=9        [6, 7]] → max=7</span><br><span class="line"></span><br><span class="line">输出 (2x2):</span><br><span class="line">[[6, 8],</span><br><span class="line"> [9, 7]]</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="自适应池化-adaptive-pooling">自适应池化 (Adaptive Pooling)</h3>
+<p>这是个“懒人”池化。你<strong>不需要关心 K、P、S 是多少</strong>，直接告诉它你想要多大的输出就行了。</p>
+<blockquote>
+<p><strong>用法</strong>：<code>AdaptiveMaxPool2d(output_size=7)</code></p>
+<p>框架会自动计算出合适的 K 和 S，把任意大小的输入都变成 <code>7x7</code>。这在连接卷积层和全连接层时特别有用。</p>
+</blockquote>
+<hr />
+<h2 id="二元-矩阵算子形状规则">4️⃣ 二元 / 矩阵算子形状规则</h2>
+<h3 id="逐元素-element-wise-运算加减乘除">1. 逐元素 (Element-wise) 运算：加减乘除</h3>
+<p>这是最简单的运算，就像小学数学题，把两个形状完全一样的表格，对应位置的数字做加减法。</p>
+<blockquote>
+<p><strong>规则</strong>：两个张量的形状必须完全一样。</p>
+<p>🌰 <strong>示例：</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2],    B = [[5, 6],    A + B = [[1+5, 2+6],</span><br><span class="line">     [3, 4]]         [7, 8]]             [3+7, 4+8]]</span><br><span class="line"></span><br><span class="line"># 结果: [[6, 8], [10, 12]]</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p><strong>✨ 进阶：广播 (Broadcasting)</strong></p>
+<p>如果两个张量形状<strong>不完全一样</strong>，但又“兼容”，框架会自动“扩展”那个小一点的张量，让它们能够运算。这个过程就叫广播。</p>
+<blockquote>
+<p>🌰 <strong>示例：给矩阵的每一行都加上一个向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2, 3],    B = [10, 20, 30]</span><br><span class="line">     [4, 5, 6]]</span><br><span class="line"></span><br><span class="line"># 框架会自动把 B “复制”成两行，变成 [[10, 20, 30], [10, 20, 30]]</span><br><span class="line"># 然后再和 A 做逐元素相加。</span><br><span class="line">A + B = [[11, 22, 33],</span><br><span class="line">         [14, 25, 36]]</span><br></pre></td></tr></table></figure> 广播非常强大，能省去很多手动的 <code>for</code> 循环。</p>
+</blockquote>
+<h3 id="矩阵乘法-matmul-bmm">2. 矩阵乘法 (MatMul / BMM)</h3>
+<p>矩阵乘法不是对应位置相乘，规则要特殊一些。</p>
+<blockquote>
+<p><strong>规则</strong>：对于 <code>A @ B</code> (在 Python 里 <code>@</code> 是矩阵乘法的运算符)，A 的 <strong>列数</strong> 必须等于 B 的 <strong>行数</strong>。 - <code>A (n, m)</code> @ <code>B (m, p)</code> → <code>C (n, p)</code></p>
+<p>把它想象成“配对消除”：中间的 <code>m</code> 维配对后消失，剩下两头的 <code>n</code> 和 <code>p</code> 组成新形状。</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 一个 <code>(2, 3)</code> 矩阵乘以一个 <code>(3, 4)</code> 矩阵： - <code>A</code> 有 2 行 3 列 - <code>B</code> 有 3 行 4 列 - A 的列数 (3) == B 的行数 (3)，可以相乘！ - 结果 <code>C</code> 的形状是 <code>(2, 4)</code>。</p>
+</blockquote>
+<p><strong>✨ 进阶：批量矩阵乘法 (BMM - Batched Matrix Multiplication)</strong></p>
+<p>如果想一次性做好几组独立的矩阵乘法，就可以用 BMM。</p>
+<blockquote>
+<p><strong>规则</strong>：<code>A (b, n, m)</code> @ <code>B (b, m, p)</code> → <code>C (b, n, p)</code></p>
+<p><code>b</code> 是 <code>batch_size</code>，代表有多少组。除了 <code>b</code> 必须相等，每一组内的 <code>n, m, p</code> 规则和普通矩阵乘法一样。</p>
+</blockquote>
+<h3 id="拼接-concatenation">3. 拼接 (Concatenation)</h3>
+<p>拼接就是把几个张量“粘”在一起，变成一个更大的张量。</p>
+<blockquote>
+<p><strong>规则</strong>：除了你要拼接的那个维度（<code>axis</code> 或 <code>dim</code>），其他所有维度的大小都必须完全一致。</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 两个形状为 <code>(2, 3)</code> 的张量 <code>A</code> 和 <code>B</code>。</p>
+<ul>
+<li><p><strong>沿 <code>axis=0</code> (行) 拼接</strong>：像叠罗汉一样上下拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 1, 1],    B = [[2, 2, 2],</span><br><span class="line">     [1, 1, 1]]         [2, 2, 2]]</span><br><span class="line"># 结果形状 (4, 3)</span><br><span class="line">[[1, 1, 1],</span><br><span class="line"> [1, 1, 1],</span><br><span class="line"> [2, 2, 2],</span><br><span class="line"> [2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>沿 <code>axis=1</code> (列) 拼接</strong>：像火车车厢一样左右拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 结果形状 (2, 6)</span><br><span class="line">[[1, 1, 1, 2, 2, 2],</span><br><span class="line"> [1, 1, 1, 2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="python-取整与-z3-约束细节">5️⃣ Python 取整与 Z3 约束细节</h2>
+<h3 id="为何需要-向下取整">为何需要 <code>//</code> (向下取整)？</h3>
+<p>在计算卷积或池化输出尺寸时，公式 <code>(I + 2P - K) / S + 1</code> 很容易算出小数，比如 <code>(10 - 3) / 2 = 3.5</code>。但像素数不可能是小数，我们必须把它变成整数。</p>
+<ul>
+<li><strong><code>/</code> (普通除法)</strong>：<code>7 / 2 = 3.5</code></li>
+<li><strong><code>//</code> (地板除法)</strong>：<code>7 // 2 = 3</code> (直接扔掉小数部分，往小了取)</li>
+</ul>
+<blockquote>
+<p>✨ <strong>核心：</strong> 深度学习里的形状计算，用的都是<strong>向下取整</strong>。所以你在代码里会看到 <code>//</code> 而不是 <code>/</code>。</p>
+</blockquote>
+<h3 id="z3-如何理解取整">Z3 如何理解取整？</h3>
+<p>Z3 的整数除法 <code>/</code> 在处理正数时，行为和 Python 的 <code>//</code> 一模一样。这就是为什么在给 Z3 添加规则时，我们总是先加一条：</p>
+<p><code>solver.add(H_in &gt; 0, K &gt; 0, S &gt; 0, ...)</code></p>
+<blockquote>
+<p>这条规则相当于告诉 Z3：“别去想那些负数或者零的情况，咱们只在正数范围内玩耍。” 这样就保证了 Z3 的数学模型和框架的实际计算结果能对得上。</p>
+</blockquote>
+<h3 id="为何要限制大小-231">为何要限制大小 (<code>&lt; 2**31</code>)？</h3>
+<p>在 <code>ops.py</code> 里，我们还常会加一条 <code>dim &lt; 2**31</code> 的约束。</p>
+<blockquote>
+<p><strong>生活化比喻：</strong> 这就像你让朋友猜一个数字，但你先告诉他：“这个数在 1 到 100 之间”。这会让他猜得更快，而不是天马行空地去想。</p>
+</blockquote>
+<p><strong>主要原因有两个：</strong> 1. <strong>现实限制</strong>：GPU 内存有限，不可能创建一个几百亿维度的张量。<code>2**31-1</code> 是很多框架内部表示维度大小的上限。 2. <strong>求解效率</strong>：给 Z3 一个明确的范围，可以极大地缩小它的“搜索空间”，让它在几秒钟内就找到答案，而不是花几个小时去尝试那些不切实际的超大数字。</p>
+<hr />
+<h2 id="z3用数学公式反推合法参数">6️⃣ Z3：用数学公式反推合法参数</h2>
+<p>Z3 是一个“约束求解器”。你可以把它想象成一个<strong>超级聪明的数独程序</strong>。</p>
+<blockquote>
+<p><strong>工作流程：</strong> 1. <strong>你提供规则</strong>：比如“这一行数字不能重复”、“这一格必须是 5”。 2. <strong>它负责寻找答案</strong>：Z3 会自动尝试所有可能性，找出一个或多个满足你所有规则的数字组合。</p>
+</blockquote>
+<p>在我们的场景里，规则就是算子的“形状计算公式”，答案就是一组“合法的张量形状和参数”。</p>
+<h3 id="z3-的基本积木">1. Z3 的基本积木</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> Int, Solver, And, sat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 声明变量：告诉 Z3，这些是我要你帮忙找的未知数</span></span><br><span class="line">H_in = Int(<span class="string">&#x27;H_in&#x27;</span>)  <span class="comment"># 输入高度</span></span><br><span class="line">K = Int(<span class="string">&#x27;K&#x27;</span>)        <span class="comment"># Kernel 大小</span></span><br><span class="line">P = Int(<span class="string">&#x27;P&#x27;</span>)        <span class="comment"># Padding</span></span><br><span class="line">S = Int(<span class="string">&#x27;S&#x27;</span>)        <span class="comment"># Stride</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建一个求解器实例</span></span><br><span class="line">solver = Solver()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加规则 (Constraints)</span></span><br><span class="line">solver.add(H_in &gt; <span class="number">0</span>, K &gt; <span class="number">0</span>, P &gt;= <span class="number">0</span>, S &gt; <span class="number">0</span>)  <span class="comment"># 所有参数必须是正数（Padding可以为0）</span></span><br><span class="line">solver.add(K &lt; H_in)  <span class="comment"># Kernel 不能比输入还大</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 求解并读取结果</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:  <span class="comment"># sat 的意思是 &quot;satisfiable&quot;，即“有解”</span></span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;找到一组解: H_in=<span class="subst">&#123;model[H_in]&#125;</span>, K=<span class="subst">&#123;model[K]&#125;</span>, ...&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;无解！&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="用公式当规则反推卷积参数">2. 用公式当规则：反推卷积参数</h3>
+<p>现在，我们把卷积的输出公式也加进去当规则：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ...接上文...</span></span><br><span class="line">H_out = Int(<span class="string">&#x27;H_out&#x27;</span>)</span><br><span class="line"><span class="comment"># 已知输出必须是 7</span></span><br><span class="line">solver.add(H_out == <span class="number">7</span>)</span><br><span class="line"><span class="comment"># 把公式加进去</span></span><br><span class="line">solver.add(H_out == (H_in + <span class="number">2</span>*P - K)//S + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次求解</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:</span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="comment"># Z3 会给出一组能让 H_out 等于 7 的 H_in, K, P, S</span></span><br><span class="line">    <span class="built_in">print</span>(model) <span class="comment"># 例如: [K = 3, S = 2, P = 1, H_in = 13, H_out = 7]</span></span><br></pre></td></tr></table></figure>
+<h3 id="如何找到不同的解">3. 如何找到“不同的”解？</h3>
+<p>为了测试更多情况，我们需要 Z3 给出和上次不一样的答案。</p>
+<blockquote>
+<p><strong>方法</strong>：在找到一组解（比如 <code>H_in = 13</code>）之后，往求解器里追加一条新规则：<code>solver.add(H_in != 13)</code>，然后再 <code>solver.check()</code>，它就会去找下一组解了。</p>
+</blockquote>
+<p><strong><code>universal_hash</code> 是做什么的？</strong> 它是一种更高级的“制造不同”的方法。有时只排除一个变量 (<code>H_in != 13</code>)，Z3 给出的新解可能只是其他变量稍微变了一下，不够“多样”。<code>universal_hash</code> 会把所有变量的值都“搅乱”一下，再添加不等约束，这样更容易驱动 Z3 去探索一个全新的、差异更大的解空间。</p>
+<h3 id="高级规则-forall处理-concat">4. 高级规则 <code>ForAll</code>：处理 Concat</h3>
+<p>对于 Concat 算子，规则是“除了拼接的那个维度，其他维度的大小都必须一样”。用 <code>ForAll</code> 就能优雅地表达这个规则。</p>
+<blockquote>
+<p><code>ForAll([i], Implies(i != concat_dim, shape_A[i] == shape_B[i]))</code></p>
+<p><strong>翻译成人话就是：</strong> “对于<strong>所有的</strong>维度 <code>i</code>，<strong>如果</strong> <code>i</code> 不是我们正在拼接的那个维度，<strong>那么</strong> <code>shape_A</code> 在 <code>i</code> 上的大小必须等于 <code>shape_B</code> 在 <code>i</code> 上的大小。”</p>
+</blockquote>
+<hr />
+<h2 id="三大框架参数映射同一功能不同叫法">7️⃣ 三大框架参数映射：同一功能，不同叫法</h2>
+<p>PyTorch, PaddlePaddle, TensorFlow (Keras) 是三个最主流的深度学习框架。它们都有卷积、池化这些功能，但就像不同地方的方言，它们给这些功能的参数起了不同的名字。</p>
+<h3 id="核心参数方言对照表">核心参数“方言”对照表</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">通用概念</th>
+<th style="text-align: left;">PyTorch</th>
+<th style="text-align: left;">PaddlePaddle</th>
+<th style="text-align: left;">TensorFlow (Keras)</th>
+<th style="text-align: left;">🗣️ 备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">输入通道数</td>
+<td style="text-align: left;"><code>in_channels</code></td>
+<td style="text-align: left;"><code>in_channels</code></td>
+<td style="text-align: left;">(自动推断)</td>
+<td style="text-align: left;">Keras 根据输入形状自动识别</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">输出通道数</td>
+<td style="text-align: left;"><code>out_channels</code></td>
+<td style="text-align: left;"><code>out_channels</code></td>
+<td style="text-align: left;"><code>filters</code></td>
+<td style="text-align: left;">TF 叫“滤波器数量”</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">卷积核大小</td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;">这个大家都一样</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">步长</td>
+<td style="text-align: left;"><code>stride</code></td>
+<td style="text-align: left;"><code>stride</code></td>
+<td style="text-align: left;"><code>strides</code></td>
+<td style="text-align: left;">TF 喜欢用复数形式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">填充</td>
+<td style="text-align: left;"><code>padding</code> (int)</td>
+<td style="text-align: left;"><code>padding</code> (int/str)</td>
+<td style="text-align: left;"><code>padding</code> (str)</td>
+<td style="text-align: left;"><strong>这个坑最多！</strong> (见下文)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">空洞卷积</td>
+<td style="text-align: left;"><code>dilation</code></td>
+<td style="text-align: left;"><code>dilation</code></td>
+<td style="text-align: left;"><code>dilation_rate</code></td>
+<td style="text-align: left;">TF 叫“空洞率”</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">分组卷积</td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;">基本一致</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">数据格式</td>
+<td style="text-align: left;">(默认 NCHW)</td>
+<td style="text-align: left;">(默认 NCHW)</td>
+<td style="text-align: left;">(默认 NHWC)</td>
+<td style="text-align: left;"><strong>TF/Keras 默认通道在后！</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="关键差异与代码示例">关键差异与代码示例</h3>
+<h4 id="padding-的大坑">1. Padding 的大坑</h4>
+<ul>
+<li><strong>PyTorch/Paddle</strong>：<code>padding=1</code> 表示在图片四周都填充 1 圈 0。</li>
+<li><strong>TensorFlow/Keras</strong>：<code>padding</code> 只能是字符串 <code>'valid'</code> (不填充) 或 <code>'same'</code> (自动计算填充，让输出和输入尺寸差不多)。如果你想精确控制填充几圈，必须<strong>单独用一个 <code>ZeroPadding2D</code> 层</strong>。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># PyTorch: 一步到位</span></span><br><span class="line">conv_torch = torch.nn.Conv2d(in_channels=<span class="number">3</span>, out_channels=<span class="number">16</span>, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># TensorFlow/Keras: 两步走</span></span><br><span class="line">model_tf = tf.keras.Sequential([</span><br><span class="line">    tf.keras.layers.ZeroPadding2D(padding=<span class="number">1</span>),</span><br><span class="line">    tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>)</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
+<h4 id="数据格式-data_format">2. 数据格式 <code>data_format</code></h4>
+<p>因为 PyTorch/Paddle 默认 <code>NCHW</code> (channels-first)，而 Keras 默认 <code>NHWC</code> (channels-last)，跨框架复现代码时，一定要在 Keras 层里加上 <code>data_format='channels_first'</code> 来保持统一！</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Keras 里保持和 PyTorch 一样的 NCHW 格式</span></span><br><span class="line">conv_keras = tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>, data_format=<span class="string">&#x27;channels_first&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="特殊算子支持情况">特殊算子支持情况</h3>
+<ul>
+<li><strong>转置卷积</strong>：TF/Keras 的 <code>Conv2DTranspose</code> 不支持 <code>groups</code> 参数。</li>
+<li><strong>某些算子</strong>：有些高级或不常用的算子，可能只有一个或两个框架支持。</li>
+</ul>
+<blockquote>
+<p>省流：写代码前，先查一下目标框架的官方文档，看好参数名叫什么、支持哪些功能。尤其是 <strong>Padding 和 data_format</strong>，是新手最容易踩的两个坑。</p>
+</blockquote>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ul>
+<li>布局先行：牢记 <code>NCHW</code> / <code>NCDHW</code> 与各维意义。<br />
+</li>
+<li>掌握卷积/池化公式，<strong>一眼能推形状</strong>。<br />
+</li>
+<li><code>//</code> 取整配合 “&gt;0” 约束，确保 SMT 结果一致。<br />
+</li>
+<li>参数映射时注意三框架差异，踩坑前先看文档。</li>
+</ul>
+<blockquote>
+<p>省流：<strong>布局→公式→约束→映射</strong> 四步打通，你的 Tensor 基础就算扎牢啦 📐✨</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>深度学习</category>
+        <category>计算机基础</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+        <tag>张量</tag>
+        <tag>形状推导</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>终端与Shell：从入门到看懂，一篇就够</title>
+    <url>/posts/82543a5f/</url>
+    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
+<span id="more"></span>
+<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
+<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
+<h4 id="三层模型">1. 三层模型</h4>
+<p>命令行交互的世界可以被清晰地划分为三层：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
+<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
+<table>
+<thead>
+<tr class="header">
+<th>现实场景</th>
+<th>对应技术</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>你手机里的「外卖 App 界面」</td>
+<td><strong>终端 Terminal</strong></td>
+<td>显示菜单、字体、动画，本身不做饭</td>
+</tr>
+<tr class="even">
+<td>你选的「厨师」</td>
+<td><strong>Shell</strong></td>
+<td>读懂你的菜单（命令），指挥厨房做菜</td>
+</tr>
+<tr class="odd">
+<td>厨房里的「食材/灶具/电」</td>
+<td><strong>内核/程序</strong></td>
+<td>真正读写文件、启动进程、调用硬件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
+<hr />
+<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
+<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
+<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
+<ul>
+<li><strong>主要功能</strong>:
+<ul>
+<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
+<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
+<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
+<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
+</ul></li>
+<li><strong>主流实现</strong>:
+<ul>
+<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
+<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
+<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
+</ul></li>
+</ul>
+<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
+<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
+<ul>
+<li><strong>主要功能</strong>:
+<ul>
+<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
+<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
+<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
+<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
+</ul></li>
+<li><strong>主流实现</strong>:
+<ul>
+<li><strong>POSIX 家族 (Linux/macOS)</strong>:
+<ul>
+<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
+<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
+<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
+</ul></li>
+<li><strong>Windows 家族</strong>:
+<ul>
+<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
+<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
+</ul></li>
+</ul></li>
+</ul>
+<hr />
+<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
+<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>属于哪一层</th>
+<th>简单一句话说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>cmd.exe</strong></td>
+<td>Shell</td>
+<td>Windows 最老的命令解释器，功能简单。</td>
+</tr>
+<tr class="even">
+<td><strong>PowerShell</strong></td>
+<td>Shell</td>
+<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
+</tr>
+<tr class="odd">
+<td><strong>bash</strong></td>
+<td>Shell</td>
+<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
+</tr>
+<tr class="even">
+<td><strong>zsh</strong></td>
+<td>Shell</td>
+<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
+</tr>
+<tr class="odd">
+<td><strong>Windows Terminal</strong></td>
+<td>终端</td>
+<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
+</tr>
+<tr class="even">
+<td><strong>iTerm2</strong></td>
+<td>终端</td>
+<td>macOS 平台功能最强大的终端之一。</td>
+</tr>
+<tr class="odd">
+<td><strong>WSL</strong></td>
+<td>系统兼容层</td>
+<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
+</tr>
+<tr class="even">
+<td><strong>Oh My Zsh</strong></td>
+<td>zsh 配置框架</td>
+<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
+</tr>
+<tr class="odd">
+<td><strong>Powerlevel10k</strong></td>
+<td>zsh 主题</td>
+<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
+<h4 id="windows-平台">1. Windows 平台</h4>
+<ul>
+<li><strong>现代组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>Windows Terminal</code></li>
+<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
+</ul></li>
+<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="macos-平台">2. macOS 平台</h4>
+<ul>
+<li><strong>主流组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>iTerm2</code></li>
+<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
+</ul></li>
+<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
+</ul>
+<h4 id="linux-平台">3. Linux 平台</h4>
+<ul>
+<li><strong>常见组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
+<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
+</ul></li>
+<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
+</ul>
+<hr />
+<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Windows Terminal 就是一个新的 Shell</td>
+<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
+</tr>
+<tr class="even">
+<td>Git Bash 是一个终端</td>
+<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
+</tr>
+<tr class="odd">
+<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
+<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="六终极总结">✅ 六、终极总结</h3>
+<blockquote>
+<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
+<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
+</blockquote>
+<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
+<p>Happy Hacking! 🎉</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Terminal</tag>
+        <tag>Shell</tag>
+        <tag>Windows</tag>
+        <tag>macOS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TDX Note</title>
     <url>/posts/cbeff3a9/</url>
     <content><![CDATA[<h2 id="intel-tdx-demystified-a-top-down-approach">Intel TDX Demystified: A Top-Down Approach</h2>
@@ -2515,226 +3127,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
         <tag>TDX</tag>
         <tag>TEE</tag>
         <tag>Intel</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>终端与Shell：从入门到看懂，一篇就够</title>
-    <url>/posts/82543a5f/</url>
-    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
-<span id="more"></span>
-<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
-<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
-<h4 id="三层模型">1. 三层模型</h4>
-<p>命令行交互的世界可以被清晰地划分为三层：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
-<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
-<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
-<table>
-<thead>
-<tr class="header">
-<th>现实场景</th>
-<th>对应技术</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>你手机里的「外卖 App 界面」</td>
-<td><strong>终端 Terminal</strong></td>
-<td>显示菜单、字体、动画，本身不做饭</td>
-</tr>
-<tr class="even">
-<td>你选的「厨师」</td>
-<td><strong>Shell</strong></td>
-<td>读懂你的菜单（命令），指挥厨房做菜</td>
-</tr>
-<tr class="odd">
-<td>厨房里的「食材/灶具/电」</td>
-<td><strong>内核/程序</strong></td>
-<td>真正读写文件、启动进程、调用硬件</td>
-</tr>
-</tbody>
-</table>
-<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
-<hr />
-<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
-<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
-<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
-<ul>
-<li><strong>主要功能</strong>:
-<ul>
-<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
-<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
-<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
-<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
-</ul></li>
-<li><strong>主流实现</strong>:
-<ul>
-<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
-<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
-<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
-</ul></li>
-</ul>
-<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
-<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
-<ul>
-<li><strong>主要功能</strong>:
-<ul>
-<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
-<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
-<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
-<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
-</ul></li>
-<li><strong>主流实现</strong>:
-<ul>
-<li><strong>POSIX 家族 (Linux/macOS)</strong>:
-<ul>
-<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
-<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
-<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
-</ul></li>
-<li><strong>Windows 家族</strong>:
-<ul>
-<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
-<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
-</ul></li>
-</ul></li>
-</ul>
-<hr />
-<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
-<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>属于哪一层</th>
-<th>简单一句话说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>cmd.exe</strong></td>
-<td>Shell</td>
-<td>Windows 最老的命令解释器，功能简单。</td>
-</tr>
-<tr class="even">
-<td><strong>PowerShell</strong></td>
-<td>Shell</td>
-<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
-</tr>
-<tr class="odd">
-<td><strong>bash</strong></td>
-<td>Shell</td>
-<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
-</tr>
-<tr class="even">
-<td><strong>zsh</strong></td>
-<td>Shell</td>
-<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
-</tr>
-<tr class="odd">
-<td><strong>Windows Terminal</strong></td>
-<td>终端</td>
-<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
-</tr>
-<tr class="even">
-<td><strong>iTerm2</strong></td>
-<td>终端</td>
-<td>macOS 平台功能最强大的终端之一。</td>
-</tr>
-<tr class="odd">
-<td><strong>WSL</strong></td>
-<td>系统兼容层</td>
-<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
-</tr>
-<tr class="even">
-<td><strong>Oh My Zsh</strong></td>
-<td>zsh 配置框架</td>
-<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
-</tr>
-<tr class="odd">
-<td><strong>Powerlevel10k</strong></td>
-<td>zsh 主题</td>
-<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
-<h4 id="windows-平台">1. Windows 平台</h4>
-<ul>
-<li><strong>现代组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>Windows Terminal</code></li>
-<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
-</ul></li>
-<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h4 id="macos-平台">2. macOS 平台</h4>
-<ul>
-<li><strong>主流组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>iTerm2</code></li>
-<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
-</ul></li>
-<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
-</ul>
-<h4 id="linux-平台">3. Linux 平台</h4>
-<ul>
-<li><strong>常见组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
-<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
-</ul></li>
-<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
-</ul>
-<hr />
-<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>误区</th>
-<th>正解</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Windows Terminal 就是一个新的 Shell</td>
-<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
-</tr>
-<tr class="even">
-<td>Git Bash 是一个终端</td>
-<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
-</tr>
-<tr class="odd">
-<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
-<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="六终极总结">✅ 六、终极总结</h3>
-<blockquote>
-<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
-<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
-</blockquote>
-<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
-<p>Happy Hacking! 🎉</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Terminal</tag>
-        <tag>Shell</tag>
-        <tag>Windows</tag>
-        <tag>macOS</tag>
       </tags>
   </entry>
   <entry>
@@ -4082,6 +4474,98 @@ flowchart TD
       </tags>
   </entry>
   <entry>
+    <title>混合加密入门：集安全与效率于一身的艺术</title>
+    <url>/posts/8c9a7e4f/</url>
+    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
+<ul>
+<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
+<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
+</ul>
+<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
+<span id="more"></span>
+<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
+<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
+<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
+<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
+<ul>
+<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
+<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
+<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
+<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
+</ul>
+<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
+<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
+<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
+<ul>
+<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
+<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
+</ul>
+<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
+<ul>
+<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
+<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
+<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
+</ul>
+<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
+<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
+<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
+<p>它的执行流程如同一场精心编排的双人舞：</p>
+<ol type="1">
+<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
+<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
+<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
+<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
+<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
+<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
+</ol>
+<p>至此，一次安全又高效的通信便完成了。</p>
+我们可以用下面这个流程图来清晰地展示这个过程：
+<pre class="mermaid">sequenceDiagram
+    participant Sender as 发送方
+    participant Receiver as 接收方
+
+    Note over Sender, Receiver: 混合加密流程
+
+    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
+    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
+    
+    rect rgba(255, 220, 220, 0.4)
+        note right of Sender: 获取接收方的公钥
+        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
+    end
+    
+    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
+    
+    rect rgba(220, 255, 220, 0.4)
+        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
+        note right of Receiver: 获得对称密钥
+        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
+    end
+    
+    Receiver->>Sender: 通信已安全建立</pre>
+<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
+<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
+<ul>
+<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
+<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
+<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
+<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
+</ul>
+<h3 id="四总结">✨ 四、总结</h3>
+<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
+<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>加密</tag>
+        <tag>密码学</tag>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>编码</title>
     <url>/posts/6f8a188e/</url>
     <content><![CDATA[<h2 id="编码">编码</h2>
@@ -4345,98 +4829,6 @@ flowchart TD
         <tag>网络协议</tag>
         <tag>gRPC</tag>
         <tag>HTTP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>混合加密入门：集安全与效率于一身的艺术</title>
-    <url>/posts/8c9a7e4f/</url>
-    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
-<ul>
-<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
-<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
-</ul>
-<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
-<span id="more"></span>
-<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
-<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
-<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
-<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
-<ul>
-<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
-<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
-<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
-<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
-</ul>
-<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
-<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
-<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
-<ul>
-<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
-<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
-</ul>
-<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
-<ul>
-<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
-<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
-<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
-</ul>
-<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
-<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
-<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
-<p>它的执行流程如同一场精心编排的双人舞：</p>
-<ol type="1">
-<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
-<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
-<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
-<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
-<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
-<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
-</ol>
-<p>至此，一次安全又高效的通信便完成了。</p>
-我们可以用下面这个流程图来清晰地展示这个过程：
-<pre class="mermaid">sequenceDiagram
-    participant Sender as 发送方
-    participant Receiver as 接收方
-
-    Note over Sender, Receiver: 混合加密流程
-
-    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
-    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
-    
-    rect rgba(255, 220, 220, 0.4)
-        note right of Sender: 获取接收方的公钥
-        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
-    end
-    
-    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
-    
-    rect rgba(220, 255, 220, 0.4)
-        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
-        note right of Receiver: 获得对称密钥
-        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
-    end
-    
-    Receiver->>Sender: 通信已安全建立</pre>
-<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
-<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
-<ul>
-<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
-<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
-<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
-<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
-</ul>
-<h3 id="四总结">✨ 四、总结</h3>
-<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
-<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>加密</tag>
-        <tag>密码学</tag>
-        <tag>安全</tag>
       </tags>
   </entry>
 </search>
