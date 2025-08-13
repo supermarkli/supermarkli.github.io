@@ -30,7 +30,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://supermarkli.github.io/assets/bank_conflict.png">
 <meta property="article:published_time" content="2025-08-13T04:11:31.000Z">
-<meta property="article:modified_time" content="2025-08-13T05:57:01.775Z">
+<meta property="article:modified_time" content="2025-08-13T06:10:56.415Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="note,coding,life">
 <meta name="twitter:card" content="summary">
@@ -173,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 核心概念速读</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel-%E5%9F%BA%E7%A1%80__global__-%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%B4%A2%E5%BC%95"><span class="nav-number"></span> <span class="nav-text">1️⃣ Kernel 基础：__global__ 与线程索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%BB%84%E7%BB%87grid-block-thread-warp"><span class="nav-number"></span> <span class="nav-text">2️⃣ 线程组织：Grid &#x2F; Block &#x2F; Thread &#x2F; Warp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E4%B8%8E%E5%90%8C%E6%AD%A5"><span class="nav-number"></span> <span class="nav-text">3️⃣ 错误处理与同步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%82%E6%AC%A1%E4%B8%8E%E8%AE%BF%E5%AD%98"><span class="nav-number"></span> <span class="nav-text">4️⃣ 内存层次与访存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E5%B9%B6%E8%AE%BF%E5%AD%98-coalescing"><span class="nav-number"></span> <span class="nav-text">5️⃣ 合并访存 (Coalescing)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98-bank-%E5%86%B2%E7%AA%81%E4%B8%8E-1-padding"><span class="nav-number"></span> <span class="nav-text">6️⃣ 共享内存 Bank 冲突与 +1 Padding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA-%E8%AE%BE%E5%A4%87%E6%8B%B7%E8%B4%9D"><span class="nav-number"></span> <span class="nav-text">7️⃣ 主机 ↔ 设备拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E5%B0%8F%E6%8A%84"><span class="nav-number"></span> <span class="nav-text">🔎 调试小抄</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">📝 小结</span></a></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 核心概念速读</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kernel-%E5%9F%BA%E7%A1%80__global__-%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%B4%A2%E5%BC%95"><span class="nav-number"></span> <span class="nav-text">1️⃣ Kernel 基础：__global__ 与线程索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%BB%84%E7%BB%87grid-block-thread-warp"><span class="nav-number"></span> <span class="nav-text">2️⃣ 线程组织：Grid &#x2F; Block &#x2F; Thread &#x2F; Warp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E4%B8%8E%E5%90%8C%E6%AD%A5"><span class="nav-number"></span> <span class="nav-text">3️⃣ 错误处理与同步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%B1%82%E6%AC%A1%E4%B8%8E%E8%AE%BF%E5%AD%98"><span class="nav-number"></span> <span class="nav-text">4️⃣ 内存层次与访存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E5%B9%B6%E8%AE%BF%E5%AD%98-coalescing"><span class="nav-number"></span> <span class="nav-text">5️⃣ 合并访存 (Coalescing)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98-bank-%E5%86%B2%E7%AA%81%E4%B8%8E-1-padding"><span class="nav-number"></span> <span class="nav-text">6️⃣ 共享内存 Bank 冲突与 +1 Padding</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tile-%E6%98%AF%E4%BB%80%E4%B9%88%E4%B8%BA%E4%BB%80%E4%B9%88%E5%92%8C-shared-%E5%BD%A2%E5%BD%B1%E4%B8%8D%E7%A6%BB"><span class="nav-number">1.</span> <span class="nav-text">📦 tile 是什么？为什么和 shared 形影不离？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA-%E8%AE%BE%E5%A4%87%E6%8B%B7%E8%B4%9D"><span class="nav-number"></span> <span class="nav-text">7️⃣ 主机 ↔ 设备拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E5%B0%8F%E6%8A%84"><span class="nav-number"></span> <span class="nav-text">🔎 调试小抄</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">📝 小结</span></a></div>
         </div>
         <!--/noindex-->
 
@@ -188,18 +188,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-count">25</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">57</span>
+        <span class="site-state-item-count">58</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -264,7 +264,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-08-13 12:11:31 / 修改时间：13:57:01" itemprop="dateCreated datePublished" datetime="2025-08-13T12:11:31+08:00">2025-08-13</time>
+      <time title="创建时间：2025-08-13 12:11:31 / 修改时间：14:10:56" itemprop="dateCreated datePublished" datetime="2025-08-13T12:11:31+08:00">2025-08-13</time>
     </span>
 
   
@@ -281,14 +281,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>4.2k</span>
+      <span>5k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>8 分钟</span>
+      <span>9 分钟</span>
     </span>
 </div>
 
@@ -485,6 +485,24 @@ flowchart TD
 </blockquote>
 <h2 id="共享内存-bank-冲突与-1-padding">6️⃣ 共享内存 Bank 冲突与 +1 Padding</h2>
 <p>共享内存就像 <strong>32 条并排的高速收费通道</strong>（32 个 <em>bank</em>）。每条通道一次只能通过 1 辆车（一次访问）。</p>
+<h3 id="tile-是什么为什么和-shared-形影不离">📦 tile 是什么？为什么和 shared 形影不离？</h3>
+<ul>
+<li><strong>tile 的定义</strong>：把大矩阵/张量切成 <code>TILE_DIM × TILE_DIM</code> 的“小方块”，同一个 thread block 负责读取、处理并写回这一方块。这个子区域就叫 <strong>tile</strong>。</li>
+<li><strong>与 shared 的关系</strong>：tile 通常<strong>先被搬进 shared memory</strong> 暂存，线程在片上对其做转置/卷积/归约等操作，再合并写回全局内存。</li>
+<li><strong>为何配合使用</strong>
+<ol type="1">
+<li><strong>合并访存</strong>：按列的零散全局访问 → 读入 tile → 在 shared 内转置 → 按行合并写，带宽翻倍。<br />
+</li>
+<li><strong>数据复用</strong>：tile 内数据可被 block 中不同线程反复用（矩阵乘、卷积滑窗）。<br />
+</li>
+<li><strong>避开 Bank 冲突</strong>：tile 往往声明为 <code>tile[T][T+1]</code>，多出的 <code>+1</code> 用来打散 32-bank 映射。</li>
+</ol></li>
+<li><strong>典型模板</strong>： <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">constexpr</span> <span class="type">int</span> TILE_DIM = <span class="number">32</span>, BLOCK_ROWS = <span class="number">8</span>;</span><br><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">kernel</span><span class="params">(<span class="type">const</span> <span class="type">float</span>* A, <span class="type">float</span>* B, <span class="type">int</span> M, <span class="type">int</span> N)</span> </span>&#123;</span><br><span class="line">    __shared__ <span class="type">float</span> tile[TILE_DIM][TILE_DIM + <span class="number">1</span>]; <span class="comment">// tile 存在 shared</span></span><br><span class="line">    <span class="type">int</span> x = blockIdx.x * TILE_DIM + threadIdx.x;</span><br><span class="line">    <span class="type">int</span> y = blockIdx.y * TILE_DIM + threadIdx.y;</span><br><span class="line">    <span class="comment">// 1) 全局 → tile (合并读)</span></span><br><span class="line">    <span class="comment">// 2) __syncthreads(); 在片上处理/转置</span></span><br><span class="line">    <span class="comment">// 3) tile → 全局 (合并写)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>选型注意</strong>：<code>TILE_DIM=32, BLOCK_ROWS=8</code> 是常用配置；tile 过大将占满 shared 或寄存器，影响 Occupancy，需要权衡。</li>
+</ul>
+<blockquote>
+<p>TILE_DIM 通常对应 blockDim.x（横向线程数 &amp; tile 宽度）。 BLOCK_ROWS 对应 blockDim.y，代表一次搬运/计算的 行数批次；典型 8 行，通过循环搬满 32 行。</p>
+</blockquote>
 <ul>
 <li><strong>理想</strong>：不同线程去不同通道 → 并行一次性通过 🟢。</li>
 <li><strong>冲突</strong>：多辆车挤同一通道 → 排队串行，性能打折 🔴。</li>
@@ -595,6 +613,9 @@ flowchart TD
                 </a>
             </div>
             <div class="post-nav-item">
+                <a href="/posts/6a8247a7/" rel="next" title="Python 语法与工程骨架">
+                  Python 语法与工程骨架 <i class="fa fa-angle-right"></i>
+                </a>
             </div>
           </div>
     </footer>
@@ -625,13 +646,13 @@ flowchart TD
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">96k</span>
+    <span title="站点总字数">100k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">2:55</span>
+    <span title="站点阅读时长">3:02</span>
   </span>
 </div>
 <div class="busuanzi-count">
