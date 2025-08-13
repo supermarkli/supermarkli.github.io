@@ -29,7 +29,7 @@
 <meta property="og:description" content="想看懂卷积、池化公式却老被 NCHW、stride 搞糊涂？本文聚焦 张量布局 → 常见算子 → 形状计算公式，用一篇梳理基础概念。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-08-13T13:00:00.000Z">
-<meta property="article:modified_time" content="2025-08-13T08:00:49.990Z">
+<meta property="article:modified_time" content="2025-08-13T08:04:08.094Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="深度学习">
 <meta property="article:tag" content="张量">
@@ -264,7 +264,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-08-13 21:00:00 / 修改时间：16:00:49" itemprop="dateCreated datePublished" datetime="2025-08-13T21:00:00+08:00">2025-08-13</time>
+      <time title="创建时间：2025-08-13 21:00:00 / 修改时间：16:04:08" itemprop="dateCreated datePublished" datetime="2025-08-13T21:00:00+08:00">2025-08-13</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -335,20 +335,26 @@
 <hr />
 <h2 id="张量与布局从数字到多维数组">1️⃣ 张量与布局：从数字到多维数组</h2>
 <h3 id="什么是张量-tensor">什么是张量 (Tensor)？</h3>
-<p>想象一下： - <strong>0D 张量 (标量)</strong>：一个孤零零的数字，比如 <code>5</code>。 - <strong>1D 张量 (向量)</strong>：一排数字，像 Python 列表 <code>[1, 2, 3, 4]</code>。</p>
+<p>想象一下：</p>
+<ul>
+<li><strong>0D 张量 (标量)</strong>：一个孤零零的数字，比如 <code>5</code>。</li>
+<li><p><strong>1D 张量 (向量)</strong>：一排数字，像 Python 列表 <code>[1, 2, 3, 4]</code>。</p>
 <blockquote>
 <p><strong>等等，Python 列表哪来的 <code>shape</code> 和 <code>dtype</code>？</strong><br />
 好问题！Python 列表本身没有。我们说的张量，其实是深度学习框架（如 PyTorch）里的一个特殊对象。框架会“接收”你的 Python 列表，然后把它“包装”成一个真正的张量。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 这是一个普通的 Python 列表</span></span><br><span class="line">data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. PyTorch 把它包装成一个 Tensor 对象</span></span><br><span class="line">tensor_1d = torch.tensor(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 现在，这个对象就有 shape 和 dtype 属性了</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.shape)  <span class="comment"># 输出: torch.Size([4])，表示这是一个长度为4的1D张量</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.dtype)  <span class="comment"># 输出: torch.int64，框架自动推断出是整数类型</span></span><br></pre></td></tr></table></figure>
 <p>✨ 所以，张量是“<strong>数据 + 描述信息（形状、类型）</strong>”的组合体。</p>
-</blockquote>
-<ul>
+</blockquote></li>
 <li><strong>2D 张量 (矩阵)</strong>：一个表格，有行有列，像 Excel 工作表。</li>
 <li><strong>3D 张量</strong>：一沓叠起来的表格，比如一张彩色图片（高 × 宽 × 3个颜色通道）。</li>
-<li><strong>4D 张量</strong>：一堆 3D 张量，比如 <strong>一批</strong> 彩色图片。</li>
+<li><p><strong>4D 张量</strong>：一堆 3D 张量，比如 <strong>一批</strong> 彩色图片。</p></li>
 </ul>
 <blockquote>
-<p>✨ <strong>一句话：</strong> 张量就是“多维数组”，用来装深度学习模型处理的数据。每个张量都有两个核心属性： - <strong><code>shape</code> (形状)</strong>：一个元组，告诉你每个维度有多大。例如 <code>(64, 3, 224, 224)</code>。 - <strong><code>dtype</code> (数据类型)</strong>：说明里面存的是什么类型的数，比如 <code>float32</code> (小数) 或 <code>int8</code> (整数)。</p>
+<p>✨ <strong>一句话：</strong> 张量就是“多维数组”，用来装深度学习模型处理的数据。每个张量都有两个核心属性：</p>
+<ul>
+<li><strong><code>shape</code> (形状)</strong>：一个元组，告诉你每个维度有多大。例如 <code>(64, 3, 224, 224)</code>。</li>
+<li><strong><code>dtype</code> (数据类型)</strong>：说明里面存的是什么类型的数，比如 <code>float32</code> (小数) 或 <code>int8</code> (整数)。</li>
+</ul>
 </blockquote>
 <h3 id="为何需要-nchw-这种布局">为何需要 NCHW 这种布局？</h3>
 <p>处理图片时，我们需要用一种标准方式来组织数据。<code>NCHW</code> 就是最流行的一种“打包格式”。</p>
@@ -470,7 +476,12 @@
 <hr />
 <h2 id="池化-pooling给特征图瘦身减负">3️⃣ 池化 (Pooling)：给特征图“瘦身减负”</h2>
 <p>如果说卷积是“精加工提取特征”，那么池化就是“<strong>粗加工，信息压缩</strong>”。它同样用一个小窗口在图上滑动，但计算规则更简单：只取窗口内的最大值（Max Pooling）或平均值（Average Pooling）。</p>
-<p><strong>为什么需要池化？</strong> 1. <strong>降低计算量</strong>：特征图变小了，后续计算更快。 2. <strong>防止过拟合</strong>：保留最主要的特征，丢掉一些不重要的细节。 3. <strong>增加感受野</strong>：让后面的卷积能看到更大范围的原始信息。</p>
+<p><strong>为什么需要池化？</strong></p>
+<ol type="1">
+<li><strong>降低计算量</strong>：特征图变小了，后续计算更快。</li>
+<li><strong>防止过拟合</strong>：保留最主要的特征，丢掉一些不重要的细节。</li>
+<li><strong>增加感受野</strong>：让后面的卷积能看到更大范围的原始信息。</li>
+</ol>
 <h3 id="max-avg-pooling">Max / Avg Pooling</h3>
 <blockquote>
 <p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - K) / S⌋ + 1</code></p>
@@ -505,7 +516,13 @@
 <p>把它想象成“配对消除”：中间的 <code>m</code> 维配对后消失，剩下两头的 <code>n</code> 和 <code>p</code> 组成新形状。</p>
 </blockquote>
 <blockquote>
-<p>🌰 <strong>示例：</strong> 一个 <code>(2, 3)</code> 矩阵乘以一个 <code>(3, 4)</code> 矩阵： - <code>A</code> 有 2 行 3 列 - <code>B</code> 有 3 行 4 列 - A 的列数 (3) == B 的行数 (3)，可以相乘！ - 结果 <code>C</code> 的形状是 <code>(2, 4)</code>。</p>
+<p>🌰 <strong>示例：</strong> 一个 <code>(2, 3)</code> 矩阵乘以一个 <code>(3, 4)</code> 矩阵：</p>
+<ul>
+<li><code>A</code> 有 2 行 3 列</li>
+<li><code>B</code> 有 3 行 4 列</li>
+<li>A 的列数 (3) == B 的行数 (3)，可以相乘！</li>
+<li>结果 <code>C</code> 的形状是 <code>(2, 4)</code>。</li>
+</ul>
 </blockquote>
 <p><strong>✨ 进阶：批量矩阵乘法 (BMM - Batched Matrix Multiplication)</strong></p>
 <p>如果想一次性做好几组独立的矩阵乘法，就可以用 BMM。</p>
@@ -547,12 +564,20 @@
 <blockquote>
 <p><strong>生活化比喻：</strong> 这就像你让朋友猜一个数字，但你先告诉他：“这个数在 1 到 100 之间”。这会让他猜得更快，而不是天马行空地去想。</p>
 </blockquote>
-<p><strong>主要原因有两个：</strong> 1. <strong>现实限制</strong>：GPU 内存有限，不可能创建一个几百亿维度的张量。<code>2**31-1</code> 是很多框架内部表示维度大小的上限。 2. <strong>求解效率</strong>：给 Z3 一个明确的范围，可以极大地缩小它的“搜索空间”，让它在几秒钟内就找到答案，而不是花几个小时去尝试那些不切实际的超大数字。</p>
+<p><strong>主要原因有两个：</strong></p>
+<ol type="1">
+<li><strong>现实限制</strong>：GPU 内存有限，不可能创建一个几百亿维度的张量。<code>2**31-1</code> 是很多框架内部表示维度大小的上限。</li>
+<li><strong>求解效率</strong>：给 Z3 一个明确的范围，可以极大地缩小它的“搜索空间”，让它在几秒钟内就找到答案，而不是花几个小时去尝试那些不切实际的超大数字。</li>
+</ol>
 <hr />
 <h2 id="z3用数学公式反推合法参数">6️⃣ Z3：用数学公式反推合法参数</h2>
 <p>Z3 是一个“约束求解器”。你可以把它想象成一个<strong>超级聪明的数独程序</strong>。</p>
 <blockquote>
-<p><strong>工作流程：</strong> 1. <strong>你提供规则</strong>：比如“这一行数字不能重复”、“这一格必须是 5”。 2. <strong>它负责寻找答案</strong>：Z3 会自动尝试所有可能性，找出一个或多个满足你所有规则的数字组合。</p>
+<p><strong>工作流程：</strong></p>
+<ol type="1">
+<li><strong>你提供规则</strong>：比如“这一行数字不能重复”、“这一格必须是 5”。</li>
+<li><strong>它负责寻找答案</strong>：Z3 会自动尝试所有可能性，找出一个或多个满足你所有规则的数字组合。</li>
+</ol>
 </blockquote>
 <p>在我们的场景里，规则就是算子的“形状计算公式”，答案就是一组“合法的张量形状和参数”。</p>
 <h3 id="z3-的基本积木">1. Z3 的基本积木</h3>
