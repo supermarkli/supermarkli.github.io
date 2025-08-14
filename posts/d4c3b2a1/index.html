@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="想在不改用户代码的前提下“看见”每条 GPU 指令如何执行？NVBit 是 NVIDIA 开源的“轻量级 CUDA 指令级动态插桩框架”。本文以“能上手能采样”为目标，从 GPU 并行模型 → CUDA 基础 → PTX&#x2F;SASS → Linux 注入机制 → NVBit API，总结一份可直接套用的插桩笔记。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NVBit 插桩：从 0 到可用">
+<meta property="og:url" content="https://supermarkli.github.io/posts/d4c3b2a1/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="想在不改用户代码的前提下“看见”每条 GPU 指令如何执行？NVBit 是 NVIDIA 开源的“轻量级 CUDA 指令级动态插桩框架”。本文以“能上手能采样”为目标，从 GPU 并行模型 → CUDA 基础 → PTX&#x2F;SASS → Linux 注入机制 → NVBit API，总结一份可直接套用的插桩笔记。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-14T08:38:13.000Z">
+<meta property="article:modified_time" content="2025-08-14T08:57:07.369Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="CUDA">
+<meta property="article:tag" content="调试">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="NVBit">
+<meta property="article:tag" content="插桩">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/d4c3b2a1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/d4c3b2a1/","path":"posts/d4c3b2a1/","title":"NVBit 插桩：从 0 到可用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>NVBit 插桩：从 0 到可用 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#gpu-%E8%AE%A1%E7%AE%97%E7%A1%AC%E4%BB%B6%E4%B8%8E%E5%B9%B6%E8%A1%8C%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">1️⃣ GPU 计算硬件与并行模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cuda-%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80%E4%B8%8E%E6%8F%92%E6%A1%A9%E7%9B%B8%E5%85%B3%E7%9A%84%E6%9C%80%E5%B0%8F%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">2️⃣ CUDA 编程基础（与插桩相关的最小知识）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ptx-sass%E4%B8%A4%E5%B1%82%E6%B1%87%E7%BC%96"><span class="nav-number">3.</span> <span class="nav-text">3️⃣ PTX &amp; SASS：两层汇编</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ptx-%E6%98%AF%E4%BB%80%E4%B9%88%E8%B7%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E4%B8%AD%E9%97%B4%E8%AF%AD"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 PTX 是什么？（跨架构的“中间语”）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sass-%E6%98%AF%E4%BB%80%E4%B9%88%E6%9F%90%E4%B8%80%E4%BB%A3-gpu-%E7%9A%84%E6%AF%8D%E8%AF%AD"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 SASS 是什么？（某一代 GPU 的“母语”）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E7%9C%BC%E7%9C%8B%E6%87%82%E4%BB%8E-c-%E5%88%B0-ptx-%E5%88%B0-sass%E7%9A%84%E6%98%A0%E5%B0%84"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 一眼看懂“从 C 到 PTX 到 SASS”的映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E-nvbit-%E6%9C%89%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 与 NVBit 有什么关系？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E6%AD%A5%E6%8B%BF%E5%88%B0%E6%B1%87%E7%BC%96%E5%AE%9E%E6%93%8D"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 三步拿到汇编（实操）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#linux-%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E4%B8%8E%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">4️⃣ Linux 动态链接与环境变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E6%80%8E%E4%B9%88%E5%B7%A5%E4%BD%9C%E4%B8%80%E5%8F%A5%E8%AF%9D"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 动态链接怎么工作（一句话）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#so-%E6%9F%A5%E6%89%BE%E9%A1%BA%E5%BA%8F%E8%A6%81%E7%82%B9"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 .so 查找顺序要点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ld_preload%E4%BC%98%E5%85%88%E8%A3%85%E8%BD%BD%E4%B8%8E%E5%87%BD%E6%95%B0%E8%A6%86%E7%9B%96interposition"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 LD_PRELOAD：优先装载与函数覆盖（interposition）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dlopendlsym%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8A%A0%E8%BD%BD%E4%B8%8E%E6%89%BE%E7%AC%A6%E5%8F%B7"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 dlopen&#x2F;dlsym：运行时加载与找符号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E7%BB%99%E5%B7%A5%E5%85%B7%E9%81%A5%E6%8E%A7%E5%99%A8"><span class="nav-number">4.5.</span> <span class="nav-text">4.5 环境变量：给工具“遥控器”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#proc-%E4%B8%8E%E6%8E%92%E9%94%99%E6%8A%80%E5%B7%A7"><span class="nav-number">4.6.</span> <span class="nav-text">4.6 &#x2F;proc 与排错技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gpu-%E6%8C%87%E4%BB%A4%E7%BA%A7%E6%8F%92%E6%A1%A9%E5%9F%BA%E6%9C%AC%E6%80%9D%E8%B7%AF"><span class="nav-number">5.</span> <span class="nav-text">5️⃣ GPU 指令级插桩基本思路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%83%B3%E8%BE%BE%E5%88%B0%E4%BB%80%E4%B9%88%E7%9B%AE%E6%A0%87"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 想达到什么目标？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%99%E6%80%81-vs-%E5%8A%A8%E6%80%81%E4%B8%A4%E6%9D%A1%E8%B7%AF"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 静态 vs 动态（两条路）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E6%A1%A9%E9%A2%97%E7%B2%92%E5%BA%A6%E4%B8%8E%E6%8F%92%E7%82%B9%E7%AD%96%E7%95%A5"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 插桩颗粒度与插点策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E6%A0%BC%E5%BC%8Frecord%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 记录格式（Record）怎么设计？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E7%AB%AF%E7%BC%93%E5%86%B2%E4%B8%8E%E8%83%8C%E5%8E%8Bring-buffer"><span class="nav-number">5.5.</span> <span class="nav-text">5.5 设备端缓冲与背压（Ring Buffer）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#host-device-%E5%9B%9E%E4%BC%A0%E6%89%B9%E9%87%8F%E4%B8%94%E5%BC%82%E6%AD%A5"><span class="nav-number">5.6.</span> <span class="nav-text">5.6 Host ↔ Device 回传（批量且异步）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4%E4%B8%8E%E9%87%87%E6%A0%B7%E6%8A%8A%E5%BC%80%E9%94%80%E6%89%93%E4%B8%8B%E6%9D%A5"><span class="nav-number">5.7.</span> <span class="nav-text">5.7 过滤与采样（把开销打下来）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E6%80%A7%E4%B8%8E%E9%AA%8C%E8%AF%81%E5%88%AB%E8%A2%AB%E6%8F%92%E6%A1%A9%E6%B1%A1%E6%9F%93"><span class="nav-number">5.8.</span> <span class="nav-text">5.8 正确性与验证（别被插桩“污染”）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E6%A8%A1%E6%9D%BF%E6%8A%8A%E9%93%BE%E8%B7%AF%E8%B7%91%E9%80%9A"><span class="nav-number">5.9.</span> <span class="nav-text">5.9 最小模板（把链路跑通）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nvbit-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E4%B8%8E%E5%B8%B8%E7%94%A8%E5%9B%9E%E8%B0%83"><span class="nav-number">6.</span> <span class="nav-text">6️⃣ NVBit 核心原理与常用回调</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B6%E8%A1%8C%E6%95%B0%E6%8D%AE%E6%94%B6%E9%9B%86%E4%B8%8E%E4%B8%BB%E6%9C%BA%E4%BE%A7%E5%A4%84%E7%90%86"><span class="nav-number">7.</span> <span class="nav-text">7️⃣ 并行数据收集与主机侧处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E5%BA%A6%E9%87%8F%E4%B8%8E%E5%BC%80%E9%94%80%E6%8E%A7%E5%88%B6"><span class="nav-number">8.</span> <span class="nav-text">8️⃣ 性能度量与开销控制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A-gpu-%E5%A4%9A%E8%BF%9B%E7%A8%8B%E5%9C%BA%E6%99%AF"><span class="nav-number">9.</span> <span class="nav-text">9️⃣ 多 GPU &#x2F; 多进程场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E4%B8%8E%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">10.</span> <span class="nav-text">🔟 调试与常见问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E4%B8%8E%E5%8F%AF%E7%A7%BB%E6%A4%8D%E6%80%A7%E8%BF%9B%E9%98%B6"><span class="nav-number">11.</span> <span class="nav-text">1️⃣1️⃣ 安全与可移植性（进阶）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E6%B8%85%E5%8D%95%E6%8B%BF%E6%9D%A5%E5%B0%B1%E7%94%A8"><span class="nav-number">12.</span> <span class="nav-text">✅ 实战清单（拿来就用）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">13.</span> <span class="nav-text">📝 小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">64</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/d4c3b2a1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="NVBit 插桩：从 0 到可用 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NVBit 插桩：从 0 到可用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-08-14 16:38:13 / 修改时间：16:57:07" itemprop="dateCreated datePublished" datetime="2025-08-14T16:38:13+08:00">2025-08-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CUDA/" itemprop="url" rel="index"><span itemprop="name">CUDA</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CUDA/%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD/" itemprop="url" rel="index"><span itemprop="name">调试与性能</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>12k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>22 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>想在不改用户代码的前提下“看见”每条 GPU 指令如何执行？NVBit 是 NVIDIA 开源的“轻量级 CUDA 指令级动态插桩框架”。本文以“能上手能采样”为目标，从 GPU 并行模型 → CUDA 基础 → PTX/SASS → Linux 注入机制 → NVBit API，总结一份可直接套用的插桩笔记。</p>
+<span id="more"></span>
+<h2 id="gpu-计算硬件与并行模型">1️⃣ GPU 计算硬件与并行模型</h2>
+<ul>
+<li><strong>层级概念</strong>：
+<ul>
+<li><strong>Thread</strong>：最小执行单元，对应内核中的一个逻辑线程。</li>
+<li><strong>Warp</strong>：通常 32 个线程的执行束，硬件以 warp 为粒度调度（SIMT）。</li>
+<li><strong>Block</strong>：多个 warp 组成的线程块，共享 <code>Shared Memory</code> 与 <code>__syncthreads()</code>。</li>
+<li><strong>Grid</strong>：多个 Block 的集合，即一次内核启动的整体并行范围。</li>
+</ul></li>
+<li><strong>调度与分歧</strong>：
+<ul>
+<li><strong>Warp Scheduler</strong> 在 SM 上挑选可就绪的 warp 发射指令；</li>
+<li><strong>SIMT</strong>：同一 warp 的线程同发同取，但可因分支发生“分歧”，由硬件做掩码串行化执行；</li>
+<li>分歧越多，吞吐越差。</li>
+</ul></li>
+<li><strong>内存层次</strong>：<code>Global</code>（大容量/高延迟）、<code>L2</code>、<code>Shared</code>（块内共享/低延迟）、<code>Constant/Texture</code>（只读/缓存友好）、<code>Local</code>（线程私有，实质访问全局内存）。</li>
+<li><strong>隐式切换（Latency Hiding）</strong>：高延迟访存期间，调度器切换到其他就绪 warp，靠并行隐藏延迟。</li>
+</ul>
+<hr />
+<h2 id="cuda-编程基础与插桩相关的最小知识">2️⃣ CUDA 编程基础（与插桩相关的最小知识）</h2>
+<ul>
+<li><strong>Kernel 定义与启动</strong>：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__global__ void saxpy(float a, const float* x, float* y, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; n) y[i] = a * x[i] + y[i];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 启动：&lt;&lt;&lt;grid, block[, shared_mem, stream]&gt;&gt;&gt;</span><br><span class="line">int n = 1&lt;&lt;20; dim3 block(256), grid((n+255)/256);</span><br><span class="line">saxpy&lt;&lt;&lt;grid, block&gt;&gt;&gt;(2.0f, dx, dy, n);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>线程索引</strong>：<code>threadIdx</code>、<code>blockIdx</code>、<code>blockDim</code>、<code>gridDim</code> 用于计算全局线性索引。</li>
+<li><strong>同步与原子</strong>：同 Block 内 <code>__syncthreads()</code>；跨线程的共享写入使用 <code>atomicAdd()</code> 等。</li>
+<li><strong>Runtime vs Driver API</strong>：
+<ul>
+<li>Runtime（<code>cudaMalloc/cudaMemcpy/...</code>）更易用；</li>
+<li>Driver（<code>cuInit/cuModuleLoad/cuLaunchKernel</code>）更底层，NVBit 在 Driver 层拦截 <code>cuLaunchKernel</code> 以获取函数与指令信息。</li>
+</ul></li>
+</ul>
+<p>常见编译选项（调试友好）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvcc -g -G -lineinfo -Xptxas -v -<span class="built_in">arch</span>=sm_80 app.cu -o app</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>-G</code></strong> 设备端调试符号（会降速，调试开启，性能测试关闭）。</li>
+<li><strong><code>-lineinfo</code></strong> 保留行号映射，便于日志对回源代码。</li>
+<li><strong><code>-Xptxas -v</code></strong> 打印寄存器、共享内存使用等编译信息。</li>
+<li><strong><code>-arch=sm_xx</code></strong> 指定目标架构，保证 PTX/SASS 与目标 GPU 匹配。</li>
+</ul>
+<hr />
+<h2 id="ptx-sass两层汇编">3️⃣ PTX &amp; SASS：两层汇编</h2>
+<p>可以把“写 CUDA 代码 → 编译 → 在 GPU 上跑”这个过程类比成翻译：</p>
+<ul>
+<li>你写的 C/C++（CUDA）像“中文原稿”。</li>
+<li>编译器先把它翻成一种“标准中间语”（PTX），方便跨多种 GPU 架构复用。</li>
+<li>最后再由后端把 PTX 翻成“某一代显卡能直接听懂的话”（SASS 机器码）。</li>
+</ul>
+<h3 id="ptx-是什么跨架构的中间语">3.1 PTX 是什么？（跨架构的“中间语”）</h3>
+<ul>
+<li>定位：PTX 是 NVIDIA 的虚拟指令集，跨架构、可读性强，类似“高级汇编”。</li>
+<li>记住三件事：
+<ul>
+<li>指令名 = 动作 + 地址空间 + 数据类型，例如 <code>ld.global.s32</code>：从全局内存加载 32 位有符号整数。</li>
+<li>寄存器带类型，<code>.s32/.u32/.f32/.pred</code> 分别表示 有符号整型/无符号整型/浮点/谓词（布尔）。</li>
+<li>大多数算术/访存都显式写出类型，便于你“用肉眼推导”数据流。</li>
+</ul></li>
+</ul>
+<p>一个极简 PTX 片段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">.reg .s32 r1, r2, r3;     // 三个 32 位整型寄存器</span><br><span class="line">.reg .pred p;              // 一个布尔寄存器</span><br><span class="line">ld.global.s32 r1, [x];     // r1 ← *x（从全局内存地址 x 取 4 字节）</span><br><span class="line">ld.global.s32 r2, [y];     // r2 ← *y</span><br><span class="line">mad.lo.s32 r3, r1, a, r2;  // r3 ← r1*a + r2  （乘加）</span><br><span class="line">st.global.s32 [y], r3;     // *y ← r3         （回写到全局内存）</span><br></pre></td></tr></table></figure>
+<p>如何读 PTX？</p>
+<ul>
+<li>先看“动词”（<code>ld/st/mov/add/mad/...</code>），判定动作。</li>
+<li>再看“地址空间/修饰符”（<code>global/shared/local</code>）。</li>
+<li>最后看“类型”（<code>.s32/.f32/...</code>）与操作数，推导数据宽度与含义。</li>
+</ul>
+<p>常见类型速查：</p>
+<ul>
+<li><code>.s32/.u32</code>：32 位整型（有符号/无符号）</li>
+<li><code>.f32/.f64</code>：32/64 位浮点</li>
+<li><code>.pred</code>：谓词/布尔（常用于条件执行）</li>
+</ul>
+<p>生成 PTX 的常用方法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvcc -<span class="built_in">ptx</span> app.cu -o app.ptx             <span class="comment"># 直接产出 PTX 文件</span></span><br><span class="line">cuobjdump --dump-ptx app                <span class="comment"># 从可执行文件/库里抽取 PTX</span></span><br></pre></td></tr></table></figure>
+<h3 id="sass-是什么某一代-gpu-的母语">3.2 SASS 是什么？（某一代 GPU 的“母语”）</h3>
+<ul>
+<li>定位：SASS 是真实机器码的人类可读形式（反汇编结果），和 PTX 不保证一一对应（编译器/后端会做调度与优化）。</li>
+<li>读法套路：助记符 + 修饰符 + 数据宽度 + 操作数。例如：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LDG.E.32 R2, [R4]   // 从全局内存加载 4 字节到寄存器 R2（R4 为地址）</span><br><span class="line">FADD R6, R2, R3     // 浮点加法：R6 = R2 + R3</span><br><span class="line">STG.E.32 [R4], R6   // 把 R6 的 4 字节写回全局内存地址 R4</span><br></pre></td></tr></table></figure>
+<p>拿到 SASS 的方式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nvcc -cubin -<span class="built_in">arch</span>=sm_80 app.cu -o app.cubin  <span class="comment"># 生成与架构绑定的 cubin</span></span><br><span class="line">nvdisasm -g app.cubin | less                 <span class="comment"># 反汇编 SASS（-g 带行号映射）</span></span><br><span class="line">cuobjdump --dump-sass app                    <span class="comment"># 也可从成品二进制中抽取</span></span><br></pre></td></tr></table></figure>
+<p>小贴士：不同 GPU 架构（如 Volta/Ampere/Hopper）SASS 语法/修饰符略有差异，读法不变：先看动词，再看宽度/修饰，再看寄存器/地址。</p>
+<h3 id="一眼看懂从-c-到-ptx-到-sass的映射">3.3 一眼看懂“从 C 到 PTX 到 SASS”的映射</h3>
+<p>以 <code>y[i] = a * x[i] + y[i]</code> 为例：</p>
+<ul>
+<li>C/CUDA：从 <code>x[i]</code> 读，乘以 <code>a</code>，再加 <code>y[i]</code>，写回 <code>y[i]</code>。</li>
+<li>PTX（示意）：<code>ld.global.f32</code> 两次加载，<code>fma.rn.f32</code> 或 <code>mul+add</code> 做计算，<code>st.global.f32</code> 回写。</li>
+<li>SASS（示意）：<code>LDG.E.32</code> → <code>FFMA</code>/<code>FADD</code> → <code>STG.E.32</code>。</li>
+</ul>
+<p>不必逐条抠细节，抓主干就行：访存是 <code>LD*/ST*</code>，算术是 <code>F*</code>（浮点）或 <code>I*</code>（整数），控制流是 <code>BRA/SSY/...</code>。</p>
+<h3 id="与-nvbit-有什么关系">3.4 与 NVBit 有什么关系？</h3>
+<ul>
+<li>NVBit 在 Driver 层能拿到“函数的指令列表”，其中就包含 SASS 级别的信息（助记符、操作数等）。</li>
+<li>你可以按“指令类别”筛选（如只对 <code>LDG/STG</code> 插桩），或按助记符前缀聚焦热点（如分支、原子、内存）。</li>
+<li>牢记：PTX 更易读、跨架构；SASS 更贴近硬件、与性能强相关。做插桩时，两者都值得参考：用 PTX 快速理解语义，用 SASS 判断真实代价与分布。</li>
+</ul>
+<h3 id="三步拿到汇编实操">3.5 三步拿到汇编（实操）</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1) 生成 PTX，快速理解语义</span></span><br><span class="line">nvcc -O2 -<span class="built_in">ptx</span> app.cu -o app.ptx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 生成 cubin 并反汇编 SASS，观察真实发射的指令</span></span><br><span class="line">nvcc -O2 -cubin -<span class="built_in">arch</span>=sm_80 app.cu -o app.cubin</span><br><span class="line">nvdisasm -g app.cubin | sed -n <span class="string">&#x27;1,120p&#x27;</span> | <span class="built_in">cat</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 若 app 已链接成可执行文件/动态库，从成品中抽取</span></span><br><span class="line">cuobjdump --dump-ptx --dump-sass ./app | <span class="built_in">head</span> -n 200 | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>看懂这层关系后，你就能把“源代码的语义”和“GPU 上真实执行的代价”链接起来：这对插桩点选择、性能评估与采样策略都至关重要。</p>
+<hr />
+<h2 id="linux-动态链接与环境变量">4️⃣ Linux 动态链接与环境变量</h2>
+<p>动态链接器（<code>ld-linux.so</code>）在程序启动时负责把用到的共享库（<code>.so</code>）装进进程，并把函数地址“接上去”。理解这套机制，有助于你知道“NVBit/LD_PRELOAD 是怎么把工具注入进去的”。</p>
+<h3 id="动态链接怎么工作一句话">4.1 动态链接怎么工作（一句话）</h3>
+<ul>
+<li>程序声明依赖的 <code>.so</code>（通过 ELF 的 <code>NEEDED</code> 条目）。</li>
+<li>链接器按“查找顺序”定位这些 <code>.so</code>，装载进来。</li>
+<li>通过 PLT/GOT 或直接绑定，把函数名解析到实际地址（<code>dlsym</code> 也做这事）。</li>
+</ul>
+<h3 id="so-查找顺序要点">4.2 <code>.so</code> 查找顺序要点</h3>
+<ul>
+<li>常见影响因素：
+<ul>
+<li><code>LD_LIBRARY_PATH</code>：临时指定查找路径（环境变量）。</li>
+<li><code>RPATH/RUNPATH</code>：可执行文件/库里内嵌的搜索路径（构建时由链接器写入）。</li>
+<li>系统默认路径：<code>/lib</code>, <code>/usr/lib</code>, 以及 <code>ldconfig</code> 维护的缓存。</li>
+</ul></li>
+<li>一般顺序（简化版）：<code>LD_PRELOAD</code> 覆盖 → <code>LD_LIBRARY_PATH</code> → <code>RPATH/RUNPATH</code> → 系统路径。</li>
+<li>工具命令：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ldd ./app                         <span class="comment"># 显示依赖库及解析到的实际路径</span></span><br><span class="line">LD_DEBUG=libs ./app 2&gt;&amp;1 | <span class="built_in">head</span>   <span class="comment"># 打印链接器加载日志（非常好用）</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>提醒：对 setuid 程序，<code>LD_PRELOAD</code> 等会被忽略（安全原因）；容器环境也可能有隔离策略。</p>
+</blockquote>
+<h3 id="ld_preload优先装载与函数覆盖interposition">4.3 <code>LD_PRELOAD</code>：优先装载与函数覆盖（interposition）</h3>
+<p><code>LD_PRELOAD=/path/to/libX.so</code> 会让动态链接器“先装载”这只库。若库里有与目标程序相同名字的函数，就能“拦截”调用，再转去调原函数（用 <code>dlsym(RTLD_NEXT, ...)</code>）。</p>
+<p>最小拦截示例：统计 <code>malloc</code> 使用次数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file: hook.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span>* (*real_malloc)(<span class="type">size_t</span>) = <span class="literal">NULL</span>;</span><br><span class="line"><span class="type">static</span> <span class="type">size_t</span> g_count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">__attribute__((constructor)) <span class="type">static</span> <span class="type">void</span> <span class="title function_">init_hook</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;[hook] loaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span>* <span class="title function_">malloc</span><span class="params">(<span class="type">size_t</span> size)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!real_malloc) real_malloc = (<span class="type">void</span>*(*)(<span class="type">size_t</span>))dlsym(RTLD_NEXT, <span class="string">&quot;malloc&quot;</span>);</span><br><span class="line">    <span class="type">void</span>* p = real_malloc(size);</span><br><span class="line">    g_count++;</span><br><span class="line">    <span class="keyword">if</span> (getenv(<span class="string">&quot;HOOK_VERBOSE&quot;</span>)) <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;[hook] malloc(%zu) =&gt; %p (count=%zu)\n&quot;</span>, size, p, g_count);</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译与运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gcc -shared -fPIC -ldl hook.c -o libhook.so</span><br><span class="line">LD_PRELOAD=<span class="variable">$PWD</span>/libhook.so HOOK_VERBOSE=1 ./your_program</span><br></pre></td></tr></table></figure>
+<p>要点：</p>
+<ul>
+<li>防递归：调用原函数要用 <code>dlsym(RTLD_NEXT, ...)</code>，不要直接再调 <code>malloc</code>。</li>
+<li>线程安全：如需记录全局状态，考虑加原子/锁；或仅做轻量统计。</li>
+<li>与 NVBit 的关系：NVBit 通过注入 <code>libnvbit.so</code>，在 Driver 层拦截 CUDA 事件（例如 <code>cuLaunchKernel</code>）。思路与上面类似，但对象是 CUDA Driver API。</li>
+</ul>
+<h3 id="dlopendlsym运行时加载与找符号">4.4 <code>dlopen/dlsym</code>：运行时加载与找符号</h3>
+<p>当你需要“按需”加载某个库，或拿到某个函数指针时：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">void</span>* h = dlopen(<span class="string">&quot;libcuda.so.1&quot;</span>, RTLD_LAZY | RTLD_LOCAL);</span><br><span class="line">    <span class="keyword">if</span> (!h) &#123; <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;dlopen error: %s\n&quot;</span>, dlerror()); <span class="keyword">return</span> <span class="number">1</span>; &#125;</span><br><span class="line">    <span class="type">void</span>* sym = dlsym(h, <span class="string">&quot;cuInit&quot;</span>);  <span class="comment">// 例：拿到 CUDA Driver API 的 cuInit</span></span><br><span class="line">    <span class="keyword">if</span> (!sym) &#123; <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;dlsym error: %s\n&quot;</span>, dlerror()); <span class="keyword">return</span> <span class="number">1</span>; &#125;</span><br><span class="line">    <span class="comment">// 用函数指针调用前，请按正确签名声明并强转</span></span><br><span class="line">    dlclose(h);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>常用 flag：</p>
+<ul>
+<li><code>RTLD_LAZY</code>/<code>RTLD_NOW</code>：延迟/立即解析符号。</li>
+<li><code>RTLD_LOCAL</code>/<code>RTLD_GLOBAL</code>：导出到后续库是否可见（影响后续 <code>dlsym</code>）。</li>
+</ul>
+<h3 id="环境变量给工具遥控器">4.5 环境变量：给工具“遥控器”</h3>
+<p>用环境变量控制行为是业界惯例：无需改代码/重编译，随开随关。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">get_int_env</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key, <span class="type">int</span> defv)</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* v = getenv(key);</span><br><span class="line">    <span class="keyword">return</span> v ? atoi(v) : defv;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">get_bool_env</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key, <span class="type">int</span> defv)</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* v = getenv(key);</span><br><span class="line">    <span class="keyword">if</span> (!v) <span class="keyword">return</span> defv;</span><br><span class="line">    <span class="keyword">return</span> (!<span class="built_in">strcmp</span>(v, <span class="string">&quot;1&quot;</span>) || !<span class="built_in">strcmp</span>(v, <span class="string">&quot;true&quot;</span>) || !<span class="built_in">strcmp</span>(v, <span class="string">&quot;on&quot;</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用法：</span></span><br><span class="line"><span class="comment">// int verbose = get_bool_env(&quot;NVBIT_VERBOSE&quot;, 0);</span></span><br><span class="line"><span class="comment">// int sample_n = get_int_env(&quot;MY_TOOL_SAMPLE_N&quot;, 100);</span></span><br></pre></td></tr></table></figure>
+<p>实践建议：</p>
+<ul>
+<li>约定统一前缀（如 <code>MYTOOL_*</code>），避免与系统变量冲突。</li>
+<li>为每个开关提供默认值与帮助说明（打印到日志首行）。</li>
+</ul>
+<h3 id="proc-与排错技巧">4.6 /proc 与排错技巧</h3>
+<ul>
+<li>看看进程到底加载了哪些库、地址在哪：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /proc/$$/maps | grep -E <span class="string">&quot;libcuda|libnvbit|libhook&quot;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>动态链接问题一把梭：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ldd ./app</span><br><span class="line">LD_DEBUG=libs,symbols,bindings ./app 2&gt;&amp;1 | less</span><br></pre></td></tr></table></figure>
+<ul>
+<li>了解即可：<code>ptrace</code> 可让调试器（<code>gdb</code> 等）附加进程；分析崩溃时有用，但与动态链接不是一件事。</li>
+</ul>
+<hr />
+<h2 id="gpu-指令级插桩基本思路">5️⃣ GPU 指令级插桩基本思路</h2>
+<p>“钩子（Hook）是什么”：在不改原程序逻辑的前提下，拦截某个函数或事件的执行点，插入你的自定义代码（记录/修改/放行），然后把控制权交还原逻辑。</p>
+<p>在本节语境里，常用两层 Hook：</p>
+<ul>
+<li><strong>驱动事件 Hook</strong>：在 <code>cuLaunchKernel</code> 等 Driver API 的进入/退出时机回调你的代码，用来“决定是否对这次 Kernel 做插桩”。</li>
+<li><strong>指令级 Hook</strong>：对目标 <code>CUfunction</code> 的每条（或部分）SASS 指令，在指令前/后插入对设备端处理函数的调用，实现“记录/采样/统计”。</li>
+</ul>
+<p>优点：零侵入、上线快；注意：有额外开销，需配合过滤/采样，并避免递归拦截与线程不安全。</p>
+<h3 id="想达到什么目标">5.1 想达到什么目标？</h3>
+<ul>
+<li>明确你需要“看见什么”：
+<ul>
+<li>指令计数（总量/类别占比）、内存访问信息（地址、宽度）、分支行为（是否分歧）、原子/Barrier 使用等。</li>
+</ul></li>
+<li>先从“最小目标”起步（仅计数或仅内存指令），验证链路，再逐步加字段。</li>
+</ul>
+<h3 id="静态-vs-动态两条路">5.2 静态 vs 动态（两条路）</h3>
+<ul>
+<li>静态插桩：在编译期修改 PTX/SASS（或用编译器 pass）。
+<ul>
+<li>优点：开销可控、可定制性强。</li>
+<li>缺点：兼容性/维护成本高；适配不同架构麻烦。</li>
+</ul></li>
+<li>动态插桩（NVBit）：运行时拦截驱动，对已加载的 <code>CUfunction</code> 动态加钩子。
+<ul>
+<li>优点：对用户二进制零侵入、快速迭代。</li>
+<li>缺点：插入调用本身有额外成本，需要过滤/采样。</li>
+</ul></li>
+</ul>
+<h3 id="插桩颗粒度与插点策略">5.3 插桩颗粒度与插点策略</h3>
+<ul>
+<li>粒度：函数级（仅启停）/ 指令级（精确到 <code>LDG/STG/ATOM/BRA/...</code>）。</li>
+<li>插点：<code>IPOINT_BEFORE</code>（指令执行前）或 <code>IPOINT_AFTER</code>（执行后）。
+<ul>
+<li>读内存：多在 BEFORE（记录将要访问的地址）。</li>
+<li>写内存：多在 AFTER（可记录最终值，代价更高）。</li>
+</ul></li>
+<li>谓词执行：许多 SASS 指令有谓词屏蔽，务必把谓词传给设备端处理以过滤未执行的路径。</li>
+</ul>
+<h3 id="记录格式record怎么设计">5.4 记录格式（Record）怎么设计？</h3>
+<ul>
+<li>原则：结构体字段最小化、定长、cache 友好；避免可变长字符串。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">struct __align__(16) MemRec &#123;</span><br><span class="line">    unsigned smid;           // 可选：SM id</span><br><span class="line">    unsigned warp;           // 可选：Warp id（lane/warp 组合）</span><br><span class="line">    unsigned inst_tag;       // 指令标识（host 侧映射助记符/位置）</span><br><span class="line">    unsigned flags;          // 谓词/读写/空间等 bit 位</span><br><span class="line">    unsigned long long addr; // 访存地址（如需）</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果只做计数：完全可以把 <code>MemRec</code> 简化成“按类别的计数器”放在全局/共享内存中，降低带宽。</li>
+</ul>
+<h3 id="设备端缓冲与背压ring-buffer">5.5 设备端缓冲与背压（Ring Buffer）</h3>
+<ul>
+<li>每条记录一条 <code>printf</code> 会拖垮性能，必须“先写缓冲 → 批量回传”。</li>
+<li>常见方案：全局环形缓冲 + 原子游标；必要时配合 Block 内共享内存做分层缓冲。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">__device__ __managed__ MemRec gbuf[1&lt;&lt;20];</span><br><span class="line">__device__ __managed__ unsigned ghead = 0;</span><br><span class="line"></span><br><span class="line">extern &quot;C&quot; __device__ __noinline__ void dev_record_pred(int pred,</span><br><span class="line">                                                         unsigned inst_tag,</span><br><span class="line">                                                         unsigned flags,</span><br><span class="line">                                                         unsigned long long addr) &#123;</span><br><span class="line">    if (!pred) return;  // 指令未执行，直接跳过</span><br><span class="line">    unsigned pos = atomicAdd(&amp;ghead, 1);</span><br><span class="line">    pos &amp;= (1&lt;&lt;20) - 1; // 环形</span><br><span class="line">    gbuf[pos] = &#123; /*smid*/0u, /*warp*/0u, inst_tag, flags, addr &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>背压：当生产速度 &gt; 消费速度，会覆盖旧数据。策略：
+<ul>
+<li>增大缓冲（牺牲显存），</li>
+<li>提高回传频率（更多 DMA），</li>
+<li>采样/过滤（减少写入），</li>
+<li>分层缓冲（共享内存聚合，减少全局原子）。</li>
+</ul></li>
+</ul>
+<h3 id="host-device-回传批量且异步">5.6 Host ↔ Device 回传（批量且异步）</h3>
+<ul>
+<li>Host 侧维护 pinned host 缓冲 + stream，周期性 <code>cudaMemcpyAsync</code> 回传一批数据；双缓冲流水化：</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 伪代码</span></span><br><span class="line"><span class="built_in">cudaMemcpyAsync</span>(host_buf[cur], gbuf, bytes, cudaMemcpyDeviceToHost, stream);</span><br><span class="line"><span class="built_in">cudaEventRecord</span>(done[cur], stream);</span><br><span class="line"><span class="comment">// 轮转 cur，另一路并行解析/落盘</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>落盘：优先二进制；解析器单独实现，避免在线文本格式化。</li>
+</ul>
+<h3 id="过滤与采样把开销打下来">5.7 过滤与采样（把开销打下来）</h3>
+<ul>
+<li>Kernel 名过滤（正则/白名单）。</li>
+<li>指令类别过滤（只插 <code>LDG/STG/ATOM/BRA/...</code>）。</li>
+<li>比例采样（每 N 条插 1 条）或时间窗口采样（只在前 M 毫秒记录）。</li>
+<li>启停控制：通过环境变量在 <code>nvbit_at_cuda_event</code> 里仅对前 K 次 launch 开启。</li>
+</ul>
+<h3 id="正确性与验证别被插桩污染">5.8 正确性与验证（别被插桩“污染”）</h3>
+<ul>
+<li>确保设备端处理函数 <code>__noinline__</code>，避免被内联改变控制流。</li>
+<li>避免在设备端大量 <code>printf</code>；必要时仅在小规模 debug 期开启。</li>
+<li>检查寄存器/共享内存占用（<code>-Xptxas -v</code>）；插桩会增加压力，可能导致寄存器溢出到 Local，性能骤降。</li>
+<li>与 <code>compute-sanitizer</code> 联合：先保证无越界/竞争/屏障问题，再看插桩结果。</li>
+</ul>
+<h3 id="最小模板把链路跑通">5.9 最小模板（把链路跑通）</h3>
+<ol type="1">
+<li>选择目标：仅统计 <code>LDG/STG</code> 数量。</li>
+<li>Host 侧：在 <code>instrument_function</code> 中筛指令，<code>nvbit_insert_call(..., "dev_inc", IPOINT_BEFORE)</code>；传 <code>pred</code> 与 <code>inst_tag</code>。</li>
+<li>Device 侧：<code>__device__ __noinline__ void dev_inc(int pred, unsigned tag)</code> 内只做原子加到计数器。</li>
+<li>Host 侧：Kernel 结束后 <code>cudaMemcpyAsync</code> 回读计数，打印结果。</li>
+<li>验证：对比不同输入规模/不同 kernel，观察计数变化是否合理；再逐步扩成“记录地址/分支行为/原子次数”。</li>
+</ol>
+<hr />
+<h2 id="nvbit-核心原理与常用回调">6️⃣ NVBit 核心原理与常用回调</h2>
+<ul>
+<li><strong>工作原理（简述）</strong>：<code>libnvbit.so</code> 通过 Driver 层回调拦截内核加载与启动事件，工具按需遍历 <code>CUfunction</code> 的指令列表，并在指令前/后注入对“设备端处理函数”的调用（PTX 级 call）。</li>
+<li><strong>常用回调</strong>：
+<ul>
+<li><code>nvbit_at_init()</code>：工具初始化（解析环境变量、设置日志等）。</li>
+<li><code>nvbit_at_ctx_init(CUcontext ctx)</code> / <code>nvbit_at_ctx_term(CUcontext ctx)</code>：每个 CUDA 上下文的资源准备/清理（缓冲区、流等）。</li>
+<li><code>nvbit_at_cuda_event(CUcontext ctx, int is_exit, CUstream stream, CUpti_CallbackId cbid, const CUpti_CallbackData* cbinfo)</code>：拦截 <code>cuLaunchKernel</code> 等事件，在进入/退出时启用或关闭插桩。</li>
+<li><code>instrument_function(CUcontext ctx, CUfunction func)</code> / <code>instrument_instruction(...)</code>：遍历函数或单条指令并插入调用。</li>
+</ul></li>
+<li><strong>API 速查</strong>：
+<ul>
+<li><code>nvbit_get_func_name(ctx, func)</code>：获取内核名；</li>
+<li><code>nvbit_get_mnemonic_name(instr)</code>：获取指令助记符（例如 <code>LDG.E.32</code>）；</li>
+<li><code>nvbit_insert_call(instr, "device_handler", IPOINT_BEFORE/AFTER)</code>：在指令前/后注入调用；</li>
+<li><code>nvbit_add_call_arg_*</code>：为插入的调用设置参数（谓词、寄存器值、立即数等）；</li>
+<li><code>nvbit_enable_instrumented(ctx, func, true/false)</code>：启用/禁用某函数的插桩代码路径。</li>
+</ul></li>
+</ul>
+<p>一个“计数型”插桩的雏形：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// host/tool 侧（伪代码，展示关键 API 调用）</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">void</span> <span class="title">nvbit_at_init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 解析环境变量、打开日志等</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">instrument_function</span><span class="params">(CUcontext ctx, CUfunction func)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">auto</span>&amp; instrs = <span class="built_in">nvbit_get_instrs</span>(ctx, func);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> instr : instrs) &#123;</span><br><span class="line">        <span class="type">const</span> <span class="type">char</span>* mnem = <span class="built_in">nvbit_get_mnemonic_name</span>(instr);</span><br><span class="line">        <span class="comment">// 例如：只对全局内存加载/存储插桩</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">strstr</span>(mnem, <span class="string">&quot;LDG&quot;</span>) || <span class="built_in">strstr</span>(mnem, <span class="string">&quot;STG&quot;</span>)) &#123;</span><br><span class="line">            <span class="built_in">nvbit_insert_call</span>(instr, <span class="string">&quot;dev_record&quot;</span>, IPOINT_BEFORE);</span><br><span class="line">            <span class="built_in">nvbit_add_call_arg_pred_val</span>(instr);              <span class="comment">// 谓词（是否执行）</span></span><br><span class="line">            <span class="built_in">nvbit_add_call_arg_const_val64</span>((<span class="type">uint64_t</span>)instr); <span class="comment">// 传个标识/PC</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function"><span class="type">void</span> <span class="title">nvbit_at_cuda_event</span><span class="params">(CUcontext ctx, <span class="type">int</span> is_exit, CUstream stream,</span></span></span><br><span class="line"><span class="params"><span class="function">                                     CUpti_CallbackId cbid, <span class="type">const</span> CUpti_CallbackData* cbinfo)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!is_exit <span class="comment">/* 进入 cuLaunchKernel */</span>) &#123;</span><br><span class="line">        CUfunction f = (CUfunction)cbinfo-&gt;function;</span><br><span class="line">        <span class="built_in">instrument_function</span>(ctx, f);</span><br><span class="line">        <span class="built_in">nvbit_enable_instrumented</span>(ctx, f, <span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// device 侧处理函数（与上面名称一致）</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">__device__ __noinline__ <span class="type">void</span> <span class="title">dev_record</span><span class="params">(<span class="type">int</span> pred, <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> tag)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!pred) <span class="keyword">return</span>; <span class="comment">// 指令未执行则忽略</span></span><br><span class="line">    <span class="comment">// 写入 ring buffer（见下一节）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>提示：不同 NVBit 版本在 API 细节上略有差异，上述代码意在展示“如何筛指令、如何插入调用、如何传参”的思路。</p>
+</blockquote>
+<hr />
+<h2 id="并行数据收集与主机侧处理">7️⃣ 并行数据收集与主机侧处理</h2>
+<p>设备端 ring buffer（简化示例）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">struct Record &#123; unsigned smid; unsigned warp; unsigned long long tag; &#125;;</span><br><span class="line">__device__ __managed__ Record gbuf[1&lt;&lt;20];</span><br><span class="line">__device__ __managed__ unsigned ghead = 0;</span><br><span class="line"></span><br><span class="line">extern &quot;C&quot; __device__ __noinline__ void dev_record(int pred, unsigned long long tag) &#123;</span><br><span class="line">    if (!pred) return;</span><br><span class="line">    unsigned pos = atomicAdd(&amp;ghead, 1) &amp; ((1&lt;&lt;20)-1);</span><br><span class="line">    // 可以通过内联 PTX 读取 SM/warp id（不同架构略异，这里省略细节）</span><br><span class="line">    gbuf[pos] = &#123; /*smid*/ 0u, /*warp*/ 0u, tag &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主机侧批量拷贝：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在 nvbit_at_ctx_init 中创建 pinned host 缓冲与 stream</span></span><br><span class="line"><span class="built_in">cudaMemcpyAsync</span>(host_buf, gbuf, bytes, cudaMemcpyDeviceToHost, stream);</span><br><span class="line"><span class="built_in">cudaStreamSynchronize</span>(stream); <span class="comment">// 或者用双缓冲流水化</span></span><br><span class="line"><span class="comment">// 解析/重排/压缩，再写二进制文件；避免逐条 printf 造成瓶颈</span></span><br></pre></td></tr></table></figure>
+<p>I/O 建议：优先二进制落盘，必要时再做离线解析（文本打印极易成为瓶颈）。</p>
+<hr />
+<h2 id="性能度量与开销控制">8️⃣ 性能度量与开销控制</h2>
+<ul>
+<li><strong>测量</strong>：
+<ul>
+<li><code>cudaEvent</code> 度量内核耗时前后对比；</li>
+<li><code>nsys profile</code> 对整段程序做时间线与热点分析。</li>
+</ul></li>
+<li><strong>环境变量</strong>（实际名称以工具实现为准）：
+<ul>
+<li><code>NVBIT_DISABLE_INSTRUMENTED=1</code>：快速关闭插桩路径做 A/B 对比；</li>
+<li><code>NVBIT_VERBOSE=1</code>：打印 NVBit 日志以验证是否命中目标函数/指令。</li>
+</ul></li>
+<li><strong>过滤/采样</strong>：
+<ul>
+<li>仅对匹配的 kernel 名启用（正则/白名单）；</li>
+<li>仅对某类指令插桩（如 <code>LDG/STG/ATOM/BRANCH</code>）；</li>
+<li>采样率控制（例如每 N 条记录 1 条）。</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="多-gpu-多进程场景">9️⃣ 多 GPU / 多进程场景</h2>
+<ul>
+<li>按 <code>CUcontext</code> 维度管理资源（缓冲、流、文件句柄）。</li>
+<li>在 <code>nvbit_at_ctx_init/term</code> 中为每个上下文创建/销毁独立通道。</li>
+<li>多进程/多 GPU 下，建议输出独立的 trace 文件，文件名包含 <code>pid</code>/<code>device</code>/<code>context</code> 标识。</li>
+</ul>
+<hr />
+<h2 id="调试与常见问题">🔟 调试与常见问题</h2>
+<ul>
+<li><strong>版本配套</strong>：NVBit 依赖较新的 Driver；升级 Toolkit 时同步确认 NVBit 兼容性。</li>
+<li><strong>Undefined Symbol/版本冲突</strong>：
+<ul>
+<li>用 <code>ldd tool.so</code> 与 <code>LD_DEBUG=libs</code> 检查依赖；</li>
+<li>留意 libcudart 与 libcuda 的版本来源（容器内/宿主机）。</li>
+</ul></li>
+<li><strong>崩溃分析</strong>：
+<ul>
+<li><code>gdb</code> 查看主机栈；<code>cuda-gdb</code> 辅助查看设备端调用；</li>
+<li>结合 <code>compute-sanitizer</code> 排除内存/同步类问题后再定位逻辑错误。</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="安全与可移植性进阶">1️⃣1️⃣ 安全与可移植性（进阶）</h2>
+<ul>
+<li>插桩会增加寄存器与共享内存占用，可能引发寄存器溢出（到 Local）→ 性能显著下降。</li>
+<li>不同架构（如 Ampere/Hopper）在 PTX/SASS 上的变化会影响指令筛选逻辑，需持续关注发布说明。</li>
+<li>推荐阅读 NVBit 官方示例工具代码结构（<code>instr_count</code>、<code>memtrace</code>、<code>branch_stats</code>），形成：入口回调 → 函数遍历 → 指令过滤 → 参数装配 → 设备端消费 → 主机落盘 的心智模型。</li>
+</ul>
+<hr />
+<h2 id="实战清单拿来就用">✅ 实战清单（拿来就用）</h2>
+<ol type="1">
+<li>准备 Debug 构建：<code>-g -G -lineinfo -Xptxas -v -arch=sm_xx</code>。</li>
+<li>用 <code>cuobjdump</code>/<code>nvdisasm</code> 熟悉目标内核的 PTX/SASS 与指令分布。</li>
+<li>挑选插桩粒度：先“只插内存访问”或“只计数”，验证链路通畅。</li>
+<li>实现设备端 ring buffer + 批量回传，避免逐条打印。</li>
+<li>利用环境变量控制开关、采样率、过滤规则，做 A/B 度量。</li>
+<li>多上下文/多 GPU 下按上下文管理资源并分文件输出。</li>
+<li>问题时优先排版本/符号/依赖，再用 gdb/cuda-gdb 与 Sanitizer 联合定位。</li>
+</ol>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ul>
+<li><strong>核心心法</strong>：先跑通“最小插桩链路”（指令筛选 → 参数传递 → 设备落地 → 主机批量回传），再逐步扩展覆盖范围。</li>
+<li><strong>务实策略</strong>：全量追踪成本极高，优先按“指令类别/函数/采样率”过滤；用事件度量工具验证开销可控。</li>
+<li><strong>长期维护</strong>：关注架构与 NVBit 版本变更，保持工具在新驱动/新卡上的正确性与性能。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CUDA/" rel="tag"># CUDA</a>
+              <a href="/tags/%E8%B0%83%E8%AF%95/" rel="tag"># 调试</a>
+              <a href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag"># 工具</a>
+              <a href="/tags/NVBit/" rel="tag"># NVBit</a>
+              <a href="/tags/%E6%8F%92%E6%A1%A9/" rel="tag"># 插桩</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/a1b2c3d4/" rel="prev" title="Compute Sanitizer 实用指南：从 0 到熟练">
+                  <i class="fa fa-angle-left"></i> Compute Sanitizer 实用指南：从 0 到熟练
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">129k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:55</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
