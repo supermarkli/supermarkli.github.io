@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="你是否想过，只写一段核心业务代码，就能把它部署成一个高可用的后端服务？不用预估容量、不用操心扩容、甚至没有请求时完全不花钱。 这听起来像是未来的开发模式，但其实它已经悄然来到我们身边。实现这一切的魔法，就是我们今天的主角 —— FaaS（函数即服务）。 这篇文章会带你一起，从 FaaS 的诞生背景聊起，彻底搞懂它的核心概念、真实应用场景，并手把手教你把第一个函数部署上云。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FaaS（函数即服务）上手指南：从 0 到上云">
+<meta property="og:url" content="https://supermarkli.github.io/posts/f1a2b3c4/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="你是否想过，只写一段核心业务代码，就能把它部署成一个高可用的后端服务？不用预估容量、不用操心扩容、甚至没有请求时完全不花钱。 这听起来像是未来的开发模式，但其实它已经悄然来到我们身边。实现这一切的魔法，就是我们今天的主角 —— FaaS（函数即服务）。 这篇文章会带你一起，从 FaaS 的诞生背景聊起，彻底搞懂它的核心概念、真实应用场景，并手把手教你把第一个函数部署上云。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-08-29T06:44:22.000Z">
+<meta property="article:modified_time" content="2025-08-31T15:32:37.911Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="Serverless">
+<meta property="article:tag" content="FaaS">
+<meta property="article:tag" content="云原生">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/f1a2b3c4/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/f1a2b3c4/","path":"posts/f1a2b3c4/","title":"FaaS（函数即服务）上手指南：从 0 到上云"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>FaaS（函数即服务）上手指南：从 0 到上云 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80faas-%E7%9A%84%E8%AF%9E%E7%94%9F%E6%88%91%E4%BB%AC%E4%B8%BA%E4%BD%95%E9%9C%80%E8%A6%81%E5%AE%83"><span class="nav-number">1.</span> <span class="nav-text">一、FaaS 的诞生：我们为何需要它？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E6%8B%A8%E5%BC%80%E4%BA%91%E9%9B%BEfaas-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">二、拨开云雾：FaaS 核心概念详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E8%BA%AB%E6%89%8B%E5%88%9D%E8%AF%95faas-%E7%9A%84%E7%9C%9F%E5%AE%9E%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">三、身手初试：FaaS 的真实应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E4%B8%80%E7%BD%91%E7%AB%99%E6%88%96%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%9A%84%E5%90%8E%E7%AB%AF-api"><span class="nav-number">3.1.</span> <span class="nav-text">场景一：网站或小程序的后端 API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E4%BA%8C%E8%87%AA%E5%8A%A8%E5%8C%96%E7%9A%84%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-number">3.2.</span> <span class="nav-text">场景二：自动化的数据处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E4%B8%89%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9A%84%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1-cron-job"><span class="nav-number">3.3.</span> <span class="nav-text">场景三：轻量级的定时任务 (Cron Job)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E5%9B%9B%E7%89%A9%E8%81%94%E7%BD%91-iot-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-number">3.4.</span> <span class="nav-text">场景四：物联网 (IoT) 数据处理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E5%BA%96%E4%B8%81%E8%A7%A3%E7%89%9Bfaas-%E6%9E%B6%E6%9E%84%E4%B8%8E%E4%B8%8A%E7%BA%BF%E5%AE%9E%E6%88%98"><span class="nav-number">4.</span> <span class="nav-text">四、庖丁解牛：FaaS 架构与上线实战</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E8%A7%A3%E5%89%96%E4%BB%A5-aws-lambda-%E4%B8%BA%E4%BE%8B"><span class="nav-number">4.1.</span> <span class="nav-text">架构解剖（以 AWS Lambda 为例）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E5%88%B0%E4%B8%8A%E7%BA%BF%E4%BA%94%E6%AD%A5%E6%B3%95"><span class="nav-number">4.2.</span> <span class="nav-text">开发到上线：五步法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E7%B2%BE%E6%89%93%E7%BB%86%E7%AE%97%E8%AE%A1%E8%B4%B9%E6%A8%A1%E5%9E%8B%E4%B8%8E%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">五、精打细算：计费模型与常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%A1%E8%B4%B9%E6%A8%A1%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-number">5.1.</span> <span class="nav-text">计费模型对比</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%9D%91%E4%B8%8E%E5%AF%B9%E7%AD%96"><span class="nav-number">5.2.</span> <span class="nav-text">常见“坑”与对策</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">✨ 小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">67</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/f1a2b3c4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="FaaS（函数即服务）上手指南：从 0 到上云 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FaaS（函数即服务）上手指南：从 0 到上云
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-08-29 14:44:22" itemprop="dateCreated datePublished" datetime="2025-08-29T14:44:22+08:00">2025-08-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-08-31 23:32:37" itemprop="dateModified" datetime="2025-08-31T23:32:37+08:00">2025-08-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/" itemprop="url" rel="index"><span itemprop="name">云原生</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">架构与运维</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>10 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>你是否想过，只写一段核心业务代码，就能把它部署成一个高可用的后端服务？不用预估容量、不用操心扩容、甚至没有请求时完全不花钱。</p>
+<p>这听起来像是未来的开发模式，但其实它已经悄然来到我们身边。实现这一切的魔法，就是我们今天的主角 —— <strong>FaaS（函数即服务）</strong>。</p>
+<p>这篇文章会带你一起，从 FaaS 的诞生背景聊起，彻底搞懂它的核心概念、真实应用场景，并手把手教你把第一个函数部署上云。</p>
+<span id="more"></span>
+<h3 id="一faas-的诞生我们为何需要它">一、FaaS 的诞生：我们为何需要它？</h3>
+<p>要理解 FaaS 为何会横空出世，我们得先坐上时光机，回顾一下应用部署方式的“进化史”。</p>
+<p><strong>第一站：物理服务器时代</strong> 在遥远的“刀耕火种”年代，我们要部署一个网站，得先去机房买一台（或几台）物理服务器。这意味着漫长的采购周期、高昂的硬件成本，以及复杂的机器运维。最头疼的是，为了应对业务高峰，我们必须按最高标准购买硬件，导致服务器在大部分时间里都处于“摸鱼”状态，造成了巨大的资源浪费。</p>
+<p><strong>第二站：虚拟机 (IaaS) 时代</strong> 云计算的出现带来了转机。以 AWS EC2 为代表的虚拟机服务，让我们告别了实体硬件，可以在云端“租”服务器。这极大地提高了灵活性，几分钟内就能创建一台虚拟机。但问题并没有完全解决：我们依然要为整台虚拟机买单，哪怕上面的应用空闲着。同时，操作系统的维护、安全补丁的更新，这些运维工作一样也没少。</p>
+<p><strong>第三站：容器 (PaaS/CaaS) 时代</strong> Docker 和 Kubernetes 的风靡，让部署进入了容器化时代。我们将应用和它的依赖打包成一个轻量的“集装箱”，实现了环境的标准化和交付的敏捷性。但新的“烦恼”也随之而来：为了运行这些容器，我们得维护一个庞大而复杂的 Kubernetes 集群。容量规划、节点扩容、网络配置... 我们似乎从“应用运维”的坑，跳进了“集群运维”的坑。</p>
+<p>兜兜转转，开发者们始终有一个终极梦想：<strong>我们能只关心业务代码，而彻底不用管服务器吗？</strong></p>
+<p>FaaS 响亮地回答了：“能！”</p>
+<p>它的核心思想简单而彻底：<strong>让开发者回归最纯粹的编程，将服务器及相关的一切运维工作，都交给云平台</strong>。无论是操作系统、运行时环境，还是弹性伸缩、高可用，你通通不用管。你的世界里，只剩下你的“函数”——那段实现核心业务逻辑的代码。</p>
+<p>简单来说，FaaS 将付费模式从“为服务器资源付费”，进化到了“<strong>为代码的实际执行付费</strong>”。这不只是一次技术升级，更是一场开发思想的革命。</p>
+<h3 id="二拨开云雾faas-核心概念详解">二、拨开云雾：FaaS 核心概念详解</h3>
+<p>理解了 FaaS 的“初心”，我们再来拆解几个围绕着它的核心概念。</p>
+<ul>
+<li><p><strong>FaaS (Function-as-a-Service, 函数即服务)</strong> 这是我们要掌握的核心。我喜欢用一个比喻：<strong>租厨房，而不是租公寓</strong>。 在传统模式下，为了做顿饭，你得先租下一整套公寓（服务器），自己装修（配环境）、打扫（运维）。而 FaaS 就像一个共享厨房，你只需带着菜谱（代码）进去，锅碗瓢盆（运行环境）一应俱全。你只为炒菜的几分钟付费，完事就走，绝不为厨房的闲置时间买单。</p></li>
+<li><p><strong>Serverless (无服务器架构)</strong> 这是一个更宏大的理念，FaaS 只是它最广为人知的“代言人”。Serverless 并非真的没有服务器，而是强调一种<strong>开发者无需关心服务器</strong>的架构思想。 如果说 FaaS 是共享厨房，那 Serverless 就是整个美食广场。这个广场里除了厨房（FaaS），还有现成的食材超市（BaaS - 数据库服务）、统一的安保系统（BaaS - 身份验证服务）等等。Serverless 的目标，就是让你作为大厨，能心无旁骛地专注于“炒菜”这一件事上。</p></li>
+<li><p><strong>事件驱动 (Event-Driven)</strong> 这是 FaaS 的灵魂。你的函数并非 24 小时待命，而是像个“懒汉”，<strong>“有事才干，没事歇着”</strong>。 你可以把函数想象成一个装了门铃的房间。只有当“事件”发生时——比如有人按门铃（HTTP 请求）、信箱里有新信件（文件上传）、手机闹钟响了（定时任务）——它才会被唤醒去开门（执行函数）。这种模式确保了资源不会被空耗。</p></li>
+<li><p><strong>冷启动 (Cold Start)</strong> 这是 FaaS 的一个独特挑战。如果你的函数长时间没被调用（没人按门铃），平台为了节约资源，会把它“请回家休息”（回收实例）。当下一个请求突然到来时，平台需要重新给它分配资源、加载代码、初始化环境... 这个过程就像大冬天里发动一台冷了很久的汽车，会有一个明显的延迟，这就是“冷启动”。 一旦启动完毕，后续的连续请求就会非常快（这叫“热启动”），直到它再次因为“没人理”而进入休眠。</p></li>
+<li><p><strong>BaaS (Backend-as-a-Service, 后端即服务)</strong> 前面提到，这是 Serverless 美食广场的另一半。它提供了各种开箱即用的后端能力，比如数据库 (<code>Firebase</code>)、对象存储 (<code>AWS S3</code>)、用户认证 (<code>Auth0</code>) 等。FaaS 函数通常和 BaaS 服务配合，一个主内（负责无状态的计算逻辑），一个主外（负责有状态的数据存储），共同构建出一个完整的 Serverless 应用。</p></li>
+</ul>
+<h3 id="三身手初试faas-的真实应用场景">三、身手初试：FaaS 的真实应用场景</h3>
+<p>理论听起来很棒，那 FaaS 在实际工作中到底能用来做什么呢？</p>
+<h4 id="场景一网站或小程序的后端-api">场景一：网站或小程序的后端 API</h4>
+<p>这是 FaaS 最经典的用法。假设你要为个人博客或小程序开发一个后端，但又不想为了偶尔的访问量，而去维护一台 24 小时开机的服务器。</p>
+<ul>
+<li><strong>实例</strong>：一个“用户注册”接口。当用户在前端页面提交注册信息后，会调用一个 API 网关，这个网关会触发我们的 FaaS 函数。函数接收到用户信息，执行数据校验、写入数据库等操作，然后返回结果。整个过程可能只花费几百毫秒，你就只需要为这短暂的计算付费，经济又省心。</li>
+</ul>
+<h4 id="场景二自动化的数据处理">场景二：自动化的数据处理</h4>
+<p>FaaS 的事件驱动特性，让它成为自动化工作流的“神器”，尤其适合“当 A 发生时，自动执行 B”这类任务。</p>
+<ul>
+<li><strong>实例</strong>：图片自动生成缩略图。在社交或电商网站，用户上传一张高清原图后，我们往往需要大、中、小等不同尺寸的缩略图。通过 FaaS，我们可以设定一个规则：每当有图片上传到指定的存储桶（如 AWS S3），就自动触发一个函数。这个函数会读取原图，批量生成所需的缩略图，再存回存储桶。整个流程全自动，无需人工干预。</li>
+</ul>
+<h4 id="场景三轻量级的定时任务-cron-job">场景三：轻量级的定时任务 (Cron Job)</h4>
+<p>几乎每个系统都需要一些定期执行的任务，比如每日数据备份、定时发送报表等。</p>
+<ul>
+<li><strong>实例</strong>：生成每日运营报表。你可以设置一个定时触发器，比如每天凌晨 2 点，准时调用一个 FaaS 函数。这个函数会自动连接数据库，抓取前一天的用户增长、订单量等数据，生成一份精美的报表，并通过邮件发送给相关同事。</li>
+</ul>
+<h4 id="场景四物联网-iot-数据处理">场景四：物联网 (IoT) 数据处理</h4>
+<p>在物联网场景中，成千上万的设备可能会在瞬间产生海量数据，对后端的弹性伸缩能力是极大的考验。</p>
+<ul>
+<li><strong>实例</strong>：共享单车位置上报。每辆单车上的 GPS 设备会定时将位置信息发送到一个消息队列中。FaaS 函数可以订阅这个队列，每当有新消息进入，就触发一次执行，将最新的单车位置解析并更新到地图数据库中。FaaS 的自动伸缩能力，能完美应对早晚高峰期的并发洪流。</li>
+</ul>
+<p>通过这些场景，不难发现 FaaS 特别适合那些<strong>无状态、短执行、事件触发</strong>类型的任务。</p>
+<hr />
+<h3 id="四庖丁解牛faas-架构与上线实战">四、庖丁解牛：FaaS 架构与上线实战</h3>
+<p>理论和场景都清楚了，是时候深入 FaaS 平台的内部，看看它究竟是如何工作的，并亲手上线一个函数了。</p>
+<h4 id="架构解剖以-aws-lambda-为例">架构解剖（以 AWS Lambda 为例）</h4>
+<p>我们以目前最流行的 FaaS 平台 AWS Lambda 为例，看看一个典型的 FaaS 调用流程包含哪些组件。 <pre>
+<code class="mermaid">
+
+graph LR
+EVT[事件源&lt;br&#x2F;&gt;S3 &#x2F; API Gateway &#x2F; MQ] --&gt; TRG(触发器)
+TRG --&gt; LBD[Lambda 托管 Runtime]
+LBD --&gt; ENI[(弹性网络)]
+LBD --&gt; LOG[CloudWatch Logs]
+LBD --&gt; DLQ[死信队列&lt;br&#x2F;&gt;(可选)]
+</code>
+</pre> * <strong>事件源</strong>：触发函数执行的“扳机”，可以是 S3 的文件上传、API Gateway 的 HTTP 请求，或是消息队列里的新消息。 * <strong>触发器</strong>：连接事件源和函数的“遥控器”，负责监听事件并调用目标函数。 * <strong>Runtime</strong>：函数的运行环境，平台内置了 Node.js, Python, Go 等多种语言环境，也支持通过自定义镜像（Custom Runtime）运行任何语言。 * <strong>弹性网络 (ENI)</strong>：如果函数需要访问你私有网络（VPC）里的数据库等资源，平台会为其挂载一个弹性网络接口。 * <strong>监控与日志 (CloudWatch Logs)</strong>：函数运行期间产生的日志（比如 <code>console.log</code>）和各项指标（调用次数、执行时长等）会被自动收集起来，方便排查问题。</p>
+<blockquote>
+<p><strong>解密冷启动</strong>：从上面的流程可以看出，一次冷启动的耗时主要来自：拉取代码镜像 → 启动 Runtime 容器 → 初始化你的代码 → (如果需要)挂载网络。</p>
+</blockquote>
+<h4 id="开发到上线五步法">开发到上线：五步法</h4>
+<p>接下来，我们用一个经典的 "Hello World" 示例，走完从开发到上线的完整流程。</p>
+<ol type="1">
+<li><p><strong>初始化工程</strong> 首先，在本地创建一个项目目录，并编写一个简单的 Node.js 函数。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> hello-faas &amp;&amp; <span class="built_in">cd</span> <span class="variable">$_</span></span><br><span class="line"><span class="comment"># 创建一个 index.js 文件，内容如下</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;exports.handler = async (event) =&gt; &quot;Hello from FaaS!&quot;;&#x27;</span> &gt; index.js</span><br><span class="line"><span class="comment"># 将项目打包成 zip 文件</span></span><br><span class="line">zip -r function.zip .</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>创建函数</strong> 登录云厂商控制台（或使用命令行工具），创建一个新函数。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以 AWS CLI 为例</span></span><br><span class="line">aws lambda create-function \</span><br><span class="line">    --function-name hello-world \</span><br><span class="line">    --runtime nodejs20.x \</span><br><span class="line">    --handler index.handler \</span><br><span class="line">    --zip-file fileb://function.zip \</span><br><span class="line">    --role &lt;your-lambda-execution-role-arn&gt;</span><br></pre></td></tr></table></figure> 这里需要指定函数名、运行时、入口文件 (<code>index.js</code>里的<code>handler</code>方法)，并上传代码包。</p></li>
+<li><p><strong>配置触发器</strong> 函数创建好了，但还不知道“听谁的号令”。我们需要为它配置一个触发器，比如一个公开的 HTTP 访问地址。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以 AWS API Gateway v2 为例，此步骤在控制台操作更直观</span></span><br><span class="line">aws apigatewayv2 create-api --name hello-api --protocol-type HTTP</span><br><span class="line"><span class="comment"># ... 此处省略若干步骤，建议在控制台界面完成 API Gateway 与 Lambda 的集成</span></span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>版本与灰度</strong> 在生产环境中，直接更新线上代码是危险的。FaaS 平台通常支持版本管理和别名（Alias）功能，你可以先发布一个新版本，然后让 10% 的流量指向新版本，90% 的流量留在稳定版，以此实现平滑的灰度发布。</p></li>
+<li><p><strong>监控与告警</strong> 函数上线后，我们需要时刻关注它的健康状况。平台会自动监控调用次数、执行时长、错误率等核心指标。你可以基于这些指标设置告警，例如“当错误率连续 5 分钟超过 1% 时，立即发短信通知我”。</p></li>
+</ol>
+<hr />
+<h3 id="五精打细算计费模型与常见问题">五、精打细算：计费模型与常见问题</h3>
+<p>FaaS 的一大魅力在于其极致的成本效益，让我们来看看它是如何计费的，以及在使用中会遇到哪些“坑”。</p>
+<h4 id="计费模型对比">计费模型对比</h4>
+<p>各大云厂商的 FaaS 计费方式大同小异，通常都包含两个维度：</p>
+<table>
+<thead>
+<tr class="header">
+<th>厂商</th>
+<th>最小计量（时长/内存）</th>
+<th>每月免费额度（调用/资源）</th>
+<th>计费维度</th>
+<th>关键备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>AWS Lambda</td>
+<td>1 ms / 128 MB</td>
+<td>100 万次 / 40 万 GB-秒</td>
+<td>调用次数 + GB-秒</td>
+<td>ARM 架构单价更低</td>
+</tr>
+<tr class="even">
+<td>Azure Functions</td>
+<td>1 ms / 128 MB</td>
+<td>100 万次 / 40 万 GB-秒</td>
+<td>同上</td>
+<td>分为多种计划 (Plan)</td>
+</tr>
+<tr class="odd">
+<td>GCP Cloud Functions</td>
+<td>100 ms / 256 MB</td>
+<td>200 万次 / 40 万 GB-秒</td>
+<td>同上</td>
+<td>Gen2 冷启动优化明显</td>
+</tr>
+<tr class="even">
+<td>阿里云函数计算</td>
+<td>1 ms / 128 MB</td>
+<td>100 万次 / 40 万 CU-秒</td>
+<td>调用次数 + CU-秒</td>
+<td>CU 是资源的综合单位</td>
+</tr>
+</tbody>
+</table>
+<p><strong>通用计费公式</strong>：<code>总费用 = 调用次数 × 次数单价 + (函数执行总时长 × 内存配置) × 资源单价</code></p>
+<p>可以看出，厂商们都在用慷慨的免费额度吸引开发者，对于个人项目或小型应用来说，很可能一个月都花不了几块钱。</p>
+<h4 id="常见坑与对策">常见“坑”与对策</h4>
+<p>在享受 FaaS 带来的便利时，也要小心避开下面这些常见的“坑”。</p>
+<table>
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 29%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>症状</th>
+<th>可能根因</th>
+<th>应对策略</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>冷启动太慢</strong> (1-3s)</td>
+<td>代码包过大、依赖库复杂、VPC 网络挂载</td>
+<td>1. <strong>瘦身</strong>：精简代码和依赖。 <br> 2. <strong>选型</strong>：选择 Go, Rust 等编译型语言。<br> 3. <strong>预热</strong>：开启预置并发（Provisioned Concurrency）。</td>
+</tr>
+<tr class="even">
+<td><strong>并发被限流</strong></td>
+<td>达到账户并发上限或突发流量过大</td>
+<td>1. <strong>提额</strong>：联系云厂商提高并发额度。<br> 2. <strong>预留</strong>：为核心函数配置“预留并发”（Reserved Concurrency）。</td>
+</tr>
+<tr class="odd">
+<td><strong>本地调试困难</strong></td>
+<td>依赖云端服务，难以模拟触发事件</td>
+<td>使用官方模拟工具，如 AWS SAM, LocalStack, Midway FaaS 等。</td>
+</tr>
+<tr class="even">
+<td><strong>配置管理混乱</strong></td>
+<td>多函数间配置散落，难以维护</td>
+<td>1. <strong>IaC</strong>：使用 Terraform, CDK 等工具进行“基础设施即代码”管理。<br> 2. <strong>环境变量</strong>：将配置统一存储在环境变量或配置中心。</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>友情提示</strong>：FaaS 虽好，但非万能。它特别适合短平快、无状态的计算任务。对于需要长连接（如 WebSocket）、或对延迟极其敏感（如实时对战游戏）的应用，传统的容器或虚拟机方案可能依然是更好的选择。</p>
+</blockquote>
+<hr />
+<h3 id="小结">✨ 小结</h3>
+<p>让我们回到最初的问题：FaaS 究竟是什么？</p>
+<p>现在，我们可以更自信地回答：它是一种<strong>将应用拆解为微小、独立的函数，并由云平台全权负责其运行、伸缩和计费的现代化架构模式</strong>。</p>
+<p>它继承了 Serverless 的核心思想，让开发者从繁重的服务器运维中彻底解放出来，将宝贵的精力聚焦于业务创新本身。</p>
+<p>当然，它也有冷启动这样的挑战，但通过合理的架构设计和优化手段，我们完全可以扬长避避短。如果你正准备开启一个新项目，或希望重构一个老旧的单体应用，不妨给 FaaS 一个机会，它很可能会给你带来意想不到的惊喜。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Serverless/" rel="tag"># Serverless</a>
+              <a href="/tags/FaaS/" rel="tag"># FaaS</a>
+              <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" rel="tag"># 云原生</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/d4c3b2a1/" rel="prev" title="NVBit 插桩：从 0 到可用">
+                  <i class="fa fa-angle-left"></i> NVBit 插桩：从 0 到可用
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">134k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">4:03</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

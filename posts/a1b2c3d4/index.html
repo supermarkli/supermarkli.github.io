@@ -29,7 +29,7 @@
 <meta property="og:description" content="想把 CUDA 程序里的“越界读写、未初始化、数据竞争、Barrier 不匹配”这类顽固 Bug 一网打尽？Compute Sanitizer（前身 cuda-memcheck）就是你的第一生产力工具。本文以“能上手能排错”为目标，按难度循序渐进，从最小示例、常见报错，到命令参数与协同工具给出一份“即插即用”的参考。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-08-14T08:23:58.000Z">
-<meta property="article:modified_time" content="2025-08-14T08:32:52.325Z">
+<meta property="article:modified_time" content="2025-08-15T06:53:38.095Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="CUDA">
 <meta property="article:tag" content="GPU">
@@ -189,18 +189,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">64</span>
+        <span class="site-state-item-count">67</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -263,9 +263,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2025-08-14 16:23:58 / 修改时间：16:32:52" itemprop="dateCreated datePublished" datetime="2025-08-14T16:23:58+08:00">2025-08-14</time>
+      <time title="创建时间：2025-08-14 16:23:58" itemprop="dateCreated datePublished" datetime="2025-08-14T16:23:58+08:00">2025-08-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-08-15 14:53:38" itemprop="dateModified" datetime="2025-08-15T14:53:38+08:00">2025-08-15</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -330,7 +336,7 @@
 <hr />
 <h2 id="cuda-基础语法最小可运行示例">1️⃣ CUDA 基础语法（最小可运行示例）</h2>
 <p>下面是一个最小示例：把数组里的每个元素都加 1。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">// file: add_one.cu</span><br><span class="line">#include &lt;cstdio&gt;</span><br><span class="line"></span><br><span class="line">__global__ void add_one(int* data, int n) &#123;</span><br><span class="line">    int tid = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (tid &lt; n) data[tid] += 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    const int n = 16;</span><br><span class="line">    int h[n] = &#123;0&#125;;</span><br><span class="line">    int *d = nullptr;</span><br><span class="line">    cudaMalloc(&amp;d, n * sizeof(int));</span><br><span class="line">    cudaMemcpy(d, h, n * sizeof(int), cudaMemcpyHostToDevice);</span><br><span class="line"></span><br><span class="line">    dim3 block(8), grid((n + block.x - 1) / block.x);</span><br><span class="line">    add_one&lt;&lt;&lt;grid, block&gt;&gt;&gt;(d, n);</span><br><span class="line">    cudaDeviceSynchronize();</span><br><span class="line"></span><br><span class="line">    cudaMemcpy(h, d, n * sizeof(int), cudaMemcpyDeviceToHost);</span><br><span class="line">    cudaFree(d);</span><br><span class="line">    for (int i = 0; i &lt; n; ++i) printf(&quot;%d &quot;, h[i]);</span><br><span class="line">    printf(&quot;\n&quot;);</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file: add_one.cu</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"></span><br><span class="line">__global__ <span class="type">void</span> <span class="title function_">add_one</span><span class="params">(<span class="type">int</span>* data, <span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">int</span> tid = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (tid &lt; n) data[tid] += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> n = <span class="number">16</span>;</span><br><span class="line">    <span class="type">int</span> h[n] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="type">int</span> *d = nullptr;</span><br><span class="line">    cudaMalloc(&amp;d, n * <span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    cudaMemcpy(d, h, n * <span class="keyword">sizeof</span>(<span class="type">int</span>), cudaMemcpyHostToDevice);</span><br><span class="line"></span><br><span class="line">    dim3 <span class="title function_">block</span><span class="params">(<span class="number">8</span>)</span>, <span class="title function_">grid</span><span class="params">((n + block.x - <span class="number">1</span>) / block.x)</span>;</span><br><span class="line">    add_one&lt;&lt;&lt;grid, block&gt;&gt;&gt;(d, n);</span><br><span class="line">    cudaDeviceSynchronize();</span><br><span class="line"></span><br><span class="line">    cudaMemcpy(h, d, n * <span class="keyword">sizeof</span>(<span class="type">int</span>), cudaMemcpyDeviceToHost);</span><br><span class="line">    cudaFree(d);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; ++i) <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, h[i]);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>编译（带调试信息与行号，便于报告映射回源码）：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvcc -g -G -lineinfo add_one.cu -o add_one</span><br></pre></td></tr></table></figure>
 <ul>
@@ -404,7 +410,7 @@
 <p>更高性能的做法是先在 Block 内用共享内存做局部和，再用一次原子把每个 Block 的结果汇总到全局。</p>
 <h3 id="barrier-不匹配barrier-divergence">4.4 Barrier 不匹配（Barrier Divergence）</h3>
 <p>同一 Block 内不是所有线程都在同一控制流路径调用 <code>__syncthreads()</code>，会导致死锁或未定义行为。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// barrier.cu</span><br><span class="line">__global__ void bad_barrier(int* a) &#123;</span><br><span class="line">    int tid = threadIdx.x;</span><br><span class="line">    if (tid % 2 == 0) &#123;</span><br><span class="line">        __syncthreads();  // 只有偶数线程到达屏障</span><br><span class="line">        a[tid] = 1;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        a[tid] = 2;</span><br><span class="line">        // 缺少同步</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// barrier.cu</span></span><br><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">bad_barrier</span><span class="params">(<span class="type">int</span>* a)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> tid = threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (tid % <span class="number">2</span> == <span class="number">0</span>) &#123;</span><br><span class="line">        __syncthreads();  <span class="comment">// 只有偶数线程到达屏障</span></span><br><span class="line">        a[tid] = <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        a[tid] = <span class="number">2</span>;</span><br><span class="line">        <span class="comment">// 缺少同步</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>检查：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvcc -g -G -lineinfo barrier.cu -o barrier</span><br><span class="line">compute-sanitizer --tool synccheck ./barrier | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
 <p>报文（示意）：</p>
@@ -567,13 +573,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">128k</span>
+    <span title="站点总字数">134k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">3:53</span>
+    <span title="站点阅读时长">4:03</span>
   </span>
 </div>
 <div class="busuanzi-count">
