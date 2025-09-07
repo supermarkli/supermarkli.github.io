@@ -29,7 +29,7 @@
 <meta property="og:description" content="不论你是写 C&#x2F;C++、CUDA，还是在跨平台项目里要同时照顾 Linux、Windows 与 macOS，当项目一旦走出“玩具”阶段，“如何构建”就会迅速从可忽略的小事，成长为吞噬时间与精力的黑洞：不同平台的编译器、各式各样的编译选项、第三方依赖的探测与链接、IDE 工程文件的生成与同步……如果一切都靠手写 Makefile、Visual Studio .sln、Xcode .xcodeproj">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-09-07T10:51:53.000Z">
-<meta property="article:modified_time" content="2025-09-07T14:09:50.780Z">
+<meta property="article:modified_time" content="2025-09-07T14:44:38.352Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="CMake">
 <meta property="article:tag" content="构建系统">
@@ -173,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A7%E5%BC%8F%E6%9E%84%E5%BB%BA%E7%9A%84%E5%9B%B0%E5%A2%83%E5%8F%AF%E7%A7%BB%E6%A4%8D%E6%80%A7%E4%B8%8E%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7%E7%9A%84%E6%8B%89%E6%89%AF"><span class="nav-number">1.</span> <span class="nav-text">旧式构建的困境：可移植性与可维护性的拉扯</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E7%9A%84%E5%93%B2%E5%AD%A6%E7%9B%AE%E6%A0%87%E5%AF%BC%E5%90%91%E4%B8%8E%E7%94%9F%E6%88%90%E5%99%A8%E6%8A%BD%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">CMake 的哲学：目标导向与生成器抽象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E8%A7%A3%E5%86%B3%E7%9A%84%E6%A0%B8%E5%BF%83%E7%97%9B%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">CMake 解决的核心痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B%E4%BB%8E-0-%E5%88%B0%E5%8F%AF%E8%BF%90%E8%A1%8C"><span class="nav-number">4.</span> <span class="nav-text">快速上手：从 0 到可运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%8D%E8%BF%9B%E4%B8%80%E6%AD%A5%E4%BE%9D%E8%B5%96%E4%B8%8E%E7%9B%AE%E6%A0%87%E5%B1%9E%E6%80%A7"><span class="nav-number">5.</span> <span class="nav-text">再进一步：依赖与目标属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%8F%8D%E6%A8%A1%E5%BC%8F%E4%B8%8E%E7%8E%B0%E4%BB%A3%E6%9B%BF%E4%BB%A3"><span class="nav-number">6.</span> <span class="nav-text">常见反模式与现代替代</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E-ide-%E4%B8%8E%E6%B5%8B%E8%AF%95%E5%AE%89%E8%A3%85%E7%9A%84%E8%9E%8D%E5%90%88"><span class="nav-number">7.</span> <span class="nav-text">与 IDE 与测试&#x2F;安装的融合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9-cmake%E8%80%8C%E4%B8%8D%E6%98%AF%E7%BB%A7%E7%BB%AD%E6%89%8B%E5%86%99"><span class="nav-number">8.</span> <span class="nav-text">为什么选择 CMake（而不是继续手写）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD%E6%8A%8A%E6%80%8E%E4%B9%88%E7%BC%96%E4%BA%A4%E7%BB%99%E5%B7%A5%E5%85%B7%E6%8A%8A%E8%A6%81%E4%BB%80%E4%B9%88%E5%86%99%E6%B8%85%E6%A5%9A"><span class="nav-number">9.</span> <span class="nav-text">结语：把“怎么编”交给工具，把“要什么”写清楚</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A7%E5%BC%8F%E6%9E%84%E5%BB%BA%E7%9A%84%E5%9B%B0%E5%A2%83%E5%8F%AF%E7%A7%BB%E6%A4%8D%E6%80%A7%E4%B8%8E%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7%E7%9A%84%E6%8B%89%E6%89%AF"><span class="nav-number">1.</span> <span class="nav-text">旧式构建的困境：可移植性与可维护性的拉扯</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E7%9A%84%E5%93%B2%E5%AD%A6%E7%9B%AE%E6%A0%87%E5%AF%BC%E5%90%91%E4%B8%8E%E7%94%9F%E6%88%90%E5%99%A8%E6%8A%BD%E8%B1%A1"><span class="nav-number">2.</span> <span class="nav-text">CMake 的哲学：目标导向与生成器抽象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E8%A7%A3%E5%86%B3%E7%9A%84%E6%A0%B8%E5%BF%83%E7%97%9B%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">CMake 解决的核心痛点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B%E4%BB%8E-0-%E5%88%B0%E5%8F%AF%E8%BF%90%E8%A1%8C"><span class="nav-number">4.</span> <span class="nav-text">快速上手：从 0 到可运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%8D%E8%BF%9B%E4%B8%80%E6%AD%A5%E4%BE%9D%E8%B5%96%E4%B8%8E%E7%9B%AE%E6%A0%87%E5%B1%9E%E6%80%A7"><span class="nav-number">5.</span> <span class="nav-text">再进一步：依赖与目标属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%8F%8D%E6%A8%A1%E5%BC%8F%E4%B8%8E%E7%8E%B0%E4%BB%A3%E6%9B%BF%E4%BB%A3"><span class="nav-number">6.</span> <span class="nav-text">常见反模式与现代替代</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E-ide-%E4%B8%8E%E6%B5%8B%E8%AF%95%E5%AE%89%E8%A3%85%E7%9A%84%E8%9E%8D%E5%90%88"><span class="nav-number">7.</span> <span class="nav-text">与 IDE 与测试&#x2F;安装的融合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%E9%80%9F%E8%A7%88"><span class="nav-number">8.</span> <span class="nav-text">CMake 基础语法速览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9-cmake%E8%80%8C%E4%B8%8D%E6%98%AF%E7%BB%A7%E7%BB%AD%E6%89%8B%E5%86%99"><span class="nav-number">9.</span> <span class="nav-text">为什么选择 CMake（而不是继续手写）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD%E6%8A%8A%E6%80%8E%E4%B9%88%E7%BC%96%E4%BA%A4%E7%BB%99%E5%B7%A5%E5%85%B7%E6%8A%8A%E8%A6%81%E4%BB%80%E4%B9%88%E5%86%99%E6%B8%85%E6%A5%9A"><span class="nav-number">10.</span> <span class="nav-text">结语：把“怎么编”交给工具，把“要什么”写清楚</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -264,7 +264,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-09-07 18:51:53 / 修改时间：22:09:50" itemprop="dateCreated datePublished" datetime="2025-09-07T18:51:53+08:00">2025-09-07</time>
+      <time title="创建时间：2025-09-07 18:51:53 / 修改时间：22:44:38" itemprop="dateCreated datePublished" datetime="2025-09-07T18:51:53+08:00">2025-09-07</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -290,14 +290,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3.2k</span>
+      <span>5.1k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>6 分钟</span>
+      <span>9 分钟</span>
     </span>
 </div>
 
@@ -335,20 +335,20 @@
 <h3 id="快速上手从-0-到可运行">快速上手：从 0 到可运行</h3>
 <p>目录结构示例：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">your_project/</span><br><span class="line">  CMakeLists.txt</span><br><span class="line">  src/main.cpp</span><br></pre></td></tr></table></figure>
-<p><code>CMakeLists.txt</code>（最小可用例）：</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(hello_cmake LANGUAGES CXX)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_executable</span>(hello src/main.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(hello PRIVATE cxx_std_17)</span><br></pre></td></tr></table></figure>
-<p><code>src/main.cpp</code>：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Hello, CMake!&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>构建与运行（推荐使用单独的构建目录）：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake -S . -B build -DCMAKE_BUILD_TYPE=Release</span><br><span class="line">cmake --build build -j</span><br><span class="line">./build/hello</span><br></pre></td></tr></table></figure>
+<p><code>CMakeLists.txt</code>（最小可用例，含注释）：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 指定所需的最低 CMake 版本，避免旧版本缺少特性</span></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义项目名称与所用语言，后续可用变量如 PROJECT_NAME</span></span><br><span class="line"><span class="keyword">project</span>(hello_cmake LANGUAGES CXX)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 声明一个可执行目标 hello，由 src/main.cpp 构成</span></span><br><span class="line"><span class="keyword">add_executable</span>(hello src/main.cpp)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 为目标 hello 启用 C++17 特性（而非全局设置），保持可维护性</span></span><br><span class="line"><span class="keyword">target_compile_features</span>(hello PRIVATE cxx_std_17)</span><br></pre></td></tr></table></figure>
+<p><code>src/main.cpp</code>（含注释）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span>  <span class="comment">// 标准输出流头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 打印一行文本并换行</span></span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Hello, CMake!&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment">// 返回 0 表示程序正常结束</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>构建与运行（推荐使用单独的构建目录，含注释）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成（configure）与构建系统：在 build 目录生成适配本机的构建文件</span></span><br><span class="line">cmake -S . -B build -DCMAKE_BUILD_TYPE=Release</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建（build）：与生成器无关的入口；-j 并行编译，加速构建</span></span><br><span class="line">cmake --build build -j</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行产物</span></span><br><span class="line">./build/hello</span><br></pre></td></tr></table></figure>
 <ul>
 <li><p><strong>-S . -B build</strong>：指定源码与构建目录，实现“源构建分离”。</p></li>
 <li><p><strong>-DCMAKE_BUILD_TYPE=Release</strong>：在单配置生成器（如 Ninja/Makefiles）下选择构建类型；在多配置生成器（如 VS/Xcode）使用 <code>--config Release</code>。</p></li>
 <li><p><strong>cmake --build</strong>：与生成器无关的构建入口。</p></li>
 </ul>
 <h3 id="再进一步依赖与目标属性">再进一步：依赖与目标属性</h3>
-<p>以 <code>fmt</code> 为例，优先寻找系统已安装的包；找不到则用 <code>FetchContent</code> 拉取源码构建：</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(use_fmt LANGUAGES CXX)</span><br><span class="line"></span><br><span class="line"><span class="keyword">include</span>(FetchContent)</span><br><span class="line">FetchContent_Declare(</span><br><span class="line">  fmt</span><br><span class="line">  GIT_REPOSITORY https://github.com/fmtlib/fmt.git</span><br><span class="line">  GIT_TAG        <span class="number">11.0</span>.<span class="number">2</span></span><br><span class="line">)</span><br><span class="line">FetchContent_MakeAvailable(fmt)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp)</span><br><span class="line"><span class="keyword">target_link_libraries</span>(app PRIVATE fmt::fmt)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_20)</span><br></pre></td></tr></table></figure>
+<p>以 <code>fmt</code> 为例，优先寻找系统已安装的包；找不到则用 <code>FetchContent</code> 拉取源码构建（含注释）：</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(use_fmt LANGUAGES CXX)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 引入拉取外部依赖的模块</span></span><br><span class="line"><span class="keyword">include</span>(FetchContent)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 声明要拉取的依赖（fmt）：仓库地址与指定版本</span></span><br><span class="line">FetchContent_Declare(</span><br><span class="line">  fmt</span><br><span class="line">  GIT_REPOSITORY https://github.com/fmtlib/fmt.git</span><br><span class="line">  GIT_TAG        <span class="number">11.0</span>.<span class="number">2</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按需下载/配置/添加到当前构建</span></span><br><span class="line">FetchContent_MakeAvailable(fmt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义可执行目标</span></span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接到导入目标 fmt::fmt，它会传递包含目录与编译定义等</span></span><br><span class="line"><span class="keyword">target_link_libraries</span>(app PRIVATE fmt::fmt)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 C++20（目标级设置）</span></span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_20)</span><br></pre></td></tr></table></figure>
 <p>要点：</p>
 <ul>
 <li><p><strong>导入目标</strong>：<code>fmt::fmt</code> 自带包含目录与编译定义，链接它即可获得所有必要属性，无需手动 <code>include_directories</code> 或 <code>add_definitions</code>。</p></li>
@@ -377,12 +377,46 @@
 <li><p><strong>IDE 集成</strong>：同一份脚本可生成 VS、Xcode、Ninja/Makefiles；同时支持 <code>CMakePresets.json</code> 统一团队配置与参数。</p></li>
 <li><p><strong>测试</strong>：</p></li>
 </ul>
-<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">include</span>(CTest)</span><br><span class="line"><span class="keyword">add_test</span>(NAME runs <span class="keyword">COMMAND</span> hello)</span><br></pre></td></tr></table></figure></p>
+<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">include</span>(CTest)             <span class="comment"># 启用测试框架集成</span></span><br><span class="line"><span class="keyword">add_test</span>(NAME runs <span class="keyword">COMMAND</span> hello)  <span class="comment"># 注册一个名为 runs 的测试，运行可执行文件 hello</span></span><br></pre></td></tr></table></figure></p>
 <p>运行：<code>ctest --test-dir build -j</code>。</p>
 <ul>
 <li><strong>安装与打包</strong>：</li>
 </ul>
-<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">install</span>(TARGETS hello RUNTIME DESTINATION bin)</span><br><span class="line">cmake --<span class="keyword">install</span> build --prefix /opt/hello</span><br></pre></td></tr></table></figure></p>
+<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">install</span>(TARGETS hello RUNTIME DESTINATION bin)  <span class="comment"># 安装可执行文件到前缀下的 bin 目录</span></span><br><span class="line">cmake --<span class="keyword">install</span> build --prefix /opt/hello       <span class="comment"># 将 build 目录中的已安装目标复制到 /opt/hello</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="cmake-基础语法速览">CMake 基础语法速览</h3>
+<p>为了能看懂并自如编写 <code>CMakeLists.txt</code>，这里给出最常用语法与心智模型：</p>
+<ul>
+<li><p><strong>命令格式</strong>：<code>command(arg1 arg2 ...)</code>，不区分大小写，但社区约定小写命令、全大写变量名更易读。</p></li>
+<li><p><strong>变量</strong>：使用 <code>set(NAME value)</code> 定义，引用时用 <code>$&#123;NAME&#125;</code>。变量为字符串；列表用分号 <code>;</code> 分隔。</p></li>
+</ul>
+<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>(SRC_FILES main.cpp util.cpp)       <span class="comment"># 列表等价于 &quot;main.cpp;util.cpp&quot;</span></span><br><span class="line"><span class="keyword">message</span>(STATUS <span class="string">&quot;srcs=$&#123;SRC_FILES&#125;&quot;</span>)   <span class="comment"># 打印变量</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>缓存变量</strong>：带 <code>CACHE</code> 的 <code>set</code> 会写入 <code>CMakeCache.txt</code>，可在命令行用 <code>-DNAME=VALUE</code> 覆盖。</li>
+</ul>
+<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span>(ENABLE_LOG <span class="keyword">ON</span> CACHE BOOL <span class="string">&quot;Enable logs&quot;</span>)</span><br><span class="line"><span class="comment"># 命令行：cmake -S . -B build -DENABLE_LOG=OFF</span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><p><strong>作用域</strong>：</p></li>
+<li>普通 <code>set</code> 仅当前目录生效；对子目录可用 <code>add_subdirectory</code> 进入并传递。</li>
+<li><p>目标（target）的属性通过 <code>target_*</code> 命令附加，天然随依赖传播，优先使用目标属性而非全局变量。</p></li>
+<li><p><strong>条件与循环</strong>：</p></li>
+</ul>
+<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(CMAKE_SYSTEM_NAME <span class="keyword">STREQUAL</span> <span class="string">&quot;Linux&quot;</span>)</span><br><span class="line">  <span class="keyword">message</span>(STATUS <span class="string">&quot;On Linux&quot;</span>)</span><br><span class="line"><span class="keyword">elseif</span>(WIN32)</span><br><span class="line">  <span class="keyword">message</span>(STATUS <span class="string">&quot;On Windows&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>()</span><br><span class="line">  <span class="keyword">message</span>(STATUS <span class="string">&quot;On other platform&quot;</span>)</span><br><span class="line"><span class="keyword">endif</span>()</span><br><span class="line"></span><br><span class="line"><span class="keyword">foreach</span>(src IN LISTS SRC_FILES)</span><br><span class="line">  <span class="keyword">message</span>(TRACE <span class="string">&quot;src=$&#123;src&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">endforeach</span>()</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>字符串与路径处理</strong>：</li>
+</ul>
+<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">string</span>(REPLACE <span class="string">&quot;.cpp&quot;</span> <span class="string">&quot;.o&quot;</span> OBJ_FILES <span class="string">&quot;$&#123;SRC_FILES&#125;&quot;</span>)</span><br><span class="line"><span class="keyword">file</span>(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS <span class="string">&quot;include/*.h&quot;</span>)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>可见性关键字（属性传播）</strong>：<code>PRIVATE</code> 仅当前目标使用；<code>INTERFACE</code> 仅依赖者使用；<code>PUBLIC</code> 两者都用。</li>
+</ul>
+<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">target_include_directories</span>(lib</span><br><span class="line">  PUBLIC  <span class="keyword">include</span>        <span class="comment"># 依赖者也需要看到</span></span><br><span class="line">  PRIVATE src            <span class="comment"># 仅本目标编译需要</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>生成器表达式</strong>：构建期条件，形如 <code>$&lt;...&gt;</code>，常用于区分配置/平台：</li>
+</ul>
+<p><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">target_compile_definitions</span>(tgt PRIVATE $&lt;$&lt;CONFIG:Debug&gt;:DEBUG_BUILD&gt;)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li><strong>预设与工具链</strong>：<code>CMakePresets.json</code> 统一团队参数；<code>-DCMAKE_TOOLCHAIN_FILE=</code> 指定交叉编译工具链。</li>
+</ul>
+<p>有了上述语法基础，再结合“目标导向”的思路，你就能读懂本文的所有示例并在实际项目中平滑扩展。</p>
 <h3 id="为什么选择-cmake而不是继续手写">为什么选择 CMake（而不是继续手写）</h3>
 <ol type="1">
 <li><p><strong>生态与事实标准</strong>：主流跨平台 C/C++ 项目普遍采用，社区资料与示例丰富。</p></li>
@@ -445,13 +479,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">137k</span>
+    <span title="站点总字数">139k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">4:09</span>
+    <span title="站点阅读时长">4:12</span>
   </span>
 </div>
 <div class="busuanzi-count">
