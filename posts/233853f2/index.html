@@ -29,7 +29,7 @@
 <meta property="og:description" content="不论你是写 C&#x2F;C++、CUDA，还是要同时照顾 Linux&#x2F;Windows&#x2F;macOS，当项目走出“玩具”阶段，构建就会成为最大的摩擦源：不同编译器、不同 IDE、不同参数、不同依赖的发现与链接。如果还靠手写 Makefile 或分别维护 VS&#x2F;Xcode 工程，成本会直线上升。 这正是 CMake 出现的原因：用一份跨平台的构建脚本，生成各平台各 IDE 需要的工程与命令。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-09-07T10:51:53.000Z">
-<meta property="article:modified_time" content="2025-09-07T14:54:40.156Z">
+<meta property="article:modified_time" content="2025-09-07T15:04:53.724Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="CMake">
 <meta property="article:tag" content="构建系统">
@@ -173,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E8%A7%A3%E5%86%B3%E4%BA%86%E5%93%AA%E4%BA%9B%E7%97%9B%E7%82%B9%E7%B2%BE%E7%AE%80%E7%89%88"><span class="nav-number">1.</span> <span class="nav-text">CMake 解决了哪些痛点（精简版）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E5%9B%BE%E9%80%9F%E6%87%82%E5%AE%83%E5%88%B0%E5%BA%95%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88"><span class="nav-number">2.</span> <span class="nav-text">一图速懂：它到底做了什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%92%9F%E4%B8%8A%E6%89%8B"><span class="nav-number">3.</span> <span class="nav-text">5 分钟上手</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E6%94%B9%E5%8F%98%E4%BA%86%E4%BB%80%E4%B9%88%E4%B8%80%E4%B8%AA%E5%AF%B9%E6%AF%94%E4%BE%8B%E5%AD%90"><span class="nav-number">4.</span> <span class="nav-text">CMake 改变了什么：一个对比例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%B1%E8%BF%99%E4%B9%88%E8%AE%B0%E4%BD%8F"><span class="nav-number">5.</span> <span class="nav-text">就这么记住</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD"><span class="nav-number">6.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E8%A7%A3%E5%86%B3%E4%BA%86%E5%93%AA%E4%BA%9B%E7%97%9B%E7%82%B9%E7%B2%BE%E7%AE%80%E7%89%88"><span class="nav-number">1.</span> <span class="nav-text">CMake 解决了哪些痛点（精简版）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E5%9B%BE%E9%80%9F%E6%87%82%E5%AE%83%E5%88%B0%E5%BA%95%E5%81%9A%E4%BA%86%E4%BB%80%E4%B9%88"><span class="nav-number">2.</span> <span class="nav-text">一图速懂：它到底做了什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%92%9F%E4%B8%8A%E6%89%8B"><span class="nav-number">3.</span> <span class="nav-text">5 分钟上手</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E6%94%B9%E5%8F%98%E4%BA%86%E4%BB%80%E4%B9%88%E4%B8%80%E4%B8%AA%E5%AF%B9%E6%AF%94%E4%BE%8B%E5%AD%90"><span class="nav-number">4.</span> <span class="nav-text">CMake 改变了什么：一个对比例子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#g-%E5%91%BD%E4%BB%A4%E8%A7%A3%E6%9E%90%E5%9C%A8%E6%B2%A1%E6%9C%89-cmake-%E6%97%B6"><span class="nav-number">4.1.</span> <span class="nav-text">g++ 命令解析（在没有 CMake 时）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E8%B6%85%E7%AE%80%E7%89%88"><span class="nav-number">5.</span> <span class="nav-text">工作原理（超简版）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%99%E5%87%A0%E8%A1%8C%E8%83%8C%E5%90%8E%E5%8F%91%E7%94%9F%E4%BA%86%E4%BB%80%E4%B9%88"><span class="nav-number">6.</span> <span class="nav-text">这几行背后发生了什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmake-%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9B%E8%AF%AD%E8%A8%80"><span class="nav-number">7.</span> <span class="nav-text">CMake 支持哪些语言？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%B1%E8%BF%99%E4%B9%88%E8%AE%B0%E4%BD%8F"><span class="nav-number">8.</span> <span class="nav-text">就这么记住</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD"><span class="nav-number">9.</span> <span class="nav-text">结语</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -264,7 +264,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-09-07 18:51:53 / 修改时间：22:54:40" itemprop="dateCreated datePublished" datetime="2025-09-07T18:51:53+08:00">2025-09-07</time>
+      <time title="创建时间：2025-09-07 18:51:53 / 修改时间：23:04:53" itemprop="dateCreated datePublished" datetime="2025-09-07T18:51:53+08:00">2025-09-07</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -290,14 +290,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.8k</span>
+      <span>3.3k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>3 分钟</span>
+      <span>6 分钟</span>
     </span>
 </div>
 
@@ -355,6 +355,58 @@ graph TD;
 <p>构建命令（所有平台一致）：</p>
 <p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br></pre></td></tr></table></figure></p>
 <p>效果：不用关心底层是 Make 还是 Ninja、GCC 还是 MSVC，也不用为 VS/Xcode 手工维护工程；需要 IDE 时让 CMake 直接生成即可。诸如 <code>-lm</code>、异常/运行时等平台差异，交给生成器与工具链处理。</p>
+<h4 id="g-命令解析在没有-cmake-时">g++ 命令解析（在没有 CMake 时）</h4>
+<p>以 Linux 的命令为例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>g++</strong>：调用 GNU C++ 编译器。</p></li>
+<li><p><strong>-std=c++17</strong>：启用 C++17 标准（在 MSVC 下等价为 <code>/std:c++17</code>）。</p></li>
+<li><p><strong>-O2</strong>：开启二级优化（体积与速度的折中）。</p></li>
+<li><p><strong>src/main.cpp src/util.cpp</strong>：要编译并参与链接的源文件。</p></li>
+<li><p><strong>-Iinclude</strong>：增加头文件搜索目录 <code>include</code>。</p></li>
+<li><p><strong>-o app</strong>：输出可执行文件名为 <code>app</code>。</p></li>
+</ul>
+<p>在实际项目中，这条命令会迅速膨胀：再加多目录、宏定义、库搜索路径（<code>-L</code>）、链接库（<code>-lxxx</code>）、平台差异参数，就会变得又长又难复用。这正是 CMake 希望你“声明语义、自动映射细节”的原因。</p>
+<h3 id="工作原理超简版">工作原理（超简版）</h3>
+<pre>
+<code class="mermaid">
+
+graph TD;
+  A[&quot;CMakeLists.txt：声明要什么&quot;] --&gt; B[&quot;配置阶段：检测平台&#x2F;编译器&#x2F;特性&quot;];
+  B --&gt; C[&quot;选择生成器：Ninja&#x2F;Makefiles&#x2F;VS&#x2F;Xcode&quot;];
+  C --&gt; D[&quot;生成本机构建文件（规则&#x2F;工程）&quot;];
+  D --&gt; E[&quot;cmake --build：调用本机构建器编译&#x2F;链接&quot;];
+</code>
+</pre>
+<p>一句话：你只写“意图”，CMake 按“环境”翻译成正确做法。</p>
+<h3 id="这几行背后发生了什么">这几行背后发生了什么</h3>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>cmake_minimum_required(VERSION 3.20)</strong>：锁定最低版本，启用对应语法与行为，避免旧版差异。</p></li>
+<li><p><strong>project(app LANGUAGES CXX)</strong>：确定工程名与语言；CMake 会探测可用的 C++ 编译器与平台特性。</p></li>
+<li><p><strong>add_executable(app …)</strong>：声明目标 <code>app</code>；CMake 为它建立依赖图，并在生成阶段把它翻译成本机的规则/工程项。</p></li>
+<li><p><strong>target_compile_features(app PRIVATE cxx_std_17)</strong>：声明“需要 C++17”，CMake 按编译器映射成正确开关：</p>
+<ul>
+<li><p>GCC/Clang：<code>-std=c++17</code></p></li>
+<li><p>MSVC：<code>/std:c++17</code></p></li>
+</ul></li>
+<li><p><strong>target_include_directories(app PRIVATE include)</strong>：声明头文件目录，按平台生成参数：</p>
+<ul>
+<li><p>GCC/Clang：<code>-I include</code></p></li>
+<li><p>MSVC：<code>/I include</code></p></li>
+</ul></li>
+</ul>
+<p>这就是“一份脚本到处用”的核心：写语义，不写平台细节；由生成器与工具链适配差异。</p>
+<h3 id="cmake-支持哪些语言">CMake 支持哪些语言？</h3>
+<p>首要用户群是 <strong>C/C++</strong>，但并不止于此。常见支持包括：</p>
+<ul>
+<li><p><strong>C、C++</strong>：最成熟、生态最广。</p></li>
+<li><p><strong>CUDA、HIP</strong>：GPU 相关项目常用。</p></li>
+<li><p><strong>Fortran</strong>：在科学计算/数值领域仍然重要。</p></li>
+<li><p><strong>Objective-C/Swift（通过外部集成）</strong>：在 Apple 平台工程生成方面配合 Xcode。</p></li>
+<li><p><strong>ASM、ISPC 等</strong>：低层或专用场景。</p></li>
+</ul>
+<p>此外，CMake 也常被当作“元构建工具”，去驱动其他语言/工具链（如生成外部工具命令、打包脚本）。原则是：若目标/命令能被描述成“配置+构建”的过程，CMake 往往能充当胶水把它们组织起来，但其强项仍然是 C/C++ 及其周边。</p>
 <h3 id="就这么记住">就这么记住</h3>
 <ul>
 <li><p><strong>写清“要什么”</strong>：目标、源文件、需要的标准或库。</p></li>
@@ -416,13 +468,13 @@ graph TD;
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">135k</span>
+    <span title="站点总字数">137k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">4:06</span>
+    <span title="站点阅读时长">4:09</span>
   </span>
 </div>
 <div class="busuanzi-count">
