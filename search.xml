@@ -3918,12 +3918,27 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
 <code class="mermaid">
 
 graph TD;
-  A[&quot;写 CMakeLists.txt&quot;] --&gt; B[&quot;配置：cmake -S 源码 -B 构建&quot;];
+  A[&quot;写 CMakeLists.txt&quot;] --&gt; B[&quot;cmake -S 源码 -B 构建&quot;];
   B --&gt; C[&quot;构建：cmake --build 构建目录&quot;];
   C --&gt; D[&quot;运行：.&#x2F;build&#x2F;hello（或 IDE 里运行）&quot;];
   B --&gt; E[&quot;按平台生成合适的工程&#x2F;构建文件&quot;];
 </code>
 </pre>
+<h4 id="为什么在-b-分叉">为什么在 B 分叉</h4>
+<ul>
+<li>B 是“配置/生成”阶段，产生两种后续选择：</li>
+<li>走 C：继续用 <code>cmake --build</code> 统一构建（CMake 调用本机构建器编译/链接）。</li>
+<li>走 E：直接使用已生成的本机构建文件（Makefile、Ninja、Visual Studio、Xcode 工程）在命令行或 IDE 中构建。</li>
+<li>二者本质等价，通常二选一即可；团队混用也没问题。</li>
+</ul>
+<h4 id="构建的产物是什么">构建的产物是什么</h4>
+<ul>
+<li>可执行文件：例如 <code>build/hello</code>（Windows 为 <code>build/hello.exe</code>）。</li>
+<li>库文件：静态库（<code>.a</code>/<code>.lib</code>）、共享库（<code>.so</code>/<code>.dll</code>/<code>.dylib</code>）。</li>
+<li>中间文件：目标文件（<code>.o</code>）、依赖/缓存等，均位于构建目录下。</li>
+<li>本机构建文件（由 B 产生）：<code>build.ninja</code>、<code>Makefile</code>、VS <code>.sln</code>/项目文件、Xcode 工程等。</li>
+<li>默认都写入 <code>-B</code> 指定的构建目录；如需自定义，可用 <code>CMAKE_RUNTIME_OUTPUT_DIRECTORY</code>/<code>CMAKE_LIBRARY_OUTPUT_DIRECTORY</code> 等变量。</li>
+</ul>
 <h3 id="分钟上手">5 分钟上手</h3>
 <p>目录结构：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">your_project/</span><br><span class="line">  CMakeLists.txt</span><br><span class="line">  src/main.cpp</span><br></pre></td></tr></table></figure>
@@ -4021,661 +4036,6 @@ graph TD;
         <tag>CMake</tag>
         <tag>构建系统</tag>
         <tag>C/C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>git之路：rebase &amp; cherry-pick</title>
-    <url>/posts/1566a5aa/</url>
-    <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
-<span id="more"></span>
-<h2 id="一核心概念">🧩 一、核心概念</h2>
-<ul>
-<li><strong>rebase (变基)</strong>：将当前分支的一系列提交“重放”到另一个目标分支之上。其核心用途是<strong>整理个人分支的提交历史</strong>，使其在并入主干时保持线性、清晰。</li>
-<li><strong>cherry-pick (拣选)</strong>：将某个（或某些）特定的提交<strong>复制</strong>到当前分支。它像摘樱桃一样，适合“挑着搬运”某个功能或紧急修复。</li>
-</ul>
-<h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
-<p>下面的两幅 Mermaid 图示分别演示了 Rebase 和 Cherry-pick 在典型协作场景中的作用。将代码块直接放入支持 Mermaid 的 Markdown 环境即可自动渲染。</p>
-<h3 id="图-1-rebase-工作流主干更新后将功能分支变基到最新-main">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</h3>
-<pre>
-<code class="mermaid">
-
-flowchart TD
-    subgraph &quot;main 分支&quot;
-        c0((c0)) --&gt; c1((c1)) --&gt; c3((c3))
-    end
-
-    subgraph &quot;feature&#x2F;a (rebase 前)&quot;
-        c2_before((c2)) --&gt; c4_before((c4))
-    end
-
-    subgraph &quot;feature&#x2F;a (rebase 后)&quot;
-        c2_after((&quot;c2&#39;&quot;)) --&gt; c4_after((&quot;c4&#39;&quot;))
-    end
-
-    c1 --&gt; c2_before
-    c3 --&gt; c2_after
-</code>
-</pre>
-<h3 id="图-2-cherry-pick-工作流从-featurea-拣选-c2-到-main">图 2 · Cherry-pick 工作流（从 feature/a 拣选 c2 到 main）</h3>
-<pre>
-<code class="mermaid">
-
-flowchart TD
-    subgraph &quot;初始历史&quot;
-        c0((c0)) --&gt; c1((c1))
-    end
-
-    subgraph &quot;main 分支&quot;
-        c3((c3)) --&gt; c2_prime((&quot;c2&#39;&quot;))
-        style c2_prime fill:#bbf,stroke:#333,stroke-width:2px
-    end
-
-    subgraph &quot;feature&#x2F;a 分支&quot;
-        c2((c2)) --&gt; c4((c4))
-    end
-    
-    c1 --&gt; c3
-    c1 --&gt; c2
-
-    c2 -.-&gt; c2_prime
-</code>
-</pre>
-<h3 id="场景设定">场景设定</h3>
-<ul>
-<li><code>main</code> 是我们的主分支，开发主线从 <code>c0</code> -&gt; <code>c1</code> 开始。</li>
-<li>从 <code>c1</code> 拉取了一个 <code>feature/a</code> 分支进行功能开发，并提交了 <code>c2</code> 和 <code>c4</code>。</li>
-<li>在此期间，另一位同事完成了 <code>fixbug/b</code> 分支，并将其合并回 <code>main</code>，使得 <code>main</code> 分支前进到 <code>c3</code>。</li>
-</ul>
-<p>此时，你的 <code>feature/a</code> 分支就“落后”于 <code>main</code> 分支了。在准备合并你的功能之前，最好的做法是先将 <code>main</code> 的最新更改同步到 <code>feature/a</code> 分支。这里，<code>rebase</code> 就是最佳选择。</p>
-<h3 id="rebase同步主干保持线性历史">1. Rebase：同步主干，保持线性历史</h3>
-<p>为了让 <code>feature/a</code> 的历史记录更清晰，我们执行变基操作，将 <code>feature/a</code> 的提交“重放”到最新的 <code>main</code> 分支上。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 确保你的功能分支是当前分支</span></span><br><span class="line">git checkout feature/a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 拉取远程主分支的最新代码（好习惯）</span></span><br><span class="line">git fetch origin main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 将当前分支变基到最新的 main 分支上</span></span><br><span class="line">git rebase origin/main <span class="comment"># 或者 git rebase main</span></span><br></pre></td></tr></table></figure>
-<p>执行后，Git 会在内部执行以下操作：</p>
-<ol type="1">
-<li>找到 <code>feature/a</code> 和 <code>main</code> 的共同祖先 <code>c1</code>。</li>
-<li>暂存 <code>feature/a</code> 在 <code>c1</code> 之后独有的提交（<code>c2</code>, <code>c4</code>）。</li>
-<li>将 <code>feature/a</code> 分支的指针指向 <code>main</code> 的最新提交 <code>c3</code>。</li>
-<li>将刚刚暂存的提交 <code>c2</code> 和 <code>c4</code> 重新应用（Replay）在 <code>c3</code> 之后，生成两个<strong>内容相同但ID不同</strong>的新提交 <code>c2'</code> 和 <code>c4'</code>。</li>
-</ol>
-<p>最终，<code>feature/a</code> 的历史就变成了 <code>c0 -&gt; c1 -&gt; c3 -&gt; c2' -&gt; c4'</code>。它看起来就像是你从最新的 <code>main</code> 分支拉取代码然后才开始开发的一样，历史记录干净、线性，非常便于后续的合并和代码审查。</p>
-<p>这个操作完美地诠释了 <code>rebase</code> 在个人开发分支上的核心用途：<strong>保持与主干同步，并维持一个清晰的线性历史。</strong></p>
-<h3 id="cherry-pick挑选特定提交">2. Cherry-pick：挑选特定提交</h3>
-<p>现在，我们换一个场景。假设 <code>feature/a</code> 上的 <code>c2</code> 是一个非常紧急的修复，需要立即上线，但 <code>c4</code> 还没开发完。这时就可以用 <code>cherry-pick</code>。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到需要接收修复的主分支</span></span><br><span class="line">git checkout main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 从 feature/a 分支拣选 c2 提交</span></span><br><span class="line">git cherry-pick c2</span><br></pre></td></tr></table></figure>
-<p>如图右侧所示，<code>main</code> 分支通过 <code>cherry-pick</code>，将 <code>feature/a</code> 上的 <code>c2</code> 提交“拣选”过来，生成了一个新的提交 <code>c5</code>。其他提交 (<code>c4</code>) 不会被带过来，完美满足了只需要部分功能/修复的场景。</p>
-<hr />
-<h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
-<h3 id="基本用法">1. 基本用法</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将当前分支变基到 &lt;目标分支&gt; 上</span></span><br><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="交互式-rebase">2. 交互式 rebase</h3>
-<p>这是 <code>rebase</code> 的一大神器，常用于合并、修改、整理当前分支的提交。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -i 代表 --interactive（交互式）</span></span><br><span class="line"><span class="comment"># HEAD~3 表示整理当前分支最新的 3 个提交</span></span><br><span class="line">git rebase -i HEAD~3</span><br></pre></td></tr></table></figure>
-<p>执行后会打开一个编辑器，你可以对指定范围的提交进行 <code>squash</code> (合并)、<code>edit</code> (修改)、<code>reword</code> (修改提交信息) 等精细化操作，极大提升提交历史的可读性。</p>
-<h3 id="注意事项">3. 注意事项</h3>
-<ul>
-<li>rebase 会重写历史，<strong>永远不要对已经推送并被他人使用的公共分支（如 main）进行 rebase</strong>。</li>
-<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git add .</code> 将文件标记为已解决，然后用 <code>git rebase --continue</code> 继续。</li>
-</ul>
-<hr />
-<h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
-<h3 id="基本用法-1">1. 基本用法</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick &lt;commit-hash&gt;</span><br></pre></td></tr></table></figure>
-<p>将指定的 <code>&lt;commit-hash&gt;</code> 应用到当前分支，生成一个新的提交。</p>
-<h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 拣选多个不连续的提交</span></span><br><span class="line">git cherry-pick &lt;commit-1&gt; &lt;commit-2&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拣选一个连续的提交范围（不包含 commit-A）</span></span><br><span class="line">git cherry-pick &lt;commit-A&gt;..&lt;commit-B&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="注意事项-1">3. 注意事项</h3>
-<ul>
-<li>cherry-pick 也可能遇到冲突，需手动解决并 <code>commit</code>。</li>
-<li>cherry-pick 会生成<strong>新的 commit id</strong>，因为它是在新的分支上下文中应用变更。</li>
-</ul>
-<hr />
-<h2 id="rebase-vs.-merge黄金准则与团队协作">👑 Rebase vs. Merge：黄金准则与团队协作</h2>
-<p>我们已经看到了 <code>rebase</code> 的强大之处，但它也是一把双刃剑，因为它会<strong>重写提交历史</strong>。这就引出了 Git 协作中一条最重要的准则：</p>
-<blockquote>
-<p><strong>黄金准则：在自己的私有分支上自由地 rebase，但永远不要 rebase 一个公共的、共享的分支。</strong></p>
-</blockquote>
-<p>换句话说：</p>
-<ul>
-<li><strong><code>rebase</code> 用来“整理”自己</strong>：在你的个人功能分支（如 <code>feature/a</code>）上，使用 <code>rebase</code> 来同步 <code>main</code> 分支的更新。这属于你自己的“私事”，目的是让你的工作成果能干净地对接到主线上。</li>
-<li><strong><code>merge</code> 用来“汇合”他人</strong>：当你的功能分支准备好被合并到 <code>main</code> 或 <code>develop</code> 这样的公共分支时，应该使用 <code>git merge</code>（通常是通过 GitHub/GitLab 上的 Pull Request/Merge Request）来完成。这次合并会产生一个合并提交（Merge Commit），清晰地记录了“在某个时间点，我们将 <code>feature/a</code> 的所有成果汇入了主线”这一事实。</li>
-</ul>
-<h3 id="为什么这是最佳实践">为什么这是最佳实践？</h3>
-<ol type="1">
-<li><strong>清晰且可追溯的历史</strong>：通过 <code>rebase</code> 保持功能分支的线性，使得 <code>main</code> 分支的历史由一个个清晰的功能块（通过 merge commit 连接）组成，而不是一个混乱交织的网络。阅读 <code>git log</code> 会非常轻松。</li>
-<li><strong>避免团队混乱</strong>：如果你 rebase 了一个公共分支（例如 <code>main</code>），所有基于旧的 <code>main</code> 进行开发的同事都会在下一次 <code>git pull</code> 时遇到严重的问题。他们的本地历史和被你重写过的远程历史产生了冲突，需要非常复杂的操作才能修复，这会给整个团队带来灾难。</li>
-</ol>
-<h3 id="推荐的开发工作流">推荐的开发工作流</h3>
-<p>一个标准的、健壮的开发工作流如下：</p>
-<ol type="1">
-<li><strong>开始新任务</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git pull origin main</span><br><span class="line">git checkout -b feature/new-login</span><br></pre></td></tr></table></figure></li>
-<li><strong>开心写代码并提交</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ... coding and committing ...</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add username field&quot;</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add password field&quot;</span></span><br></pre></td></tr></table></figure></li>
-<li><strong>定期与主干同步</strong>（使用 Rebase）： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 当 main 分支有更新时</span></span><br><span class="line">git fetch origin main</span><br><span class="line">git rebase origin/main</span><br><span class="line"><span class="comment"># 如果有冲突，解决冲突后 git rebase --continue</span></span><br></pre></td></tr></table></figure></li>
-<li><strong>发起合并请求</strong>：
-<ul>
-<li>将你“整理”好的分支推送到远程：<code>git push origin feature/new-login --force-with-lease</code> (<code>--force-with-lease</code> 是比 <code>--force</code> 更安全的选择，因为它不会覆盖他人的工作)。</li>
-<li>在代码托管平台（如 GitHub）上创建 Pull Request，请求将 <code>feature/new-login</code> 合并到 <code>main</code>。</li>
-<li>团队成员进行代码审查，最终由维护者点击“Merge”按钮，将你的功能安全地汇入主线。</li>
-</ul></li>
-</ol>
-<hr />
-<h2 id="五实战小结">⚡ 五、实战小结</h2>
-<ul>
-<li><strong>rebase</strong>：核心用途是在<strong>个人开发分支</strong>上同步主干分支的变更，以保持提交历史的<strong>整洁和线性</strong>。它是合并到公共分支前的“自我修养”。</li>
-<li><strong>cherry-pick</strong>：核心用途是<strong>精确复制</strong>一个或多个提交到其他分支，适合跨分支应用热修复或挑选特定功能。</li>
-<li><strong>黄金准则</strong>：永远记住在私有分支上 rebase，在公共分支上 merge。</li>
-</ul>
-<hr />
-<h2 id="六实用建议">📝 六、实用建议</h2>
-<h3 id="分支命名规范">1. 分支命名规范</h3>
-<ul>
-<li>功能开发：<code>feature/功能简述</code> 如：<code>feature/login-page</code></li>
-<li>Bug 修复：<code>fix/问题简述</code> 如：<code>fix/login-crash</code></li>
-<li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
-<li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
-</ul>
-<h3 id="commit-信息规范">2. Commit 信息规范</h3>
-<ul>
-<li>推荐格式（Angular 规范）：<code>type(scope): subject</code>
-<ul>
-<li><code>type</code>: <code>feat</code>, <code>fix</code>, <code>docs</code>, <code>style</code>, <code>refactor</code>, <code>test</code>, <code>chore</code></li>
-<li><code>scope</code>: 影响范围（可选）</li>
-<li><code>subject</code>: 简短描述</li>
-</ul></li>
-<li>一次 commit 只做一件事，保持原子性。</li>
-</ul>
-<h3 id="团队协作建议">3. 团队协作建议</h3>
-<ul>
-<li><strong>合并前先同步</strong>：在将功能分支合并到 <code>main</code> 之前，应先在自己的分支上执行 <code>git rebase main</code> 来同步最新代码，这能极大减少最终合并时的冲突。</li>
-<li><strong>保护公共分支</strong>：像 <code>main</code>、<code>release</code> 这样的重要分支应设置为受保护状态，禁止 <code>force push</code>，所有变更都必须通过 Pull Request (PR) 进行。</li>
-<li><strong>拥抱代码评审</strong>：充分利用 Pull Request 进行代码评审，这是保证代码质量和知识共享的最佳途径。</li>
-<li><strong>勤于观察状态</strong>：养成良好习惯，多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态，做到心中有数。</li>
-</ul>
-<hr />
-<p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Git</category>
-      </categories>
-      <tags>
-        <tag>Git</tag>
-        <tag>Rebase</tag>
-        <tag>Cherry-pick</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
-<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
-<h3 id="token401问题">token401问题</h3>
-<h4 id="登录401">登录401</h4>
-<p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
-</figure>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<figure>
-<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
-</figure>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<p>发现可以正常读取了</p>
-<h4 id="过期401">过期401</h4>
-<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-<h3 id="数据读取问题">数据读取问题</h3>
-<p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-<h3 id="其他问题">其他问题</h3>
-<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>InfluxDB</tag>
-        <tag>数据库</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux任务控制：从进程管理到后台运行</title>
-    <url>/posts/7a8b9c1d/</url>
-    <content><![CDATA[<p>在Linux系统中，任务控制是每个用户都需要掌握的核心技能。无论是运行长时间的计算任务、管理多个进程，还是在SSH连接断开后保持程序运行，都离不开任务控制技术。本文将从基础概念出发，系统介绍Linux任务控制的完整知识体系，为你提供一份实用的技术指南。</p>
-<span id="more"></span>
-<h3 id="一核心概念进程作业与任务控制">🎯 一、核心概念：进程、作业与任务控制</h3>
-<p>在深入任务控制之前，我们需要先理解几个核心概念：</p>
-<h4 id="进程-vs-作业-vs-任务">1. 进程 vs 作业 vs 任务</h4>
-<table>
-<thead>
-<tr class="header">
-<th>概念</th>
-<th>定义</th>
-<th>特点</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>进程 (Process)</strong></td>
-<td>正在运行的程序实例</td>
-<td>有独立的PID，占用系统资源</td>
-</tr>
-<tr class="even">
-<td><strong>作业 (Job)</strong></td>
-<td>Shell管理的进程组</td>
-<td>可以前台/后台运行，支持挂起/恢复</td>
-</tr>
-<tr class="odd">
-<td><strong>任务 (Task)</strong></td>
-<td>用户要完成的工作单元</td>
-<td>可能包含多个进程或作业</td>
-</tr>
-</tbody>
-</table>
-<h4 id="任务控制的基本流程">2. 任务控制的基本流程</h4>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">启动程序 → 前台运行 → [Ctrl+Z] → 挂起 → [bg] → 后台运行</span><br><span class="line">    ↓</span><br><span class="line">[Ctrl+C] → 终止程序</span><br><span class="line">    ↓</span><br><span class="line">[fg] → 恢复到前台</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="二基础操作前台与后台切换">🛠️ 二、基础操作：前台与后台切换</h3>
-<h4 id="前台运行-foreground">1. 前台运行 (Foreground)</h4>
-<p>前台运行是最常见的程序执行方式：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 直接运行程序，占用当前终端</span></span><br><span class="line">python long_running_script.py</span><br><span class="line">npm start</span><br><span class="line">make build</span><br></pre></td></tr></table></figure>
-<p><strong>特点</strong>：</p>
-<ul>
-<li>程序输出直接显示在终端</li>
-<li>可以通过 <code>Ctrl+C</code> 终止程序</li>
-<li>程序运行期间无法执行其他命令</li>
-<li>终端关闭时程序也会终止</li>
-</ul>
-<h4 id="后台运行-background">2. 后台运行 (Background)</h4>
-<p>后台运行让程序在后台执行，不占用终端：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 方法1：启动时直接后台运行</span></span><br><span class="line">python script.py &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2：先前台运行，再挂起并后台运行</span></span><br><span class="line">python script.py</span><br><span class="line"><span class="comment"># 按 Ctrl+Z 挂起</span></span><br><span class="line"><span class="built_in">bg</span>  <span class="comment"># 或 bg %1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法3：使用 nohup 防止SSH断开影响</span></span><br><span class="line"><span class="built_in">nohup</span> python script.py &gt; output.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-<p><strong>关键符号说明</strong>：</p>
-<ul>
-<li><code>&amp;</code>：启动时直接后台运行</li>
-<li><code>nohup</code>：忽略SIGHUP信号，防止SSH断开时程序终止</li>
-<li><code>&gt; output.log</code>：重定向标准输出到文件</li>
-<li><code>2&gt;&amp;1</code>：将错误输出也重定向到标准输出</li>
-</ul>
-<p><strong>重要注意</strong>：</p>
-<ul>
-<li><strong>方法1和2</strong>：关闭终端会导致进程被终止，因为进程仍然是shell的子进程</li>
-<li><strong>方法3（nohup）</strong>：关闭终端不会影响进程，进程会继续在后台运行</li>
-<li>如果需要进程在关闭终端后继续运行，建议使用 <code>nohup</code> 命令</li>
-</ul>
-<hr />
-<h3 id="三作业管理查看与控制">📋 三、作业管理：查看与控制</h3>
-<h4 id="查看作业状态">1. 查看作业状态</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看当前Shell的所有作业</span></span><br><span class="line"><span class="built_in">jobs</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看详细信息（包含PID）</span></span><br><span class="line"><span class="built_in">jobs</span> -l</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有进程（包括其他Shell的）</span></span><br><span class="line">ps aux | grep python</span><br><span class="line">ps -ef | grep node</span><br></pre></td></tr></table></figure>
-<p><strong>jobs命令输出示例</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">jobs</span></span><br><span class="line">[1]  + running    python data_processing.py</span><br><span class="line">[2]  - suspended  npm start</span><br><span class="line">[3]    running    make build &amp;</span><br></pre></td></tr></table></figure></p>
-<p><strong>状态说明</strong>：</p>
-<ul>
-<li><code>running</code>：正在运行</li>
-<li><code>suspended</code>：已挂起</li>
-<li><code>stopped</code>：已停止</li>
-<li><code>+</code>：当前作业（最近被操作）</li>
-<li><code>-</code>：前一个作业</li>
-</ul>
-<h4 id="作业控制命令">2. 作业控制命令</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 挂起当前前台程序</span></span><br><span class="line">Ctrl+Z</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将挂起的作业放到后台运行</span></span><br><span class="line"><span class="built_in">bg</span> [%job_number]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将后台作业恢复到前台</span></span><br><span class="line"><span class="built_in">fg</span> [%job_number]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止指定作业</span></span><br><span class="line"><span class="built_in">kill</span> %job_number</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂起指定作业</span></span><br><span class="line"><span class="built_in">kill</span> -STOP %job_number</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复挂起的作业</span></span><br><span class="line"><span class="built_in">kill</span> -CONT %job_number</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="四高级技巧进程管理与监控">🔄 四、高级技巧：进程管理与监控</h3>
-<h4 id="使用-screen-进行会话管理">1. 使用 screen 进行会话管理</h4>
-<p><code>screen</code> 是Linux下最强大的终端复用工具：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装screen</span></span><br><span class="line"><span class="built_in">sudo</span> apt install screen  <span class="comment"># Ubuntu/Debian</span></span><br><span class="line"><span class="built_in">sudo</span> yum install screen  <span class="comment"># CentOS/RHEL</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新会话</span></span><br><span class="line">screen -S my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在screen中运行程序</span></span><br><span class="line">python long_running_script.py</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分离会话（程序继续运行）</span></span><br><span class="line">Ctrl+A, D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新连接会话</span></span><br><span class="line">screen -r my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有会话</span></span><br><span class="line">screen -<span class="built_in">ls</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止会话</span></span><br><span class="line">screen -S my_session -X quit</span><br></pre></td></tr></table></figure>
-<h4 id="使用-tmux-进行现代化终端管理">2. 使用 tmux 进行现代化终端管理</h4>
-<p><code>tmux</code> 是比 <code>screen</code> 更现代的终端复用工具：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装tmux</span></span><br><span class="line"><span class="built_in">sudo</span> apt install tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新会话</span></span><br><span class="line">tmux new -s my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分离会话</span></span><br><span class="line">Ctrl+B, D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新连接</span></span><br><span class="line">tmux attach -t my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新窗口</span></span><br><span class="line">Ctrl+B, C</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换窗口</span></span><br><span class="line">Ctrl+B, 0-9</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分割窗格</span></span><br><span class="line">Ctrl+B, %  <span class="comment"># 垂直分割</span></span><br><span class="line">Ctrl+B, <span class="string">&quot;  # 水平分割</span></span><br></pre></td></tr></table></figure>
-<h4 id="使用-systemd-管理服务">3. 使用 systemd 管理服务</h4>
-<p>对于需要长期运行的服务，推荐使用 <code>systemd</code>：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建服务文件</span></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/systemd/system/myapp.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 服务文件内容示例</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=My Python Application</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=myuser</span><br><span class="line">WorkingDirectory=/home/myuser/myapp</span><br><span class="line">ExecStart=/usr/bin/python3 app.py</span><br><span class="line">Restart=always</span><br><span class="line">RestartSec=10</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用并启动服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> myapp</span><br><span class="line"><span class="built_in">sudo</span> systemctl start myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看服务状态</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line"><span class="built_in">sudo</span> journalctl -u myapp -f</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="五实用工具进程监控与管理">🎛️ 五、实用工具：进程监控与管理</h3>
-<h4 id="htop---交互式进程查看器">1. htop - 交互式进程查看器</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装htop</span></span><br><span class="line"><span class="built_in">sudo</span> apt install htop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行htop</span></span><br><span class="line">htop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 常用快捷键</span></span><br><span class="line"><span class="comment"># F1: 帮助</span></span><br><span class="line"><span class="comment"># F2: 设置</span></span><br><span class="line"><span class="comment"># F3: 搜索进程</span></span><br><span class="line"><span class="comment"># F4: 过滤进程</span></span><br><span class="line"><span class="comment"># F5: 树形显示</span></span><br><span class="line"><span class="comment"># F6: 排序</span></span><br><span class="line"><span class="comment"># F9: 发送信号</span></span><br><span class="line"><span class="comment"># F10: 退出</span></span><br></pre></td></tr></table></figure>
-<h4 id="使用-pstree-查看进程树">2. 使用 pstree 查看进程树</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 显示进程树</span></span><br><span class="line">pstree</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示PID</span></span><br><span class="line">pstree -p</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示用户名</span></span><br><span class="line">pstree -u</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示特定进程的子树</span></span><br><span class="line">pstree -p 1234</span><br></pre></td></tr></table></figure>
-<h4 id="使用-lsof-查看文件占用">3. 使用 lsof 查看文件占用</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看特定进程打开的文件</span></span><br><span class="line">lsof -p 1234</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定端口占用的进程</span></span><br><span class="line">lsof -i :8080</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定用户打开的文件</span></span><br><span class="line">lsof -u username</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="六实战场景常见应用案例">🚀 六、实战场景：常见应用案例</h3>
-<h4 id="长时间运行的数据处理">1. 长时间运行的数据处理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据处理任务</span></span><br><span class="line"><span class="built_in">nohup</span> python process_large_dataset.py &gt; processing.log 2&gt;&amp;1 &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看进度</span></span><br><span class="line"><span class="built_in">tail</span> -f processing.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查进程状态</span></span><br><span class="line">ps aux | grep process_large_dataset</span><br></pre></td></tr></table></figure>
-<h4 id="开发环境的多服务管理">2. 开发环境的多服务管理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动前端开发服务器</span></span><br><span class="line">npm start &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动后端API服务器</span></span><br><span class="line">python app.py &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动数据库</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start postgresql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有相关进程</span></span><br><span class="line">ps aux | grep -E <span class="string">&quot;(node|python|postgres)&quot;</span></span><br></pre></td></tr></table></figure>
-<h4 id="批量任务处理">3. 批量任务处理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建任务脚本</span></span><br><span class="line"><span class="built_in">cat</span> &gt; batch_process.sh &lt;&lt; <span class="string">&#x27;EOF&#x27;</span></span><br><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> data/*.csv; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Processing <span class="variable">$file</span>...&quot;</span></span><br><span class="line">    python process.py <span class="string">&quot;<span class="variable">$file</span>&quot;</span> &amp;</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="built_in">wait</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;All files processed!&quot;</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行批量任务</span></span><br><span class="line"><span class="built_in">chmod</span> +x batch_process.sh</span><br><span class="line"><span class="built_in">nohup</span> ./batch_process.sh &gt; batch.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="七注意事项与最佳实践">⚠️ 七、注意事项与最佳实践</h3>
-<h4 id="信号处理">1. 信号处理</h4>
-<p>了解常见的信号类型：</p>
-<table>
-<thead>
-<tr class="header">
-<th>信号</th>
-<th>数值</th>
-<th>含义</th>
-<th>默认行为</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>SIGHUP</td>
-<td>1</td>
-<td>挂起</td>
-<td>终止进程</td>
-</tr>
-<tr class="even">
-<td>SIGINT</td>
-<td>2</td>
-<td>中断 (Ctrl+C)</td>
-<td>终止进程</td>
-</tr>
-<tr class="odd">
-<td>SIGQUIT</td>
-<td>3</td>
-<td>退出 (Ctrl+)</td>
-<td>终止进程并转储核心</td>
-</tr>
-<tr class="even">
-<td>SIGTERM</td>
-<td>15</td>
-<td>终止</td>
-<td>终止进程</td>
-</tr>
-<tr class="odd">
-<td>SIGKILL</td>
-<td>9</td>
-<td>强制终止</td>
-<td>立即终止进程</td>
-</tr>
-</tbody>
-</table>
-<h4 id="资源管理">2. 资源管理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 限制进程资源使用</span></span><br><span class="line"><span class="built_in">ulimit</span> -c 0        <span class="comment"># 禁用核心转储</span></span><br><span class="line"><span class="built_in">ulimit</span> -n 1024     <span class="comment"># 限制文件描述符数量</span></span><br><span class="line"><span class="built_in">ulimit</span> -u 100      <span class="comment"># 限制用户进程数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用nice调整进程优先级</span></span><br><span class="line"><span class="built_in">nice</span> -n 10 python script.py  <span class="comment"># 降低优先级</span></span><br><span class="line"><span class="built_in">sudo</span> renice -n -10 1234      <span class="comment"># 提高优先级</span></span><br></pre></td></tr></table></figure>
-<h4 id="日志管理">3. 日志管理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用logrotate管理日志文件</span></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/logrotate.d/myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置示例</span></span><br><span class="line">/home/myuser/myapp/*.<span class="built_in">log</span> &#123;</span><br><span class="line">    daily</span><br><span class="line">    rotate 7</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    create 644 myuser myuser</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<hr />
-<h3 id="八总结与检查清单">✅ 八、总结与检查清单</h3>
-<h4 id="基础任务控制命令速查">基础任务控制命令速查</h4>
-<table>
-<thead>
-<tr class="header">
-<th>操作</th>
-<th>命令</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>后台运行</td>
-<td><code>command &amp;</code></td>
-<td>启动时直接后台运行</td>
-</tr>
-<tr class="even">
-<td>挂起程序</td>
-<td><code>Ctrl+Z</code></td>
-<td>暂停前台程序</td>
-</tr>
-<tr class="odd">
-<td>后台恢复</td>
-<td><code>bg [%N]</code></td>
-<td>将挂起作业放到后台</td>
-</tr>
-<tr class="even">
-<td>前台恢复</td>
-<td><code>fg [%N]</code></td>
-<td>将后台作业恢复到前台</td>
-</tr>
-<tr class="odd">
-<td>查看作业</td>
-<td><code>jobs [-l]</code></td>
-<td>显示当前Shell的作业</td>
-</tr>
-<tr class="even">
-<td>终止作业</td>
-<td><code>kill %N</code></td>
-<td>终止指定作业</td>
-</tr>
-<tr class="odd">
-<td>忽略挂起</td>
-<td><code>nohup command &amp;</code></td>
-<td>防止SSH断开影响</td>
-</tr>
-</tbody>
-</table>
-<h4 id="高级工具选择指南">高级工具选择指南</h4>
-<table>
-<thead>
-<tr class="header">
-<th>场景</th>
-<th>推荐工具</th>
-<th>优势</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>临时后台任务</td>
-<td><code>nohup</code> + <code>&amp;</code></td>
-<td>简单快速</td>
-</tr>
-<tr class="even">
-<td>多会话管理</td>
-<td><code>screen</code></td>
-<td>稳定可靠</td>
-</tr>
-<tr class="odd">
-<td>现代化终端</td>
-<td><code>tmux</code></td>
-<td>功能丰富</td>
-</tr>
-<tr class="even">
-<td>长期服务</td>
-<td><code>systemd</code></td>
-<td>系统级管理</td>
-</tr>
-<tr class="odd">
-<td>进程监控</td>
-<td><code>htop</code></td>
-<td>交互友好</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="结语">🎉 结语</h3>
-<p>Linux任务控制是系统管理和开发工作中的必备技能。通过掌握这些工具和技巧，你可以：</p>
-<ul>
-<li><strong>提高工作效率</strong>：同时管理多个任务</li>
-<li><strong>保持程序运行</strong>：防止意外断开导致任务中断</li>
-<li><strong>优化资源使用</strong>：合理分配系统资源</li>
-<li><strong>增强系统稳定性</strong>：更好地管理长期运行的服务</li>
-</ul>
-<p>记住：<strong>好的任务控制习惯不仅能提高你的工作效率，还能让你的系统运行得更加稳定可靠。</strong></p>
-<p>Happy Hacking! 🚀</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Shell</tag>
-        <tag>进程管理</tag>
-        <tag>任务控制</tag>
-        <tag>后台运行</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Shell 启动脚本：理解 bash、zsh 的启动流程</title>
-    <url>/posts/shell-startup/</url>
-    <content><![CDATA[<p>如果你是一个经常使用 shell 的用户，几乎肯定会在主目录下有一个 <code>.bash_profile</code> 或 <code>.bashrc</code> 脚本，通常包含各种调整，比如设置环境变量（将某个目录添加到 <code>$PATH</code>）、告诉 shell 做聪明的事情（如 <code>set -o noclobber</code>）以及为命令添加各种别名（如 <code>alias please=sudo</code>）。</p>
-<p>（如果你真的很有条理，你会把所有点文件都放在某个仓库中，这样你就可以在所有工作的机器上保持设置同步。）</p>
-<p>无论如何，我怀疑很少有人知道 <code>.bash_profile</code> 和 <code>.bashrc</code> 这样的文件实际上什么时候被执行。当我刚开始时，我只是按照别人的建议把东西放在 <code>.bashrc</code> 中，然后当它不工作时，就放到 <code>.bash_profile</code> 中。我可以在这里停下来，只描述 bash 的启动过程（尽管它很愚蠢），但有一个复杂的情况是，我在几年前切换到了 zsh（并且没有回头），但偶尔会在没有安装 zsh 的机器上使用 bash。</p>
-<span id="more"></span>
-<h2 id="shell-启动脚本的复杂性">Shell 启动脚本的复杂性</h2>
-<p>为了优雅地处理这种情况，我需要能够在它们自己的文件中指定特定于 bash 或 zsh 的内容，然后在通用启动文件中指定任何符合 POSIX 标准的 shell（如别名和环境变量）都能理解的内容。</p>
-<p>我对这个问题的解决方案是定义一些新的点文件文件夹，每个 shell 一个（<code>.bash/</code>、<code>.zsh/</code> 和 <code>.sh/</code>），还有一个用于 shell 无关文件（<code>.shell/</code>）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.bash/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.sh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">.shell/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.zsh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br></pre></td></tr></table></figure>
-<h2 id="不同类型的-shell">不同类型的 Shell</h2>
-<p>"But!" 你说，"这些不同的文件在这里做什么？" 啊，我很高兴你问了。有两种类型的 shell：</p>
-<ul>
-<li><strong>[非]交互式 shell</strong>（你向它们输入 / shell 脚本）</li>
-<li><strong>[非]登录 shell</strong>（首次登录时运行的 shell / 子 shell）</li>
-</ul>
-<p>所有 shell 都会首先运行 <code>env</code>，然后登录 shell 会运行 <code>login</code>，然后交互式 shell 会运行 <code>interactive</code>。完成后，登录 shell 会运行 <code>logout</code>。</p>
-<h2 id="在哪里放置内容">在哪里放置内容</h2>
-<p>这完全取决于它什么时候需要运行。</p>
-<ul>
-<li>如果它正在设置 / 修改环境变量，它应该放在 <code>login</code> 中</li>
-<li>如果它是别名或终端特定的环境变量（例如，<code>GREP_COLOR</code>），它应该放在 <code>interactive</code> 中</li>
-<li>在我的 <code>.shell/env</code> 文件中，我设置了 <code>umask</code>，还定义了一些有用的函数来修改冒号分隔的路径环境变量（如 <code>$PATH</code>）</li>
-</ul>
-<p>即使你不采用我方案中的其他任何东西，我也建议你看看我的函数在做什么，这与像 <code>export PATH=$PATH:/path/to/dir</code> 这样的东西不同。</p>
-<p>这种特定模式太常见了，如果你考虑 <code>$PATH</code>（或任何你的变量，如 <code>$LD_LIBRARY_PATH</code>）没有设置的情况，它会非常危险。然后，值将是 <code>:/path/to/dir</code>，这通常意味着 <code>/path/to/dir</code> 和当前目录，这通常既是意外行为又是安全问题。</p>
-<p>使用我的实现（见 <code>.shell/env_functions</code>），你可以从任何冒号分隔的环境变量中追加、前置和删除目录，当追加或前置时，你保证该目录只会在该变量中出现一次。</p>
-<h2 id="shell-启动流程详解">Shell 启动流程详解</h2>
-<h3 id="bash-启动流程">Bash 启动流程</h3>
-<p>Bash 的启动流程相对复杂，因为它有多种模式：</p>
-<ol type="1">
-<li><strong>登录 shell</strong>：当 bash 以 <code>-l</code> 参数启动或作为登录 shell 启动时</li>
-<li><strong>交互式 shell</strong>：当 bash 以交互模式启动时</li>
-<li><strong>非交互式 shell</strong>：当 bash 执行脚本时</li>
-<li><strong>远程 shell</strong>：当 bash 检测到通过 ssh 或 rsh 启动时</li>
-</ol>
-<h3 id="zsh-启动流程">Zsh 启动流程</h3>
-<p>Zsh 的启动流程更加简洁和一致：</p>
-<ol type="1">
-<li><strong>全局配置文件</strong>：<code>/etc/zshenv</code>、<code>/etc/zprofile</code>、<code>/etc/zshrc</code>、<code>/etc/zlogout</code></li>
-<li><strong>用户配置文件</strong>：<code>~/.zshenv</code>、<code>~/.zprofile</code>、<code>~/.zshrc</code>、<code>~/.zlogout</code></li>
-</ol>
-<h3 id="启动文件执行顺序">启动文件执行顺序</h3>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zprofile → ~/.zprofile → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">交互式非登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">非交互式 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv</span><br></pre></td></tr></table></figure>
-<h2 id="实际应用建议">实际应用建议</h2>
-<h3 id="环境变量管理">1. 环境变量管理</h3>
-<p>避免使用 <code>export PATH=$PATH:/new/path</code> 这种模式，因为它可能导致重复和空路径问题。相反，使用更安全的方法：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安全的路径添加函数</span></span><br><span class="line"><span class="function"><span class="title">path_append</span></span>() &#123;</span><br><span class="line">    <span class="built_in">local</span> var_name=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> new_path=<span class="string">&quot;<span class="variable">$2</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> current_path=<span class="string">&quot;<span class="variable">$&#123;!var_name&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [[ -z <span class="string">&quot;<span class="variable">$current_path</span>&quot;</span> ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> [[ <span class="string">&quot;:<span class="variable">$current_path</span>:&quot;</span> != *<span class="string">&quot;:<span class="variable">$new_path</span>:&quot;</span>* ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$current_path</span>:<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">path_append PATH <span class="string">&quot;/usr/local/bin&quot;</span></span><br></pre></td></tr></table></figure>
-<h3 id="条件加载">2. 条件加载</h3>
-<p>根据 shell 类型和交互性条件性地加载配置：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 只在交互式 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o interactive ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/interactive</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只在登录 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o login ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/login</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
-<h3 id="跨-shell-兼容性">3. 跨 Shell 兼容性</h3>
-<p>为了在不同 shell 之间保持兼容性，使用 POSIX 兼容的语法：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用 POSIX 兼容的语法</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$SHELL</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    */bash)</span><br><span class="line">        <span class="built_in">source</span> ~/.bash/specific</span><br><span class="line">        ;;</span><br><span class="line">    */zsh)</span><br><span class="line">        <span class="built_in">source</span> ~/.zsh/specific</span><br><span class="line">        ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
-<h2 id="总结">总结</h2>
-<p>理解 shell 启动脚本的执行顺序对于正确配置你的环境至关重要。通过采用模块化的方法，你可以：</p>
-<ol type="1">
-<li><strong>保持配置的整洁</strong>：将不同类型的配置分离到不同的文件中</li>
-<li><strong>提高可维护性</strong>：每个文件都有明确的职责</li>
-<li><strong>增强可移植性</strong>：在不同机器和 shell 之间轻松迁移配置</li>
-<li><strong>避免常见陷阱</strong>：如路径重复、环境变量污染等问题</li>
-</ol>
-<p>记住，shell 启动脚本的执行顺序可能因操作系统、shell 版本和编译选项而异。最好的方法是测试你自己的系统，并根据需要调整配置。</p>
-<hr />
-<p><strong>参考来源：</strong> <a href="https://blog.flowblok.id.au/2013-02/shell-startup-scripts.html">Shell startup scripts - flowblok's blog</a></p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Shell</tag>
-        <tag>Bash</tag>
-        <tag>Zsh</tag>
-        <tag>系统配置</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端浏览器缓存机制</title>
-    <url>/posts/50ac740b/</url>
-    <content><![CDATA[<h2 id="前端浏览器缓存机制">前端浏览器缓存机制</h2>
-<p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
-<span id="more"></span>
-<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
-<h4 id="强缓存strong-caching">1. 强缓存（Strong Caching）</h4>
-<p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
-<ul>
-<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p></li>
-<li><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：
-<ul>
-<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
-<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
-<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
-<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
-</ul></li>
-</ul>
-<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
-<h4 id="协商缓存negotiation-caching">2. 协商缓存（Negotiation Caching）</h4>
-<p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
-<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
-<ul>
-<li><strong>Last-Modified &amp; If-Modified-Since</strong>:
-<ul>
-<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
-<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
-</ul></li>
-<li><strong>ETag &amp; If-None-Match</strong>:
-<ul>
-<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
-<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
-</ul></li>
-</ul>
-<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
-<h4 id="哈希与缓存hash">3. 哈希与缓存（Hash）</h4>
-<p><strong>哈希（Hash）</strong>与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
-<p><strong>典型用法</strong>：</p>
-<ul>
-<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
-<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
-</ul>
-<p><strong>总结</strong>：</p>
-<ul>
-<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
-<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
-<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
-</ul>
-<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
-<h3 id="什么是cdn内容分发网络">什么是CDN（内容分发网络）</h3>
-<p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
-<h4 id="cdn的工作原理">CDN的工作原理</h4>
-<ol type="1">
-<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p></li>
-<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p></li>
-<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p></li>
-<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p></li>
-</ol>
-<h4 id="cdn的主要优势">CDN的主要优势</h4>
-<ol type="1">
-<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p></li>
-<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p></li>
-<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p></li>
-<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p></li>
-<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p></li>
-</ol>
-<h4 id="cdn的使用场景">CDN的使用场景</h4>
-<ul>
-<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
-<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
-<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
-</ul>
-<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
-        <tag>浏览器</tag>
-        <tag>缓存</tag>
       </tags>
   </entry>
   <entry>
@@ -5365,6 +4725,661 @@ flowchart TD
         <tag>Linux</tag>
         <tag>操作系统</tag>
         <tag>内核</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>git之路：rebase &amp; cherry-pick</title>
+    <url>/posts/1566a5aa/</url>
+    <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
+<span id="more"></span>
+<h2 id="一核心概念">🧩 一、核心概念</h2>
+<ul>
+<li><strong>rebase (变基)</strong>：将当前分支的一系列提交“重放”到另一个目标分支之上。其核心用途是<strong>整理个人分支的提交历史</strong>，使其在并入主干时保持线性、清晰。</li>
+<li><strong>cherry-pick (拣选)</strong>：将某个（或某些）特定的提交<strong>复制</strong>到当前分支。它像摘樱桃一样，适合“挑着搬运”某个功能或紧急修复。</li>
+</ul>
+<h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
+<p>下面的两幅 Mermaid 图示分别演示了 Rebase 和 Cherry-pick 在典型协作场景中的作用。将代码块直接放入支持 Mermaid 的 Markdown 环境即可自动渲染。</p>
+<h3 id="图-1-rebase-工作流主干更新后将功能分支变基到最新-main">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</h3>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    subgraph &quot;main 分支&quot;
+        c0((c0)) --&gt; c1((c1)) --&gt; c3((c3))
+    end
+
+    subgraph &quot;feature&#x2F;a (rebase 前)&quot;
+        c2_before((c2)) --&gt; c4_before((c4))
+    end
+
+    subgraph &quot;feature&#x2F;a (rebase 后)&quot;
+        c2_after((&quot;c2&#39;&quot;)) --&gt; c4_after((&quot;c4&#39;&quot;))
+    end
+
+    c1 --&gt; c2_before
+    c3 --&gt; c2_after
+</code>
+</pre>
+<h3 id="图-2-cherry-pick-工作流从-featurea-拣选-c2-到-main">图 2 · Cherry-pick 工作流（从 feature/a 拣选 c2 到 main）</h3>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    subgraph &quot;初始历史&quot;
+        c0((c0)) --&gt; c1((c1))
+    end
+
+    subgraph &quot;main 分支&quot;
+        c3((c3)) --&gt; c2_prime((&quot;c2&#39;&quot;))
+        style c2_prime fill:#bbf,stroke:#333,stroke-width:2px
+    end
+
+    subgraph &quot;feature&#x2F;a 分支&quot;
+        c2((c2)) --&gt; c4((c4))
+    end
+    
+    c1 --&gt; c3
+    c1 --&gt; c2
+
+    c2 -.-&gt; c2_prime
+</code>
+</pre>
+<h3 id="场景设定">场景设定</h3>
+<ul>
+<li><code>main</code> 是我们的主分支，开发主线从 <code>c0</code> -&gt; <code>c1</code> 开始。</li>
+<li>从 <code>c1</code> 拉取了一个 <code>feature/a</code> 分支进行功能开发，并提交了 <code>c2</code> 和 <code>c4</code>。</li>
+<li>在此期间，另一位同事完成了 <code>fixbug/b</code> 分支，并将其合并回 <code>main</code>，使得 <code>main</code> 分支前进到 <code>c3</code>。</li>
+</ul>
+<p>此时，你的 <code>feature/a</code> 分支就“落后”于 <code>main</code> 分支了。在准备合并你的功能之前，最好的做法是先将 <code>main</code> 的最新更改同步到 <code>feature/a</code> 分支。这里，<code>rebase</code> 就是最佳选择。</p>
+<h3 id="rebase同步主干保持线性历史">1. Rebase：同步主干，保持线性历史</h3>
+<p>为了让 <code>feature/a</code> 的历史记录更清晰，我们执行变基操作，将 <code>feature/a</code> 的提交“重放”到最新的 <code>main</code> 分支上。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 确保你的功能分支是当前分支</span></span><br><span class="line">git checkout feature/a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 拉取远程主分支的最新代码（好习惯）</span></span><br><span class="line">git fetch origin main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 将当前分支变基到最新的 main 分支上</span></span><br><span class="line">git rebase origin/main <span class="comment"># 或者 git rebase main</span></span><br></pre></td></tr></table></figure>
+<p>执行后，Git 会在内部执行以下操作：</p>
+<ol type="1">
+<li>找到 <code>feature/a</code> 和 <code>main</code> 的共同祖先 <code>c1</code>。</li>
+<li>暂存 <code>feature/a</code> 在 <code>c1</code> 之后独有的提交（<code>c2</code>, <code>c4</code>）。</li>
+<li>将 <code>feature/a</code> 分支的指针指向 <code>main</code> 的最新提交 <code>c3</code>。</li>
+<li>将刚刚暂存的提交 <code>c2</code> 和 <code>c4</code> 重新应用（Replay）在 <code>c3</code> 之后，生成两个<strong>内容相同但ID不同</strong>的新提交 <code>c2'</code> 和 <code>c4'</code>。</li>
+</ol>
+<p>最终，<code>feature/a</code> 的历史就变成了 <code>c0 -&gt; c1 -&gt; c3 -&gt; c2' -&gt; c4'</code>。它看起来就像是你从最新的 <code>main</code> 分支拉取代码然后才开始开发的一样，历史记录干净、线性，非常便于后续的合并和代码审查。</p>
+<p>这个操作完美地诠释了 <code>rebase</code> 在个人开发分支上的核心用途：<strong>保持与主干同步，并维持一个清晰的线性历史。</strong></p>
+<h3 id="cherry-pick挑选特定提交">2. Cherry-pick：挑选特定提交</h3>
+<p>现在，我们换一个场景。假设 <code>feature/a</code> 上的 <code>c2</code> 是一个非常紧急的修复，需要立即上线，但 <code>c4</code> 还没开发完。这时就可以用 <code>cherry-pick</code>。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到需要接收修复的主分支</span></span><br><span class="line">git checkout main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 从 feature/a 分支拣选 c2 提交</span></span><br><span class="line">git cherry-pick c2</span><br></pre></td></tr></table></figure>
+<p>如图右侧所示，<code>main</code> 分支通过 <code>cherry-pick</code>，将 <code>feature/a</code> 上的 <code>c2</code> 提交“拣选”过来，生成了一个新的提交 <code>c5</code>。其他提交 (<code>c4</code>) 不会被带过来，完美满足了只需要部分功能/修复的场景。</p>
+<hr />
+<h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
+<h3 id="基本用法">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将当前分支变基到 &lt;目标分支&gt; 上</span></span><br><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="交互式-rebase">2. 交互式 rebase</h3>
+<p>这是 <code>rebase</code> 的一大神器，常用于合并、修改、整理当前分支的提交。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -i 代表 --interactive（交互式）</span></span><br><span class="line"><span class="comment"># HEAD~3 表示整理当前分支最新的 3 个提交</span></span><br><span class="line">git rebase -i HEAD~3</span><br></pre></td></tr></table></figure>
+<p>执行后会打开一个编辑器，你可以对指定范围的提交进行 <code>squash</code> (合并)、<code>edit</code> (修改)、<code>reword</code> (修改提交信息) 等精细化操作，极大提升提交历史的可读性。</p>
+<h3 id="注意事项">3. 注意事项</h3>
+<ul>
+<li>rebase 会重写历史，<strong>永远不要对已经推送并被他人使用的公共分支（如 main）进行 rebase</strong>。</li>
+<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git add .</code> 将文件标记为已解决，然后用 <code>git rebase --continue</code> 继续。</li>
+</ul>
+<hr />
+<h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
+<h3 id="基本用法-1">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick &lt;commit-hash&gt;</span><br></pre></td></tr></table></figure>
+<p>将指定的 <code>&lt;commit-hash&gt;</code> 应用到当前分支，生成一个新的提交。</p>
+<h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 拣选多个不连续的提交</span></span><br><span class="line">git cherry-pick &lt;commit-1&gt; &lt;commit-2&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拣选一个连续的提交范围（不包含 commit-A）</span></span><br><span class="line">git cherry-pick &lt;commit-A&gt;..&lt;commit-B&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="注意事项-1">3. 注意事项</h3>
+<ul>
+<li>cherry-pick 也可能遇到冲突，需手动解决并 <code>commit</code>。</li>
+<li>cherry-pick 会生成<strong>新的 commit id</strong>，因为它是在新的分支上下文中应用变更。</li>
+</ul>
+<hr />
+<h2 id="rebase-vs.-merge黄金准则与团队协作">👑 Rebase vs. Merge：黄金准则与团队协作</h2>
+<p>我们已经看到了 <code>rebase</code> 的强大之处，但它也是一把双刃剑，因为它会<strong>重写提交历史</strong>。这就引出了 Git 协作中一条最重要的准则：</p>
+<blockquote>
+<p><strong>黄金准则：在自己的私有分支上自由地 rebase，但永远不要 rebase 一个公共的、共享的分支。</strong></p>
+</blockquote>
+<p>换句话说：</p>
+<ul>
+<li><strong><code>rebase</code> 用来“整理”自己</strong>：在你的个人功能分支（如 <code>feature/a</code>）上，使用 <code>rebase</code> 来同步 <code>main</code> 分支的更新。这属于你自己的“私事”，目的是让你的工作成果能干净地对接到主线上。</li>
+<li><strong><code>merge</code> 用来“汇合”他人</strong>：当你的功能分支准备好被合并到 <code>main</code> 或 <code>develop</code> 这样的公共分支时，应该使用 <code>git merge</code>（通常是通过 GitHub/GitLab 上的 Pull Request/Merge Request）来完成。这次合并会产生一个合并提交（Merge Commit），清晰地记录了“在某个时间点，我们将 <code>feature/a</code> 的所有成果汇入了主线”这一事实。</li>
+</ul>
+<h3 id="为什么这是最佳实践">为什么这是最佳实践？</h3>
+<ol type="1">
+<li><strong>清晰且可追溯的历史</strong>：通过 <code>rebase</code> 保持功能分支的线性，使得 <code>main</code> 分支的历史由一个个清晰的功能块（通过 merge commit 连接）组成，而不是一个混乱交织的网络。阅读 <code>git log</code> 会非常轻松。</li>
+<li><strong>避免团队混乱</strong>：如果你 rebase 了一个公共分支（例如 <code>main</code>），所有基于旧的 <code>main</code> 进行开发的同事都会在下一次 <code>git pull</code> 时遇到严重的问题。他们的本地历史和被你重写过的远程历史产生了冲突，需要非常复杂的操作才能修复，这会给整个团队带来灾难。</li>
+</ol>
+<h3 id="推荐的开发工作流">推荐的开发工作流</h3>
+<p>一个标准的、健壮的开发工作流如下：</p>
+<ol type="1">
+<li><strong>开始新任务</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git pull origin main</span><br><span class="line">git checkout -b feature/new-login</span><br></pre></td></tr></table></figure></li>
+<li><strong>开心写代码并提交</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ... coding and committing ...</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add username field&quot;</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add password field&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>定期与主干同步</strong>（使用 Rebase）： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 当 main 分支有更新时</span></span><br><span class="line">git fetch origin main</span><br><span class="line">git rebase origin/main</span><br><span class="line"><span class="comment"># 如果有冲突，解决冲突后 git rebase --continue</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>发起合并请求</strong>：
+<ul>
+<li>将你“整理”好的分支推送到远程：<code>git push origin feature/new-login --force-with-lease</code> (<code>--force-with-lease</code> 是比 <code>--force</code> 更安全的选择，因为它不会覆盖他人的工作)。</li>
+<li>在代码托管平台（如 GitHub）上创建 Pull Request，请求将 <code>feature/new-login</code> 合并到 <code>main</code>。</li>
+<li>团队成员进行代码审查，最终由维护者点击“Merge”按钮，将你的功能安全地汇入主线。</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="五实战小结">⚡ 五、实战小结</h2>
+<ul>
+<li><strong>rebase</strong>：核心用途是在<strong>个人开发分支</strong>上同步主干分支的变更，以保持提交历史的<strong>整洁和线性</strong>。它是合并到公共分支前的“自我修养”。</li>
+<li><strong>cherry-pick</strong>：核心用途是<strong>精确复制</strong>一个或多个提交到其他分支，适合跨分支应用热修复或挑选特定功能。</li>
+<li><strong>黄金准则</strong>：永远记住在私有分支上 rebase，在公共分支上 merge。</li>
+</ul>
+<hr />
+<h2 id="六实用建议">📝 六、实用建议</h2>
+<h3 id="分支命名规范">1. 分支命名规范</h3>
+<ul>
+<li>功能开发：<code>feature/功能简述</code> 如：<code>feature/login-page</code></li>
+<li>Bug 修复：<code>fix/问题简述</code> 如：<code>fix/login-crash</code></li>
+<li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
+<li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
+</ul>
+<h3 id="commit-信息规范">2. Commit 信息规范</h3>
+<ul>
+<li>推荐格式（Angular 规范）：<code>type(scope): subject</code>
+<ul>
+<li><code>type</code>: <code>feat</code>, <code>fix</code>, <code>docs</code>, <code>style</code>, <code>refactor</code>, <code>test</code>, <code>chore</code></li>
+<li><code>scope</code>: 影响范围（可选）</li>
+<li><code>subject</code>: 简短描述</li>
+</ul></li>
+<li>一次 commit 只做一件事，保持原子性。</li>
+</ul>
+<h3 id="团队协作建议">3. 团队协作建议</h3>
+<ul>
+<li><strong>合并前先同步</strong>：在将功能分支合并到 <code>main</code> 之前，应先在自己的分支上执行 <code>git rebase main</code> 来同步最新代码，这能极大减少最终合并时的冲突。</li>
+<li><strong>保护公共分支</strong>：像 <code>main</code>、<code>release</code> 这样的重要分支应设置为受保护状态，禁止 <code>force push</code>，所有变更都必须通过 Pull Request (PR) 进行。</li>
+<li><strong>拥抱代码评审</strong>：充分利用 Pull Request 进行代码评审，这是保证代码质量和知识共享的最佳途径。</li>
+<li><strong>勤于观察状态</strong>：养成良好习惯，多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态，做到心中有数。</li>
+</ul>
+<hr />
+<p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+        <tag>Rebase</tag>
+        <tag>Cherry-pick</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
+<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
+<h3 id="token401问题">token401问题</h3>
+<h4 id="登录401">登录401</h4>
+<p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
+</figure>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<figure>
+<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
+</figure>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<p>发现可以正常读取了</p>
+<h4 id="过期401">过期401</h4>
+<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据读取问题">数据读取问题</h3>
+<p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<h3 id="其他问题">其他问题</h3>
+<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>InfluxDB</tag>
+        <tag>数据库</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux任务控制：从进程管理到后台运行</title>
+    <url>/posts/7a8b9c1d/</url>
+    <content><![CDATA[<p>在Linux系统中，任务控制是每个用户都需要掌握的核心技能。无论是运行长时间的计算任务、管理多个进程，还是在SSH连接断开后保持程序运行，都离不开任务控制技术。本文将从基础概念出发，系统介绍Linux任务控制的完整知识体系，为你提供一份实用的技术指南。</p>
+<span id="more"></span>
+<h3 id="一核心概念进程作业与任务控制">🎯 一、核心概念：进程、作业与任务控制</h3>
+<p>在深入任务控制之前，我们需要先理解几个核心概念：</p>
+<h4 id="进程-vs-作业-vs-任务">1. 进程 vs 作业 vs 任务</h4>
+<table>
+<thead>
+<tr class="header">
+<th>概念</th>
+<th>定义</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>进程 (Process)</strong></td>
+<td>正在运行的程序实例</td>
+<td>有独立的PID，占用系统资源</td>
+</tr>
+<tr class="even">
+<td><strong>作业 (Job)</strong></td>
+<td>Shell管理的进程组</td>
+<td>可以前台/后台运行，支持挂起/恢复</td>
+</tr>
+<tr class="odd">
+<td><strong>任务 (Task)</strong></td>
+<td>用户要完成的工作单元</td>
+<td>可能包含多个进程或作业</td>
+</tr>
+</tbody>
+</table>
+<h4 id="任务控制的基本流程">2. 任务控制的基本流程</h4>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">启动程序 → 前台运行 → [Ctrl+Z] → 挂起 → [bg] → 后台运行</span><br><span class="line">    ↓</span><br><span class="line">[Ctrl+C] → 终止程序</span><br><span class="line">    ↓</span><br><span class="line">[fg] → 恢复到前台</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="二基础操作前台与后台切换">🛠️ 二、基础操作：前台与后台切换</h3>
+<h4 id="前台运行-foreground">1. 前台运行 (Foreground)</h4>
+<p>前台运行是最常见的程序执行方式：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 直接运行程序，占用当前终端</span></span><br><span class="line">python long_running_script.py</span><br><span class="line">npm start</span><br><span class="line">make build</span><br></pre></td></tr></table></figure>
+<p><strong>特点</strong>：</p>
+<ul>
+<li>程序输出直接显示在终端</li>
+<li>可以通过 <code>Ctrl+C</code> 终止程序</li>
+<li>程序运行期间无法执行其他命令</li>
+<li>终端关闭时程序也会终止</li>
+</ul>
+<h4 id="后台运行-background">2. 后台运行 (Background)</h4>
+<p>后台运行让程序在后台执行，不占用终端：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 方法1：启动时直接后台运行</span></span><br><span class="line">python script.py &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2：先前台运行，再挂起并后台运行</span></span><br><span class="line">python script.py</span><br><span class="line"><span class="comment"># 按 Ctrl+Z 挂起</span></span><br><span class="line"><span class="built_in">bg</span>  <span class="comment"># 或 bg %1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法3：使用 nohup 防止SSH断开影响</span></span><br><span class="line"><span class="built_in">nohup</span> python script.py &gt; output.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<p><strong>关键符号说明</strong>：</p>
+<ul>
+<li><code>&amp;</code>：启动时直接后台运行</li>
+<li><code>nohup</code>：忽略SIGHUP信号，防止SSH断开时程序终止</li>
+<li><code>&gt; output.log</code>：重定向标准输出到文件</li>
+<li><code>2&gt;&amp;1</code>：将错误输出也重定向到标准输出</li>
+</ul>
+<p><strong>重要注意</strong>：</p>
+<ul>
+<li><strong>方法1和2</strong>：关闭终端会导致进程被终止，因为进程仍然是shell的子进程</li>
+<li><strong>方法3（nohup）</strong>：关闭终端不会影响进程，进程会继续在后台运行</li>
+<li>如果需要进程在关闭终端后继续运行，建议使用 <code>nohup</code> 命令</li>
+</ul>
+<hr />
+<h3 id="三作业管理查看与控制">📋 三、作业管理：查看与控制</h3>
+<h4 id="查看作业状态">1. 查看作业状态</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看当前Shell的所有作业</span></span><br><span class="line"><span class="built_in">jobs</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看详细信息（包含PID）</span></span><br><span class="line"><span class="built_in">jobs</span> -l</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有进程（包括其他Shell的）</span></span><br><span class="line">ps aux | grep python</span><br><span class="line">ps -ef | grep node</span><br></pre></td></tr></table></figure>
+<p><strong>jobs命令输出示例</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">jobs</span></span><br><span class="line">[1]  + running    python data_processing.py</span><br><span class="line">[2]  - suspended  npm start</span><br><span class="line">[3]    running    make build &amp;</span><br></pre></td></tr></table></figure></p>
+<p><strong>状态说明</strong>：</p>
+<ul>
+<li><code>running</code>：正在运行</li>
+<li><code>suspended</code>：已挂起</li>
+<li><code>stopped</code>：已停止</li>
+<li><code>+</code>：当前作业（最近被操作）</li>
+<li><code>-</code>：前一个作业</li>
+</ul>
+<h4 id="作业控制命令">2. 作业控制命令</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 挂起当前前台程序</span></span><br><span class="line">Ctrl+Z</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将挂起的作业放到后台运行</span></span><br><span class="line"><span class="built_in">bg</span> [%job_number]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将后台作业恢复到前台</span></span><br><span class="line"><span class="built_in">fg</span> [%job_number]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止指定作业</span></span><br><span class="line"><span class="built_in">kill</span> %job_number</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂起指定作业</span></span><br><span class="line"><span class="built_in">kill</span> -STOP %job_number</span><br><span class="line"></span><br><span class="line"><span class="comment"># 恢复挂起的作业</span></span><br><span class="line"><span class="built_in">kill</span> -CONT %job_number</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="四高级技巧进程管理与监控">🔄 四、高级技巧：进程管理与监控</h3>
+<h4 id="使用-screen-进行会话管理">1. 使用 screen 进行会话管理</h4>
+<p><code>screen</code> 是Linux下最强大的终端复用工具：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装screen</span></span><br><span class="line"><span class="built_in">sudo</span> apt install screen  <span class="comment"># Ubuntu/Debian</span></span><br><span class="line"><span class="built_in">sudo</span> yum install screen  <span class="comment"># CentOS/RHEL</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新会话</span></span><br><span class="line">screen -S my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在screen中运行程序</span></span><br><span class="line">python long_running_script.py</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分离会话（程序继续运行）</span></span><br><span class="line">Ctrl+A, D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新连接会话</span></span><br><span class="line">screen -r my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有会话</span></span><br><span class="line">screen -<span class="built_in">ls</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 终止会话</span></span><br><span class="line">screen -S my_session -X quit</span><br></pre></td></tr></table></figure>
+<h4 id="使用-tmux-进行现代化终端管理">2. 使用 tmux 进行现代化终端管理</h4>
+<p><code>tmux</code> 是比 <code>screen</code> 更现代的终端复用工具：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装tmux</span></span><br><span class="line"><span class="built_in">sudo</span> apt install tmux</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新会话</span></span><br><span class="line">tmux new -s my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分离会话</span></span><br><span class="line">Ctrl+B, D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新连接</span></span><br><span class="line">tmux attach -t my_session</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建新窗口</span></span><br><span class="line">Ctrl+B, C</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换窗口</span></span><br><span class="line">Ctrl+B, 0-9</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分割窗格</span></span><br><span class="line">Ctrl+B, %  <span class="comment"># 垂直分割</span></span><br><span class="line">Ctrl+B, <span class="string">&quot;  # 水平分割</span></span><br></pre></td></tr></table></figure>
+<h4 id="使用-systemd-管理服务">3. 使用 systemd 管理服务</h4>
+<p>对于需要长期运行的服务，推荐使用 <code>systemd</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建服务文件</span></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/systemd/system/myapp.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 服务文件内容示例</span></span><br><span class="line">[Unit]</span><br><span class="line">Description=My Python Application</span><br><span class="line">After=network.target</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=simple</span><br><span class="line">User=myuser</span><br><span class="line">WorkingDirectory=/home/myuser/myapp</span><br><span class="line">ExecStart=/usr/bin/python3 app.py</span><br><span class="line">Restart=always</span><br><span class="line">RestartSec=10</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启用并启动服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl daemon-reload</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> myapp</span><br><span class="line"><span class="built_in">sudo</span> systemctl start myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看服务状态</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl status myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line"><span class="built_in">sudo</span> journalctl -u myapp -f</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="五实用工具进程监控与管理">🎛️ 五、实用工具：进程监控与管理</h3>
+<h4 id="htop---交互式进程查看器">1. htop - 交互式进程查看器</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装htop</span></span><br><span class="line"><span class="built_in">sudo</span> apt install htop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行htop</span></span><br><span class="line">htop</span><br><span class="line"></span><br><span class="line"><span class="comment"># 常用快捷键</span></span><br><span class="line"><span class="comment"># F1: 帮助</span></span><br><span class="line"><span class="comment"># F2: 设置</span></span><br><span class="line"><span class="comment"># F3: 搜索进程</span></span><br><span class="line"><span class="comment"># F4: 过滤进程</span></span><br><span class="line"><span class="comment"># F5: 树形显示</span></span><br><span class="line"><span class="comment"># F6: 排序</span></span><br><span class="line"><span class="comment"># F9: 发送信号</span></span><br><span class="line"><span class="comment"># F10: 退出</span></span><br></pre></td></tr></table></figure>
+<h4 id="使用-pstree-查看进程树">2. 使用 pstree 查看进程树</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 显示进程树</span></span><br><span class="line">pstree</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示PID</span></span><br><span class="line">pstree -p</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示用户名</span></span><br><span class="line">pstree -u</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示特定进程的子树</span></span><br><span class="line">pstree -p 1234</span><br></pre></td></tr></table></figure>
+<h4 id="使用-lsof-查看文件占用">3. 使用 lsof 查看文件占用</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看特定进程打开的文件</span></span><br><span class="line">lsof -p 1234</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定端口占用的进程</span></span><br><span class="line">lsof -i :8080</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看特定用户打开的文件</span></span><br><span class="line">lsof -u username</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="六实战场景常见应用案例">🚀 六、实战场景：常见应用案例</h3>
+<h4 id="长时间运行的数据处理">1. 长时间运行的数据处理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据处理任务</span></span><br><span class="line"><span class="built_in">nohup</span> python process_large_dataset.py &gt; processing.log 2&gt;&amp;1 &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看进度</span></span><br><span class="line"><span class="built_in">tail</span> -f processing.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查进程状态</span></span><br><span class="line">ps aux | grep process_large_dataset</span><br></pre></td></tr></table></figure>
+<h4 id="开发环境的多服务管理">2. 开发环境的多服务管理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动前端开发服务器</span></span><br><span class="line">npm start &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动后端API服务器</span></span><br><span class="line">python app.py &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动数据库</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl start postgresql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有相关进程</span></span><br><span class="line">ps aux | grep -E <span class="string">&quot;(node|python|postgres)&quot;</span></span><br></pre></td></tr></table></figure>
+<h4 id="批量任务处理">3. 批量任务处理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建任务脚本</span></span><br><span class="line"><span class="built_in">cat</span> &gt; batch_process.sh &lt;&lt; <span class="string">&#x27;EOF&#x27;</span></span><br><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> data/*.csv; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Processing <span class="variable">$file</span>...&quot;</span></span><br><span class="line">    python process.py <span class="string">&quot;<span class="variable">$file</span>&quot;</span> &amp;</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="built_in">wait</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;All files processed!&quot;</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行批量任务</span></span><br><span class="line"><span class="built_in">chmod</span> +x batch_process.sh</span><br><span class="line"><span class="built_in">nohup</span> ./batch_process.sh &gt; batch.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="七注意事项与最佳实践">⚠️ 七、注意事项与最佳实践</h3>
+<h4 id="信号处理">1. 信号处理</h4>
+<p>了解常见的信号类型：</p>
+<table>
+<thead>
+<tr class="header">
+<th>信号</th>
+<th>数值</th>
+<th>含义</th>
+<th>默认行为</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>SIGHUP</td>
+<td>1</td>
+<td>挂起</td>
+<td>终止进程</td>
+</tr>
+<tr class="even">
+<td>SIGINT</td>
+<td>2</td>
+<td>中断 (Ctrl+C)</td>
+<td>终止进程</td>
+</tr>
+<tr class="odd">
+<td>SIGQUIT</td>
+<td>3</td>
+<td>退出 (Ctrl+)</td>
+<td>终止进程并转储核心</td>
+</tr>
+<tr class="even">
+<td>SIGTERM</td>
+<td>15</td>
+<td>终止</td>
+<td>终止进程</td>
+</tr>
+<tr class="odd">
+<td>SIGKILL</td>
+<td>9</td>
+<td>强制终止</td>
+<td>立即终止进程</td>
+</tr>
+</tbody>
+</table>
+<h4 id="资源管理">2. 资源管理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 限制进程资源使用</span></span><br><span class="line"><span class="built_in">ulimit</span> -c 0        <span class="comment"># 禁用核心转储</span></span><br><span class="line"><span class="built_in">ulimit</span> -n 1024     <span class="comment"># 限制文件描述符数量</span></span><br><span class="line"><span class="built_in">ulimit</span> -u 100      <span class="comment"># 限制用户进程数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用nice调整进程优先级</span></span><br><span class="line"><span class="built_in">nice</span> -n 10 python script.py  <span class="comment"># 降低优先级</span></span><br><span class="line"><span class="built_in">sudo</span> renice -n -10 1234      <span class="comment"># 提高优先级</span></span><br></pre></td></tr></table></figure>
+<h4 id="日志管理">3. 日志管理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用logrotate管理日志文件</span></span><br><span class="line"><span class="built_in">sudo</span> nano /etc/logrotate.d/myapp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置示例</span></span><br><span class="line">/home/myuser/myapp/*.<span class="built_in">log</span> &#123;</span><br><span class="line">    daily</span><br><span class="line">    rotate 7</span><br><span class="line">    compress</span><br><span class="line">    delaycompress</span><br><span class="line">    missingok</span><br><span class="line">    notifempty</span><br><span class="line">    create 644 myuser myuser</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr />
+<h3 id="八总结与检查清单">✅ 八、总结与检查清单</h3>
+<h4 id="基础任务控制命令速查">基础任务控制命令速查</h4>
+<table>
+<thead>
+<tr class="header">
+<th>操作</th>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>后台运行</td>
+<td><code>command &amp;</code></td>
+<td>启动时直接后台运行</td>
+</tr>
+<tr class="even">
+<td>挂起程序</td>
+<td><code>Ctrl+Z</code></td>
+<td>暂停前台程序</td>
+</tr>
+<tr class="odd">
+<td>后台恢复</td>
+<td><code>bg [%N]</code></td>
+<td>将挂起作业放到后台</td>
+</tr>
+<tr class="even">
+<td>前台恢复</td>
+<td><code>fg [%N]</code></td>
+<td>将后台作业恢复到前台</td>
+</tr>
+<tr class="odd">
+<td>查看作业</td>
+<td><code>jobs [-l]</code></td>
+<td>显示当前Shell的作业</td>
+</tr>
+<tr class="even">
+<td>终止作业</td>
+<td><code>kill %N</code></td>
+<td>终止指定作业</td>
+</tr>
+<tr class="odd">
+<td>忽略挂起</td>
+<td><code>nohup command &amp;</code></td>
+<td>防止SSH断开影响</td>
+</tr>
+</tbody>
+</table>
+<h4 id="高级工具选择指南">高级工具选择指南</h4>
+<table>
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>推荐工具</th>
+<th>优势</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>临时后台任务</td>
+<td><code>nohup</code> + <code>&amp;</code></td>
+<td>简单快速</td>
+</tr>
+<tr class="even">
+<td>多会话管理</td>
+<td><code>screen</code></td>
+<td>稳定可靠</td>
+</tr>
+<tr class="odd">
+<td>现代化终端</td>
+<td><code>tmux</code></td>
+<td>功能丰富</td>
+</tr>
+<tr class="even">
+<td>长期服务</td>
+<td><code>systemd</code></td>
+<td>系统级管理</td>
+</tr>
+<tr class="odd">
+<td>进程监控</td>
+<td><code>htop</code></td>
+<td>交互友好</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="结语">🎉 结语</h3>
+<p>Linux任务控制是系统管理和开发工作中的必备技能。通过掌握这些工具和技巧，你可以：</p>
+<ul>
+<li><strong>提高工作效率</strong>：同时管理多个任务</li>
+<li><strong>保持程序运行</strong>：防止意外断开导致任务中断</li>
+<li><strong>优化资源使用</strong>：合理分配系统资源</li>
+<li><strong>增强系统稳定性</strong>：更好地管理长期运行的服务</li>
+</ul>
+<p>记住：<strong>好的任务控制习惯不仅能提高你的工作效率，还能让你的系统运行得更加稳定可靠。</strong></p>
+<p>Happy Hacking! 🚀</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Shell</tag>
+        <tag>进程管理</tag>
+        <tag>任务控制</tag>
+        <tag>后台运行</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Shell 启动脚本：理解 bash、zsh 的启动流程</title>
+    <url>/posts/shell-startup/</url>
+    <content><![CDATA[<p>如果你是一个经常使用 shell 的用户，几乎肯定会在主目录下有一个 <code>.bash_profile</code> 或 <code>.bashrc</code> 脚本，通常包含各种调整，比如设置环境变量（将某个目录添加到 <code>$PATH</code>）、告诉 shell 做聪明的事情（如 <code>set -o noclobber</code>）以及为命令添加各种别名（如 <code>alias please=sudo</code>）。</p>
+<p>（如果你真的很有条理，你会把所有点文件都放在某个仓库中，这样你就可以在所有工作的机器上保持设置同步。）</p>
+<p>无论如何，我怀疑很少有人知道 <code>.bash_profile</code> 和 <code>.bashrc</code> 这样的文件实际上什么时候被执行。当我刚开始时，我只是按照别人的建议把东西放在 <code>.bashrc</code> 中，然后当它不工作时，就放到 <code>.bash_profile</code> 中。我可以在这里停下来，只描述 bash 的启动过程（尽管它很愚蠢），但有一个复杂的情况是，我在几年前切换到了 zsh（并且没有回头），但偶尔会在没有安装 zsh 的机器上使用 bash。</p>
+<span id="more"></span>
+<h2 id="shell-启动脚本的复杂性">Shell 启动脚本的复杂性</h2>
+<p>为了优雅地处理这种情况，我需要能够在它们自己的文件中指定特定于 bash 或 zsh 的内容，然后在通用启动文件中指定任何符合 POSIX 标准的 shell（如别名和环境变量）都能理解的内容。</p>
+<p>我对这个问题的解决方案是定义一些新的点文件文件夹，每个 shell 一个（<code>.bash/</code>、<code>.zsh/</code> 和 <code>.sh/</code>），还有一个用于 shell 无关文件（<code>.shell/</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.bash/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.sh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">.shell/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.zsh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br></pre></td></tr></table></figure>
+<h2 id="不同类型的-shell">不同类型的 Shell</h2>
+<p>"But!" 你说，"这些不同的文件在这里做什么？" 啊，我很高兴你问了。有两种类型的 shell：</p>
+<ul>
+<li><strong>[非]交互式 shell</strong>（你向它们输入 / shell 脚本）</li>
+<li><strong>[非]登录 shell</strong>（首次登录时运行的 shell / 子 shell）</li>
+</ul>
+<p>所有 shell 都会首先运行 <code>env</code>，然后登录 shell 会运行 <code>login</code>，然后交互式 shell 会运行 <code>interactive</code>。完成后，登录 shell 会运行 <code>logout</code>。</p>
+<h2 id="在哪里放置内容">在哪里放置内容</h2>
+<p>这完全取决于它什么时候需要运行。</p>
+<ul>
+<li>如果它正在设置 / 修改环境变量，它应该放在 <code>login</code> 中</li>
+<li>如果它是别名或终端特定的环境变量（例如，<code>GREP_COLOR</code>），它应该放在 <code>interactive</code> 中</li>
+<li>在我的 <code>.shell/env</code> 文件中，我设置了 <code>umask</code>，还定义了一些有用的函数来修改冒号分隔的路径环境变量（如 <code>$PATH</code>）</li>
+</ul>
+<p>即使你不采用我方案中的其他任何东西，我也建议你看看我的函数在做什么，这与像 <code>export PATH=$PATH:/path/to/dir</code> 这样的东西不同。</p>
+<p>这种特定模式太常见了，如果你考虑 <code>$PATH</code>（或任何你的变量，如 <code>$LD_LIBRARY_PATH</code>）没有设置的情况，它会非常危险。然后，值将是 <code>:/path/to/dir</code>，这通常意味着 <code>/path/to/dir</code> 和当前目录，这通常既是意外行为又是安全问题。</p>
+<p>使用我的实现（见 <code>.shell/env_functions</code>），你可以从任何冒号分隔的环境变量中追加、前置和删除目录，当追加或前置时，你保证该目录只会在该变量中出现一次。</p>
+<h2 id="shell-启动流程详解">Shell 启动流程详解</h2>
+<h3 id="bash-启动流程">Bash 启动流程</h3>
+<p>Bash 的启动流程相对复杂，因为它有多种模式：</p>
+<ol type="1">
+<li><strong>登录 shell</strong>：当 bash 以 <code>-l</code> 参数启动或作为登录 shell 启动时</li>
+<li><strong>交互式 shell</strong>：当 bash 以交互模式启动时</li>
+<li><strong>非交互式 shell</strong>：当 bash 执行脚本时</li>
+<li><strong>远程 shell</strong>：当 bash 检测到通过 ssh 或 rsh 启动时</li>
+</ol>
+<h3 id="zsh-启动流程">Zsh 启动流程</h3>
+<p>Zsh 的启动流程更加简洁和一致：</p>
+<ol type="1">
+<li><strong>全局配置文件</strong>：<code>/etc/zshenv</code>、<code>/etc/zprofile</code>、<code>/etc/zshrc</code>、<code>/etc/zlogout</code></li>
+<li><strong>用户配置文件</strong>：<code>~/.zshenv</code>、<code>~/.zprofile</code>、<code>~/.zshrc</code>、<code>~/.zlogout</code></li>
+</ol>
+<h3 id="启动文件执行顺序">启动文件执行顺序</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zprofile → ~/.zprofile → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">交互式非登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">非交互式 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv</span><br></pre></td></tr></table></figure>
+<h2 id="实际应用建议">实际应用建议</h2>
+<h3 id="环境变量管理">1. 环境变量管理</h3>
+<p>避免使用 <code>export PATH=$PATH:/new/path</code> 这种模式，因为它可能导致重复和空路径问题。相反，使用更安全的方法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安全的路径添加函数</span></span><br><span class="line"><span class="function"><span class="title">path_append</span></span>() &#123;</span><br><span class="line">    <span class="built_in">local</span> var_name=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> new_path=<span class="string">&quot;<span class="variable">$2</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> current_path=<span class="string">&quot;<span class="variable">$&#123;!var_name&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [[ -z <span class="string">&quot;<span class="variable">$current_path</span>&quot;</span> ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> [[ <span class="string">&quot;:<span class="variable">$current_path</span>:&quot;</span> != *<span class="string">&quot;:<span class="variable">$new_path</span>:&quot;</span>* ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$current_path</span>:<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">path_append PATH <span class="string">&quot;/usr/local/bin&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="条件加载">2. 条件加载</h3>
+<p>根据 shell 类型和交互性条件性地加载配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 只在交互式 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o interactive ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/interactive</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只在登录 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o login ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/login</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h3 id="跨-shell-兼容性">3. 跨 Shell 兼容性</h3>
+<p>为了在不同 shell 之间保持兼容性，使用 POSIX 兼容的语法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用 POSIX 兼容的语法</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$SHELL</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    */bash)</span><br><span class="line">        <span class="built_in">source</span> ~/.bash/specific</span><br><span class="line">        ;;</span><br><span class="line">    */zsh)</span><br><span class="line">        <span class="built_in">source</span> ~/.zsh/specific</span><br><span class="line">        ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+<h2 id="总结">总结</h2>
+<p>理解 shell 启动脚本的执行顺序对于正确配置你的环境至关重要。通过采用模块化的方法，你可以：</p>
+<ol type="1">
+<li><strong>保持配置的整洁</strong>：将不同类型的配置分离到不同的文件中</li>
+<li><strong>提高可维护性</strong>：每个文件都有明确的职责</li>
+<li><strong>增强可移植性</strong>：在不同机器和 shell 之间轻松迁移配置</li>
+<li><strong>避免常见陷阱</strong>：如路径重复、环境变量污染等问题</li>
+</ol>
+<p>记住，shell 启动脚本的执行顺序可能因操作系统、shell 版本和编译选项而异。最好的方法是测试你自己的系统，并根据需要调整配置。</p>
+<hr />
+<p><strong>参考来源：</strong> <a href="https://blog.flowblok.id.au/2013-02/shell-startup-scripts.html">Shell startup scripts - flowblok's blog</a></p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Shell</tag>
+        <tag>Bash</tag>
+        <tag>Zsh</tag>
+        <tag>系统配置</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>前端浏览器缓存机制</title>
+    <url>/posts/50ac740b/</url>
+    <content><![CDATA[<h2 id="前端浏览器缓存机制">前端浏览器缓存机制</h2>
+<p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
+<span id="more"></span>
+<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
+<h4 id="强缓存strong-caching">1. 强缓存（Strong Caching）</h4>
+<p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
+<ul>
+<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p></li>
+<li><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：
+<ul>
+<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
+<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
+<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
+<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
+</ul></li>
+</ul>
+<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
+<h4 id="协商缓存negotiation-caching">2. 协商缓存（Negotiation Caching）</h4>
+<p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
+<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
+<ul>
+<li><strong>Last-Modified &amp; If-Modified-Since</strong>:
+<ul>
+<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
+<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
+</ul></li>
+<li><strong>ETag &amp; If-None-Match</strong>:
+<ul>
+<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
+<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
+</ul></li>
+</ul>
+<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
+<h4 id="哈希与缓存hash">3. 哈希与缓存（Hash）</h4>
+<p><strong>哈希（Hash）</strong>与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
+<p><strong>典型用法</strong>：</p>
+<ul>
+<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
+<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
+</ul>
+<p><strong>总结</strong>：</p>
+<ul>
+<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
+<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
+<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
+</ul>
+<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
+<h3 id="什么是cdn内容分发网络">什么是CDN（内容分发网络）</h3>
+<p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
+<h4 id="cdn的工作原理">CDN的工作原理</h4>
+<ol type="1">
+<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p></li>
+<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p></li>
+<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p></li>
+<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p></li>
+</ol>
+<h4 id="cdn的主要优势">CDN的主要优势</h4>
+<ol type="1">
+<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p></li>
+<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p></li>
+<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p></li>
+<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p></li>
+<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p></li>
+</ol>
+<h4 id="cdn的使用场景">CDN的使用场景</h4>
+<ul>
+<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
+<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
+<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
+</ul>
+<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>浏览器</tag>
+        <tag>缓存</tag>
       </tags>
   </entry>
   <entry>
