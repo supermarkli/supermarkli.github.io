@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="为什么近几年大家都在谈 eBPF？一句话：在不改内核源码的前提下，把“小而安全”的代码段挂到内核关键路径里运行，从而获得接近内核旁路的性能，同时保留 Linux 内核栈的安全与可维护性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="eBPF 入门：原理、程序类型与上手实践">
+<meta property="og:url" content="https://supermarkli.github.io/posts/a9c3e7b1/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="为什么近几年大家都在谈 eBPF？一句话：在不改内核源码的前提下，把“小而安全”的代码段挂到内核关键路径里运行，从而获得接近内核旁路的性能，同时保留 Linux 内核栈的安全与可维护性。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-11T02:29:39.000Z">
+<meta property="article:modified_time" content="2025-09-11T03:39:59.747Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="eBPF">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/a9c3e7b1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/a9c3e7b1/","path":"posts/a9c3e7b1/","title":"eBPF 入门：原理、程序类型与上手实践"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>eBPF 入门：原理、程序类型与上手实践 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#ebpf-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">eBPF 是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%83%BD%E6%8C%82%E5%88%B0%E5%93%AA%E9%87%8C%E5%B8%B8%E8%A7%81-hook-%E4%B8%80%E8%A7%88"><span class="nav-number">2.</span> <span class="nav-text">能挂到哪里？常见 Hook 一览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ebpf-%E7%A8%8B%E5%BA%8F%E7%B1%BB%E5%9E%8B%E4%B8%8E%E5%85%B8%E5%9E%8B%E7%94%A8%E9%80%94"><span class="nav-number">3.</span> <span class="nav-text">eBPF 程序类型与典型用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ebpf-maps%E7%8A%B6%E6%80%81%E4%B8%8E%E9%80%9A%E4%BF%A1%E7%9A%84%E5%9F%BA%E7%9F%B3"><span class="nav-number">4.</span> <span class="nav-text">eBPF Maps：状态与通信的基石</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E5%9B%BE%E7%9C%8B%E6%87%82%E7%BD%91%E7%BB%9C%E8%B7%AF%E5%BE%84%E4%B8%AD%E7%9A%84-ebpf-%E6%8C%82%E8%BD%BD%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">一图看懂网络路径中的 eBPF 挂载点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F-xdp-%E7%A4%BA%E4%BE%8B%E4%B8%A2%E5%BC%83%E9%9D%9E%E6%9C%9F%E6%9C%9B%E5%8C%85%E5%B9%B6%E8%AE%A1%E6%95%B0"><span class="nav-number">6.</span> <span class="nav-text">最小 XDP 示例：丢弃非期望包，并计数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81xdp_drop.c"><span class="nav-number">6.1.</span> <span class="nav-text">代码（xdp_drop.c）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%90%E8%A1%8C%E8%AE%B2%E8%A7%A3"><span class="nav-number">6.2.</span> <span class="nav-text">逐行讲解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%94%9F%E6%88%90-ebpf-%E5%AF%B9%E8%B1%A1%E6%96%87%E4%BB%B6"><span class="nav-number">6.3.</span> <span class="nav-text">编译（生成 eBPF 对象文件）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A0%E8%BD%BD%E4%B8%8E%E9%99%84%E7%9D%80%E4%BD%BF%E7%94%A8-bpftool%E5%B9%B6%E5%90%8C%E6%97%B6%E5%9B%BA%E5%AE%9A-map"><span class="nav-number">6.4.</span> <span class="nav-text">加载与附着（使用 bpftool，并同时固定 map）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E6%9F%A5%E7%9C%8B%E8%AE%A1%E6%95%B0%E5%B9%B6%E5%88%B6%E9%80%A0%E6%B5%81%E9%87%8F"><span class="nav-number">6.5.</span> <span class="nav-text">验证（查看计数并制造流量）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%B8%E8%BD%BD%E4%B8%8E%E6%B8%85%E7%90%86"><span class="nav-number">6.6.</span> <span class="nav-text">卸载与清理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E9%93%BE%E4%B8%8E%E5%BC%80%E5%8F%91%E8%B7%AF%E7%BA%BF"><span class="nav-number">7.</span> <span class="nav-text">工具链与开发路线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-jitjust-in-time"><span class="nav-number">8.</span> <span class="nav-text">什么是 JIT（Just-In-Time）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E%E5%86%85%E6%A0%B8%E6%97%81%E8%B7%AF%E7%9A%84%E6%AF%94%E8%BE%83dpdkrdma"><span class="nav-number">9.</span> <span class="nav-text">与内核旁路的比较（DPDK&#x2F;RDMA）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%9D%91%E4%B8%8E%E6%8E%92%E6%9F%A5"><span class="nav-number">10.</span> <span class="nav-text">常见坑与排查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E4%B8%8E%E9%AA%8C%E8%AF%81%E7%A4%BA%E4%BE%8B%E6%B5%81%E7%A8%8B"><span class="nav-number">11.</span> <span class="nav-text">运行与验证（示例流程）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">12.</span> <span class="nav-text">📝 小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/a9c3e7b1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="eBPF 入门：原理、程序类型与上手实践 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          eBPF 入门：原理、程序类型与上手实践
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-09-11 10:29:39 / 修改时间：11:39:59" itemprop="dateCreated datePublished" datetime="2025-09-11T10:29:39+08:00">2025-09-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%B3%BB%E7%BB%9F%E5%86%85%E6%A0%B8/" itemprop="url" rel="index"><span itemprop="name">系统内核</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%B3%BB%E7%BB%9F%E5%86%85%E6%A0%B8/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>10 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>为什么近几年大家都在谈 eBPF？一句话：在不改内核源码的前提下，把“小而安全”的代码段挂到内核关键路径里运行，从而获得接近内核旁路的性能，同时保留 Linux 内核栈的安全与可维护性。</p>
+<span id="more"></span>
+<h3 id="ebpf-是什么">eBPF 是什么？</h3>
+<ul>
+<li><strong>定义</strong>：eBPF（extended Berkeley Packet Filter）是一种在 Linux 内核中安全运行的通用字节码与运行环境。</li>
+<li><strong>工作方式</strong>：用户态加载 eBPF 字节码 → 内核验证器（Verifier）进行安全检查 → 通过后 JIT 编译并附着在特定钩子（hook）上执行。</li>
+<li><strong>核心优势</strong>：
+<ul>
+<li><strong>性能</strong>：在内核态早路径执行，减少用户/内核切换与协议栈开销。</li>
+<li><strong>安全</strong>：Verifier 强校验（边界、类型、调用、上界循环等）避免内核崩溃。</li>
+<li><strong>可编程</strong>：通过不同 hook 点覆盖网络、跟踪、系统调用、调度等多场景。</li>
+</ul></li>
+<li><p><strong>原理一句话</strong>：把一小段经过严格安全检查的“字节码程序”挂在内核关键路径的钩子上，事件一来就执行；程序只做受限且安全的操作，状态放在可共享的 Map 里，必要时由 JIT 变成本机机器码以提升性能。</p></li>
+<li><strong>它是怎么跑起来的（7 步）</strong>：
+<ol type="1">
+<li>写 C/Rust 小程序并编译为 eBPF 字节码；</li>
+<li>用户态通过 <code>bpf()</code> 系统调用加载；</li>
+<li>Verifier 逐条检查安全与终止性；</li>
+<li>通过后将程序附着到某个 hook（XDP/TC/Kprobe/Tracepoint/LSM 等）；</li>
+<li>事件触发时内核调用你的 eBPF 程序；</li>
+<li>程序通过内核 helper 做受控操作，并用 Map 读写共享状态；</li>
+<li>为提速可由 JIT 将字节码编译为本机机器码。</li>
+</ol></li>
+<li><strong>关键组件</strong>：
+<ul>
+<li>字节码与运行时：跨版本、可验证；</li>
+<li>Verifier：安全门卫；</li>
+<li>Hook：把程序接到正确时机与位置；</li>
+<li>Helper：白名单式内核能力（解析包头、重定向、时间等）；</li>
+<li>Map：共享状态与内核/用户态通信；</li>
+<li>JIT：将字节码转为机器码以提速。</li>
+</ul></li>
+<li><strong>为何又快又安全</strong>：
+<ul>
+<li>快：处于内核早路径，少用户/内核切换；JIT 后是本机机器码；</li>
+<li>安全：受限指令集 + 强验证 + 只能通过 helper 间接触达敏感资源。</li>
+</ul></li>
+<li><strong>对比内核模块（LKM）</strong>：
+<ul>
+<li>eBPF：热插拔、受限且强校验，出错不易拖垮内核；</li>
+<li>LKM：能力无限但易带来稳定性风险，开发调试成本更高。</li>
+</ul></li>
+</ul>
+<h3 id="能挂到哪里常见-hook-一览">能挂到哪里？常见 Hook 一览</h3>
+<ul>
+<li><strong>XDP（eXpress Data Path）</strong>：网卡驱动最前面的收包路径，极低延迟，典型用于丢弃、重定向、负载均衡等。</li>
+<li><strong>TC（Traffic Control）</strong>：在 <code>ingress/egress</code> 对 <code>skb</code> 处理，能访问更丰富的协议栈信息。</li>
+<li><strong>Socket/CGroups</strong>：基于 socket/cgroup 的细粒度策略，如重定向、QoS、准入控制。</li>
+<li><strong>Kprobe/Kretprobe/Tracepoint/USDT</strong>：内核/用户态可观测性与性能分析。</li>
+<li><strong>LSM（Linux Security Module）</strong>：基于 eBPF 的细粒度安全策略（需要内核支持）。</li>
+</ul>
+<h3 id="ebpf-程序类型与典型用途">eBPF 程序类型与典型用途</h3>
+<ul>
+<li><strong>XDP 程序</strong>：包过滤、负载均衡、DoS 缓解、快速 ACK。</li>
+<li><strong>TC BPF</strong>：深度包处理、QoS/整形、服务网格加速。</li>
+<li><strong>Tracing BPF</strong>：火焰图、系统调用/调度/文件 IO 观测。</li>
+<li><strong>LSM BPF</strong>：进程/文件访问控制、细粒度安全策略。</li>
+</ul>
+<h3 id="ebpf-maps状态与通信的基石">eBPF Maps：状态与通信的基石</h3>
+<ul>
+<li><strong>作用</strong>：在内核 eBPF 与用户态之间共享数据，也用于多个 eBPF 程序之间共享状态。</li>
+<li><strong>常见类型</strong>：<code>HASH</code>、<code>LRU_HASH</code>、<code>ARRAY</code>、<code>PERCPU_ARRAY</code>、<code>RINGBUF</code>、<code>PROG_ARRAY</code>、<code>SOCKHASH</code>/<code>SOCKMAP</code> 等。</li>
+<li><strong>实践要点</strong>：
+<ul>
+<li>小对象热数据放 <code>ARRAY/PERCPU_ARRAY</code>，高并发键值对用 <code>LRU_HASH</code>。</li>
+<li>大量事件传输用 <code>RINGBUF</code>，低开销批量消费。</li>
+<li>使用 <code>pinning</code> 将 map 固定到 bpffs，支持热更新与进程重启后的复用。</li>
+</ul></li>
+</ul>
+<h3 id="一图看懂网络路径中的-ebpf-挂载点">一图看懂网络路径中的 eBPF 挂载点</h3>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    NIC[&quot;网卡（RX 队列）&quot;] --&gt; XDP[&quot;XDP 钩子（驱动早路径）&quot;]
+    XDP --&gt; TC_ING[&quot;TC Ingress（进入协议栈前）&quot;]
+    TC_ING --&gt; IPSTACK[&quot;内核网络栈（路由&#x2F;防火墙&#x2F;套接字）&quot;]
+    IPSTACK --&gt; TC_EGR[&quot;TC Egress（离开协议栈）&quot;]
+    TC_EGR --&gt; NIC_TX[&quot;网卡（TX 队列）&quot;]
+    IPSTACK --&gt; SOCK[&quot;Socket&#x2F;CGroups eBPF&quot;]
+</code>
+</pre>
+<h3 id="最小-xdp-示例丢弃非期望包并计数">最小 XDP 示例：丢弃非期望包，并计数</h3>
+<blockquote>
+<p>目标：在 XDP 处直接丢弃不需要的流量，并通过 <code>MAP</code> 暴露计数供用户态读取（示例为入门直觉，不含全部错误处理）。</p>
+</blockquote>
+<ul>
+<li><strong>内核端（eBPF C）核心思路</strong>：
+<ul>
+<li>定义 <code>BPF_MAP_TYPE_ARRAY</code> 计数器。</li>
+<li>在 XDP 回调里匹配条件（如以太类型/UDP 端口等），命中则递增计数并 <code>XDP_DROP</code>，否则 <code>XDP_PASS</code>。</li>
+</ul></li>
+<li><strong>用户态（libbpf/BCC 或者 bpf2go 等）</strong>：
+<ul>
+<li>加载/验证/附着程序到指定网卡。</li>
+<li>周期性读取 <code>map</code> 中的计数。</li>
+</ul></li>
+</ul>
+<h4 id="代码xdp_drop.c">代码（xdp_drop.c）</h4>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// minimal XDP: 丢弃所有包并做计数</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/bpf.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    __uint(type, BPF_MAP_TYPE_ARRAY);</span><br><span class="line">    __uint(max_entries, <span class="number">1</span>);</span><br><span class="line">    __type(key, __u32);</span><br><span class="line">    __type(value, __u64);</span><br><span class="line">&#125; drop_cnt <span class="title function_">SEC</span><span class="params">(<span class="string">&quot;.maps&quot;</span>)</span>;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;xdp&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">xdp_drop_all</span><span class="params">(<span class="keyword">struct</span> xdp_md *ctx)</span> &#123;</span><br><span class="line">    __u32 key = <span class="number">0</span>;</span><br><span class="line">    __u64 *val = bpf_map_lookup_elem(&amp;drop_cnt, &amp;key);</span><br><span class="line">    <span class="keyword">if</span> (val) __sync_fetch_and_add(val, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> XDP_DROP; <span class="comment">// 示例：全部丢弃；按需替换为条件判定</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;GPL&quot;</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="逐行讲解">逐行讲解</h4>
+<ul>
+<li>引入头文件：<code>&lt;linux/bpf.h&gt;</code> 与 <code>&lt;bpf/bpf_helpers.h&gt;</code> 提供 eBPF 所需类型与辅助宏。</li>
+<li>定义 <code>drop_cnt</code> map：<code>BPF_MAP_TYPE_ARRAY</code> 且 <code>max_entries=1</code>，只用索引 <code>0</code> 存一个 64 位计数；<code>SEC(".maps")</code> 表示把它放在 maps 段，便于内核识别与加载。</li>
+<li><code>SEC("xdp")</code>：把后面的函数标记为 XDP 程序入口，会被附着到 XDP 钩子。</li>
+<li><code>int xdp_drop_all(struct xdp_md *ctx)</code>：XDP 回调；每个到来的包都会调用一次；<code>ctx</code> 是该包上下文。</li>
+<li><code>__u32 key = 0;</code>：仅使用数组 map 的第 0 项作为计数槽位。</li>
+<li><code>bpf_map_lookup_elem(&amp;drop_cnt, &amp;key)</code>：取出计数槽位的地址。</li>
+<li><code>__sync_fetch_and_add(val, 1)</code>：原子加 1，避免多核并发更新丢计数。</li>
+<li><code>return XDP_DROP;</code>：丢弃当前包（不再进入协议栈）。若只想“统计不丢包”，可改为 <code>XDP_PASS</code>。</li>
+<li><code>LICENSE = "GPL";</code>：声明 GPL 许可，部分 helper 需要 GPL 才可用。</li>
+</ul>
+<h4 id="编译生成-ebpf-对象文件">编译（生成 eBPF 对象文件）</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -O2 -g -target bpf -c xdp_drop.c -o build/xdp_drop.o</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>-O2</code>：优化等级 2，生成更高质量字节码（更易通过 Verifier，运行更快）。</li>
+<li><code>-g</code>：带调试信息，便于排查与 <code>bpftool prog dump jited/llvm</code> 对照。</li>
+<li><code>-target bpf</code>：指定编译到 eBPF 目标架构。</li>
+<li><code>-c xdp_drop.c</code>：只编译不链接，生成目标文件。</li>
+<li><code>-o build/xdp_drop.o</code>：输出到目标路径（需先 <code>mkdir -p build</code>）。</li>
+</ul></li>
+</ul>
+<h4 id="加载与附着使用-bpftool并同时固定-map">加载与附着（使用 bpftool，并同时固定 map）</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t bpf bpf /sys/fs/bpf || <span class="literal">true</span></span><br><span class="line"><span class="built_in">sudo</span> bpftool prog load build/xdp_drop.o /sys/fs/bpf/xdp_drop <span class="built_in">type</span> xdp \</span><br><span class="line">  map name drop_cnt pinned /sys/fs/bpf/drop_cnt</span><br><span class="line"><span class="built_in">sudo</span> bpftool net attach xdp pinned /sys/fs/bpf/xdp_drop dev &lt;iface&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>mount -t bpf bpf /sys/fs/bpf</code>：挂载 bpffs（BPF 虚拟文件系统），用于固定程序/Map。</li>
+<li><code>bpftool prog load … type xdp</code>：把对象文件加载为 XDP 类型程序，并指定固定路径 <code>/sys/fs/bpf/xdp_drop</code>。</li>
+<li><code>map name drop_cnt pinned …</code>：在加载时将名为 <code>drop_cnt</code> 的 map 固定到给定路径，便于后续读取与热更新。</li>
+<li><code>bpftool net attach xdp pinned … dev &lt;iface&gt;</code>：把已固定的程序附着到指定网卡 <code>&lt;iface&gt;</code>（如 <code>eth0</code>）。</li>
+</ul></li>
+</ul>
+<h4 id="验证查看计数并制造流量">验证（查看计数并制造流量）</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool map dump pinned /sys/fs/bpf/drop_cnt | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>map dump pinned &lt;path&gt;</code>：读取固定在 <code>&lt;path&gt;</code> 的 map 内容；<code>| cat</code> 防止分页器拦截，完整输出到终端。</li>
+<li>预期看到 <code>key: 0 value: &lt;N&gt;</code>，随着入站流量增长而递增。</li>
+</ul></li>
+</ul>
+<h4 id="卸载与清理">卸载与清理</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool net detach xdp dev &lt;iface&gt;</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /sys/fs/bpf/xdp_drop /sys/fs/bpf/drop_cnt</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>net detach xdp dev &lt;iface&gt;</code>：从网卡卸载 XDP 程序。</li>
+<li><code>rm -f …</code>：删除固定的程序与 map 对象，释放 bpffs 资源。</li>
+</ul></li>
+</ul>
+<h3 id="工具链与开发路线">工具链与开发路线</h3>
+<ul>
+<li><strong>核心工具</strong>：
+<ul>
+<li><code>clang/llvm</code>：将 C 编译为 eBPF 字节码。</li>
+<li><code>bpftool</code>：检查/加载/查看 map 与 prog，配合 <code>bpffs</code> 管理对象。</li>
+<li><code>libbpf</code>/<code>libbpf-rs</code>/<code>bcc</code>：三种常见开发栈；前两者偏生产可部署，<code>bcc</code> 上手快但运行时依赖较重。</li>
+</ul></li>
+<li><strong>建议路径</strong>：
+<ol type="1">
+<li>本机或 VM 安装较新内核与 <code>bpftool/clang</code>；</li>
+<li>用 <code>xdp-tutorial</code> 或 <code>libbpf-bootstrap</code> 起步；</li>
+<li>先做可观测性（风险低），再做网络路径改写（逐步放行/灰度）；</li>
+<li>为 map 启用 <code>pinning</code>，为服务编写最小的“控制面”管理进程；</li>
+<li>加上可观测性（统计、延迟、错误码）与回滚开关。</li>
+</ol></li>
+</ul>
+<h3 id="什么是-jitjust-in-time">什么是 JIT（Just-In-Time）</h3>
+<ul>
+<li><p><strong>定义</strong>：JIT（即时编译）在运行时把中间表示/字节码编译成本机机器码执行，相比纯解释更快，相比 AOT（预编译全部）启动更灵活。</p></li>
+<li><strong>对比直觉</strong>：
+<ul>
+<li>解释执行：逐条解析，启动快，运行慢。</li>
+<li>AOT：运行前全部编译，运行快，首次构建/启动稍慢。</li>
+<li>JIT：运行中按需编译，折中并可做运行时优化。</li>
+</ul></li>
+<li><strong>在 eBPF 中的工作流</strong>：
+<ul>
+<li>用户态加载 BPF 字节码 → Verifier 安全/终止性检查 → 通过后 JIT 为当前架构机器码（x86-64/ARM64） → 挂载到对应 hook 执行。</li>
+<li>若 JIT 被禁用或不支持，则回退为解释器执行；若 Verifier 未通过，直接拒绝加载。</li>
+</ul></li>
+<li><strong>与 JVM/JS 的 JIT 差异</strong>：
+<ul>
+<li>eBPF 的 JIT 通常是“一次性编译”，不做热点探测/去优化；优化更偏向架构相关的轻量指令选择（peephole、寄存器分配）。</li>
+</ul></li>
+</ul>
+<h3 id="与内核旁路的比较dpdkrdma">与内核旁路的比较（DPDK/RDMA）</h3>
+<ul>
+<li><strong>eBPF</strong>：保留内核网络栈生态与安全边界，延迟/吞吐优异（非极限），工程可运维性强。</li>
+<li><strong>DPDK/RDMA</strong>：极致性能与控制，但需要专用驱动/巨页/轮询，系统集成成本更高。</li>
+<li><strong>折中理念</strong>：将“高频快路径”放 eBPF，“复杂慢路径”留在用户态或完整协议栈。</li>
+</ul>
+<h3 id="常见坑与排查">常见坑与排查</h3>
+<ul>
+<li><strong>Verifier 不通过</strong>：缩短函数/循环，给出边界检查与上界，使用 <code>__always_inline</code>；善用 <code>bpftool prog load</code> 的日志。</li>
+<li><strong>性能不达标</strong>：
+<ul>
+<li>XDP 程序中避免复杂解析与多次访问内存；</li>
+<li>合理使用 <code>XDP_REDIRECT</code> 到目标队列或 <code>AF_XDP</code>；</li>
+<li>批量读取 ringbuf，减少用户态唤醒开销。</li>
+</ul></li>
+<li><strong>热更新中断</strong>：确保对象 <code>pin</code> 到 bpffs，并采用“双程序切换”减少流量抖动。</li>
+</ul>
+<h3 id="运行与验证示例流程">运行与验证（示例流程）</h3>
+<ul>
+<li><strong>编译与加载</strong>（以 libbpf 为例）：
+<ol type="1">
+<li>编译 eBPF 程序为 <code>*.o</code>；</li>
+<li><code>bpftool prog load</code> 加载，<code>bpftool net attach xdp dev &lt;iface&gt; pinned &lt;path&gt;</code> 附着；</li>
+<li><code>bpftool map dump pinned &lt;path&gt;</code> 查看计数；</li>
+<li>用 <code>ping/iperf/wrk</code> 压测并对比 <code>XDP_PASS/XDP_DROP</code> 行为。</li>
+</ol></li>
+<li><strong>回滚</strong>：
+<ul>
+<li>临时卸载：<code>bpftool net detach xdp dev &lt;iface&gt;</code>；</li>
+<li>恢复策略：保留旧版本对象于 bpffs，切换符号链接并原子替换。</li>
+</ul></li>
+</ul>
+<h3 id="小结">📝 小结</h3>
+<ul>
+<li><strong>一句话</strong>：eBPF 让我们在不改内核的前提下，将小而高效的逻辑“内联”到内核关键路径，既快又安全。</li>
+<li><strong>入门三步</strong>：选 hook → 写最小程序 + map → 用 bpftool 验证与观测。</li>
+<li><strong>进阶方向</strong>：编排与热更新、fast-path/slow-path 分层、复杂状态一致性与可观测性。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/eBPF/" rel="tag"># eBPF</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"># 网络</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/233853f2/" rel="prev" title="CMake 入门">
+                  <i class="fa fa-angle-left"></i> CMake 入门
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">143k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">4:20</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
