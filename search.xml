@@ -508,6 +508,130 @@
       </tags>
   </entry>
   <entry>
+    <title>CUDA 软件栈</title>
+    <url>/posts/dc164fc3/</url>
+    <content><![CDATA[<p>本文尝试用一张图把 CUDA 从“硬件→内核→用户态驱动→工具包→深度学习框架”的完整链路讲清楚，并解释常见的版本不匹配问题与定位思路。即便没有 CUDA 基础，也可以按文中的检查顺序逐步排查。</p>
+<h3 id="一全景图从硬件到框架的调用链">一、全景图（从硬件到框架的调用链）</h3>
+<pre>
+<code class="mermaid">
+
+graph TD;
+  HW[&quot;GPU 硬件（SM &#x2F; CUDA Core；NVLink &#x2F; PCIe 接口）&quot;] --&gt;|&quot;① 内核驱动（syscall &#x2F; ioctl）&quot;| KMOD[&quot;Linux 内核空间：nvidia.ko、nvidia_uvm.ko、nvidia_drm.ko（示例版本：570.133.20）&quot;];
+  KMOD --&gt;|&quot;② 用户态驱动（动态链接）&quot;| UDRV[&quot;系统 &#x2F;usr&#x2F;lib 或 Conda&#x2F;lib：libcuda.so.*；libnvidia-ml.so.*；libnvidia-ptxjitcompiler.so.*（版本需与内核驱动完全一致）&quot;];
+  UDRV --&gt;|&quot;③ CUDA 工具包（动态链接）&quot;| TOOL[&quot;CUDA Toolkit &#x2F; cuDNN &#x2F; cuBLAS &#x2F; cuSPARSE：libcudart.so；libcublas.so；libcudnn.so；libcusparse.so（版本可高于驱动，但需 ≥ 最低要求）&quot;];
+  TOOL --&gt;|&quot;④ 框架层（Python import &#x2F; C++ 扩展）&quot;| FW[&quot;PyTorch &#x2F; TensorFlow &#x2F; Paddle：pip &#x2F; conda 安装的包；C++ 扩展在运行时 dlopen 以上 .so&quot;];
+</code>
+</pre>
+<p>用白话解释：</p>
+<ul>
+<li><p>GPU 上的 SM（Streaming Multiprocessor）里有很多 CUDA Core，负责并行数值运算；NVLink / PCIe 是与 CPU/主机交换数据的总线。</p></li>
+<li><p>Linux 内核模块 <code>nvidia.ko</code> 管控 GPU 的核心功能；<code>nvidia_uvm.ko</code> 负责统一虚拟内存（Unified Virtual Memory，UVM）；<code>nvidia_drm.ko</code> 关联图形显示栈。它们与硬件直连，版本形如 570.133.20。</p></li>
+<li><p>用户态驱动库位于系统的 <code>/usr/lib</code> 或 Conda 的 <code>lib</code>，典型如 <code>libcuda.so.*</code>（Driver/Runtime API 入口）、<code>libnvidia-ml.so.*</code>（NVML，管理与监控）、<code>libnvidia-ptxjitcompiler.so.*</code>（PTX JIT）。这些库通过 ioctl 与内核模块对话，所以“用户态驱动版本 = 内核版本”必须完全一致。</p></li>
+<li><p>CUDA Toolkit 是开发者库集合（如 <code>libcudart.so</code>、<code>libcublas.so</code>、<code>libcudnn.so</code>、<code>libcusparse.so</code> 等）。Toolkit 版本可以高于驱动，但不能低于驱动要求的最低兼容版本。</p></li>
+<li><p>框架层（PyTorch / TensorFlow / Paddle）多为“Python 外壳 + C++ 扩展”。运行时会 <code>dlopen()</code> 上述 <code>.so</code>，受环境变量与路径优先级影响。</p></li>
+</ul>
+<h3 id="二为什么内核驱动版本-用户态驱动版本">二、为什么“内核驱动版本 = 用户态驱动版本”？</h3>
+<p>NVML、<code>libcuda.so</code> 等用户态驱动库通过 ioctl 与内核模块交互，两端必须使用完全一致的结构体布局、ioctl 号与 ABI 协议。如果版本不匹配（例如 570.172 ↔ 570.133），典型现象是：</p>
+<ul>
+<li><code>nvmlInit_v2()</code> 返回 <code>NVML_ERROR_LIB_RM_VERSION_MISMATCH (18)</code>；</li>
+<li>CUDA Runtime 报 <code>cudaErrorUnknown</code>；</li>
+<li>PyTorch 内部会 <code>TORCH_CHECK</code> 失败并直接抛出断言错误。</li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>必须保证“内核驱动模块”与“用户态驱动库（<code>libcuda.so</code> / <code>libnvidia-ml.so</code> 等）”版本严格一致；</li>
+<li>上层 “CUDA Toolkit（<code>libcudart.so</code>、<code>libcublas.so</code>、<code>libcudnn.so</code> …）” 可以更高，但需满足对当前驱动的最低兼容要求。</li>
+</ul>
+<h3 id="三pytorch-如何决定用哪份库">三、PyTorch 如何决定用哪份库？</h3>
+<ol type="1">
+<li><p>解释器路径：<code>which python</code> 决定用系统 Python 还是 Conda Python。</p></li>
+<li><p><code>LD_LIBRARY_PATH</code> 顺序：进程启动后会按路径顺序 <code>dlopen</code> 所需 <code>.so</code>；Conda 环境的 <code>…/envs/&lt;name&gt;/lib</code> 往往排在 <code>/usr/lib</code> 前面。</p></li>
+<li><p>结果：如果 Conda 自带完整 CUDA Toolkit（含 NVML），就会优先加载它；否则回落到系统 <code>/usr/lib</code>。只要首个被找到的 <code>libnvidia-ml.so.1</code> 与内核驱动版本不一致，就会出现 “Driver/library version mismatch”。</p></li>
+</ol>
+<h3 id="四概念补充给没有-cuda-基础的读者">四、概念补充（给没有 CUDA 基础的读者）</h3>
+<ul>
+<li><p>SM / CUDA Core：SM 是 GPU 的并行计算引擎，内部包含若干 CUDA Core；可以把 CUDA Core 理解为做浮点/整数运算的“工位”。</p></li>
+<li><p>ioctl：用户态程序向内核模块发送带结构体参数的“命令”的方式，要求两端对 ABI（应用二进制接口）理解一致。</p></li>
+<li><p>驱动 vs. 工具包：<code>libcuda.so</code>/<code>libnvidia-ml.so</code> 属于“用户态驱动”，与内核模块一一对应；<code>libcudart.so</code>/<code>libcublas.so</code>/<code>libcudnn.so</code> 属于 CUDA Toolkit，用于开发与加速库调用。</p></li>
+<li><p>SONAME / ABI：Linux 动态库有 SONAME（如 <code>libnvidia-ml.so.1</code>）。相同 SONAME 表示 ABI 兼容，但并不代表与内核模块就能互通版本；用户态驱动仍需与内核模块严格匹配。</p></li>
+</ul>
+<h3 id="五典型冲突与调试方法">五、典型冲突与调试方法</h3>
+<p>以下命令均为“查看/定位”之用，按需在你的 Shell 中执行。每条命令前后给出用途与参数含义，便于复制排查。</p>
+<ol type="1">
+<li>系统用户态包被自动升级（apt 升级到 570.172，但 DKMS 内核模块仍是 570.133）</li>
+</ol>
+<ul>
+<li><p>现象：<code>nvidia-smi</code> 报 “Failed to initialize NVML: Driver/library version mismatch”。</p></li>
+<li><p>查看内核模块版本：</p></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">modinfo -F version nvidia | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>含义：<code>modinfo</code> 读取已加载或可用的内核模块元数据，<code>-F version</code> 仅输出版本字段，<code>| cat</code> 避免分页器干扰。</p>
+<ul>
+<li>查看系统能找到的 NVML 动态库：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldconfig -p | grep -E <span class="string">&quot;nvidia-ml|libcuda&quot;</span></span><br></pre></td></tr></table></figure>
+<p>含义：<code>ldconfig -p</code> 输出动态链接器缓存中的库条目；通过 <code>grep</code> 过滤 NVML 与 CUDA Driver 库，便于核对路径与版本来源（系统或 Conda）。</p>
+<ul>
+<li>解决思路 A（对齐为旧版）：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install --reinstall <span class="string">&#x27;nvidia-driver-570=570.133.20-*&#x27;</span> <span class="string">&#x27;nvidia-kernel-source-570=570.133.20-*&#x27;</span> <span class="string">&#x27;nvidia-kernel-common-570=570.133.20-*&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>含义：将内核模块与相关包重新安装回 570.133.20（具体修订号以发行版仓库为准，<code>*</code> 通配），确保与用户态驱动一致。需要管理员权限，执行路径为系统根目录。</p>
+<ul>
+<li>解决思路 B（整体升级到新版本）：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install --reinstall <span class="string">&#x27;nvidia-driver-570=570.172.*&#x27;</span> <span class="string">&#x27;nvidia-kernel-source-570=570.172.*&#x27;</span> <span class="string">&#x27;nvidia-kernel-common-570=570.172.*&#x27;</span> &amp;&amp; <span class="built_in">sudo</span> reboot</span><br></pre></td></tr></table></figure>
+<p>含义：成组升级驱动栈到 570.172 系列，并重启以重新加载 DKMS 编译的内核模块。</p>
+<ol start="2" type="1">
+<li>Conda Toolkit 抢到更高优先级（Conda 带了一份 570.172 的 NVML）</li>
+</ol>
+<ul>
+<li>临时让系统库优先：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:<span class="variable">$LD_LIBRARY_PATH</span></span><br></pre></td></tr></table></figure>
+<p>含义：将系统库目录前置到 <code>LD_LIBRARY_PATH</code>，使运行时优先从系统位置加载 <code>libnvidia-ml.so.1</code> / <code>libcuda.so.1</code>。仅影响当前 Shell 及其子进程。</p>
+<ul>
+<li>检查 Python/Conda 路径：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">which</span> python &amp;&amp; python -c <span class="string">&quot;import sys; print(sys.executable)&quot;</span></span><br></pre></td></tr></table></figure>
+<p>含义：确认实际使用的解释器路径，避免“你以为在系统 Python，其实在 Conda 环境”的错觉。</p>
+<ol start="3" type="1">
+<li>只调整用户态库、不动系统驱动（实验/无管理员权限场景）</li>
+</ol>
+<ul>
+<li>解包与内核匹配版本的用户态库到家目录，并优先加载：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="string">&quot;<span class="variable">$HOME</span>/nvidia_570.133.20/lib:<span class="variable">$LD_LIBRARY_PATH</span>&quot;</span> &amp;&amp; python your_script.py</span><br></pre></td></tr></table></figure>
+<p>含义：在家目录放一份与内核版本一致的 <code>libcuda.so.*</code> / <code>libnvidia-ml.so.*</code>，通过前置 <code>LD_LIBRARY_PATH</code> 覆盖 Conda 或系统中不匹配的库。</p>
+<ol start="4" type="1">
+<li>临时 stub（实验用，规避 NVML 检测，不建议生产）</li>
+</ol>
+<ul>
+<li>原理：构建一个导出所有符号并返回 <code>NVML_SUCCESS</code> 的 <code>libnvidia-ml.so.1</code>，放在搜索路径首位。可解除 PyTorch 对 NVML 的硬依赖以继续调试其他问题，但会失去监控能力。</li>
+</ul>
+<h3 id="六实用排查清单按顺序">六、实用排查清单（按顺序）</h3>
+<ol type="1">
+<li><p>核对内核模块版本：执行 <code>modinfo -F version nvidia</code>。</p></li>
+<li><p>核对首个被找到的 NVML/Driver 库来自哪里：执行 <code>ldconfig -p | grep -E "nvidia-ml|libcuda"</code>；如在 Conda 下，检查 <code>…/envs/&lt;name&gt;/lib</code> 是否排到最前。</p></li>
+<li><p>以系统库优先重试：临时设置 <code>export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH</code> 后再次运行程序。</p></li>
+<li><p>框架自检：</p></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python - &lt;&lt; <span class="string">&#x27;PY&#x27;</span></span><br><span class="line">import sys, os</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;python:&#x27;</span>, sys.executable)</span><br><span class="line">try:</span><br><span class="line">    import torch</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;torch:&#x27;</span>, torch.__version__, <span class="string">&#x27;cuda:&#x27;</span>, getattr(torch.version, <span class="string">&#x27;cuda&#x27;</span>, None))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;is_available:&#x27;</span>, torch.cuda.is_available())</span><br><span class="line">except Exception as e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;torch import err:&#x27;</span>, e)</span><br><span class="line">try:</span><br><span class="line">    import pynvml</span><br><span class="line">    pynvml.nvmlInit()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;NVML ok&#x27;</span>)</span><br><span class="line">except Exception as e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;NVML err:&#x27;</span>, e)</span><br><span class="line">PY</span><br></pre></td></tr></table></figure>
+<p>含义：快速查看当前 Python、PyTorch CUDA 版本标记，以及 NVML 是否初始化成功。</p>
+<h3 id="七faq">七、FAQ</h3>
+<ul>
+<li><p>可以只装 CUDA Toolkit 而不装 NVIDIA 驱动吗？不行。<code>libcuda.so</code> 属于驱动栈，来自 NVIDIA 驱动包；没有它，CUDA 运行时无法与内核模块通信。</p></li>
+<li><p>Toolkit 版本一定要等于驱动版本吗？不需要。只要不低于驱动要求的最低兼容版本即可；过高版本通常也能工作，但建议遵循框架官方的兼容矩阵。</p></li>
+<li><p>为什么 <code>nvidia-smi</code> 失败时 PyTorch 也会挂？因为二者最终都要初始化 NVML 或 CUDA Driver API，与内核/用户态驱动版本不匹配都会失败。</p></li>
+</ul>
+<h3 id="小结">小结</h3>
+<ul>
+<li><p>驱动栈 = “内核模块” + “用户态驱动库” + “Toolkit 库” + “框架”。</p></li>
+<li><p>第一阶（内核 ↔ 用户态驱动）必须同版本；第二阶（Toolkit ↔ 驱动）只需满足最低兼容。</p></li>
+<li><p>大多数 PyTorch 断言本质是 NVML 初始化失败，根因常见于“路径优先级 + 版本不配套”。按清单逐步核对，通常即可定位并修复。</p></li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
     <title>CUDA核心概念与内存层次</title>
     <url>/posts/d4b8f045/</url>
     <content><![CDATA[<p>想在一张图看懂 GPU 的线程组织与内存层次？本文用表格 + Mermaid 图 + 代码示例，3 分钟带你摸清 Kernel、Warp、合并访存与 bank 冲突的底层逻辑。</p>
@@ -810,219 +934,6 @@ flowchart TD
 ]]></content>
   </entry>
   <entry>
-    <title>Compute Sanitizer 实用指南：从 0 到熟练</title>
-    <url>/posts/a1b2c3d4/</url>
-    <content><![CDATA[<p>想把 CUDA 程序里的“越界读写、未初始化、数据竞争、Barrier 不匹配”这类顽固 Bug 一网打尽？Compute Sanitizer（前身 <code>cuda-memcheck</code>）就是你的第一生产力工具。本文以“能上手能排错”为目标，按难度循序渐进，从最小示例、常见报错，到命令参数与协同工具给出一份“即插即用”的参考。</p>
-<span id="more"></span>
-<h2 id="学习地图由浅入深可边学边用">0️⃣ 学习地图（由浅入深，可边学边用）</h2>
-<ul>
-<li><strong>CUDA 基础语法</strong>：能写/编译最简单的 <code>kernel</code>，理解 <code>&lt;&lt;&lt;grid, block&gt;&gt;&gt;</code>、<code>__global__</code>/<code>__device__</code>。</li>
-<li><strong>GPU 线程层级与同步</strong>：Warp / Block / Grid，<code>__syncthreads()</code>、<code>atomic*</code>、<code>cudaDeviceSynchronize()</code> 的作用与限制。</li>
-<li><strong>GPU 内存层次</strong>：Global / Shared / Local / Constant / Texture 的用途、可见性、对齐与带宽差异。</li>
-<li><strong>常见 GPU Bug 类型</strong>：越界、未初始化、数据竞争、Barrier 不匹配等（Sanitizer 就是为它们报警）。</li>
-<li><strong><code>nvcc</code> 编译选项</strong>：<code>-G</code>、<code>-g</code>、<code>-lineinfo</code>、<code>-rdc=true</code> 等，为报告提供更友好的源码回溯。</li>
-<li><strong>Compute Sanitizer 命令行</strong>：<code>--tool</code>、<code>--print-limit</code>、<code>--kernel-regex</code>、<code>--log-file</code>、<code>--launch-count</code> 等高频旗标。</li>
-<li><strong>报告阅读与定位</strong>：看懂 <code>Invalid __global__ read of size 4 at myKernel+0x280</code> 并回溯到源码行与线程坐标。</li>
-<li><strong>性能开销与调优</strong>：理解检查为什么会变慢，以及用小数据集、<code>--launch-count</code> 等手段控时。</li>
-<li><strong>与其他工具协同</strong>：<code>nsys</code> 找热点 → Sanitizer 精查；结合 <code>cuda-gdb</code> / Nsight 工具链提升效率。</li>
-<li><strong>驱动/CUDA 版本兼容</strong>：避免“工具新版 + 驱动旧版”导致的报错或缺失功能。</li>
-</ul>
-<hr />
-<h2 id="cuda-基础语法最小可运行示例">1️⃣ CUDA 基础语法（最小可运行示例）</h2>
-<p>下面是一个最小示例：把数组里的每个元素都加 1。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// file: add_one.cu</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"></span><br><span class="line">__global__ <span class="type">void</span> <span class="title function_">add_one</span><span class="params">(<span class="type">int</span>* data, <span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">int</span> tid = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (tid &lt; n) data[tid] += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> n = <span class="number">16</span>;</span><br><span class="line">    <span class="type">int</span> h[n] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="type">int</span> *d = nullptr;</span><br><span class="line">    cudaMalloc(&amp;d, n * <span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    cudaMemcpy(d, h, n * <span class="keyword">sizeof</span>(<span class="type">int</span>), cudaMemcpyHostToDevice);</span><br><span class="line"></span><br><span class="line">    dim3 <span class="title function_">block</span><span class="params">(<span class="number">8</span>)</span>, <span class="title function_">grid</span><span class="params">((n + block.x - <span class="number">1</span>) / block.x)</span>;</span><br><span class="line">    add_one&lt;&lt;&lt;grid, block&gt;&gt;&gt;(d, n);</span><br><span class="line">    cudaDeviceSynchronize();</span><br><span class="line"></span><br><span class="line">    cudaMemcpy(h, d, n * <span class="keyword">sizeof</span>(<span class="type">int</span>), cudaMemcpyDeviceToHost);</span><br><span class="line">    cudaFree(d);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; ++i) <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, h[i]);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>编译（带调试信息与行号，便于报告映射回源码）：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo add_one.cu -o add_one</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong><code>&lt;&lt;&lt;grid, block&gt;&gt;&gt;</code></strong>：设定网格与线程块维度；<code>threadIdx</code>/<code>blockIdx</code> 提供线程坐标。</li>
-<li><strong><code>__global__</code></strong>：从主机端调用、在设备端执行的函数（即 kernel）。</li>
-<li><strong><code>__device__</code></strong>：仅在设备端调用/执行的函数。</li>
-</ul>
-<hr />
-<h2 id="线程层级与同步原语">2️⃣ 线程层级与同步原语</h2>
-<ul>
-<li><strong>执行模型</strong>：
-<ul>
-<li><strong>Warp</strong>：通常 32 线程的执行束，同步粒度最细。</li>
-<li><strong>Block</strong>：多个 warp 组成；可用 <code>__syncthreads()</code> 在同一 Block 内屏障同步。</li>
-<li><strong>Grid</strong>：由多个 Block 组成；不同 Block 之间不可用 <code>__syncthreads()</code> 同步。</li>
-</ul></li>
-<li><strong>同步与原子</strong>：
-<ul>
-<li><code>__syncthreads()</code>：只作用于 Block 内；如果有条件分支导致并非所有线程执行，可能引发 Barrier 不匹配。</li>
-<li><code>atomicAdd/atomicExch/...</code>：在共享全局状态时消除数据竞争，但会降低并发度。</li>
-<li><code>cudaDeviceSynchronize()</code>：在主机端等待所有之前发起的 kernel 完成，常用于调试阶段确保报错及时显现。</li>
-</ul></li>
-</ul>
-<hr />
-<h2 id="gpu-内存层次结构">3️⃣ GPU 内存层次结构</h2>
-<ul>
-<li><strong>Global Memory</strong>：容量大、延迟高、全设备可见；注意对齐与合并访问（coalescing）。</li>
-<li><strong>Shared Memory</strong>：Block 内共享、低延迟、高带宽；需留意 Bank 冲突与对齐。</li>
-<li><strong>Local Memory</strong>：线程私有，寄存器溢出或大对象会落在这里，实质上也是从全局内存取，延迟高。</li>
-<li><strong>Constant/Texture</strong>：只读、缓存友好（广播/2D 局部性场景）。</li>
-</ul>
-<p>理解这些有助于你判断“这个地址是否可见/越界”，从而更快看懂 Sanitizer 的报错。</p>
-<hr />
-<h2 id="常见-gpu-bug-类型sanitizer-重点覆盖">4️⃣ 常见 GPU Bug 类型（Sanitizer 重点覆盖）</h2>
-<ul>
-<li><strong>越界读写</strong>：访问数组下标 &lt;0 或 ≥N。</li>
-<li><strong>未初始化读</strong>：读到了未写入的内存内容。</li>
-<li><strong>数据竞争 (race)</strong>：多个线程无序写同一地址。</li>
-<li><strong>Barrier 不匹配</strong>：同一 Block 内，有些线程执行了 <code>__syncthreads()</code>，有些没执行。</li>
-</ul>
-<p>下面分别给出“可运行的最小示例 → 如何触发 → 典型报文（示意） → 修复方式”。</p>
-<h3 id="越界读写out-of-bounds">4.1 越界读写（Out-of-Bounds）</h3>
-<p>最常见，也最好修。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// oob.cu</span><br><span class="line">__global__ void oob(int* a, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    // 故意漏掉边界判断</span><br><span class="line">    a[i] = 42;  // 当 i &gt;= n 时越界写</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>编译与运行（调试构建）：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo oob.cu -o oob</span><br><span class="line">compute-sanitizer --tool memcheck ./oob | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
-<p>典型报文（示意）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Invalid __global__ write of size 4</span><br><span class="line">=========     at oob(int*, int):oob.cu:5: oob+0x30</span><br><span class="line">=========     by thread (15,0,0) in block (1,0,0)</span><br><span class="line">=========     Address 0x7f2c38010040 is out of bounds</span><br></pre></td></tr></table></figure>
-<p>如何修：补边界条件；或在 launch 侧收紧 <code>grid</code>/<code>block</code>。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__global__ void oob_fix(int* a, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; n) a[i] = 42;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="未初始化读uninitialized-read">4.2 未初始化读（Uninitialized Read）</h3>
-<p>读到了从未写入的值，往往来源于遗漏初始化或越界导致的脏数据。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// uninit.cu</span><br><span class="line">__global__ void use_before_set(int* out, const int* src, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; n) &#123;</span><br><span class="line">        // src 未初始化就被读取</span><br><span class="line">        out[i] = src[i] + 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>主机侧若只分配未写入：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> *d_src=<span class="literal">nullptr</span>, *d_out=<span class="literal">nullptr</span>;</span><br><span class="line"><span class="built_in">cudaMalloc</span>(&amp;d_src, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="built_in">cudaMalloc</span>(&amp;d_out, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="comment">// 故意不 cudaMemset/cudaMemcpy d_src</span></span><br><span class="line">use_before_set&lt;&lt;&lt;grid, block&gt;&gt;&gt;(d_out, d_src, n);</span><br></pre></td></tr></table></figure>
-<p>检查：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo uninit.cu -o uninit</span><br><span class="line">compute-sanitizer --tool memcheck ./uninit | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
-<p>报文（示意）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Uninitialized __global__ memory read of size 4</span><br><span class="line">=========     at use_before_set(int*, int const*, int):uninit.cu:6</span><br></pre></td></tr></table></figure>
-<p>如何修：在设备内或拷贝前初始化。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cudaMemset</span>(d_src, <span class="number">0</span>, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="comment">// 或者先在主机填充，再 cudaMemcpy 到设备</span></span><br></pre></td></tr></table></figure>
-<h3 id="数据竞争data-race">4.3 数据竞争（Data Race）</h3>
-<p>多个线程对同一地址进行未同步的读/写，导致结果随机。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// race.cu</span><br><span class="line">__global__ void sum_naive(int* out) &#123;</span><br><span class="line">    // 让所有线程把 1 加到同一个位置</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; 1024) &#123;</span><br><span class="line">        // 非原子写：存在数据竞争</span><br><span class="line">        *out += 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>检查：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo race.cu -o race</span><br><span class="line">compute-sanitizer --tool racecheck ./race | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
-<p>报文（示意）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Race reported between Write and Write</span><br><span class="line">=========     Location: 0x7f2c38000000 in global memory</span><br><span class="line">=========     by thread (t*,b*) at sum_naive:race.cu:7</span><br></pre></td></tr></table></figure>
-<p>如何修：使用原子操作或重构并行归约。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__global__ void sum_atomic(int* out) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; 1024) atomicAdd(out, 1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>更高性能的做法是先在 Block 内用共享内存做局部和，再用一次原子把每个 Block 的结果汇总到全局。</p>
-<h3 id="barrier-不匹配barrier-divergence">4.4 Barrier 不匹配（Barrier Divergence）</h3>
-<p>同一 Block 内不是所有线程都在同一控制流路径调用 <code>__syncthreads()</code>，会导致死锁或未定义行为。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// barrier.cu</span></span><br><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">bad_barrier</span><span class="params">(<span class="type">int</span>* a)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> tid = threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (tid % <span class="number">2</span> == <span class="number">0</span>) &#123;</span><br><span class="line">        __syncthreads();  <span class="comment">// 只有偶数线程到达屏障</span></span><br><span class="line">        a[tid] = <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        a[tid] = <span class="number">2</span>;</span><br><span class="line">        <span class="comment">// 缺少同步</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>检查：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo barrier.cu -o barrier</span><br><span class="line">compute-sanitizer --tool synccheck ./barrier | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
-<p>报文（示意）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Barrier error detected. Divergent thread(s) in block.</span><br><span class="line">=========     at __syncthreads(): barrier.cu:5</span><br></pre></td></tr></table></figure>
-<p>如何修：确保同一 Block 内所有线程对屏障的到达一致（要么都到，要么都不到），或将屏障搬出分支，或重写算法避免需要屏障。</p>
-<hr />
-<h2 id="nvcc-编译选项给报告喂足信息">5️⃣ <code>nvcc</code> 编译选项：给报告“喂”足信息</h2>
-<ul>
-<li><strong><code>-g -G</code></strong>：生成设备端调试符号（注意：会显著降低性能，调试用；性能测试请移除 <code>-G</code>）。</li>
-<li><strong><code>-lineinfo</code></strong>：保留源码行号信息，Sanitizer 可将 PC 偏移映射回源文件行。</li>
-<li><strong><code>-rdc=true</code></strong>：启用设备端链接，跨文件/库的设备函数能正确回溯。</li>
-<li>可选：<code>-Xcompiler -fno-omit-frame-pointer</code> 便于栈回溯；<code>-O0</code> 降低优化避免行号漂移。</li>
-</ul>
-<p>推荐调试构建与发布构建分离：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Debug（用于 Sanitizer）</span></span><br><span class="line">nvcc -g -G -lineinfo -rdc=<span class="literal">true</span> -O0 app.cu -o app_dbg</span><br><span class="line"></span><br><span class="line"><span class="comment"># Release（性能评测）</span></span><br><span class="line">nvcc -O3 app.cu -o app_rel</span><br></pre></td></tr></table></figure>
-<hr />
-<h2 id="compute-sanitizer命令行速查">6️⃣ Compute Sanitizer：命令行速查</h2>
-<p>基本用法：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">compute-sanitizer --tool memcheck ./app_dbg</span><br></pre></td></tr></table></figure>
-<p>常用工具（<code>--tool</code>）：</p>
-<ul>
-<li><code>memcheck</code>：越界、未初始化、非法地址等内存问题。</li>
-<li><code>racecheck</code>：数据竞争（全局/共享内存的读写冲突）。</li>
-<li><code>initcheck</code>：检测未初始化的全局内存使用。</li>
-<li><code>synccheck</code>：屏障不匹配、死锁相关问题。</li>
-</ul>
-<p>高频旗标：</p>
-<ul>
-<li><code>--print-limit &lt;N&gt;</code>：每类问题最多打印 N 条，控制噪音。</li>
-<li><code>--kernel-regex &lt;regex&gt;</code>：只检查匹配名称的 kernel，聚焦问题。</li>
-<li><code>--launch-count &lt;N&gt;</code>：只检查前 N 次 kernel 启动，快速抽样。</li>
-<li><code>--log-file &lt;path&gt;</code>：将报告写入文件，便于后续解析与分享。</li>
-<li><code>--target-processes all|application-only</code>：当程序会派生子进程时很有用。</li>
-</ul>
-<p>示例：只检查 <code>oob</code> 这个 kernel 的前两次启动，并把日志保存到 <code>cs.log</code>：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">compute-sanitizer \</span><br><span class="line">  --tool memcheck \</span><br><span class="line">  --kernel-regex <span class="string">&quot;^oob$&quot;</span> \</span><br><span class="line">  --launch-count 2 \</span><br><span class="line">  --print-limit 20 \</span><br><span class="line">  --log-file cs.log \</span><br><span class="line">  ./app_dbg --small-input</span><br></pre></td></tr></table></figure>
-<hr />
-<h2 id="报告阅读与定位技巧">7️⃣ 报告阅读与定位技巧</h2>
-<p>典型报文（示意）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Invalid __global__ write of size 4</span><br><span class="line">=========     at oob(int*, int):oob.cu:6: oob+0x40</span><br><span class="line">=========     by thread (15,0,0) in block (1,0,0)</span><br><span class="line">=========     Address 0x7f2c38010040 is out of bounds</span><br></pre></td></tr></table></figure>
-<p>如何快速定位：</p>
-<ul>
-<li><strong>看标题</strong>：<code>Invalid __global__ write of size 4</code> → 非法全局写、长度 4 字节。</li>
-<li><strong>看符号/行号</strong>：<code>oob.cu:6</code> 需要 <code>-lineinfo</code>/<code>-G</code> 支持。</li>
-<li><strong>看线程坐标</strong>：<code>thread (15,0,0) in block (1,0,0)</code> 帮助你还原分支条件与边界判断。</li>
-<li><strong>回源代码</strong>：
-<ul>
-<li>确认是否缺少 <code>if (i &lt; n)</code> 之类的边界保护；</li>
-<li>若为竞争，检查是否需要 <code>atomic*</code> 或者按块分配私有缓冲；</li>
-<li>若为 Barrier，不要将 <code>__syncthreads()</code> 放在分支内（除非分支路径对所有线程一致）。</li>
-</ul></li>
-</ul>
-<p>调一类警告时，善用 <code>--kernel-regex</code> 与最小复现输入，可大幅缩短迭代时间。</p>
-<hr />
-<h2 id="性能开销与调优">8️⃣ 性能开销与调优</h2>
-<p>Sanitizer 会“显著变慢”（有时数十倍），属于正常现象。降低成本的常用手段：</p>
-<ul>
-<li><strong>缩小输入规模</strong>：提供 <code>--small-input</code> 模式或环境变量开关。</li>
-<li><strong>限制检查范围</strong>：用 <code>--kernel-regex</code> 锁定怀疑的 kernel。</li>
-<li><strong>限制次数</strong>：用 <code>--launch-count</code> 只审前几次启动。</li>
-<li><strong>分阶段检查</strong>：先 <code>memcheck</code>，再 <code>racecheck</code>/<code>synccheck</code> 针对性检查。</li>
-<li><strong>仅 Debug 构建检查</strong>：<code>-G</code> 只在调试构建开启，Release 保持性能纯净。</li>
-</ul>
-<hr />
-<h2 id="与其他调试-性能工具协同">9️⃣ 与其他调试 &amp; 性能工具协同</h2>
-<ul>
-<li><strong>nsys profile → sanitizer 精查</strong>：
-<ul>
-<li>用 <code>nsys profile -o run ./app_rel</code> 找到耗时热点与可疑 kernel 名称；</li>
-<li>针对热点 kernel 用 <code>--kernel-regex</code> + Sanitizer 精准排错。</li>
-</ul></li>
-<li><strong>cuda-gdb</strong>：遇到崩溃或需要单步设备端代码时使用；Sanitizer 报出可疑位置后，转到 gdb 做细粒度验证。</li>
-<li><strong>Nsight Compute/Systems</strong>：前者做单 kernel 的性能属性分析（访存、SM 利用）；后者看系统级时间线。二者与 Sanitizer 互补：先“无错再快”。</li>
-<li><strong>日志解析/IDE 高亮</strong>：将 <code>--log-file</code> 输出的文本导入 IDE（或自写脚本解析），按 <code>file:line</code> 生成可点击的诊断列表，提高修复效率。</li>
-</ul>
-<hr />
-<h2 id="驱动-cuda-版本兼容">🔟 驱动 / CUDA 版本兼容</h2>
-<ul>
-<li>尽量保持：<strong>Driver 版本 ≥ CUDA Toolkit 要求的最低版本</strong>；工具链与驱动的主次版本差距大时，可能出现“工具不可用/功能缺失/报错异常”。</li>
-<li>快速自检：
-<ul>
-<li><code>nvidia-smi</code> 查看驱动版本；</li>
-<li><code>nvcc --version</code> / <code>compute-sanitizer --version</code> 查看工具链版本；</li>
-<li>优先使用“同一套 Toolkit 内的工具 + 匹配的驱动”。</li>
-</ul></li>
-</ul>
-<hr />
-<h2 id="实战清单拿来就用">✅ 实战清单（拿来就用）</h2>
-<ol type="1">
-<li>准备 Debug 构建：<code>-g -G -lineinfo [-rdc=true]</code>。</li>
-<li>缩小输入：加入 <code>--small-input</code> 选项或测试数据集。</li>
-<li>先跑内存：<code>compute-sanitizer --tool memcheck --print-limit 50 ./app_dbg ...</code>。</li>
-<li>聚焦可疑 kernel：<code>--kernel-regex</code> + <code>--launch-count</code>。</li>
-<li>若提示竞争：切到 <code>--tool racecheck</code>，确认是否需要 <code>atomic*</code> 或重构写入模式。</li>
-<li>若提示 Barrier：检查 <code>__syncthreads()</code> 的分支一致性与循环内位置。</li>
-<li>通过后再回 Release 构建做性能评测（<code>nsys</code>/Nsight）。</li>
-</ol>
-<hr />
-<h2 id="小结">📝 小结</h2>
-<ul>
-<li><strong>核心心法</strong>：先保证正确性（Sanitizer 清零告警），再谈性能（Nsight/<code>nsys</code> 优化）。</li>
-<li><strong>高频技巧</strong>：<code>-lineinfo</code> 给行号、<code>--kernel-regex</code> 聚焦、<code>--launch-count</code> 抽样、日志落盘便于追踪。</li>
-<li><strong>避坑要点</strong>：Barrier 一致性、越界/未初始化、跨文件设备函数需 <code>-rdc=true</code>。</li>
-</ul>
-<p>把以上套路串起来，基本就能“熟练驾驭 Compute Sanitizer”：遇到可疑 kernel，开 Debug 构建 + 小输入，定位报文 → 回溯源码 → 修复 → 复查通过，再做性能迭代。祝你早日实现“无错再快”的理想状态 🚀</p>
-]]></content>
-      <categories>
-        <category>CUDA</category>
-        <category>调试与性能</category>
-      </categories>
-      <tags>
-        <tag>CUDA</tag>
-        <tag>GPU</tag>
-        <tag>调试</tag>
-        <tag>工具</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>DeepSeek本地部署</title>
     <url>/posts/4f6ed32b/</url>
     <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
@@ -1088,9 +999,9 @@ flowchart TD
         <category>技术工具</category>
       </categories>
       <tags>
-        <tag>工具</tag>
         <tag>Linux</tag>
         <tag>Git</tag>
+        <tag>工具</tag>
         <tag>Dotfiles</tag>
       </tags>
   </entry>
@@ -1793,203 +1704,6 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>Linux 包管理：从入门到进阶的实战指南</title>
-    <url>/posts/3b71e21f/</url>
-    <content><![CDATA[<p>如果把发行版比作操作系统的“应用商店”，包管理器就是开发与运维最常用的“装、删、查、管”工具。本文从概念到实操、从单机到团队，给出一份可以落地的学习大纲与命令速查，帮助你跨发行版高效工作。</p>
-<span id="more"></span>
-<h3 id="术语对齐源码二进制库deb-的关系">🧱 术语对齐：源码、二进制、库、DEB 的关系</h3>
-<p>先用一个比喻：</p>
-<ul>
-<li><strong>源码（菜谱/蓝图）</strong>：人能读的文字，写着“怎么做”。不能直接吃/用。</li>
-<li><strong>二进制（做好的菜/成品 App）</strong>：已经做好的成品，能直接端上桌使用。比如可执行程序 <code>/usr/bin/ls</code>。</li>
-<li><strong>库（常用调料/零件包）</strong>：不是给人直接吃/用的，而是给“主菜/主程序”调用的共用部分。名字里经常带 <code>lib</code>，例如 <code>/usr/lib/.../libssl.so</code>。
-<ul>
-<li><strong>静态库 <code>.a</code></strong>：把调料直接装进主菜里，成品更“自带”，但体积更大。</li>
-<li><strong>共享库 <code>.so</code></strong>：调料单独放一罐，很多菜一起用，体积小、便于统一升级。</li>
-</ul></li>
-<li><strong>DEB 包（外卖打包盒）</strong>：把成品/零件 + 清单 + 安装说明书一起打包，方便“送达并摆盘”。</li>
-</ul>
-<p>一句话区分：</p>
-<ul>
-<li>你能直接运行的，是“二进制”（如 <code>ls</code>、<code>bash</code>）。</li>
-<li>你看见名字带 <code>lib...</code>、通常被程序引用、不单独运行的，是“库”（如 <code>libc.so</code>、<code>libssl.so</code>）。</li>
-</ul>
-<p>如果想了解细一点：</p>
-<ul>
-<li><strong>编译 (Compile)</strong>：把源码翻译成机器码，生成目标文件（<code>.o</code>）。</li>
-<li><strong>链接 (Link)</strong>：把多个目标文件与库拼成产物。
-<ul>
-<li>静态链接：生成可执行文件 + 可能的静态库 <code>.a</code>（<code>.a</code> 实质是 <code>ar</code> 打包的多个 <code>.o</code>）。</li>
-<li>动态链接：生成可执行文件与共享库 <code>.so</code>，运行时由动态链接器（如 <code>/lib64/ld-linux-x86-64.so.2</code>）装载。</li>
-</ul></li>
-<li><strong>二进制 (Binary)</strong>：ELF 格式文件，含入口点与段信息。
-<ul>
-<li>可执行文件（ET_EXEC/ET_DYN）：可直接运行（如 <code>/usr/bin/ls</code>）。</li>
-<li>共享库（<code>.so</code>）：供程序在运行时加载，带有 SONAME 与导出符号，受 ABI 兼容性约束。</li>
-</ul></li>
-<li><strong>库 (Library)</strong>：
-<ul>
-<li>静态库 <code>.a</code>：链接期被打入可执行文件，发布时不再单独依赖该库文件。</li>
-<li>共享库 <code>.so</code>：发布时需随系统存在；用 <code>ldconfig</code> 维护链接缓存，按 SONAME 进行版本解析与兼容。</li>
-</ul></li>
-<li><strong>包（<code>.deb</code>）</strong>：<code>dpkg</code> 管理的可安装归档，包含：
-<ul>
-<li>控制信息（<code>control</code> 文件：<code>Package/Version/Depends/Conflicts/Maintainer/Architecture</code> 等）与维护脚本（<code>preinst/postinst/prerm/postrm</code>）。</li>
-<li>数据归档（<code>data.tar.*</code>）：要安装到系统的实际文件（<code>/usr/bin/*</code>, <code>/usr/lib/*</code>, <code>/etc/*</code>）。</li>
-</ul></li>
-</ul>
-<p>从“源”到“包”的转换流程如下（配合后文流程图一起看）：</p>
-<ol type="1">
-<li>源码 → 编译/链接 → 得到可执行文件与库（Binary/Library）</li>
-<li>二进制与库 → 按目录布局（如 <code>/usr/bin</code>、<code>/usr/lib</code>、<code>/etc</code>）→ 写明依赖、版本等元数据 → 打成 <code>.deb</code></li>
-<li><code>.deb</code> → GPG 签名 → 发布到仓库 → APT 下载并调用 <code>dpkg</code> 安装到系统</li>
-</ol>
-<p>一个 <code>.deb</code> 的基本结构（示意）：</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">foo_1.0_amd64.deb</span><br><span class="line"> ├─ debian-binary               # 声明 deb 格式版本</span><br><span class="line"> ├─ control.tar.xz              # 元数据与维护脚本：control, preinst, postinst, prerm, postrm</span><br><span class="line"> └─ data.tar.zst                # 真正要安装的文件：/usr/bin/foo, /usr/lib/*, /etc/foo.conf</span><br></pre></td></tr></table></figure>
-<h3 id="一张图看懂软件如何到你机器">🧠 一张图看懂软件如何到你机器</h3>
-<pre>
-<code class="mermaid">
-
-graph LR
-Dev[&quot;开发者&#x2F;CI 构建&quot;] --&gt; Build[&quot;二进制与库&quot;]
-Build --&gt; Deb[&quot;DEB 包&quot;]
-Deb --&gt; Repo[&quot;软件仓库 &#x2F; Repository&quot;]
-Repo --&gt; Mirror[&quot;镜像 &#x2F; Mirror&quot;]
-Client[&quot;你的电脑&quot;] --&gt; IndexSync[&quot;拉取索引与校验签名（apt update）&quot;]
-IndexSync --&gt; DpkgStep[&quot;下载与安装（apt install → dpkg 解包&#x2F;脚本）&quot;]
-DpkgStep --&gt; FileSystem[&quot;文件落盘 &#x2F; 注册服务&quot;]
-FileSystem --&gt; App[&quot;应用可用&quot;]
-</code>
-</pre>
-<p>安装发生了什么？（以 <code>sudo apt install htop</code> 的真实输出为例）</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> apt install htop</span><br><span class="line">Reading package lists... Done</span><br><span class="line">Building dependency tree       </span><br><span class="line">Reading state information... Done</span><br><span class="line">The following NEW packages will be installed:</span><br><span class="line">  htop</span><br><span class="line">0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.</span><br><span class="line">Need to get 103 kB of archives.</span><br><span class="line">After this operation, 292 kB of additional disk space will be used.</span><br><span class="line">Get:1 http://archive.ubuntu.com/ubuntu focal/universe amd64 htop amd64 2.2.0-2build1 [103 kB]</span><br><span class="line">Fetched 103 kB <span class="keyword">in</span> 0s (500 kB/s)</span><br><span class="line">Selecting previously unselected package htop.</span><br><span class="line">(Reading database ... 300000 files and directories currently installed.)</span><br><span class="line">Preparing to unpack .../htop_2.2.0-2build1_amd64.deb ...</span><br><span class="line">Unpacking htop (2.2.0-2build1) ...</span><br><span class="line">Setting up htop (2.2.0-2build1) ...</span><br><span class="line">Processing triggers <span class="keyword">for</span> man-db (2.9.1-1) ...</span><br></pre></td></tr></table></figure>
-<p>逐行拆解（关键节点）：</p>
-<ul>
-<li>Reading package lists / Building dependency tree / Reading state information：APT 读取索引与已安装状态，开始做“依赖求解”。</li>
-<li>The following NEW packages...：告诉你将装什么、是否需要额外包。</li>
-<li>Need to get / Fetched：从仓库镜像下载 <code>.deb</code>，含大小与速率。</li>
-<li>Selecting previously unselected package：首次安装该包（非升级）。</li>
-<li>Preparing to unpack：调用 <code>preinst</code>（若存在）做准备动作。</li>
-<li>Unpacking：<code>dpkg</code> 解出 <code>data.tar.*</code>，将文件写入对应目录。</li>
-<li>Setting up：运行 <code>postinst</code> 完成注册（如生成缓存、注册服务）。</li>
-<li>Processing triggers：触发关联组件更新（例如 man-db 重新生成手册页索引）。</li>
-</ul>
-<p>注：具体版本与数字随发行版不同而变化，但流程一致：APT 负责“想清楚并下载”，<code>dpkg</code> 负责“真正落盘并记录”。</p>
-<h3 id="两条通道系统软件-vs-编程语言里的库以-python-为例">🍱 两条通道：系统软件 vs 编程语言里的“库”（以 Python 为例）</h3>
-<p>先记住一个简单分工：</p>
-<ul>
-<li><strong>APT（系统级）</strong>：给操作系统装“应用”和“系统组件”。比如浏览器、编辑器、系统服务、Python 解释器本身等。装完后，文件会放到全局目录（如 <code>/usr/bin</code>、<code>/usr/lib</code>）。</li>
-<li><strong>PIP（语言级）</strong>：给某种编程语言（这里是 Python）装“代码库”。这些库是给你的代码用的，不是系统应用；它们应该放在“项目的专属小屋”里，而不是全局系统目录。</li>
-</ul>
-<p>为什么要区分？</p>
-<ul>
-<li>系统自己的东西由 APT 统一管理，稳定、安全、可回滚；</li>
-<li>你项目里用到的第三方 Python 库，版本变化快、项目之间各不相同，应该隔离在各自的环境里，互不影响。</li>
-</ul>
-<p>最小可用做法（只记这几条）：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1) 用 APT 安装 Python 工具（系统层）</span></span><br><span class="line"><span class="built_in">sudo</span> apt install python3 python3-venv python3-pip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 在你的项目里创建“独立环境”（不会污染系统）</span></span><br><span class="line">python3 -m venv .venv</span><br><span class="line"><span class="built_in">source</span> .venv/bin/activate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 在独立环境里用 PIP 安装项目依赖（语言层）</span></span><br><span class="line">pip install requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4) 给命令行工具装到“用户空间”而不是系统（可选，推荐）</span></span><br><span class="line"><span class="comment"># 例如安装一个 Python 写的命令行工具</span></span><br><span class="line"><span class="built_in">sudo</span> apt install pipx</span><br><span class="line">pipx install httpie</span><br></pre></td></tr></table></figure>
-<p>要点：</p>
-<ul>
-<li>APT 管“系统级软件”，PIP 管“Python 项目依赖”；二者互不替代。</li>
-<li>不要用 <code>sudo pip install ...</code> 去改系统目录，容易把系统搞乱；要么用 <code>venv</code>，要么用 <code>pipx</code>。</li>
-<li>如果某些系统工具依赖 Python 库，它们会由发行版维护者打成 <code>.deb</code>，由 APT 统一管理，这时就不需要你手动 pip。</li>
-</ul>
-<h3 id="从一行代码到你机器上的程序">🧭 从一行代码到你机器上的程序</h3>
-<h4 id="源码与构建版本与兼容性从这里开始">1) 源码与构建：版本与兼容性从这里开始</h4>
-<ul>
-<li>开发者在源码仓库中提交功能，打上语义化版本（如 <code>1.4.2</code>）。</li>
-<li>构建系统（如 Make/CMake）产出二进制与库。这里涉及两个兼容性概念：
-<ul>
-<li>API（函数/命令接口）变了，调用方式可能要改；</li>
-<li>ABI（编译后的二进制接口）变了，旧程序可能“能装但运行崩”。</li>
-</ul></li>
-</ul>
-<h4 id="打包把软件与说明书装进盒子">2) 打包：把软件与“说明书”装进盒子</h4>
-<ul>
-<li>打包生成 <code>.deb</code>（或 <code>.rpm</code>）时，会写入元数据：名称、版本、依赖/冲突、文件清单、校验信息。</li>
-<li>还会附带维护脚本（<code>preinst/postinst</code> 等），用于安装后的配置（如注册 <code>systemd</code> 服务、更新缓存）。</li>
-<li>这一步不在用户机器执行，但它决定了后续“能不能装、装了能不能跑”。</li>
-</ul>
-<h4 id="签名与发布进入仓库与镜像">3) 签名与发布：进入仓库与镜像</h4>
-<ul>
-<li>仓库（Repository）是已签名软件的集合，包含索引（软件列表与版本）与 GPG 签名，保证来源可信、未被篡改。</li>
-<li>上游会把仓库同步到各地镜像（Mirror），你就近下载更快。</li>
-</ul>
-<h4 id="发现与检索刷新索引读懂包信息">4) 发现与检索：刷新索引，读懂包信息</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line">apt search &lt;关键词&gt;</span><br><span class="line">apt show &lt;包名&gt;</span><br><span class="line">apt policy &lt;包名&gt;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>apt update</code>：拉取仓库索引（不安装），让本地知道“现在有哪些版本”。</li>
-<li><code>apt search</code>：按关键词搜索；<code>apt show</code> 查看描述、依赖、文件等元数据；</li>
-<li><code>apt policy</code>：看版本来源与将要安装的“候选版本”，帮助你判断是否来自官方仓库或第三方源。</li>
-</ul>
-<h4 id="概念补充apt-与-dpkg">概念补充：APT 与 dpkg</h4>
-<ul>
-<li><strong>APT 是什么？</strong> 高层包管理“前端”。负责与仓库打交道、下载索引、解析依赖、挑选版本与来源；常用命令就是 <code>apt ...</code>。</li>
-<li><strong>dpkg 是什么？</strong> 低层安装器。负责把 <code>.deb</code> 真正解包到系统、维护本地数据库（安装了哪些文件）、执行 <code>preinst/postinst</code> 等维护脚本。</li>
-<li><strong>它们如何配合？</strong> 你执行 <code>apt install</code> 时，APT 先“想清楚要装什么”，下载并校验后，调用 <code>dpkg</code> 来“真正落盘”。</li>
-<li><strong>apt 与 apt-get 的区别？</strong> 二者同属 APT 家族，<code>apt</code> 是更友好的统一入口（更简洁输出/默认选项），初学者优先用 <code>apt</code>。</li>
-</ul>
-<h4 id="安装依赖求解下载校验脚本执行">5) 安装：依赖求解、下载校验、脚本执行</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install &lt;包名&gt;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>APT 先做“依赖求解”，决定需要哪些包一起安装；</li>
-<li>从镜像下载并校验签名；</li>
-<li>交给 <code>dpkg</code> 解包并执行维护脚本，可能注册服务、刷新缓存等；</li>
-<li>常见落盘位置：可执行文件在 <code>/usr/bin</code>，库在 <code>/usr/lib*</code>，配置在 <code>/etc</code>。</li>
-</ul>
-<p>小提示：若要安装本地下载的 <code>.deb</code>，优先使用</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install ./foo_1.0_amd64.deb</span><br></pre></td></tr></table></figure>
-<p>这样由 APT 处理依赖，比直接 <code>dpkg -i</code> 更省心（后者遇到缺依赖需要再额外修复）。</p>
-<h4 id="升级与安全修复最小但频繁的操作">6) 升级与安全修复：最小但频繁的操作</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt upgrade</span><br></pre></td></tr></table></figure>
-<ul>
-<li>升级会按索引中的“候选版本”替换已安装包，优先拉取安全更新。</li>
-<li>企业/服务器场景常启用自动安全更新（如 <code>unattended-upgrades</code>），思想是“尽早打补丁，降低暴露面”。</li>
-</ul>
-<h4 id="回滚与冻结控制风险的两招">7) 回滚与冻结：控制风险的两招</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-mark hold &lt;包名&gt;</span><br><span class="line"><span class="built_in">sudo</span> apt install &lt;包名&gt;=&lt;版本&gt;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>apt-mark hold</code> 冻结关键组件，避免自动升级带来不兼容；</li>
-<li>明确指定版本可用于“回滚/降级”（只有当仓库仍提供该版本时才可行）。</li>
-</ul>
-<h4 id="卸载与清理保持系统干净">8) 卸载与清理：保持系统干净</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt remove &lt;包名&gt;</span><br><span class="line"><span class="built_in">sudo</span> apt purge &lt;包名&gt;</span><br><span class="line"><span class="built_in">sudo</span> apt autoremove</span><br><span class="line"><span class="built_in">sudo</span> apt clean</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>remove</code> 移除程序但保留配置；<code>purge</code> 连配置一起删；</li>
-<li><code>autoremove</code> 清走不再需要的依赖；<code>clean</code> 清缓存，节省空间。</li>
-</ul>
-<h4 id="小技巧这个命令来自哪个包">9) 小技巧：这个命令来自哪个包？</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install apt-file &amp;&amp; <span class="built_in">sudo</span> apt-file update</span><br><span class="line">apt-file search /usr/bin/&lt;命令&gt;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>用于排查“缺哪个包”或确认二进制归属，定位问题很高效。</li>
-</ul>
-<hr />
-<h3 id="概念与命令的映射只记这几个就够">📝 概念与命令的映射（只记这几个就够）</h3>
-<ul>
-<li>“仓库里有什么/来自哪儿” → <code>apt update</code> + <code>apt search</code> + <code>apt show</code> + <code>apt policy</code></li>
-<li>“把它装上/升级” → <code>apt install</code> / <code>apt upgrade</code></li>
-<li>“稳一稳/别动它” → <code>apt-mark hold &lt;包名&gt;</code></li>
-<li>“清理与排错” → <code>apt remove|purge</code> / <code>apt autoremove</code> / <code>apt clean</code> / <code>apt-file search</code></li>
-</ul>
-<p>注：Fedora/RHEL 用 <code>dnf</code>，Arch 用 <code>pacman</code>，openSUSE 用 <code>zypper</code>，思路一致（刷新索引→查询→安装→升级→清理），本文以 APT 演示即可迁移。</p>
-<hr />
-<h3 id="小结">✨ 小结</h3>
-<ul>
-<li>包管理的关键并非“背命令”，而是理解时间线：构建→打包→签名→发布→检索→安装→升级/回滚→清理。</li>
-<li>读懂元数据（<code>apt show/policy</code>）和善用少量命令，足以覆盖 90% 的日常工作。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>包管理</tag>
-        <tag>Package</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NFC Note</title>
     <url>/posts/78289205/</url>
     <content><![CDATA[<h2 id="什么是nfc">什么是NFC？</h2>
@@ -2114,6 +1828,219 @@ FileSystem --&gt; App[&quot;应用可用&quot;]
         <tag>无线通信</tag>
         <tag>NFC</tag>
         <tag>RFID</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Compute Sanitizer 实用指南：从 0 到熟练</title>
+    <url>/posts/a1b2c3d4/</url>
+    <content><![CDATA[<p>想把 CUDA 程序里的“越界读写、未初始化、数据竞争、Barrier 不匹配”这类顽固 Bug 一网打尽？Compute Sanitizer（前身 <code>cuda-memcheck</code>）就是你的第一生产力工具。本文以“能上手能排错”为目标，按难度循序渐进，从最小示例、常见报错，到命令参数与协同工具给出一份“即插即用”的参考。</p>
+<span id="more"></span>
+<h2 id="学习地图由浅入深可边学边用">0️⃣ 学习地图（由浅入深，可边学边用）</h2>
+<ul>
+<li><strong>CUDA 基础语法</strong>：能写/编译最简单的 <code>kernel</code>，理解 <code>&lt;&lt;&lt;grid, block&gt;&gt;&gt;</code>、<code>__global__</code>/<code>__device__</code>。</li>
+<li><strong>GPU 线程层级与同步</strong>：Warp / Block / Grid，<code>__syncthreads()</code>、<code>atomic*</code>、<code>cudaDeviceSynchronize()</code> 的作用与限制。</li>
+<li><strong>GPU 内存层次</strong>：Global / Shared / Local / Constant / Texture 的用途、可见性、对齐与带宽差异。</li>
+<li><strong>常见 GPU Bug 类型</strong>：越界、未初始化、数据竞争、Barrier 不匹配等（Sanitizer 就是为它们报警）。</li>
+<li><strong><code>nvcc</code> 编译选项</strong>：<code>-G</code>、<code>-g</code>、<code>-lineinfo</code>、<code>-rdc=true</code> 等，为报告提供更友好的源码回溯。</li>
+<li><strong>Compute Sanitizer 命令行</strong>：<code>--tool</code>、<code>--print-limit</code>、<code>--kernel-regex</code>、<code>--log-file</code>、<code>--launch-count</code> 等高频旗标。</li>
+<li><strong>报告阅读与定位</strong>：看懂 <code>Invalid __global__ read of size 4 at myKernel+0x280</code> 并回溯到源码行与线程坐标。</li>
+<li><strong>性能开销与调优</strong>：理解检查为什么会变慢，以及用小数据集、<code>--launch-count</code> 等手段控时。</li>
+<li><strong>与其他工具协同</strong>：<code>nsys</code> 找热点 → Sanitizer 精查；结合 <code>cuda-gdb</code> / Nsight 工具链提升效率。</li>
+<li><strong>驱动/CUDA 版本兼容</strong>：避免“工具新版 + 驱动旧版”导致的报错或缺失功能。</li>
+</ul>
+<hr />
+<h2 id="cuda-基础语法最小可运行示例">1️⃣ CUDA 基础语法（最小可运行示例）</h2>
+<p>下面是一个最小示例：把数组里的每个元素都加 1。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// file: add_one.cu</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"></span><br><span class="line">__global__ <span class="type">void</span> <span class="title function_">add_one</span><span class="params">(<span class="type">int</span>* data, <span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">int</span> tid = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (tid &lt; n) data[tid] += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> n = <span class="number">16</span>;</span><br><span class="line">    <span class="type">int</span> h[n] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="type">int</span> *d = nullptr;</span><br><span class="line">    cudaMalloc(&amp;d, n * <span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    cudaMemcpy(d, h, n * <span class="keyword">sizeof</span>(<span class="type">int</span>), cudaMemcpyHostToDevice);</span><br><span class="line"></span><br><span class="line">    dim3 <span class="title function_">block</span><span class="params">(<span class="number">8</span>)</span>, <span class="title function_">grid</span><span class="params">((n + block.x - <span class="number">1</span>) / block.x)</span>;</span><br><span class="line">    add_one&lt;&lt;&lt;grid, block&gt;&gt;&gt;(d, n);</span><br><span class="line">    cudaDeviceSynchronize();</span><br><span class="line"></span><br><span class="line">    cudaMemcpy(h, d, n * <span class="keyword">sizeof</span>(<span class="type">int</span>), cudaMemcpyDeviceToHost);</span><br><span class="line">    cudaFree(d);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; ++i) <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, h[i]);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译（带调试信息与行号，便于报告映射回源码）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo add_one.cu -o add_one</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>&lt;&lt;&lt;grid, block&gt;&gt;&gt;</code></strong>：设定网格与线程块维度；<code>threadIdx</code>/<code>blockIdx</code> 提供线程坐标。</li>
+<li><strong><code>__global__</code></strong>：从主机端调用、在设备端执行的函数（即 kernel）。</li>
+<li><strong><code>__device__</code></strong>：仅在设备端调用/执行的函数。</li>
+</ul>
+<hr />
+<h2 id="线程层级与同步原语">2️⃣ 线程层级与同步原语</h2>
+<ul>
+<li><strong>执行模型</strong>：
+<ul>
+<li><strong>Warp</strong>：通常 32 线程的执行束，同步粒度最细。</li>
+<li><strong>Block</strong>：多个 warp 组成；可用 <code>__syncthreads()</code> 在同一 Block 内屏障同步。</li>
+<li><strong>Grid</strong>：由多个 Block 组成；不同 Block 之间不可用 <code>__syncthreads()</code> 同步。</li>
+</ul></li>
+<li><strong>同步与原子</strong>：
+<ul>
+<li><code>__syncthreads()</code>：只作用于 Block 内；如果有条件分支导致并非所有线程执行，可能引发 Barrier 不匹配。</li>
+<li><code>atomicAdd/atomicExch/...</code>：在共享全局状态时消除数据竞争，但会降低并发度。</li>
+<li><code>cudaDeviceSynchronize()</code>：在主机端等待所有之前发起的 kernel 完成，常用于调试阶段确保报错及时显现。</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="gpu-内存层次结构">3️⃣ GPU 内存层次结构</h2>
+<ul>
+<li><strong>Global Memory</strong>：容量大、延迟高、全设备可见；注意对齐与合并访问（coalescing）。</li>
+<li><strong>Shared Memory</strong>：Block 内共享、低延迟、高带宽；需留意 Bank 冲突与对齐。</li>
+<li><strong>Local Memory</strong>：线程私有，寄存器溢出或大对象会落在这里，实质上也是从全局内存取，延迟高。</li>
+<li><strong>Constant/Texture</strong>：只读、缓存友好（广播/2D 局部性场景）。</li>
+</ul>
+<p>理解这些有助于你判断“这个地址是否可见/越界”，从而更快看懂 Sanitizer 的报错。</p>
+<hr />
+<h2 id="常见-gpu-bug-类型sanitizer-重点覆盖">4️⃣ 常见 GPU Bug 类型（Sanitizer 重点覆盖）</h2>
+<ul>
+<li><strong>越界读写</strong>：访问数组下标 &lt;0 或 ≥N。</li>
+<li><strong>未初始化读</strong>：读到了未写入的内存内容。</li>
+<li><strong>数据竞争 (race)</strong>：多个线程无序写同一地址。</li>
+<li><strong>Barrier 不匹配</strong>：同一 Block 内，有些线程执行了 <code>__syncthreads()</code>，有些没执行。</li>
+</ul>
+<p>下面分别给出“可运行的最小示例 → 如何触发 → 典型报文（示意） → 修复方式”。</p>
+<h3 id="越界读写out-of-bounds">4.1 越界读写（Out-of-Bounds）</h3>
+<p>最常见，也最好修。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// oob.cu</span><br><span class="line">__global__ void oob(int* a, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    // 故意漏掉边界判断</span><br><span class="line">    a[i] = 42;  // 当 i &gt;= n 时越界写</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译与运行（调试构建）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo oob.cu -o oob</span><br><span class="line">compute-sanitizer --tool memcheck ./oob | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>典型报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Invalid __global__ write of size 4</span><br><span class="line">=========     at oob(int*, int):oob.cu:5: oob+0x30</span><br><span class="line">=========     by thread (15,0,0) in block (1,0,0)</span><br><span class="line">=========     Address 0x7f2c38010040 is out of bounds</span><br></pre></td></tr></table></figure>
+<p>如何修：补边界条件；或在 launch 侧收紧 <code>grid</code>/<code>block</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__global__ void oob_fix(int* a, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; n) a[i] = 42;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="未初始化读uninitialized-read">4.2 未初始化读（Uninitialized Read）</h3>
+<p>读到了从未写入的值，往往来源于遗漏初始化或越界导致的脏数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// uninit.cu</span><br><span class="line">__global__ void use_before_set(int* out, const int* src, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; n) &#123;</span><br><span class="line">        // src 未初始化就被读取</span><br><span class="line">        out[i] = src[i] + 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主机侧若只分配未写入：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="type">int</span> *d_src=<span class="literal">nullptr</span>, *d_out=<span class="literal">nullptr</span>;</span><br><span class="line"><span class="built_in">cudaMalloc</span>(&amp;d_src, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="built_in">cudaMalloc</span>(&amp;d_out, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="comment">// 故意不 cudaMemset/cudaMemcpy d_src</span></span><br><span class="line">use_before_set&lt;&lt;&lt;grid, block&gt;&gt;&gt;(d_out, d_src, n);</span><br></pre></td></tr></table></figure>
+<p>检查：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo uninit.cu -o uninit</span><br><span class="line">compute-sanitizer --tool memcheck ./uninit | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Uninitialized __global__ memory read of size 4</span><br><span class="line">=========     at use_before_set(int*, int const*, int):uninit.cu:6</span><br></pre></td></tr></table></figure>
+<p>如何修：在设备内或拷贝前初始化。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cudaMemset</span>(d_src, <span class="number">0</span>, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="comment">// 或者先在主机填充，再 cudaMemcpy 到设备</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据竞争data-race">4.3 数据竞争（Data Race）</h3>
+<p>多个线程对同一地址进行未同步的读/写，导致结果随机。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// race.cu</span><br><span class="line">__global__ void sum_naive(int* out) &#123;</span><br><span class="line">    // 让所有线程把 1 加到同一个位置</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; 1024) &#123;</span><br><span class="line">        // 非原子写：存在数据竞争</span><br><span class="line">        *out += 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>检查：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo race.cu -o race</span><br><span class="line">compute-sanitizer --tool racecheck ./race | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Race reported between Write and Write</span><br><span class="line">=========     Location: 0x7f2c38000000 in global memory</span><br><span class="line">=========     by thread (t*,b*) at sum_naive:race.cu:7</span><br></pre></td></tr></table></figure>
+<p>如何修：使用原子操作或重构并行归约。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__global__ void sum_atomic(int* out) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; 1024) atomicAdd(out, 1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>更高性能的做法是先在 Block 内用共享内存做局部和，再用一次原子把每个 Block 的结果汇总到全局。</p>
+<h3 id="barrier-不匹配barrier-divergence">4.4 Barrier 不匹配（Barrier Divergence）</h3>
+<p>同一 Block 内不是所有线程都在同一控制流路径调用 <code>__syncthreads()</code>，会导致死锁或未定义行为。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// barrier.cu</span></span><br><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">bad_barrier</span><span class="params">(<span class="type">int</span>* a)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> tid = threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (tid % <span class="number">2</span> == <span class="number">0</span>) &#123;</span><br><span class="line">        __syncthreads();  <span class="comment">// 只有偶数线程到达屏障</span></span><br><span class="line">        a[tid] = <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        a[tid] = <span class="number">2</span>;</span><br><span class="line">        <span class="comment">// 缺少同步</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>检查：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo barrier.cu -o barrier</span><br><span class="line">compute-sanitizer --tool synccheck ./barrier | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Barrier error detected. Divergent thread(s) in block.</span><br><span class="line">=========     at __syncthreads(): barrier.cu:5</span><br></pre></td></tr></table></figure>
+<p>如何修：确保同一 Block 内所有线程对屏障的到达一致（要么都到，要么都不到），或将屏障搬出分支，或重写算法避免需要屏障。</p>
+<hr />
+<h2 id="nvcc-编译选项给报告喂足信息">5️⃣ <code>nvcc</code> 编译选项：给报告“喂”足信息</h2>
+<ul>
+<li><strong><code>-g -G</code></strong>：生成设备端调试符号（注意：会显著降低性能，调试用；性能测试请移除 <code>-G</code>）。</li>
+<li><strong><code>-lineinfo</code></strong>：保留源码行号信息，Sanitizer 可将 PC 偏移映射回源文件行。</li>
+<li><strong><code>-rdc=true</code></strong>：启用设备端链接，跨文件/库的设备函数能正确回溯。</li>
+<li>可选：<code>-Xcompiler -fno-omit-frame-pointer</code> 便于栈回溯；<code>-O0</code> 降低优化避免行号漂移。</li>
+</ul>
+<p>推荐调试构建与发布构建分离：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Debug（用于 Sanitizer）</span></span><br><span class="line">nvcc -g -G -lineinfo -rdc=<span class="literal">true</span> -O0 app.cu -o app_dbg</span><br><span class="line"></span><br><span class="line"><span class="comment"># Release（性能评测）</span></span><br><span class="line">nvcc -O3 app.cu -o app_rel</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="compute-sanitizer命令行速查">6️⃣ Compute Sanitizer：命令行速查</h2>
+<p>基本用法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">compute-sanitizer --tool memcheck ./app_dbg</span><br></pre></td></tr></table></figure>
+<p>常用工具（<code>--tool</code>）：</p>
+<ul>
+<li><code>memcheck</code>：越界、未初始化、非法地址等内存问题。</li>
+<li><code>racecheck</code>：数据竞争（全局/共享内存的读写冲突）。</li>
+<li><code>initcheck</code>：检测未初始化的全局内存使用。</li>
+<li><code>synccheck</code>：屏障不匹配、死锁相关问题。</li>
+</ul>
+<p>高频旗标：</p>
+<ul>
+<li><code>--print-limit &lt;N&gt;</code>：每类问题最多打印 N 条，控制噪音。</li>
+<li><code>--kernel-regex &lt;regex&gt;</code>：只检查匹配名称的 kernel，聚焦问题。</li>
+<li><code>--launch-count &lt;N&gt;</code>：只检查前 N 次 kernel 启动，快速抽样。</li>
+<li><code>--log-file &lt;path&gt;</code>：将报告写入文件，便于后续解析与分享。</li>
+<li><code>--target-processes all|application-only</code>：当程序会派生子进程时很有用。</li>
+</ul>
+<p>示例：只检查 <code>oob</code> 这个 kernel 的前两次启动，并把日志保存到 <code>cs.log</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">compute-sanitizer \</span><br><span class="line">  --tool memcheck \</span><br><span class="line">  --kernel-regex <span class="string">&quot;^oob$&quot;</span> \</span><br><span class="line">  --launch-count 2 \</span><br><span class="line">  --print-limit 20 \</span><br><span class="line">  --log-file cs.log \</span><br><span class="line">  ./app_dbg --small-input</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="报告阅读与定位技巧">7️⃣ 报告阅读与定位技巧</h2>
+<p>典型报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">========= Invalid __global__ write of size 4</span><br><span class="line">=========     at oob(int*, int):oob.cu:6: oob+0x40</span><br><span class="line">=========     by thread (15,0,0) in block (1,0,0)</span><br><span class="line">=========     Address 0x7f2c38010040 is out of bounds</span><br></pre></td></tr></table></figure>
+<p>如何快速定位：</p>
+<ul>
+<li><strong>看标题</strong>：<code>Invalid __global__ write of size 4</code> → 非法全局写、长度 4 字节。</li>
+<li><strong>看符号/行号</strong>：<code>oob.cu:6</code> 需要 <code>-lineinfo</code>/<code>-G</code> 支持。</li>
+<li><strong>看线程坐标</strong>：<code>thread (15,0,0) in block (1,0,0)</code> 帮助你还原分支条件与边界判断。</li>
+<li><strong>回源代码</strong>：
+<ul>
+<li>确认是否缺少 <code>if (i &lt; n)</code> 之类的边界保护；</li>
+<li>若为竞争，检查是否需要 <code>atomic*</code> 或者按块分配私有缓冲；</li>
+<li>若为 Barrier，不要将 <code>__syncthreads()</code> 放在分支内（除非分支路径对所有线程一致）。</li>
+</ul></li>
+</ul>
+<p>调一类警告时，善用 <code>--kernel-regex</code> 与最小复现输入，可大幅缩短迭代时间。</p>
+<hr />
+<h2 id="性能开销与调优">8️⃣ 性能开销与调优</h2>
+<p>Sanitizer 会“显著变慢”（有时数十倍），属于正常现象。降低成本的常用手段：</p>
+<ul>
+<li><strong>缩小输入规模</strong>：提供 <code>--small-input</code> 模式或环境变量开关。</li>
+<li><strong>限制检查范围</strong>：用 <code>--kernel-regex</code> 锁定怀疑的 kernel。</li>
+<li><strong>限制次数</strong>：用 <code>--launch-count</code> 只审前几次启动。</li>
+<li><strong>分阶段检查</strong>：先 <code>memcheck</code>，再 <code>racecheck</code>/<code>synccheck</code> 针对性检查。</li>
+<li><strong>仅 Debug 构建检查</strong>：<code>-G</code> 只在调试构建开启，Release 保持性能纯净。</li>
+</ul>
+<hr />
+<h2 id="与其他调试-性能工具协同">9️⃣ 与其他调试 &amp; 性能工具协同</h2>
+<ul>
+<li><strong>nsys profile → sanitizer 精查</strong>：
+<ul>
+<li>用 <code>nsys profile -o run ./app_rel</code> 找到耗时热点与可疑 kernel 名称；</li>
+<li>针对热点 kernel 用 <code>--kernel-regex</code> + Sanitizer 精准排错。</li>
+</ul></li>
+<li><strong>cuda-gdb</strong>：遇到崩溃或需要单步设备端代码时使用；Sanitizer 报出可疑位置后，转到 gdb 做细粒度验证。</li>
+<li><strong>Nsight Compute/Systems</strong>：前者做单 kernel 的性能属性分析（访存、SM 利用）；后者看系统级时间线。二者与 Sanitizer 互补：先“无错再快”。</li>
+<li><strong>日志解析/IDE 高亮</strong>：将 <code>--log-file</code> 输出的文本导入 IDE（或自写脚本解析），按 <code>file:line</code> 生成可点击的诊断列表，提高修复效率。</li>
+</ul>
+<hr />
+<h2 id="驱动-cuda-版本兼容">🔟 驱动 / CUDA 版本兼容</h2>
+<ul>
+<li>尽量保持：<strong>Driver 版本 ≥ CUDA Toolkit 要求的最低版本</strong>；工具链与驱动的主次版本差距大时，可能出现“工具不可用/功能缺失/报错异常”。</li>
+<li>快速自检：
+<ul>
+<li><code>nvidia-smi</code> 查看驱动版本；</li>
+<li><code>nvcc --version</code> / <code>compute-sanitizer --version</code> 查看工具链版本；</li>
+<li>优先使用“同一套 Toolkit 内的工具 + 匹配的驱动”。</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="实战清单拿来就用">✅ 实战清单（拿来就用）</h2>
+<ol type="1">
+<li>准备 Debug 构建：<code>-g -G -lineinfo [-rdc=true]</code>。</li>
+<li>缩小输入：加入 <code>--small-input</code> 选项或测试数据集。</li>
+<li>先跑内存：<code>compute-sanitizer --tool memcheck --print-limit 50 ./app_dbg ...</code>。</li>
+<li>聚焦可疑 kernel：<code>--kernel-regex</code> + <code>--launch-count</code>。</li>
+<li>若提示竞争：切到 <code>--tool racecheck</code>，确认是否需要 <code>atomic*</code> 或重构写入模式。</li>
+<li>若提示 Barrier：检查 <code>__syncthreads()</code> 的分支一致性与循环内位置。</li>
+<li>通过后再回 Release 构建做性能评测（<code>nsys</code>/Nsight）。</li>
+</ol>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ul>
+<li><strong>核心心法</strong>：先保证正确性（Sanitizer 清零告警），再谈性能（Nsight/<code>nsys</code> 优化）。</li>
+<li><strong>高频技巧</strong>：<code>-lineinfo</code> 给行号、<code>--kernel-regex</code> 聚焦、<code>--launch-count</code> 抽样、日志落盘便于追踪。</li>
+<li><strong>避坑要点</strong>：Barrier 一致性、越界/未初始化、跨文件设备函数需 <code>-rdc=true</code>。</li>
+</ul>
+<p>把以上套路串起来，基本就能“熟练驾驭 Compute Sanitizer”：遇到可疑 kernel，开 Debug 构建 + 小输入，定位报文 → 回溯源码 → 修复 → 复查通过，再做性能迭代。祝你早日实现“无错再快”的理想状态 🚀</p>
+]]></content>
+      <categories>
+        <category>CUDA</category>
+        <category>调试与性能</category>
+      </categories>
+      <tags>
+        <tag>CUDA</tag>
+        <tag>GPU</tag>
+        <tag>工具</tag>
+        <tag>调试</tag>
       </tags>
   </entry>
   <entry>
@@ -2594,10 +2521,207 @@ flowchart TD
       </categories>
       <tags>
         <tag>CUDA</tag>
-        <tag>调试</tag>
         <tag>工具</tag>
+        <tag>调试</tag>
         <tag>NVBit</tag>
         <tag>插桩</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux 包管理：从入门到进阶的实战指南</title>
+    <url>/posts/3b71e21f/</url>
+    <content><![CDATA[<p>如果把发行版比作操作系统的“应用商店”，包管理器就是开发与运维最常用的“装、删、查、管”工具。本文从概念到实操、从单机到团队，给出一份可以落地的学习大纲与命令速查，帮助你跨发行版高效工作。</p>
+<span id="more"></span>
+<h3 id="术语对齐源码二进制库deb-的关系">🧱 术语对齐：源码、二进制、库、DEB 的关系</h3>
+<p>先用一个比喻：</p>
+<ul>
+<li><strong>源码（菜谱/蓝图）</strong>：人能读的文字，写着“怎么做”。不能直接吃/用。</li>
+<li><strong>二进制（做好的菜/成品 App）</strong>：已经做好的成品，能直接端上桌使用。比如可执行程序 <code>/usr/bin/ls</code>。</li>
+<li><strong>库（常用调料/零件包）</strong>：不是给人直接吃/用的，而是给“主菜/主程序”调用的共用部分。名字里经常带 <code>lib</code>，例如 <code>/usr/lib/.../libssl.so</code>。
+<ul>
+<li><strong>静态库 <code>.a</code></strong>：把调料直接装进主菜里，成品更“自带”，但体积更大。</li>
+<li><strong>共享库 <code>.so</code></strong>：调料单独放一罐，很多菜一起用，体积小、便于统一升级。</li>
+</ul></li>
+<li><strong>DEB 包（外卖打包盒）</strong>：把成品/零件 + 清单 + 安装说明书一起打包，方便“送达并摆盘”。</li>
+</ul>
+<p>一句话区分：</p>
+<ul>
+<li>你能直接运行的，是“二进制”（如 <code>ls</code>、<code>bash</code>）。</li>
+<li>你看见名字带 <code>lib...</code>、通常被程序引用、不单独运行的，是“库”（如 <code>libc.so</code>、<code>libssl.so</code>）。</li>
+</ul>
+<p>如果想了解细一点：</p>
+<ul>
+<li><strong>编译 (Compile)</strong>：把源码翻译成机器码，生成目标文件（<code>.o</code>）。</li>
+<li><strong>链接 (Link)</strong>：把多个目标文件与库拼成产物。
+<ul>
+<li>静态链接：生成可执行文件 + 可能的静态库 <code>.a</code>（<code>.a</code> 实质是 <code>ar</code> 打包的多个 <code>.o</code>）。</li>
+<li>动态链接：生成可执行文件与共享库 <code>.so</code>，运行时由动态链接器（如 <code>/lib64/ld-linux-x86-64.so.2</code>）装载。</li>
+</ul></li>
+<li><strong>二进制 (Binary)</strong>：ELF 格式文件，含入口点与段信息。
+<ul>
+<li>可执行文件（ET_EXEC/ET_DYN）：可直接运行（如 <code>/usr/bin/ls</code>）。</li>
+<li>共享库（<code>.so</code>）：供程序在运行时加载，带有 SONAME 与导出符号，受 ABI 兼容性约束。</li>
+</ul></li>
+<li><strong>库 (Library)</strong>：
+<ul>
+<li>静态库 <code>.a</code>：链接期被打入可执行文件，发布时不再单独依赖该库文件。</li>
+<li>共享库 <code>.so</code>：发布时需随系统存在；用 <code>ldconfig</code> 维护链接缓存，按 SONAME 进行版本解析与兼容。</li>
+</ul></li>
+<li><strong>包（<code>.deb</code>）</strong>：<code>dpkg</code> 管理的可安装归档，包含：
+<ul>
+<li>控制信息（<code>control</code> 文件：<code>Package/Version/Depends/Conflicts/Maintainer/Architecture</code> 等）与维护脚本（<code>preinst/postinst/prerm/postrm</code>）。</li>
+<li>数据归档（<code>data.tar.*</code>）：要安装到系统的实际文件（<code>/usr/bin/*</code>, <code>/usr/lib/*</code>, <code>/etc/*</code>）。</li>
+</ul></li>
+</ul>
+<p>从“源”到“包”的转换流程如下（配合后文流程图一起看）：</p>
+<ol type="1">
+<li>源码 → 编译/链接 → 得到可执行文件与库（Binary/Library）</li>
+<li>二进制与库 → 按目录布局（如 <code>/usr/bin</code>、<code>/usr/lib</code>、<code>/etc</code>）→ 写明依赖、版本等元数据 → 打成 <code>.deb</code></li>
+<li><code>.deb</code> → GPG 签名 → 发布到仓库 → APT 下载并调用 <code>dpkg</code> 安装到系统</li>
+</ol>
+<p>一个 <code>.deb</code> 的基本结构（示意）：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">foo_1.0_amd64.deb</span><br><span class="line"> ├─ debian-binary               # 声明 deb 格式版本</span><br><span class="line"> ├─ control.tar.xz              # 元数据与维护脚本：control, preinst, postinst, prerm, postrm</span><br><span class="line"> └─ data.tar.zst                # 真正要安装的文件：/usr/bin/foo, /usr/lib/*, /etc/foo.conf</span><br></pre></td></tr></table></figure>
+<h3 id="一张图看懂软件如何到你机器">🧠 一张图看懂软件如何到你机器</h3>
+<pre>
+<code class="mermaid">
+
+graph LR
+Dev[&quot;开发者&#x2F;CI 构建&quot;] --&gt; Build[&quot;二进制与库&quot;]
+Build --&gt; Deb[&quot;DEB 包&quot;]
+Deb --&gt; Repo[&quot;软件仓库 &#x2F; Repository&quot;]
+Repo --&gt; Mirror[&quot;镜像 &#x2F; Mirror&quot;]
+Client[&quot;你的电脑&quot;] --&gt; IndexSync[&quot;拉取索引与校验签名（apt update）&quot;]
+IndexSync --&gt; DpkgStep[&quot;下载与安装（apt install → dpkg 解包&#x2F;脚本）&quot;]
+DpkgStep --&gt; FileSystem[&quot;文件落盘 &#x2F; 注册服务&quot;]
+FileSystem --&gt; App[&quot;应用可用&quot;]
+</code>
+</pre>
+<p>安装发生了什么？（以 <code>sudo apt install htop</code> 的真实输出为例）</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">sudo</span> apt install htop</span><br><span class="line">Reading package lists... Done</span><br><span class="line">Building dependency tree       </span><br><span class="line">Reading state information... Done</span><br><span class="line">The following NEW packages will be installed:</span><br><span class="line">  htop</span><br><span class="line">0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.</span><br><span class="line">Need to get 103 kB of archives.</span><br><span class="line">After this operation, 292 kB of additional disk space will be used.</span><br><span class="line">Get:1 http://archive.ubuntu.com/ubuntu focal/universe amd64 htop amd64 2.2.0-2build1 [103 kB]</span><br><span class="line">Fetched 103 kB <span class="keyword">in</span> 0s (500 kB/s)</span><br><span class="line">Selecting previously unselected package htop.</span><br><span class="line">(Reading database ... 300000 files and directories currently installed.)</span><br><span class="line">Preparing to unpack .../htop_2.2.0-2build1_amd64.deb ...</span><br><span class="line">Unpacking htop (2.2.0-2build1) ...</span><br><span class="line">Setting up htop (2.2.0-2build1) ...</span><br><span class="line">Processing triggers <span class="keyword">for</span> man-db (2.9.1-1) ...</span><br></pre></td></tr></table></figure>
+<p>逐行拆解（关键节点）：</p>
+<ul>
+<li>Reading package lists / Building dependency tree / Reading state information：APT 读取索引与已安装状态，开始做“依赖求解”。</li>
+<li>The following NEW packages...：告诉你将装什么、是否需要额外包。</li>
+<li>Need to get / Fetched：从仓库镜像下载 <code>.deb</code>，含大小与速率。</li>
+<li>Selecting previously unselected package：首次安装该包（非升级）。</li>
+<li>Preparing to unpack：调用 <code>preinst</code>（若存在）做准备动作。</li>
+<li>Unpacking：<code>dpkg</code> 解出 <code>data.tar.*</code>，将文件写入对应目录。</li>
+<li>Setting up：运行 <code>postinst</code> 完成注册（如生成缓存、注册服务）。</li>
+<li>Processing triggers：触发关联组件更新（例如 man-db 重新生成手册页索引）。</li>
+</ul>
+<p>注：具体版本与数字随发行版不同而变化，但流程一致：APT 负责“想清楚并下载”，<code>dpkg</code> 负责“真正落盘并记录”。</p>
+<h3 id="两条通道系统软件-vs-编程语言里的库以-python-为例">🍱 两条通道：系统软件 vs 编程语言里的“库”（以 Python 为例）</h3>
+<p>先记住一个简单分工：</p>
+<ul>
+<li><strong>APT（系统级）</strong>：给操作系统装“应用”和“系统组件”。比如浏览器、编辑器、系统服务、Python 解释器本身等。装完后，文件会放到全局目录（如 <code>/usr/bin</code>、<code>/usr/lib</code>）。</li>
+<li><strong>PIP（语言级）</strong>：给某种编程语言（这里是 Python）装“代码库”。这些库是给你的代码用的，不是系统应用；它们应该放在“项目的专属小屋”里，而不是全局系统目录。</li>
+</ul>
+<p>为什么要区分？</p>
+<ul>
+<li>系统自己的东西由 APT 统一管理，稳定、安全、可回滚；</li>
+<li>你项目里用到的第三方 Python 库，版本变化快、项目之间各不相同，应该隔离在各自的环境里，互不影响。</li>
+</ul>
+<p>最小可用做法（只记这几条）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1) 用 APT 安装 Python 工具（系统层）</span></span><br><span class="line"><span class="built_in">sudo</span> apt install python3 python3-venv python3-pip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 在你的项目里创建“独立环境”（不会污染系统）</span></span><br><span class="line">python3 -m venv .venv</span><br><span class="line"><span class="built_in">source</span> .venv/bin/activate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 在独立环境里用 PIP 安装项目依赖（语言层）</span></span><br><span class="line">pip install requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4) 给命令行工具装到“用户空间”而不是系统（可选，推荐）</span></span><br><span class="line"><span class="comment"># 例如安装一个 Python 写的命令行工具</span></span><br><span class="line"><span class="built_in">sudo</span> apt install pipx</span><br><span class="line">pipx install httpie</span><br></pre></td></tr></table></figure>
+<p>要点：</p>
+<ul>
+<li>APT 管“系统级软件”，PIP 管“Python 项目依赖”；二者互不替代。</li>
+<li>不要用 <code>sudo pip install ...</code> 去改系统目录，容易把系统搞乱；要么用 <code>venv</code>，要么用 <code>pipx</code>。</li>
+<li>如果某些系统工具依赖 Python 库，它们会由发行版维护者打成 <code>.deb</code>，由 APT 统一管理，这时就不需要你手动 pip。</li>
+</ul>
+<h3 id="从一行代码到你机器上的程序">🧭 从一行代码到你机器上的程序</h3>
+<h4 id="源码与构建版本与兼容性从这里开始">1) 源码与构建：版本与兼容性从这里开始</h4>
+<ul>
+<li>开发者在源码仓库中提交功能，打上语义化版本（如 <code>1.4.2</code>）。</li>
+<li>构建系统（如 Make/CMake）产出二进制与库。这里涉及两个兼容性概念：
+<ul>
+<li>API（函数/命令接口）变了，调用方式可能要改；</li>
+<li>ABI（编译后的二进制接口）变了，旧程序可能“能装但运行崩”。</li>
+</ul></li>
+</ul>
+<h4 id="打包把软件与说明书装进盒子">2) 打包：把软件与“说明书”装进盒子</h4>
+<ul>
+<li>打包生成 <code>.deb</code>（或 <code>.rpm</code>）时，会写入元数据：名称、版本、依赖/冲突、文件清单、校验信息。</li>
+<li>还会附带维护脚本（<code>preinst/postinst</code> 等），用于安装后的配置（如注册 <code>systemd</code> 服务、更新缓存）。</li>
+<li>这一步不在用户机器执行，但它决定了后续“能不能装、装了能不能跑”。</li>
+</ul>
+<h4 id="签名与发布进入仓库与镜像">3) 签名与发布：进入仓库与镜像</h4>
+<ul>
+<li>仓库（Repository）是已签名软件的集合，包含索引（软件列表与版本）与 GPG 签名，保证来源可信、未被篡改。</li>
+<li>上游会把仓库同步到各地镜像（Mirror），你就近下载更快。</li>
+</ul>
+<h4 id="发现与检索刷新索引读懂包信息">4) 发现与检索：刷新索引，读懂包信息</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line">apt search &lt;关键词&gt;</span><br><span class="line">apt show &lt;包名&gt;</span><br><span class="line">apt policy &lt;包名&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>apt update</code>：拉取仓库索引（不安装），让本地知道“现在有哪些版本”。</li>
+<li><code>apt search</code>：按关键词搜索；<code>apt show</code> 查看描述、依赖、文件等元数据；</li>
+<li><code>apt policy</code>：看版本来源与将要安装的“候选版本”，帮助你判断是否来自官方仓库或第三方源。</li>
+</ul>
+<h4 id="概念补充apt-与-dpkg">概念补充：APT 与 dpkg</h4>
+<ul>
+<li><strong>APT 是什么？</strong> 高层包管理“前端”。负责与仓库打交道、下载索引、解析依赖、挑选版本与来源；常用命令就是 <code>apt ...</code>。</li>
+<li><strong>dpkg 是什么？</strong> 低层安装器。负责把 <code>.deb</code> 真正解包到系统、维护本地数据库（安装了哪些文件）、执行 <code>preinst/postinst</code> 等维护脚本。</li>
+<li><strong>它们如何配合？</strong> 你执行 <code>apt install</code> 时，APT 先“想清楚要装什么”，下载并校验后，调用 <code>dpkg</code> 来“真正落盘”。</li>
+<li><strong>apt 与 apt-get 的区别？</strong> 二者同属 APT 家族，<code>apt</code> 是更友好的统一入口（更简洁输出/默认选项），初学者优先用 <code>apt</code>。</li>
+</ul>
+<h4 id="安装依赖求解下载校验脚本执行">5) 安装：依赖求解、下载校验、脚本执行</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install &lt;包名&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>APT 先做“依赖求解”，决定需要哪些包一起安装；</li>
+<li>从镜像下载并校验签名；</li>
+<li>交给 <code>dpkg</code> 解包并执行维护脚本，可能注册服务、刷新缓存等；</li>
+<li>常见落盘位置：可执行文件在 <code>/usr/bin</code>，库在 <code>/usr/lib*</code>，配置在 <code>/etc</code>。</li>
+</ul>
+<p>小提示：若要安装本地下载的 <code>.deb</code>，优先使用</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install ./foo_1.0_amd64.deb</span><br></pre></td></tr></table></figure>
+<p>这样由 APT 处理依赖，比直接 <code>dpkg -i</code> 更省心（后者遇到缺依赖需要再额外修复）。</p>
+<h4 id="升级与安全修复最小但频繁的操作">6) 升级与安全修复：最小但频繁的操作</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt upgrade</span><br></pre></td></tr></table></figure>
+<ul>
+<li>升级会按索引中的“候选版本”替换已安装包，优先拉取安全更新。</li>
+<li>企业/服务器场景常启用自动安全更新（如 <code>unattended-upgrades</code>），思想是“尽早打补丁，降低暴露面”。</li>
+</ul>
+<h4 id="回滚与冻结控制风险的两招">7) 回滚与冻结：控制风险的两招</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-mark hold &lt;包名&gt;</span><br><span class="line"><span class="built_in">sudo</span> apt install &lt;包名&gt;=&lt;版本&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>apt-mark hold</code> 冻结关键组件，避免自动升级带来不兼容；</li>
+<li>明确指定版本可用于“回滚/降级”（只有当仓库仍提供该版本时才可行）。</li>
+</ul>
+<h4 id="卸载与清理保持系统干净">8) 卸载与清理：保持系统干净</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt remove &lt;包名&gt;</span><br><span class="line"><span class="built_in">sudo</span> apt purge &lt;包名&gt;</span><br><span class="line"><span class="built_in">sudo</span> apt autoremove</span><br><span class="line"><span class="built_in">sudo</span> apt clean</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>remove</code> 移除程序但保留配置；<code>purge</code> 连配置一起删；</li>
+<li><code>autoremove</code> 清走不再需要的依赖；<code>clean</code> 清缓存，节省空间。</li>
+</ul>
+<h4 id="小技巧这个命令来自哪个包">9) 小技巧：这个命令来自哪个包？</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install apt-file &amp;&amp; <span class="built_in">sudo</span> apt-file update</span><br><span class="line">apt-file search /usr/bin/&lt;命令&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>用于排查“缺哪个包”或确认二进制归属，定位问题很高效。</li>
+</ul>
+<hr />
+<h3 id="概念与命令的映射只记这几个就够">📝 概念与命令的映射（只记这几个就够）</h3>
+<ul>
+<li>“仓库里有什么/来自哪儿” → <code>apt update</code> + <code>apt search</code> + <code>apt show</code> + <code>apt policy</code></li>
+<li>“把它装上/升级” → <code>apt install</code> / <code>apt upgrade</code></li>
+<li>“稳一稳/别动它” → <code>apt-mark hold &lt;包名&gt;</code></li>
+<li>“清理与排错” → <code>apt remove|purge</code> / <code>apt autoremove</code> / <code>apt clean</code> / <code>apt-file search</code></li>
+</ul>
+<p>注：Fedora/RHEL 用 <code>dnf</code>，Arch 用 <code>pacman</code>，openSUSE 用 <code>zypper</code>，思路一致（刷新索引→查询→安装→升级→清理），本文以 APT 演示即可迁移。</p>
+<hr />
+<h3 id="小结">✨ 小结</h3>
+<ul>
+<li>包管理的关键并非“背命令”，而是理解时间线：构建→打包→签名→发布→检索→安装→升级/回滚→清理。</li>
+<li>读懂元数据（<code>apt show/policy</code>）和善用少量命令，足以覆盖 90% 的日常工作。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>包管理</tag>
+        <tag>Package</tag>
       </tags>
   </entry>
   <entry>
@@ -3452,6 +3576,457 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
+    <title>Tensor 基础：布局、算子与形状推导</title>
+    <url>/posts/f1e2d3c4/</url>
+    <content><![CDATA[<p>想看懂卷积、池化公式却老被 <code>NCHW</code>、<code>stride</code> 搞糊涂？本文聚焦 <strong>张量布局 → 常见算子 → 形状计算公式</strong>，用一篇梳理基础概念。</p>
+<span id="more"></span>
+<h3 id="术语算子operator是什么">术语：算子（Operator）是什么？</h3>
+<ul>
+<li><strong>定义</strong>：在计算图中对张量进行某种变换的“最小计算单元”，如加法、卷积、矩阵乘。深度学习框架把算子拼成计算图并自动求导。</li>
+<li><strong>省流</strong>：算子=“对张量做事”的函数积木；模型=“很多算子按顺序和拓扑连起来”。</li>
+</ul>
+<h3 id="常见算子速览按功能分组">常见算子速览（按功能分组）</h3>
+<ul>
+<li><strong>形状与索引</strong>：<code>Reshape</code>/<code>View</code>、<code>Squeeze</code>/<code>Unsqueeze</code>、<code>Transpose</code>/<code>Permute</code>、<code>Concat</code>、<code>Split</code>/<code>Slice</code>、<code>Gather</code>/<code>Scatter</code>、<code>Repeat</code>/<code>Tile</code>、<code>Broadcast</code></li>
+<li><strong>逐元素与激活</strong>：<code>Add</code>/<code>Sub</code>/<code>Mul</code>/<code>Div</code>、<code>Pow</code>、<code>Clamp</code>、<code>Abs</code>、<code>Exp</code>/<code>Log</code>、<code>ReLU</code>/<code>LeakyReLU</code>/<code>GELU</code>/<code>Sigmoid</code>/<code>Tanh</code>/<code>Softplus</code>/<code>Swish</code></li>
+<li><strong>归约（Reduction）</strong>：<code>Sum</code>/<code>Mean</code>/<code>Max</code>/<code>Min</code>、<code>Argmax</code>/<code>Argmin</code>、<code>Prod</code>、<code>Norm</code>（<code>L1</code>/<code>L2</code>）</li>
+<li><strong>线性代数</strong>：<code>MatMul</code>/<code>GEMM</code>、<code>BatchMatMul</code>（<code>BMM</code>）、<code>Linear</code>（全连接）、<code>einsum</code></li>
+<li><strong>卷积族</strong>：<code>Conv1d/2d/3d</code>、<code>Depthwise</code>/<code>Grouped</code>、<code>Dilated</code>（空洞）、<code>Transposed Conv</code>（反卷积）、<code>Separable Conv</code></li>
+<li><strong>池化</strong>：<code>Max</code>/<code>Avg</code>/<code>Global</code>/<code>Adaptive Pool</code>（<code>1d</code>/<code>2d</code>/<code>3d</code>）</li>
+<li><strong>归一化与正则</strong>：<code>BatchNorm</code>/<code>LayerNorm</code>/<code>GroupNorm</code>/<code>InstanceNorm</code>、<code>Dropout</code></li>
+<li><strong>插值与采样</strong>：<code>Interpolate</code>/<code>Upsample</code>（<code>nearest</code>/<code>bilinear</code>）、<code>GridSample</code>、<code>Pad</code>（<code>Zero</code>/<code>Reflect</code>/<code>Replicate</code>）</li>
+<li><strong>概率与损失</strong>：<code>Softmax</code>/<code>LogSoftmax</code>、<code>CrossEntropy</code>、<code>MSE</code>/<code>MAE</code>、<code>NLL</code>、<code>KLDiv</code>、<code>Focal Loss</code></li>
+<li><strong>嵌入与稀疏</strong>：<code>Embedding</code>/<code>EmbeddingBag</code>、<code>Sparse MatMul</code></li>
+<li><strong>频域与信号</strong>：<code>FFT</code>/<code>iFFT</code>、<code>STFT</code>、<code>Conv1d</code> 信号处理</li>
+</ul>
+<hr />
+<h2 id="张量与布局从数字到多维数组">1️⃣ 张量与布局：从数字到多维数组</h2>
+<h3 id="什么是张量-tensor">什么是张量 (Tensor)？</h3>
+<p>想象一下：</p>
+<ul>
+<li><strong>0D 张量 (标量)</strong>：一个孤零零的数字，比如 <code>5</code>。</li>
+<li><p><strong>1D 张量 (向量)</strong>：一排数字，像 Python 列表 <code>[1, 2, 3, 4]</code>。</p>
+<blockquote>
+<p><strong>等等，Python 列表哪来的 <code>shape</code> 和 <code>dtype</code>？</strong><br />
+好问题！Python 列表本身没有。我们说的张量，其实是深度学习框架（如 PyTorch）里的一个特殊对象。框架会“接收”你的 Python 列表，然后把它“包装”成一个真正的张量。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 这是一个普通的 Python 列表</span></span><br><span class="line">data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. PyTorch 把它包装成一个 Tensor 对象</span></span><br><span class="line">tensor_1d = torch.tensor(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 现在，这个对象就有 shape 和 dtype 属性了</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.shape)  <span class="comment"># 输出: torch.Size([4])，表示这是一个长度为4的1D张量</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.dtype)  <span class="comment"># 输出: torch.int64，框架自动推断出是整数类型</span></span><br></pre></td></tr></table></figure>
+<p>✨ 所以，张量是“<strong>数据 + 描述信息（形状、类型）</strong>”的组合体。</p>
+</blockquote></li>
+<li><strong>2D 张量 (矩阵)</strong>：一个表格，有行有列，像 Excel 工作表。</li>
+<li><strong>3D 张量</strong>：一沓叠起来的表格，比如一张彩色图片（高 × 宽 × 3个颜色通道）。</li>
+<li><p><strong>4D 张量</strong>：一堆 3D 张量，比如 <strong>一批</strong> 彩色图片。</p></li>
+</ul>
+<blockquote>
+<p>✨ <strong>一句话：</strong> 张量就是“多维数组”，用来装深度学习模型处理的数据。每个张量都有两个核心属性：</p>
+<ul>
+<li><strong><code>shape</code> (形状)</strong>：一个元组，告诉你每个维度有多大。例如 <code>(64, 3, 224, 224)</code>。</li>
+<li><strong><code>dtype</code> (数据类型)</strong>：说明里面存的是什么类型的数，比如 <code>float32</code> (小数) 或 <code>int8</code> (整数)。</li>
+</ul>
+</blockquote>
+<h3 id="为何需要-nchw-这种布局">为何需要 NCHW 这种布局？</h3>
+<p>处理图片时，我们需要用一种标准方式来组织数据。<code>NCHW</code> 就是最流行的一种“打包格式”。</p>
+<table>
+<thead>
+<tr class="header">
+<th>字母</th>
+<th>含义</th>
+<th>🌰 举例：一张 <code>(3, 224, 224)</code> 的 RGB 图片</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>N</strong></td>
+<td><strong>Number / Batch</strong> (数量)</td>
+<td>一次处理 64 张图片，<code>N=64</code></td>
+</tr>
+<tr class="even">
+<td><strong>C</strong></td>
+<td><strong>Channel</strong> (通道)</td>
+<td>红/绿/蓝 3 个通道, <code>C=3</code></td>
+</tr>
+<tr class="odd">
+<td><strong>H</strong></td>
+<td><strong>Height</strong> (高度)</td>
+<td>图片高 224 像素, <code>H=224</code></td>
+</tr>
+<tr class="even">
+<td><strong>W</strong></td>
+<td><strong>Width</strong> (宽度)</td>
+<td>图片宽 224 像素, <code>W=224</code></td>
+</tr>
+</tbody>
+</table>
+<p>所以，一个 <code>(64, 3, 224, 224)</code> 的张量，意思就是“<strong>64 张、3 通道、224×224 大小的图片</strong>”。</p>
+<h3 id="nchw-vs-nhwc有啥区别">NCHW vs NHWC：有啥区别？</h3>
+<ul>
+<li><strong><code>NCHW</code> (channels_first)</strong>：<code>(N, C, H, W)</code>
+<ul>
+<li><strong>GPU 友好</strong>：CUDA/cuDNN 库针对这种布局做了优化，相邻通道的数据在内存里更连续，访问快。</li>
+<li>PyTorch/Paddle 默认。</li>
+</ul></li>
+<li><strong><code>NHWC</code> (channels_last)</strong>：<code>(N, H, W, C)</code>
+<ul>
+<li><strong>CPU/TPU 友好</strong>：某些硬件访存模式更适合通道在最后。</li>
+<li>TensorFlow 默认。</li>
+</ul></li>
+</ul>
+<blockquote>
+<p>省流：搞不清就用 <code>NCHW</code>，它是 GPU 上的“高速公路”。代码里看到 <code>permute(0, 2, 3, 1)</code> 就是在做 <code>NCHW</code> → <code>NHWC</code> 的切换。</p>
+</blockquote>
+<hr />
+<h2 id="卷积-convolution像用滤镜提取特征">2️⃣ 卷积 (Convolution)：像用“滤镜”提取特征</h2>
+<p>想象一下你给照片加滤镜（比如“锐化”或“模糊”），卷积做的就是类似的事情。它用一个小的“<strong>滤镜</strong>”（称为 <strong>Kernel</strong> 或卷积核），在输入图片上一点点地滑动，计算出每个区域的特征值，最后汇集成一张新的“特征图”。</p>
+<h3 id="卷积的五个关键参数">卷积的五个关键参数</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">符号</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">🌰 生活化比喻</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">输入尺寸</td>
+<td style="text-align: left;"><code>I</code></td>
+<td style="text-align: left;">图片的宽或高</td>
+<td style="text-align: left;">一块 10x10 的大巧克力</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kernel</td>
+<td style="text-align: left;"><code>K</code></td>
+<td style="text-align: left;">滤镜/卷积核的大小</td>
+<td style="text-align: left;">一个 3x3 的饼干模具</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Padding</td>
+<td style="text-align: left;"><code>P</code></td>
+<td style="text-align: left;">在图片边缘填充几圈0</td>
+<td style="text-align: left;">在巧克力周围加一圈奶油，防止模具出界</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Stride</td>
+<td style="text-align: left;"><code>S</code></td>
+<td style="text-align: left;">滤镜每次滑动的步长</td>
+<td style="text-align: left;">模具每次向右/下移动几格</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dilation</td>
+<td style="text-align: left;"><code>D</code></td>
+<td style="text-align: left;">Kernel内部元素的间距</td>
+<td style="text-align: left;">模具上的图案本身有多稀疏</td>
+</tr>
+</tbody>
+</table>
+<h3 id="正向卷积-forward-conv">正向卷积 (Forward Conv)</h3>
+<p>这是最常见的卷积，用来<strong>缩小</strong>特征图，<strong>提取</strong>特征。</p>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - D·(K-1) - 1) / S⌋ + 1</code></p>
+</blockquote>
+<p><strong>公式拆解：</strong></p>
+<ol type="1">
+<li><code>D·(K-1) + 1</code>：这是考虑了空洞（Dilation）之后，卷积核覆盖的实际范围。如果 <code>D=1</code>，它就等于 <code>K</code>。</li>
+<li><code>I + 2P</code>：这是输入图片在两边都加上了 <code>P</code> 圈“奶油”之后的总宽度。</li>
+<li><code>(I + 2P) - (D·(K-1) + 1)</code>：这是模具可以在奶油巧克力上滑动的“总距离”。</li>
+<li>除以 <code>S</code> 再 <code>+1</code>：计算在这个总距离上，以 <code>S</code> 为步长，总共能挪动几步（结果向下取整）。</li>
+</ol>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 输入 <code>I=5</code>, Kernel <code>K=3</code>, Padding <code>P=1</code>, Stride <code>S=2</code>, Dilation <code>D=1</code>。 - 加上 padding 后的总宽度是 <code>5 + 2*1 = 7</code>。 - Kernel 覆盖范围是 <code>1*(3-1)+1 = 3</code>。 - 滑动总距离是 <code>7 - 3 = 4</code>。 - 能滑几步？<code>4 / 2 = 2</code> 步。 - 总共能摆放几次？<code>2 + 1 = 3</code> 次。所以输出 <code>OUT=3</code>。</p>
+</blockquote>
+<h3 id="转置卷积-transposed-conv">转置卷积 (Transposed Conv)</h3>
+<p>也叫“反卷积”，但这个名字不准确。它的作用和正向卷积相反，常用来<strong>放大</strong>特征图（上采样）。</p>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = (I - 1)·S - 2P + D·(K-1) + 1</code></p>
+<p>把它想象成“从特征图反推原图尺寸”的过程，或者“用一个画笔（Kernel）在小画布上画，画出一个大图”。公式的每一项都是正向卷积的“逆运算”。</p>
+</blockquote>
+<hr />
+<h2 id="池化-pooling给特征图瘦身减负">3️⃣ 池化 (Pooling)：给特征图“瘦身减负”</h2>
+<p>如果说卷积是“精加工提取特征”，那么池化就是“<strong>粗加工，信息压缩</strong>”。它同样用一个小窗口在图上滑动，但计算规则更简单：只取窗口内的最大值（Max Pooling）或平均值（Average Pooling）。</p>
+<p><strong>为什么需要池化？</strong></p>
+<ol type="1">
+<li><strong>降低计算量</strong>：特征图变小了，后续计算更快。</li>
+<li><strong>防止过拟合</strong>：保留最主要的特征，丢掉一些不重要的细节。</li>
+<li><strong>增加感受野</strong>：让后面的卷积能看到更大范围的原始信息。</li>
+</ol>
+<h3 id="max-avg-pooling">Max / Avg Pooling</h3>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - K) / S⌋ + 1</code></p>
+<p>（和卷积公式一样，只是没有 Dilation）</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：Max Pooling</strong> 假设有一个 4x4 的输入，用一个 2x2 的窗口、步长为 2 来做最大池化： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入:             窗口1: [[1, 2],    窗口2: [[3, 4],</span><br><span class="line">[[1, 2, 3, 4],     [5, 6]] → max=6        [7, 8]] → max=8</span><br><span class="line"> [5, 6, 7, 8],</span><br><span class="line"> [9, 1, 2, 3],    窗口3: [[9, 1],    窗口4: [[2, 3],</span><br><span class="line"> [4, 5, 6, 7]]     [4, 5]] → max=9        [6, 7]] → max=7</span><br><span class="line"></span><br><span class="line">输出 (2x2):</span><br><span class="line">[[6, 8],</span><br><span class="line"> [9, 7]]</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="自适应池化-adaptive-pooling">自适应池化 (Adaptive Pooling)</h3>
+<p>这是个“懒人”池化。你<strong>不需要关心 K、P、S 是多少</strong>，直接告诉它你想要多大的输出就行了。</p>
+<blockquote>
+<p><strong>用法</strong>：<code>AdaptiveMaxPool2d(output_size=7)</code></p>
+<p>框架会自动计算出合适的 K 和 S，把任意大小的输入都变成 <code>7x7</code>。这在连接卷积层和全连接层时特别有用。</p>
+</blockquote>
+<hr />
+<h2 id="二元-矩阵算子形状规则">4️⃣ 二元 / 矩阵算子形状规则</h2>
+<h3 id="逐元素-element-wise-运算加减乘除">1. 逐元素 (Element-wise) 运算：加减乘除</h3>
+<p>这是最简单的运算，就像小学数学题，把两个形状完全一样的表格，对应位置的数字做加减法。</p>
+<blockquote>
+<p><strong>规则</strong>：两个张量的形状必须完全一样。</p>
+<p>🌰 <strong>示例：</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2],    B = [[5, 6],    A + B = [[1+5, 2+6],</span><br><span class="line">     [3, 4]]         [7, 8]]             [3+7, 4+8]]</span><br><span class="line"></span><br><span class="line"># 结果: [[6, 8], [10, 12]]</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p><strong>✨ 进阶：广播 (Broadcasting)</strong></p>
+<p>如果两个张量形状<strong>不完全一样</strong>，但又“兼容”，框架会自动“扩展”那个小一点的张量，让它们能够运算。这个过程就叫广播。</p>
+<blockquote>
+<p>🌰 <strong>示例：给矩阵的每一行都加上一个向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2, 3],    B = [10, 20, 30]</span><br><span class="line">     [4, 5, 6]]</span><br><span class="line"></span><br><span class="line"># 框架会自动把 B “复制”成两行，变成 [[10, 20, 30], [10, 20, 30]]</span><br><span class="line"># 然后再和 A 做逐元素相加。</span><br><span class="line">A + B = [[11, 22, 33],</span><br><span class="line">         [14, 25, 36]]</span><br></pre></td></tr></table></figure> 广播非常强大，能省去很多手动的 <code>for</code> 循环。</p>
+</blockquote>
+<h3 id="矩阵乘法-matmul-bmm">2. 矩阵乘法 (MatMul / BMM)</h3>
+<p>矩阵乘法不是对应位置相乘，规则要特殊一些。</p>
+<blockquote>
+<p><strong>规则</strong>：对于 <code>A @ B</code> (在 Python 里 <code>@</code> 是矩阵乘法的运算符)，A 的 <strong>列数</strong> 必须等于 B 的 <strong>行数</strong>。 - <code>A (n, m)</code> @ <code>B (m, p)</code> → <code>C (n, p)</code></p>
+<p>把它想象成“配对消除”：中间的 <code>m</code> 维配对后消失，剩下两头的 <code>n</code> 和 <code>p</code> 组成新形状。</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 一个 <code>(2, 3)</code> 矩阵乘以一个 <code>(3, 4)</code> 矩阵：</p>
+<ul>
+<li><code>A</code> 有 2 行 3 列</li>
+<li><code>B</code> 有 3 行 4 列</li>
+<li>A 的列数 (3) == B 的行数 (3)，可以相乘！</li>
+<li>结果 <code>C</code> 的形状是 <code>(2, 4)</code>。</li>
+</ul>
+</blockquote>
+<p><strong>✨ 进阶：批量矩阵乘法 (BMM - Batched Matrix Multiplication)</strong></p>
+<p>如果想一次性做好几组独立的矩阵乘法，就可以用 BMM。</p>
+<blockquote>
+<p><strong>规则</strong>：<code>A (b, n, m)</code> @ <code>B (b, m, p)</code> → <code>C (b, n, p)</code></p>
+<p><code>b</code> 是 <code>batch_size</code>，代表有多少组。除了 <code>b</code> 必须相等，每一组内的 <code>n, m, p</code> 规则和普通矩阵乘法一样。</p>
+</blockquote>
+<h3 id="拼接-concatenation">3. 拼接 (Concatenation)</h3>
+<p>拼接就是把几个张量“粘”在一起，变成一个更大的张量。</p>
+<blockquote>
+<p><strong>规则</strong>：除了你要拼接的那个维度（<code>axis</code> 或 <code>dim</code>），其他所有维度的大小都必须完全一致。</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 两个形状为 <code>(2, 3)</code> 的张量 <code>A</code> 和 <code>B</code>。</p>
+<ul>
+<li><p><strong>沿 <code>axis=0</code> (行) 拼接</strong>：像叠罗汉一样上下拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 1, 1],    B = [[2, 2, 2],</span><br><span class="line">     [1, 1, 1]]         [2, 2, 2]]</span><br><span class="line"># 结果形状 (4, 3)</span><br><span class="line">[[1, 1, 1],</span><br><span class="line"> [1, 1, 1],</span><br><span class="line"> [2, 2, 2],</span><br><span class="line"> [2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>沿 <code>axis=1</code> (列) 拼接</strong>：像火车车厢一样左右拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 结果形状 (2, 6)</span><br><span class="line">[[1, 1, 1, 2, 2, 2],</span><br><span class="line"> [1, 1, 1, 2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="python-取整与-z3-约束细节">5️⃣ Python 取整与 Z3 约束细节</h2>
+<h3 id="为何需要-向下取整">为何需要 <code>//</code> (向下取整)？</h3>
+<p>在计算卷积或池化输出尺寸时，公式 <code>(I + 2P - K) / S + 1</code> 很容易算出小数，比如 <code>(10 - 3) / 2 = 3.5</code>。但像素数不可能是小数，我们必须把它变成整数。</p>
+<ul>
+<li><strong><code>/</code> (普通除法)</strong>：<code>7 / 2 = 3.5</code></li>
+<li><strong><code>//</code> (地板除法)</strong>：<code>7 // 2 = 3</code> (直接扔掉小数部分，往小了取)</li>
+</ul>
+<blockquote>
+<p>✨ <strong>核心：</strong> 深度学习里的形状计算，用的都是<strong>向下取整</strong>。所以你在代码里会看到 <code>//</code> 而不是 <code>/</code>。</p>
+</blockquote>
+<h3 id="z3-如何理解取整">Z3 如何理解取整？</h3>
+<p>Z3 的整数除法 <code>/</code> 在处理正数时，行为和 Python 的 <code>//</code> 一模一样。这就是为什么在给 Z3 添加规则时，我们总是先加一条：</p>
+<p><code>solver.add(H_in &gt; 0, K &gt; 0, S &gt; 0, ...)</code></p>
+<blockquote>
+<p>这条规则相当于告诉 Z3：“别去想那些负数或者零的情况，咱们只在正数范围内玩耍。” 这样就保证了 Z3 的数学模型和框架的实际计算结果能对得上。</p>
+</blockquote>
+<h3 id="为何要限制大小-231">为何要限制大小 (<code>&lt; 2**31</code>)？</h3>
+<p>在 <code>ops.py</code> 里，我们还常会加一条 <code>dim &lt; 2**31</code> 的约束。</p>
+<blockquote>
+<p><strong>生活化比喻：</strong> 这就像你让朋友猜一个数字，但你先告诉他：“这个数在 1 到 100 之间”。这会让他猜得更快，而不是天马行空地去想。</p>
+</blockquote>
+<p><strong>主要原因有两个：</strong></p>
+<ol type="1">
+<li><strong>现实限制</strong>：GPU 内存有限，不可能创建一个几百亿维度的张量。<code>2**31-1</code> 是很多框架内部表示维度大小的上限。</li>
+<li><strong>求解效率</strong>：给 Z3 一个明确的范围，可以极大地缩小它的“搜索空间”，让它在几秒钟内就找到答案，而不是花几个小时去尝试那些不切实际的超大数字。</li>
+</ol>
+<hr />
+<h2 id="z3用数学公式反推合法参数">6️⃣ Z3：用数学公式反推合法参数</h2>
+<p><strong>什么是 fuzzing？</strong></p>
+<ul>
+<li>Fuzzing：自动生成大量输入，触达边界与异常路径，用于找 Bug/崩溃/未定义行为。</li>
+<li><p>本项目属于“约束引导 fuzzing”：</p>
+<ul>
+<li>先用 Z3 约束“形状与参数必须合法”；</li>
+<li>再通过多次采样（哈希不等式）获取“多样但合规”的极端组合；</li>
+<li>用这些组合去驱动 Deep Learning/CUDA 路径，观察异常行为与性能拐点。</li>
+</ul></li>
+</ul>
+<p><strong>Z3 是什么？</strong></p>
+<ul>
+<li>Z3 是微软研究院开源的 SMT（Satisfiability Modulo Theories）求解器，能在“命题可满足性”的基础上，处理整数/布尔/数组/位向量等“理论”的联合约束。</li>
+<li>你给出变量与约束（= 公式），它判断是否可满足，并返回一个“模型”（具体赋值）。</li>
+</ul>
+<p>Z3 是一个“约束求解器”。你可以把它想象成一个<strong>超级聪明的数独程序</strong>。</p>
+<blockquote>
+<p><strong>工作流程：</strong></p>
+<ol type="1">
+<li><strong>你提供规则</strong>：比如“这一行数字不能重复”、“这一格必须是 5”。</li>
+<li><strong>它负责寻找答案</strong>：Z3 会自动尝试所有可能性，找出一个或多个满足你所有规则的数字组合。</li>
+</ol>
+</blockquote>
+<p>在我们的场景里，规则就是算子的“形状计算公式”，答案就是一组“合法的张量形状和参数”。</p>
+<h3 id="z3-的基本积木">1. Z3 的基本积木</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> Int, Solver, And, sat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 声明变量：告诉 Z3，这些是我要你帮忙找的未知数</span></span><br><span class="line">H_in = Int(<span class="string">&#x27;H_in&#x27;</span>)  <span class="comment"># 输入高度</span></span><br><span class="line">K = Int(<span class="string">&#x27;K&#x27;</span>)        <span class="comment"># Kernel 大小</span></span><br><span class="line">P = Int(<span class="string">&#x27;P&#x27;</span>)        <span class="comment"># Padding</span></span><br><span class="line">S = Int(<span class="string">&#x27;S&#x27;</span>)        <span class="comment"># Stride</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建一个求解器实例</span></span><br><span class="line">solver = Solver()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加规则 (Constraints)</span></span><br><span class="line">solver.add(H_in &gt; <span class="number">0</span>, K &gt; <span class="number">0</span>, P &gt;= <span class="number">0</span>, S &gt; <span class="number">0</span>)  <span class="comment"># 所有参数必须是正数（Padding可以为0）</span></span><br><span class="line">solver.add(K &lt; H_in)  <span class="comment"># Kernel 不能比输入还大</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 求解并读取结果</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:  <span class="comment"># sat 的意思是 &quot;satisfiable&quot;，即“有解”</span></span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;找到一组解: H_in=<span class="subst">&#123;model[H_in]&#125;</span>, K=<span class="subst">&#123;model[K]&#125;</span>, ...&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;无解！&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="用公式当规则反推卷积参数">2. 用公式当规则：反推卷积参数</h3>
+<p>现在，我们把卷积的输出公式也加进去当规则：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ...接上文...</span></span><br><span class="line">H_out = Int(<span class="string">&#x27;H_out&#x27;</span>)</span><br><span class="line"><span class="comment"># 已知输出必须是 7</span></span><br><span class="line">solver.add(H_out == <span class="number">7</span>)</span><br><span class="line"><span class="comment"># 把公式加进去</span></span><br><span class="line">solver.add(H_out == (H_in + <span class="number">2</span>*P - K)//S + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次求解</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:</span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="comment"># Z3 会给出一组能让 H_out 等于 7 的 H_in, K, P, S</span></span><br><span class="line">    <span class="built_in">print</span>(model) <span class="comment"># 例如: [K = 3, S = 2, P = 1, H_in = 13, H_out = 7]</span></span><br></pre></td></tr></table></figure>
+<h3 id="如何找到不同的解">3. 如何找到“不同的”解？</h3>
+<p>为了测试更多情况，我们需要 Z3 给出和上次不一样的答案。</p>
+<blockquote>
+<p><strong>方法</strong>：在找到一组解（比如 <code>H_in = 13</code>）之后，往求解器里追加一条新规则：<code>solver.add(H_in != 13)</code>，然后再 <code>solver.check()</code>，它就会去找下一组解了。</p>
+</blockquote>
+<p><strong><code>universal_hash</code> 是做什么的？</strong> 它是一种更高级的“制造不同”的方法。有时只排除一个变量 (<code>H_in != 13</code>)，Z3 给出的新解可能只是其他变量稍微变了一下，不够“多样”。<code>universal_hash</code> 会把所有变量的值都“搅乱”一下，再添加不等约束，这样更容易驱动 Z3 去探索一个全新的、差异更大的解空间。</p>
+<p>在 <code>ops.py</code> 里： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">universal_hash</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">if</span> z3.is_int(x):</span><br><span class="line">        bv = z3.Int2BV(x, <span class="number">32</span>)</span><br><span class="line">        bv = (bv &amp; <span class="number">0xaaaaaaaa</span>) ^ (bv &amp; <span class="number">0x55555555</span>)</span><br><span class="line">        <span class="keyword">return</span> z3.BV2Int(bv, <span class="number">32</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(x, <span class="built_in">int</span>):</span><br><span class="line">        <span class="keyword">return</span> (x &amp; <span class="number">0xaaaaaaaa</span>) ^ (x &amp; <span class="number">0x55555555</span>)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>对 z3 的 Int 先转 32 位位向量，分别与 <code>0xaaaaaaaa</code>（1010…）和 <code>0x55555555</code>（0101…）做按位与，再异或，最后转回 Int。</li>
+<li>作用：把“具体值”在比特层面打散，得到“哈希指纹”。配合不等式使用： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">solver.add(universal_hash(sym) != universal_hash(interp.as_long()))</span><br><span class="line">solver.add(sym != interp.as_long())</span><br></pre></td></tr></table></figure> 这样比只写 <code>sym != old_value</code> 更容易跳出“局部变化”，采到“差异更大”的新解。</li>
+</ul>
+<h3 id="高级规则-forall处理-concat">4. 高级规则 <code>ForAll</code>：处理 Concat</h3>
+<p>对于 Concat 算子，规则是“除了拼接的那个维度，其他维度的大小都必须一样”。用 <code>ForAll</code> 就能优雅地表达这个规则。</p>
+<blockquote>
+<p><code>ForAll([i], Implies(i != concat_dim, shape_A[i] == shape_B[i]))</code></p>
+<p><strong>翻译成人话就是：</strong> “对于<strong>所有的</strong>维度 <code>i</code>，<strong>如果</strong> <code>i</code> 不是我们正在拼接的那个维度，<strong>那么</strong> <code>shape_A</code> 在 <code>i</code> 上的大小必须等于 <code>shape_B</code> 在 <code>i</code> 上的大小。”</p>
+</blockquote>
+<p><strong>ops.py 中 Z3 的具体应用</strong></p>
+<ul>
+<li><p>抽象层次：</p>
+<ul>
+<li><code>AbsCommonNN</code> 为卷积/池化等建立符号：<code>insize/outsize/kernelsize/stride/padding/dilation</code>；</li>
+<li>依算子写出尺寸公式并 <code>solver.add(...)</code>。</li>
+</ul></li>
+<li><p>典型公式：</p>
+<ul>
+<li>卷积：<code>OUT == (IN + 2*P - D*(K-1) - 1) / S + 1</code>；</li>
+<li>池化（Avg/Max）：<code>OUT == (IN + 2*P - K) / S + 1</code>；</li>
+<li>Concat：用 <code>ForAll(i, Implies(i!=dim, A[i]==B[i]))</code> 表达“除拼接维外全等”。</li>
+</ul></li>
+<li><p>多解采样：</p>
+<ul>
+<li>在 <code>materialize()</code> 内循环 <code>check → model → yield</code>；</li>
+<li>用 <code>_sol_sample()</code> 给随机选取的符号追加： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">solver.add(universal_hash(sym) != universal_hash(interp.as_long()))</span><br><span class="line">solver.add(sym != interp.as_long())</span><br></pre></td></tr></table></figure></li>
+<li>从而持续产出“不同解”（生成器 <code>yield</code> 多轮）。</li>
+</ul></li>
+<li><p>工程护栏：</p>
+<ul>
+<li>约束 <code>&gt;0</code>、<code>&lt;2**31</code>、可按需启用显存元素上限（<code>ELEM_LIMIT</code>）以控规模；</li>
+<li><code>Solver().set(timeout=...)</code> 防卡死；</li>
+<li>求解后将 z3 模型映射到各框架参数，动态构造 <code>Conv/Pool/...</code> 层进行实测。</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="三大框架参数映射同一功能不同叫法">7️⃣ 三大框架参数映射：同一功能，不同叫法</h2>
+<p>PyTorch, PaddlePaddle, TensorFlow (Keras) 是三个最主流的深度学习框架。它们都有卷积、池化这些功能，但就像不同地方的方言，它们给这些功能的参数起了不同的名字。</p>
+<h3 id="核心参数方言对照表">核心参数“方言”对照表</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">通用概念</th>
+<th style="text-align: left;">PyTorch</th>
+<th style="text-align: left;">PaddlePaddle</th>
+<th style="text-align: left;">TensorFlow (Keras)</th>
+<th style="text-align: left;">🗣️ 备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">输入通道数</td>
+<td style="text-align: left;"><code>in_channels</code></td>
+<td style="text-align: left;"><code>in_channels</code></td>
+<td style="text-align: left;">(自动推断)</td>
+<td style="text-align: left;">Keras 根据输入形状自动识别</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">输出通道数</td>
+<td style="text-align: left;"><code>out_channels</code></td>
+<td style="text-align: left;"><code>out_channels</code></td>
+<td style="text-align: left;"><code>filters</code></td>
+<td style="text-align: left;">TF 叫“滤波器数量”</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">卷积核大小</td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;">这个大家都一样</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">步长</td>
+<td style="text-align: left;"><code>stride</code></td>
+<td style="text-align: left;"><code>stride</code></td>
+<td style="text-align: left;"><code>strides</code></td>
+<td style="text-align: left;">TF 喜欢用复数形式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">填充</td>
+<td style="text-align: left;"><code>padding</code> (int)</td>
+<td style="text-align: left;"><code>padding</code> (int/str)</td>
+<td style="text-align: left;"><code>padding</code> (str)</td>
+<td style="text-align: left;"><strong>这个坑最多！</strong> (见下文)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">空洞卷积</td>
+<td style="text-align: left;"><code>dilation</code></td>
+<td style="text-align: left;"><code>dilation</code></td>
+<td style="text-align: left;"><code>dilation_rate</code></td>
+<td style="text-align: left;">TF 叫“空洞率”</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">分组卷积</td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;">基本一致</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">数据格式</td>
+<td style="text-align: left;">(默认 NCHW)</td>
+<td style="text-align: left;">(默认 NCHW)</td>
+<td style="text-align: left;">(默认 NHWC)</td>
+<td style="text-align: left;"><strong>TF/Keras 默认通道在后！</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="关键差异与代码示例">关键差异与代码示例</h3>
+<h4 id="padding-的大坑">1. Padding 的大坑</h4>
+<ul>
+<li><strong>PyTorch/Paddle</strong>：<code>padding=1</code> 表示在图片四周都填充 1 圈 0。</li>
+<li><strong>TensorFlow/Keras</strong>：<code>padding</code> 只能是字符串 <code>'valid'</code> (不填充) 或 <code>'same'</code> (自动计算填充，让输出和输入尺寸差不多)。如果你想精确控制填充几圈，必须<strong>单独用一个 <code>ZeroPadding2D</code> 层</strong>。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># PyTorch: 一步到位</span></span><br><span class="line">conv_torch = torch.nn.Conv2d(in_channels=<span class="number">3</span>, out_channels=<span class="number">16</span>, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># TensorFlow/Keras: 两步走</span></span><br><span class="line">model_tf = tf.keras.Sequential([</span><br><span class="line">    tf.keras.layers.ZeroPadding2D(padding=<span class="number">1</span>),</span><br><span class="line">    tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>)</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
+<h4 id="数据格式-data_format">2. 数据格式 <code>data_format</code></h4>
+<p>因为 PyTorch/Paddle 默认 <code>NCHW</code> (channels-first)，而 Keras 默认 <code>NHWC</code> (channels-last)，跨框架复现代码时，一定要在 Keras 层里加上 <code>data_format='channels_first'</code> 来保持统一！</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Keras 里保持和 PyTorch 一样的 NCHW 格式</span></span><br><span class="line">conv_keras = tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>, data_format=<span class="string">&#x27;channels_first&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="特殊算子支持情况">特殊算子支持情况</h3>
+<ul>
+<li><strong>转置卷积</strong>：TF/Keras 的 <code>Conv2DTranspose</code> 不支持 <code>groups</code> 参数。</li>
+<li><strong>某些算子</strong>：有些高级或不常用的算子，可能只有一个或两个框架支持。</li>
+</ul>
+<blockquote>
+<p>省流：写代码前，先查一下目标框架的官方文档，看好参数名叫什么、支持哪些功能。尤其是 <strong>Padding 和 data_format</strong>，是新手最容易踩的两个坑。</p>
+</blockquote>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ul>
+<li>布局先行：牢记 <code>NCHW</code> / <code>NCDHW</code> 与各维意义。<br />
+</li>
+<li>掌握卷积/池化公式，<strong>一眼能推形状</strong>。<br />
+</li>
+<li><code>//</code> 取整配合 “&gt;0” 约束，确保 SMT 结果一致。<br />
+</li>
+<li>参数映射时注意三框架差异，踩坑前先看文档。</li>
+</ul>
+<blockquote>
+<p>省流：<strong>布局→公式→约束→映射</strong> 四步打通，你的 Tensor 基础就算扎牢啦 📐✨</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>深度学习</category>
+        <category>计算机基础</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+        <tag>张量</tag>
+        <tag>形状推导</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Understanding the Linux Kernel Lecture 1 Note</title>
     <url>/posts/b1b647fa/</url>
     <content><![CDATA[<h2 id="引言">引言</h2>
@@ -4141,457 +4716,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
-    <title>Tensor 基础：布局、算子与形状推导</title>
-    <url>/posts/f1e2d3c4/</url>
-    <content><![CDATA[<p>想看懂卷积、池化公式却老被 <code>NCHW</code>、<code>stride</code> 搞糊涂？本文聚焦 <strong>张量布局 → 常见算子 → 形状计算公式</strong>，用一篇梳理基础概念。</p>
-<span id="more"></span>
-<h3 id="术语算子operator是什么">术语：算子（Operator）是什么？</h3>
-<ul>
-<li><strong>定义</strong>：在计算图中对张量进行某种变换的“最小计算单元”，如加法、卷积、矩阵乘。深度学习框架把算子拼成计算图并自动求导。</li>
-<li><strong>省流</strong>：算子=“对张量做事”的函数积木；模型=“很多算子按顺序和拓扑连起来”。</li>
-</ul>
-<h3 id="常见算子速览按功能分组">常见算子速览（按功能分组）</h3>
-<ul>
-<li><strong>形状与索引</strong>：<code>Reshape</code>/<code>View</code>、<code>Squeeze</code>/<code>Unsqueeze</code>、<code>Transpose</code>/<code>Permute</code>、<code>Concat</code>、<code>Split</code>/<code>Slice</code>、<code>Gather</code>/<code>Scatter</code>、<code>Repeat</code>/<code>Tile</code>、<code>Broadcast</code></li>
-<li><strong>逐元素与激活</strong>：<code>Add</code>/<code>Sub</code>/<code>Mul</code>/<code>Div</code>、<code>Pow</code>、<code>Clamp</code>、<code>Abs</code>、<code>Exp</code>/<code>Log</code>、<code>ReLU</code>/<code>LeakyReLU</code>/<code>GELU</code>/<code>Sigmoid</code>/<code>Tanh</code>/<code>Softplus</code>/<code>Swish</code></li>
-<li><strong>归约（Reduction）</strong>：<code>Sum</code>/<code>Mean</code>/<code>Max</code>/<code>Min</code>、<code>Argmax</code>/<code>Argmin</code>、<code>Prod</code>、<code>Norm</code>（<code>L1</code>/<code>L2</code>）</li>
-<li><strong>线性代数</strong>：<code>MatMul</code>/<code>GEMM</code>、<code>BatchMatMul</code>（<code>BMM</code>）、<code>Linear</code>（全连接）、<code>einsum</code></li>
-<li><strong>卷积族</strong>：<code>Conv1d/2d/3d</code>、<code>Depthwise</code>/<code>Grouped</code>、<code>Dilated</code>（空洞）、<code>Transposed Conv</code>（反卷积）、<code>Separable Conv</code></li>
-<li><strong>池化</strong>：<code>Max</code>/<code>Avg</code>/<code>Global</code>/<code>Adaptive Pool</code>（<code>1d</code>/<code>2d</code>/<code>3d</code>）</li>
-<li><strong>归一化与正则</strong>：<code>BatchNorm</code>/<code>LayerNorm</code>/<code>GroupNorm</code>/<code>InstanceNorm</code>、<code>Dropout</code></li>
-<li><strong>插值与采样</strong>：<code>Interpolate</code>/<code>Upsample</code>（<code>nearest</code>/<code>bilinear</code>）、<code>GridSample</code>、<code>Pad</code>（<code>Zero</code>/<code>Reflect</code>/<code>Replicate</code>）</li>
-<li><strong>概率与损失</strong>：<code>Softmax</code>/<code>LogSoftmax</code>、<code>CrossEntropy</code>、<code>MSE</code>/<code>MAE</code>、<code>NLL</code>、<code>KLDiv</code>、<code>Focal Loss</code></li>
-<li><strong>嵌入与稀疏</strong>：<code>Embedding</code>/<code>EmbeddingBag</code>、<code>Sparse MatMul</code></li>
-<li><strong>频域与信号</strong>：<code>FFT</code>/<code>iFFT</code>、<code>STFT</code>、<code>Conv1d</code> 信号处理</li>
-</ul>
-<hr />
-<h2 id="张量与布局从数字到多维数组">1️⃣ 张量与布局：从数字到多维数组</h2>
-<h3 id="什么是张量-tensor">什么是张量 (Tensor)？</h3>
-<p>想象一下：</p>
-<ul>
-<li><strong>0D 张量 (标量)</strong>：一个孤零零的数字，比如 <code>5</code>。</li>
-<li><p><strong>1D 张量 (向量)</strong>：一排数字，像 Python 列表 <code>[1, 2, 3, 4]</code>。</p>
-<blockquote>
-<p><strong>等等，Python 列表哪来的 <code>shape</code> 和 <code>dtype</code>？</strong><br />
-好问题！Python 列表本身没有。我们说的张量，其实是深度学习框架（如 PyTorch）里的一个特殊对象。框架会“接收”你的 Python 列表，然后把它“包装”成一个真正的张量。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 这是一个普通的 Python 列表</span></span><br><span class="line">data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. PyTorch 把它包装成一个 Tensor 对象</span></span><br><span class="line">tensor_1d = torch.tensor(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 现在，这个对象就有 shape 和 dtype 属性了</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.shape)  <span class="comment"># 输出: torch.Size([4])，表示这是一个长度为4的1D张量</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.dtype)  <span class="comment"># 输出: torch.int64，框架自动推断出是整数类型</span></span><br></pre></td></tr></table></figure>
-<p>✨ 所以，张量是“<strong>数据 + 描述信息（形状、类型）</strong>”的组合体。</p>
-</blockquote></li>
-<li><strong>2D 张量 (矩阵)</strong>：一个表格，有行有列，像 Excel 工作表。</li>
-<li><strong>3D 张量</strong>：一沓叠起来的表格，比如一张彩色图片（高 × 宽 × 3个颜色通道）。</li>
-<li><p><strong>4D 张量</strong>：一堆 3D 张量，比如 <strong>一批</strong> 彩色图片。</p></li>
-</ul>
-<blockquote>
-<p>✨ <strong>一句话：</strong> 张量就是“多维数组”，用来装深度学习模型处理的数据。每个张量都有两个核心属性：</p>
-<ul>
-<li><strong><code>shape</code> (形状)</strong>：一个元组，告诉你每个维度有多大。例如 <code>(64, 3, 224, 224)</code>。</li>
-<li><strong><code>dtype</code> (数据类型)</strong>：说明里面存的是什么类型的数，比如 <code>float32</code> (小数) 或 <code>int8</code> (整数)。</li>
-</ul>
-</blockquote>
-<h3 id="为何需要-nchw-这种布局">为何需要 NCHW 这种布局？</h3>
-<p>处理图片时，我们需要用一种标准方式来组织数据。<code>NCHW</code> 就是最流行的一种“打包格式”。</p>
-<table>
-<thead>
-<tr class="header">
-<th>字母</th>
-<th>含义</th>
-<th>🌰 举例：一张 <code>(3, 224, 224)</code> 的 RGB 图片</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>N</strong></td>
-<td><strong>Number / Batch</strong> (数量)</td>
-<td>一次处理 64 张图片，<code>N=64</code></td>
-</tr>
-<tr class="even">
-<td><strong>C</strong></td>
-<td><strong>Channel</strong> (通道)</td>
-<td>红/绿/蓝 3 个通道, <code>C=3</code></td>
-</tr>
-<tr class="odd">
-<td><strong>H</strong></td>
-<td><strong>Height</strong> (高度)</td>
-<td>图片高 224 像素, <code>H=224</code></td>
-</tr>
-<tr class="even">
-<td><strong>W</strong></td>
-<td><strong>Width</strong> (宽度)</td>
-<td>图片宽 224 像素, <code>W=224</code></td>
-</tr>
-</tbody>
-</table>
-<p>所以，一个 <code>(64, 3, 224, 224)</code> 的张量，意思就是“<strong>64 张、3 通道、224×224 大小的图片</strong>”。</p>
-<h3 id="nchw-vs-nhwc有啥区别">NCHW vs NHWC：有啥区别？</h3>
-<ul>
-<li><strong><code>NCHW</code> (channels_first)</strong>：<code>(N, C, H, W)</code>
-<ul>
-<li><strong>GPU 友好</strong>：CUDA/cuDNN 库针对这种布局做了优化，相邻通道的数据在内存里更连续，访问快。</li>
-<li>PyTorch/Paddle 默认。</li>
-</ul></li>
-<li><strong><code>NHWC</code> (channels_last)</strong>：<code>(N, H, W, C)</code>
-<ul>
-<li><strong>CPU/TPU 友好</strong>：某些硬件访存模式更适合通道在最后。</li>
-<li>TensorFlow 默认。</li>
-</ul></li>
-</ul>
-<blockquote>
-<p>省流：搞不清就用 <code>NCHW</code>，它是 GPU 上的“高速公路”。代码里看到 <code>permute(0, 2, 3, 1)</code> 就是在做 <code>NCHW</code> → <code>NHWC</code> 的切换。</p>
-</blockquote>
-<hr />
-<h2 id="卷积-convolution像用滤镜提取特征">2️⃣ 卷积 (Convolution)：像用“滤镜”提取特征</h2>
-<p>想象一下你给照片加滤镜（比如“锐化”或“模糊”），卷积做的就是类似的事情。它用一个小的“<strong>滤镜</strong>”（称为 <strong>Kernel</strong> 或卷积核），在输入图片上一点点地滑动，计算出每个区域的特征值，最后汇集成一张新的“特征图”。</p>
-<h3 id="卷积的五个关键参数">卷积的五个关键参数</h3>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">参数</th>
-<th style="text-align: left;">符号</th>
-<th style="text-align: left;">作用</th>
-<th style="text-align: left;">🌰 生活化比喻</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">输入尺寸</td>
-<td style="text-align: left;"><code>I</code></td>
-<td style="text-align: left;">图片的宽或高</td>
-<td style="text-align: left;">一块 10x10 的大巧克力</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kernel</td>
-<td style="text-align: left;"><code>K</code></td>
-<td style="text-align: left;">滤镜/卷积核的大小</td>
-<td style="text-align: left;">一个 3x3 的饼干模具</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Padding</td>
-<td style="text-align: left;"><code>P</code></td>
-<td style="text-align: left;">在图片边缘填充几圈0</td>
-<td style="text-align: left;">在巧克力周围加一圈奶油，防止模具出界</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Stride</td>
-<td style="text-align: left;"><code>S</code></td>
-<td style="text-align: left;">滤镜每次滑动的步长</td>
-<td style="text-align: left;">模具每次向右/下移动几格</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Dilation</td>
-<td style="text-align: left;"><code>D</code></td>
-<td style="text-align: left;">Kernel内部元素的间距</td>
-<td style="text-align: left;">模具上的图案本身有多稀疏</td>
-</tr>
-</tbody>
-</table>
-<h3 id="正向卷积-forward-conv">正向卷积 (Forward Conv)</h3>
-<p>这是最常见的卷积，用来<strong>缩小</strong>特征图，<strong>提取</strong>特征。</p>
-<blockquote>
-<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - D·(K-1) - 1) / S⌋ + 1</code></p>
-</blockquote>
-<p><strong>公式拆解：</strong></p>
-<ol type="1">
-<li><code>D·(K-1) + 1</code>：这是考虑了空洞（Dilation）之后，卷积核覆盖的实际范围。如果 <code>D=1</code>，它就等于 <code>K</code>。</li>
-<li><code>I + 2P</code>：这是输入图片在两边都加上了 <code>P</code> 圈“奶油”之后的总宽度。</li>
-<li><code>(I + 2P) - (D·(K-1) + 1)</code>：这是模具可以在奶油巧克力上滑动的“总距离”。</li>
-<li>除以 <code>S</code> 再 <code>+1</code>：计算在这个总距离上，以 <code>S</code> 为步长，总共能挪动几步（结果向下取整）。</li>
-</ol>
-<blockquote>
-<p>🌰 <strong>示例：</strong> 输入 <code>I=5</code>, Kernel <code>K=3</code>, Padding <code>P=1</code>, Stride <code>S=2</code>, Dilation <code>D=1</code>。 - 加上 padding 后的总宽度是 <code>5 + 2*1 = 7</code>。 - Kernel 覆盖范围是 <code>1*(3-1)+1 = 3</code>。 - 滑动总距离是 <code>7 - 3 = 4</code>。 - 能滑几步？<code>4 / 2 = 2</code> 步。 - 总共能摆放几次？<code>2 + 1 = 3</code> 次。所以输出 <code>OUT=3</code>。</p>
-</blockquote>
-<h3 id="转置卷积-transposed-conv">转置卷积 (Transposed Conv)</h3>
-<p>也叫“反卷积”，但这个名字不准确。它的作用和正向卷积相反，常用来<strong>放大</strong>特征图（上采样）。</p>
-<blockquote>
-<p><strong>公式</strong>：<code>OUT = (I - 1)·S - 2P + D·(K-1) + 1</code></p>
-<p>把它想象成“从特征图反推原图尺寸”的过程，或者“用一个画笔（Kernel）在小画布上画，画出一个大图”。公式的每一项都是正向卷积的“逆运算”。</p>
-</blockquote>
-<hr />
-<h2 id="池化-pooling给特征图瘦身减负">3️⃣ 池化 (Pooling)：给特征图“瘦身减负”</h2>
-<p>如果说卷积是“精加工提取特征”，那么池化就是“<strong>粗加工，信息压缩</strong>”。它同样用一个小窗口在图上滑动，但计算规则更简单：只取窗口内的最大值（Max Pooling）或平均值（Average Pooling）。</p>
-<p><strong>为什么需要池化？</strong></p>
-<ol type="1">
-<li><strong>降低计算量</strong>：特征图变小了，后续计算更快。</li>
-<li><strong>防止过拟合</strong>：保留最主要的特征，丢掉一些不重要的细节。</li>
-<li><strong>增加感受野</strong>：让后面的卷积能看到更大范围的原始信息。</li>
-</ol>
-<h3 id="max-avg-pooling">Max / Avg Pooling</h3>
-<blockquote>
-<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - K) / S⌋ + 1</code></p>
-<p>（和卷积公式一样，只是没有 Dilation）</p>
-</blockquote>
-<blockquote>
-<p>🌰 <strong>示例：Max Pooling</strong> 假设有一个 4x4 的输入，用一个 2x2 的窗口、步长为 2 来做最大池化： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入:             窗口1: [[1, 2],    窗口2: [[3, 4],</span><br><span class="line">[[1, 2, 3, 4],     [5, 6]] → max=6        [7, 8]] → max=8</span><br><span class="line"> [5, 6, 7, 8],</span><br><span class="line"> [9, 1, 2, 3],    窗口3: [[9, 1],    窗口4: [[2, 3],</span><br><span class="line"> [4, 5, 6, 7]]     [4, 5]] → max=9        [6, 7]] → max=7</span><br><span class="line"></span><br><span class="line">输出 (2x2):</span><br><span class="line">[[6, 8],</span><br><span class="line"> [9, 7]]</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<h3 id="自适应池化-adaptive-pooling">自适应池化 (Adaptive Pooling)</h3>
-<p>这是个“懒人”池化。你<strong>不需要关心 K、P、S 是多少</strong>，直接告诉它你想要多大的输出就行了。</p>
-<blockquote>
-<p><strong>用法</strong>：<code>AdaptiveMaxPool2d(output_size=7)</code></p>
-<p>框架会自动计算出合适的 K 和 S，把任意大小的输入都变成 <code>7x7</code>。这在连接卷积层和全连接层时特别有用。</p>
-</blockquote>
-<hr />
-<h2 id="二元-矩阵算子形状规则">4️⃣ 二元 / 矩阵算子形状规则</h2>
-<h3 id="逐元素-element-wise-运算加减乘除">1. 逐元素 (Element-wise) 运算：加减乘除</h3>
-<p>这是最简单的运算，就像小学数学题，把两个形状完全一样的表格，对应位置的数字做加减法。</p>
-<blockquote>
-<p><strong>规则</strong>：两个张量的形状必须完全一样。</p>
-<p>🌰 <strong>示例：</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2],    B = [[5, 6],    A + B = [[1+5, 2+6],</span><br><span class="line">     [3, 4]]         [7, 8]]             [3+7, 4+8]]</span><br><span class="line"></span><br><span class="line"># 结果: [[6, 8], [10, 12]]</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<p><strong>✨ 进阶：广播 (Broadcasting)</strong></p>
-<p>如果两个张量形状<strong>不完全一样</strong>，但又“兼容”，框架会自动“扩展”那个小一点的张量，让它们能够运算。这个过程就叫广播。</p>
-<blockquote>
-<p>🌰 <strong>示例：给矩阵的每一行都加上一个向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2, 3],    B = [10, 20, 30]</span><br><span class="line">     [4, 5, 6]]</span><br><span class="line"></span><br><span class="line"># 框架会自动把 B “复制”成两行，变成 [[10, 20, 30], [10, 20, 30]]</span><br><span class="line"># 然后再和 A 做逐元素相加。</span><br><span class="line">A + B = [[11, 22, 33],</span><br><span class="line">         [14, 25, 36]]</span><br></pre></td></tr></table></figure> 广播非常强大，能省去很多手动的 <code>for</code> 循环。</p>
-</blockquote>
-<h3 id="矩阵乘法-matmul-bmm">2. 矩阵乘法 (MatMul / BMM)</h3>
-<p>矩阵乘法不是对应位置相乘，规则要特殊一些。</p>
-<blockquote>
-<p><strong>规则</strong>：对于 <code>A @ B</code> (在 Python 里 <code>@</code> 是矩阵乘法的运算符)，A 的 <strong>列数</strong> 必须等于 B 的 <strong>行数</strong>。 - <code>A (n, m)</code> @ <code>B (m, p)</code> → <code>C (n, p)</code></p>
-<p>把它想象成“配对消除”：中间的 <code>m</code> 维配对后消失，剩下两头的 <code>n</code> 和 <code>p</code> 组成新形状。</p>
-</blockquote>
-<blockquote>
-<p>🌰 <strong>示例：</strong> 一个 <code>(2, 3)</code> 矩阵乘以一个 <code>(3, 4)</code> 矩阵：</p>
-<ul>
-<li><code>A</code> 有 2 行 3 列</li>
-<li><code>B</code> 有 3 行 4 列</li>
-<li>A 的列数 (3) == B 的行数 (3)，可以相乘！</li>
-<li>结果 <code>C</code> 的形状是 <code>(2, 4)</code>。</li>
-</ul>
-</blockquote>
-<p><strong>✨ 进阶：批量矩阵乘法 (BMM - Batched Matrix Multiplication)</strong></p>
-<p>如果想一次性做好几组独立的矩阵乘法，就可以用 BMM。</p>
-<blockquote>
-<p><strong>规则</strong>：<code>A (b, n, m)</code> @ <code>B (b, m, p)</code> → <code>C (b, n, p)</code></p>
-<p><code>b</code> 是 <code>batch_size</code>，代表有多少组。除了 <code>b</code> 必须相等，每一组内的 <code>n, m, p</code> 规则和普通矩阵乘法一样。</p>
-</blockquote>
-<h3 id="拼接-concatenation">3. 拼接 (Concatenation)</h3>
-<p>拼接就是把几个张量“粘”在一起，变成一个更大的张量。</p>
-<blockquote>
-<p><strong>规则</strong>：除了你要拼接的那个维度（<code>axis</code> 或 <code>dim</code>），其他所有维度的大小都必须完全一致。</p>
-</blockquote>
-<blockquote>
-<p>🌰 <strong>示例：</strong> 两个形状为 <code>(2, 3)</code> 的张量 <code>A</code> 和 <code>B</code>。</p>
-<ul>
-<li><p><strong>沿 <code>axis=0</code> (行) 拼接</strong>：像叠罗汉一样上下拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 1, 1],    B = [[2, 2, 2],</span><br><span class="line">     [1, 1, 1]]         [2, 2, 2]]</span><br><span class="line"># 结果形状 (4, 3)</span><br><span class="line">[[1, 1, 1],</span><br><span class="line"> [1, 1, 1],</span><br><span class="line"> [2, 2, 2],</span><br><span class="line"> [2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>沿 <code>axis=1</code> (列) 拼接</strong>：像火车车厢一样左右拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 结果形状 (2, 6)</span><br><span class="line">[[1, 1, 1, 2, 2, 2],</span><br><span class="line"> [1, 1, 1, 2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
-</ul>
-</blockquote>
-<hr />
-<h2 id="python-取整与-z3-约束细节">5️⃣ Python 取整与 Z3 约束细节</h2>
-<h3 id="为何需要-向下取整">为何需要 <code>//</code> (向下取整)？</h3>
-<p>在计算卷积或池化输出尺寸时，公式 <code>(I + 2P - K) / S + 1</code> 很容易算出小数，比如 <code>(10 - 3) / 2 = 3.5</code>。但像素数不可能是小数，我们必须把它变成整数。</p>
-<ul>
-<li><strong><code>/</code> (普通除法)</strong>：<code>7 / 2 = 3.5</code></li>
-<li><strong><code>//</code> (地板除法)</strong>：<code>7 // 2 = 3</code> (直接扔掉小数部分，往小了取)</li>
-</ul>
-<blockquote>
-<p>✨ <strong>核心：</strong> 深度学习里的形状计算，用的都是<strong>向下取整</strong>。所以你在代码里会看到 <code>//</code> 而不是 <code>/</code>。</p>
-</blockquote>
-<h3 id="z3-如何理解取整">Z3 如何理解取整？</h3>
-<p>Z3 的整数除法 <code>/</code> 在处理正数时，行为和 Python 的 <code>//</code> 一模一样。这就是为什么在给 Z3 添加规则时，我们总是先加一条：</p>
-<p><code>solver.add(H_in &gt; 0, K &gt; 0, S &gt; 0, ...)</code></p>
-<blockquote>
-<p>这条规则相当于告诉 Z3：“别去想那些负数或者零的情况，咱们只在正数范围内玩耍。” 这样就保证了 Z3 的数学模型和框架的实际计算结果能对得上。</p>
-</blockquote>
-<h3 id="为何要限制大小-231">为何要限制大小 (<code>&lt; 2**31</code>)？</h3>
-<p>在 <code>ops.py</code> 里，我们还常会加一条 <code>dim &lt; 2**31</code> 的约束。</p>
-<blockquote>
-<p><strong>生活化比喻：</strong> 这就像你让朋友猜一个数字，但你先告诉他：“这个数在 1 到 100 之间”。这会让他猜得更快，而不是天马行空地去想。</p>
-</blockquote>
-<p><strong>主要原因有两个：</strong></p>
-<ol type="1">
-<li><strong>现实限制</strong>：GPU 内存有限，不可能创建一个几百亿维度的张量。<code>2**31-1</code> 是很多框架内部表示维度大小的上限。</li>
-<li><strong>求解效率</strong>：给 Z3 一个明确的范围，可以极大地缩小它的“搜索空间”，让它在几秒钟内就找到答案，而不是花几个小时去尝试那些不切实际的超大数字。</li>
-</ol>
-<hr />
-<h2 id="z3用数学公式反推合法参数">6️⃣ Z3：用数学公式反推合法参数</h2>
-<p><strong>什么是 fuzzing？</strong></p>
-<ul>
-<li>Fuzzing：自动生成大量输入，触达边界与异常路径，用于找 Bug/崩溃/未定义行为。</li>
-<li><p>本项目属于“约束引导 fuzzing”：</p>
-<ul>
-<li>先用 Z3 约束“形状与参数必须合法”；</li>
-<li>再通过多次采样（哈希不等式）获取“多样但合规”的极端组合；</li>
-<li>用这些组合去驱动 Deep Learning/CUDA 路径，观察异常行为与性能拐点。</li>
-</ul></li>
-</ul>
-<p><strong>Z3 是什么？</strong></p>
-<ul>
-<li>Z3 是微软研究院开源的 SMT（Satisfiability Modulo Theories）求解器，能在“命题可满足性”的基础上，处理整数/布尔/数组/位向量等“理论”的联合约束。</li>
-<li>你给出变量与约束（= 公式），它判断是否可满足，并返回一个“模型”（具体赋值）。</li>
-</ul>
-<p>Z3 是一个“约束求解器”。你可以把它想象成一个<strong>超级聪明的数独程序</strong>。</p>
-<blockquote>
-<p><strong>工作流程：</strong></p>
-<ol type="1">
-<li><strong>你提供规则</strong>：比如“这一行数字不能重复”、“这一格必须是 5”。</li>
-<li><strong>它负责寻找答案</strong>：Z3 会自动尝试所有可能性，找出一个或多个满足你所有规则的数字组合。</li>
-</ol>
-</blockquote>
-<p>在我们的场景里，规则就是算子的“形状计算公式”，答案就是一组“合法的张量形状和参数”。</p>
-<h3 id="z3-的基本积木">1. Z3 的基本积木</h3>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> Int, Solver, And, sat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 声明变量：告诉 Z3，这些是我要你帮忙找的未知数</span></span><br><span class="line">H_in = Int(<span class="string">&#x27;H_in&#x27;</span>)  <span class="comment"># 输入高度</span></span><br><span class="line">K = Int(<span class="string">&#x27;K&#x27;</span>)        <span class="comment"># Kernel 大小</span></span><br><span class="line">P = Int(<span class="string">&#x27;P&#x27;</span>)        <span class="comment"># Padding</span></span><br><span class="line">S = Int(<span class="string">&#x27;S&#x27;</span>)        <span class="comment"># Stride</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建一个求解器实例</span></span><br><span class="line">solver = Solver()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加规则 (Constraints)</span></span><br><span class="line">solver.add(H_in &gt; <span class="number">0</span>, K &gt; <span class="number">0</span>, P &gt;= <span class="number">0</span>, S &gt; <span class="number">0</span>)  <span class="comment"># 所有参数必须是正数（Padding可以为0）</span></span><br><span class="line">solver.add(K &lt; H_in)  <span class="comment"># Kernel 不能比输入还大</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 求解并读取结果</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:  <span class="comment"># sat 的意思是 &quot;satisfiable&quot;，即“有解”</span></span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;找到一组解: H_in=<span class="subst">&#123;model[H_in]&#125;</span>, K=<span class="subst">&#123;model[K]&#125;</span>, ...&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;无解！&quot;</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="用公式当规则反推卷积参数">2. 用公式当规则：反推卷积参数</h3>
-<p>现在，我们把卷积的输出公式也加进去当规则：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ...接上文...</span></span><br><span class="line">H_out = Int(<span class="string">&#x27;H_out&#x27;</span>)</span><br><span class="line"><span class="comment"># 已知输出必须是 7</span></span><br><span class="line">solver.add(H_out == <span class="number">7</span>)</span><br><span class="line"><span class="comment"># 把公式加进去</span></span><br><span class="line">solver.add(H_out == (H_in + <span class="number">2</span>*P - K)//S + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次求解</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:</span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="comment"># Z3 会给出一组能让 H_out 等于 7 的 H_in, K, P, S</span></span><br><span class="line">    <span class="built_in">print</span>(model) <span class="comment"># 例如: [K = 3, S = 2, P = 1, H_in = 13, H_out = 7]</span></span><br></pre></td></tr></table></figure>
-<h3 id="如何找到不同的解">3. 如何找到“不同的”解？</h3>
-<p>为了测试更多情况，我们需要 Z3 给出和上次不一样的答案。</p>
-<blockquote>
-<p><strong>方法</strong>：在找到一组解（比如 <code>H_in = 13</code>）之后，往求解器里追加一条新规则：<code>solver.add(H_in != 13)</code>，然后再 <code>solver.check()</code>，它就会去找下一组解了。</p>
-</blockquote>
-<p><strong><code>universal_hash</code> 是做什么的？</strong> 它是一种更高级的“制造不同”的方法。有时只排除一个变量 (<code>H_in != 13</code>)，Z3 给出的新解可能只是其他变量稍微变了一下，不够“多样”。<code>universal_hash</code> 会把所有变量的值都“搅乱”一下，再添加不等约束，这样更容易驱动 Z3 去探索一个全新的、差异更大的解空间。</p>
-<p>在 <code>ops.py</code> 里： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">universal_hash</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">if</span> z3.is_int(x):</span><br><span class="line">        bv = z3.Int2BV(x, <span class="number">32</span>)</span><br><span class="line">        bv = (bv &amp; <span class="number">0xaaaaaaaa</span>) ^ (bv &amp; <span class="number">0x55555555</span>)</span><br><span class="line">        <span class="keyword">return</span> z3.BV2Int(bv, <span class="number">32</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(x, <span class="built_in">int</span>):</span><br><span class="line">        <span class="keyword">return</span> (x &amp; <span class="number">0xaaaaaaaa</span>) ^ (x &amp; <span class="number">0x55555555</span>)</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>对 z3 的 Int 先转 32 位位向量，分别与 <code>0xaaaaaaaa</code>（1010…）和 <code>0x55555555</code>（0101…）做按位与，再异或，最后转回 Int。</li>
-<li>作用：把“具体值”在比特层面打散，得到“哈希指纹”。配合不等式使用： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">solver.add(universal_hash(sym) != universal_hash(interp.as_long()))</span><br><span class="line">solver.add(sym != interp.as_long())</span><br></pre></td></tr></table></figure> 这样比只写 <code>sym != old_value</code> 更容易跳出“局部变化”，采到“差异更大”的新解。</li>
-</ul>
-<h3 id="高级规则-forall处理-concat">4. 高级规则 <code>ForAll</code>：处理 Concat</h3>
-<p>对于 Concat 算子，规则是“除了拼接的那个维度，其他维度的大小都必须一样”。用 <code>ForAll</code> 就能优雅地表达这个规则。</p>
-<blockquote>
-<p><code>ForAll([i], Implies(i != concat_dim, shape_A[i] == shape_B[i]))</code></p>
-<p><strong>翻译成人话就是：</strong> “对于<strong>所有的</strong>维度 <code>i</code>，<strong>如果</strong> <code>i</code> 不是我们正在拼接的那个维度，<strong>那么</strong> <code>shape_A</code> 在 <code>i</code> 上的大小必须等于 <code>shape_B</code> 在 <code>i</code> 上的大小。”</p>
-</blockquote>
-<p><strong>ops.py 中 Z3 的具体应用</strong></p>
-<ul>
-<li><p>抽象层次：</p>
-<ul>
-<li><code>AbsCommonNN</code> 为卷积/池化等建立符号：<code>insize/outsize/kernelsize/stride/padding/dilation</code>；</li>
-<li>依算子写出尺寸公式并 <code>solver.add(...)</code>。</li>
-</ul></li>
-<li><p>典型公式：</p>
-<ul>
-<li>卷积：<code>OUT == (IN + 2*P - D*(K-1) - 1) / S + 1</code>；</li>
-<li>池化（Avg/Max）：<code>OUT == (IN + 2*P - K) / S + 1</code>；</li>
-<li>Concat：用 <code>ForAll(i, Implies(i!=dim, A[i]==B[i]))</code> 表达“除拼接维外全等”。</li>
-</ul></li>
-<li><p>多解采样：</p>
-<ul>
-<li>在 <code>materialize()</code> 内循环 <code>check → model → yield</code>；</li>
-<li>用 <code>_sol_sample()</code> 给随机选取的符号追加： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">solver.add(universal_hash(sym) != universal_hash(interp.as_long()))</span><br><span class="line">solver.add(sym != interp.as_long())</span><br></pre></td></tr></table></figure></li>
-<li>从而持续产出“不同解”（生成器 <code>yield</code> 多轮）。</li>
-</ul></li>
-<li><p>工程护栏：</p>
-<ul>
-<li>约束 <code>&gt;0</code>、<code>&lt;2**31</code>、可按需启用显存元素上限（<code>ELEM_LIMIT</code>）以控规模；</li>
-<li><code>Solver().set(timeout=...)</code> 防卡死；</li>
-<li>求解后将 z3 模型映射到各框架参数，动态构造 <code>Conv/Pool/...</code> 层进行实测。</li>
-</ul></li>
-</ul>
-<hr />
-<h2 id="三大框架参数映射同一功能不同叫法">7️⃣ 三大框架参数映射：同一功能，不同叫法</h2>
-<p>PyTorch, PaddlePaddle, TensorFlow (Keras) 是三个最主流的深度学习框架。它们都有卷积、池化这些功能，但就像不同地方的方言，它们给这些功能的参数起了不同的名字。</p>
-<h3 id="核心参数方言对照表">核心参数“方言”对照表</h3>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">通用概念</th>
-<th style="text-align: left;">PyTorch</th>
-<th style="text-align: left;">PaddlePaddle</th>
-<th style="text-align: left;">TensorFlow (Keras)</th>
-<th style="text-align: left;">🗣️ 备注</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">输入通道数</td>
-<td style="text-align: left;"><code>in_channels</code></td>
-<td style="text-align: left;"><code>in_channels</code></td>
-<td style="text-align: left;">(自动推断)</td>
-<td style="text-align: left;">Keras 根据输入形状自动识别</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">输出通道数</td>
-<td style="text-align: left;"><code>out_channels</code></td>
-<td style="text-align: left;"><code>out_channels</code></td>
-<td style="text-align: left;"><code>filters</code></td>
-<td style="text-align: left;">TF 叫“滤波器数量”</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">卷积核大小</td>
-<td style="text-align: left;"><code>kernel_size</code></td>
-<td style="text-align: left;"><code>kernel_size</code></td>
-<td style="text-align: left;"><code>kernel_size</code></td>
-<td style="text-align: left;">这个大家都一样</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">步长</td>
-<td style="text-align: left;"><code>stride</code></td>
-<td style="text-align: left;"><code>stride</code></td>
-<td style="text-align: left;"><code>strides</code></td>
-<td style="text-align: left;">TF 喜欢用复数形式</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">填充</td>
-<td style="text-align: left;"><code>padding</code> (int)</td>
-<td style="text-align: left;"><code>padding</code> (int/str)</td>
-<td style="text-align: left;"><code>padding</code> (str)</td>
-<td style="text-align: left;"><strong>这个坑最多！</strong> (见下文)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">空洞卷积</td>
-<td style="text-align: left;"><code>dilation</code></td>
-<td style="text-align: left;"><code>dilation</code></td>
-<td style="text-align: left;"><code>dilation_rate</code></td>
-<td style="text-align: left;">TF 叫“空洞率”</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">分组卷积</td>
-<td style="text-align: left;"><code>groups</code></td>
-<td style="text-align: left;"><code>groups</code></td>
-<td style="text-align: left;"><code>groups</code></td>
-<td style="text-align: left;">基本一致</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">数据格式</td>
-<td style="text-align: left;">(默认 NCHW)</td>
-<td style="text-align: left;">(默认 NCHW)</td>
-<td style="text-align: left;">(默认 NHWC)</td>
-<td style="text-align: left;"><strong>TF/Keras 默认通道在后！</strong></td>
-</tr>
-</tbody>
-</table>
-<h3 id="关键差异与代码示例">关键差异与代码示例</h3>
-<h4 id="padding-的大坑">1. Padding 的大坑</h4>
-<ul>
-<li><strong>PyTorch/Paddle</strong>：<code>padding=1</code> 表示在图片四周都填充 1 圈 0。</li>
-<li><strong>TensorFlow/Keras</strong>：<code>padding</code> 只能是字符串 <code>'valid'</code> (不填充) 或 <code>'same'</code> (自动计算填充，让输出和输入尺寸差不多)。如果你想精确控制填充几圈，必须<strong>单独用一个 <code>ZeroPadding2D</code> 层</strong>。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># PyTorch: 一步到位</span></span><br><span class="line">conv_torch = torch.nn.Conv2d(in_channels=<span class="number">3</span>, out_channels=<span class="number">16</span>, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># TensorFlow/Keras: 两步走</span></span><br><span class="line">model_tf = tf.keras.Sequential([</span><br><span class="line">    tf.keras.layers.ZeroPadding2D(padding=<span class="number">1</span>),</span><br><span class="line">    tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>)</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
-<h4 id="数据格式-data_format">2. 数据格式 <code>data_format</code></h4>
-<p>因为 PyTorch/Paddle 默认 <code>NCHW</code> (channels-first)，而 Keras 默认 <code>NHWC</code> (channels-last)，跨框架复现代码时，一定要在 Keras 层里加上 <code>data_format='channels_first'</code> 来保持统一！</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Keras 里保持和 PyTorch 一样的 NCHW 格式</span></span><br><span class="line">conv_keras = tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>, data_format=<span class="string">&#x27;channels_first&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="特殊算子支持情况">特殊算子支持情况</h3>
-<ul>
-<li><strong>转置卷积</strong>：TF/Keras 的 <code>Conv2DTranspose</code> 不支持 <code>groups</code> 参数。</li>
-<li><strong>某些算子</strong>：有些高级或不常用的算子，可能只有一个或两个框架支持。</li>
-</ul>
-<blockquote>
-<p>省流：写代码前，先查一下目标框架的官方文档，看好参数名叫什么、支持哪些功能。尤其是 <strong>Padding 和 data_format</strong>，是新手最容易踩的两个坑。</p>
-</blockquote>
-<hr />
-<h2 id="小结">📝 小结</h2>
-<ul>
-<li>布局先行：牢记 <code>NCHW</code> / <code>NCDHW</code> 与各维意义。<br />
-</li>
-<li>掌握卷积/池化公式，<strong>一眼能推形状</strong>。<br />
-</li>
-<li><code>//</code> 取整配合 “&gt;0” 约束，确保 SMT 结果一致。<br />
-</li>
-<li>参数映射时注意三框架差异，踩坑前先看文档。</li>
-</ul>
-<blockquote>
-<p>省流：<strong>布局→公式→约束→映射</strong> 四步打通，你的 Tensor 基础就算扎牢啦 📐✨</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>深度学习</category>
-        <category>计算机基础</category>
-      </categories>
-      <tags>
-        <tag>深度学习</tag>
-        <tag>张量</tag>
-        <tag>形状推导</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CMake 入门</title>
     <url>/posts/233853f2/</url>
     <content><![CDATA[<p>不论你是写 C/C++、CUDA，还是要同时照顾 Linux/Windows/macOS，当项目走出“玩具”阶段，构建就会成为最大的摩擦源：不同编译器、不同 IDE、不同参数、不同依赖的发现与链接。如果还靠手写 <code>Makefile</code> 或分别维护 VS/Xcode 工程，成本会直线上升。</p>
@@ -4748,8 +4872,8 @@ graph TD;
 <li><strong>安全</strong>：Verifier 强校验（边界、类型、调用、上界循环等）避免内核崩溃。</li>
 <li><strong>可编程</strong>：通过不同 hook 点覆盖网络、跟踪、系统调用、调度等多场景。</li>
 </ul></li>
-<li><p><strong>原理一句话</strong>：把一小段经过严格安全检查的“字节码程序”挂在内核关键路径的钩子上，事件一来就执行；程序只做受限且安全的操作，状态放在可共享的 Map 里，必要时由 JIT 变成本机机器码以提升性能。</p></li>
-<li><strong>它是怎么跑起来的（7 步）</strong>：
+<li><p><strong>原理</strong>：把一小段经过严格安全检查的“字节码程序”挂在内核关键路径的钩子上，事件一来就执行；程序只做受限且安全的操作，状态放在可共享的 Map 里，必要时由 JIT 变成本机机器码以提升性能。</p></li>
+<li><strong>它是怎么跑起来的</strong>：
 <ol type="1">
 <li>写 C/Rust 小程序并编译为 eBPF 字节码；</li>
 <li>用户态通过 <code>bpf()</code> 系统调用加载；</li>
@@ -4972,6 +5096,186 @@ flowchart LR
         <tag>Linux</tag>
         <tag>eBPF</tag>
         <tag>网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>git之路：rebase &amp; cherry-pick</title>
+    <url>/posts/1566a5aa/</url>
+    <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
+<span id="more"></span>
+<h2 id="一核心概念">🧩 一、核心概念</h2>
+<ul>
+<li><strong>rebase (变基)</strong>：将当前分支的一系列提交“重放”到另一个目标分支之上。其核心用途是<strong>整理个人分支的提交历史</strong>，使其在并入主干时保持线性、清晰。</li>
+<li><strong>cherry-pick (拣选)</strong>：将某个（或某些）特定的提交<strong>复制</strong>到当前分支。它像摘樱桃一样，适合“挑着搬运”某个功能或紧急修复。</li>
+</ul>
+<h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
+<p>下面的两幅 Mermaid 图示分别演示了 Rebase 和 Cherry-pick 在典型协作场景中的作用。将代码块直接放入支持 Mermaid 的 Markdown 环境即可自动渲染。</p>
+<h3 id="图-1-rebase-工作流主干更新后将功能分支变基到最新-main">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</h3>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    subgraph &quot;main 分支&quot;
+        c0((c0)) --&gt; c1((c1)) --&gt; c3((c3))
+    end
+
+    subgraph &quot;feature&#x2F;a (rebase 前)&quot;
+        c2_before((c2)) --&gt; c4_before((c4))
+    end
+
+    subgraph &quot;feature&#x2F;a (rebase 后)&quot;
+        c2_after((&quot;c2&#39;&quot;)) --&gt; c4_after((&quot;c4&#39;&quot;))
+    end
+
+    c1 --&gt; c2_before
+    c3 --&gt; c2_after
+</code>
+</pre>
+<h3 id="图-2-cherry-pick-工作流从-featurea-拣选-c2-到-main">图 2 · Cherry-pick 工作流（从 feature/a 拣选 c2 到 main）</h3>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    subgraph &quot;初始历史&quot;
+        c0((c0)) --&gt; c1((c1))
+    end
+
+    subgraph &quot;main 分支&quot;
+        c3((c3)) --&gt; c2_prime((&quot;c2&#39;&quot;))
+        style c2_prime fill:#bbf,stroke:#333,stroke-width:2px
+    end
+
+    subgraph &quot;feature&#x2F;a 分支&quot;
+        c2((c2)) --&gt; c4((c4))
+    end
+    
+    c1 --&gt; c3
+    c1 --&gt; c2
+
+    c2 -.-&gt; c2_prime
+</code>
+</pre>
+<h3 id="场景设定">场景设定</h3>
+<ul>
+<li><code>main</code> 是我们的主分支，开发主线从 <code>c0</code> -&gt; <code>c1</code> 开始。</li>
+<li>从 <code>c1</code> 拉取了一个 <code>feature/a</code> 分支进行功能开发，并提交了 <code>c2</code> 和 <code>c4</code>。</li>
+<li>在此期间，另一位同事完成了 <code>fixbug/b</code> 分支，并将其合并回 <code>main</code>，使得 <code>main</code> 分支前进到 <code>c3</code>。</li>
+</ul>
+<p>此时，你的 <code>feature/a</code> 分支就“落后”于 <code>main</code> 分支了。在准备合并你的功能之前，最好的做法是先将 <code>main</code> 的最新更改同步到 <code>feature/a</code> 分支。这里，<code>rebase</code> 就是最佳选择。</p>
+<h3 id="rebase同步主干保持线性历史">1. Rebase：同步主干，保持线性历史</h3>
+<p>为了让 <code>feature/a</code> 的历史记录更清晰，我们执行变基操作，将 <code>feature/a</code> 的提交“重放”到最新的 <code>main</code> 分支上。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 确保你的功能分支是当前分支</span></span><br><span class="line">git checkout feature/a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 拉取远程主分支的最新代码（好习惯）</span></span><br><span class="line">git fetch origin main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 将当前分支变基到最新的 main 分支上</span></span><br><span class="line">git rebase origin/main <span class="comment"># 或者 git rebase main</span></span><br></pre></td></tr></table></figure>
+<p>执行后，Git 会在内部执行以下操作：</p>
+<ol type="1">
+<li>找到 <code>feature/a</code> 和 <code>main</code> 的共同祖先 <code>c1</code>。</li>
+<li>暂存 <code>feature/a</code> 在 <code>c1</code> 之后独有的提交（<code>c2</code>, <code>c4</code>）。</li>
+<li>将 <code>feature/a</code> 分支的指针指向 <code>main</code> 的最新提交 <code>c3</code>。</li>
+<li>将刚刚暂存的提交 <code>c2</code> 和 <code>c4</code> 重新应用（Replay）在 <code>c3</code> 之后，生成两个<strong>内容相同但ID不同</strong>的新提交 <code>c2'</code> 和 <code>c4'</code>。</li>
+</ol>
+<p>最终，<code>feature/a</code> 的历史就变成了 <code>c0 -&gt; c1 -&gt; c3 -&gt; c2' -&gt; c4'</code>。它看起来就像是你从最新的 <code>main</code> 分支拉取代码然后才开始开发的一样，历史记录干净、线性，非常便于后续的合并和代码审查。</p>
+<p>这个操作完美地诠释了 <code>rebase</code> 在个人开发分支上的核心用途：<strong>保持与主干同步，并维持一个清晰的线性历史。</strong></p>
+<h3 id="cherry-pick挑选特定提交">2. Cherry-pick：挑选特定提交</h3>
+<p>现在，我们换一个场景。假设 <code>feature/a</code> 上的 <code>c2</code> 是一个非常紧急的修复，需要立即上线，但 <code>c4</code> 还没开发完。这时就可以用 <code>cherry-pick</code>。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到需要接收修复的主分支</span></span><br><span class="line">git checkout main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 从 feature/a 分支拣选 c2 提交</span></span><br><span class="line">git cherry-pick c2</span><br></pre></td></tr></table></figure>
+<p>如图右侧所示，<code>main</code> 分支通过 <code>cherry-pick</code>，将 <code>feature/a</code> 上的 <code>c2</code> 提交“拣选”过来，生成了一个新的提交 <code>c5</code>。其他提交 (<code>c4</code>) 不会被带过来，完美满足了只需要部分功能/修复的场景。</p>
+<hr />
+<h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
+<h3 id="基本用法">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将当前分支变基到 &lt;目标分支&gt; 上</span></span><br><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="交互式-rebase">2. 交互式 rebase</h3>
+<p>这是 <code>rebase</code> 的一大神器，常用于合并、修改、整理当前分支的提交。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -i 代表 --interactive（交互式）</span></span><br><span class="line"><span class="comment"># HEAD~3 表示整理当前分支最新的 3 个提交</span></span><br><span class="line">git rebase -i HEAD~3</span><br></pre></td></tr></table></figure>
+<p>执行后会打开一个编辑器，你可以对指定范围的提交进行 <code>squash</code> (合并)、<code>edit</code> (修改)、<code>reword</code> (修改提交信息) 等精细化操作，极大提升提交历史的可读性。</p>
+<h3 id="注意事项">3. 注意事项</h3>
+<ul>
+<li>rebase 会重写历史，<strong>永远不要对已经推送并被他人使用的公共分支（如 main）进行 rebase</strong>。</li>
+<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git add .</code> 将文件标记为已解决，然后用 <code>git rebase --continue</code> 继续。</li>
+</ul>
+<hr />
+<h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
+<h3 id="基本用法-1">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick &lt;commit-hash&gt;</span><br></pre></td></tr></table></figure>
+<p>将指定的 <code>&lt;commit-hash&gt;</code> 应用到当前分支，生成一个新的提交。</p>
+<h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 拣选多个不连续的提交</span></span><br><span class="line">git cherry-pick &lt;commit-1&gt; &lt;commit-2&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拣选一个连续的提交范围（不包含 commit-A）</span></span><br><span class="line">git cherry-pick &lt;commit-A&gt;..&lt;commit-B&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="注意事项-1">3. 注意事项</h3>
+<ul>
+<li>cherry-pick 也可能遇到冲突，需手动解决并 <code>commit</code>。</li>
+<li>cherry-pick 会生成<strong>新的 commit id</strong>，因为它是在新的分支上下文中应用变更。</li>
+</ul>
+<hr />
+<h2 id="rebase-vs.-merge黄金准则与团队协作">👑 Rebase vs. Merge：黄金准则与团队协作</h2>
+<p>我们已经看到了 <code>rebase</code> 的强大之处，但它也是一把双刃剑，因为它会<strong>重写提交历史</strong>。这就引出了 Git 协作中一条最重要的准则：</p>
+<blockquote>
+<p><strong>黄金准则：在自己的私有分支上自由地 rebase，但永远不要 rebase 一个公共的、共享的分支。</strong></p>
+</blockquote>
+<p>换句话说：</p>
+<ul>
+<li><strong><code>rebase</code> 用来“整理”自己</strong>：在你的个人功能分支（如 <code>feature/a</code>）上，使用 <code>rebase</code> 来同步 <code>main</code> 分支的更新。这属于你自己的“私事”，目的是让你的工作成果能干净地对接到主线上。</li>
+<li><strong><code>merge</code> 用来“汇合”他人</strong>：当你的功能分支准备好被合并到 <code>main</code> 或 <code>develop</code> 这样的公共分支时，应该使用 <code>git merge</code>（通常是通过 GitHub/GitLab 上的 Pull Request/Merge Request）来完成。这次合并会产生一个合并提交（Merge Commit），清晰地记录了“在某个时间点，我们将 <code>feature/a</code> 的所有成果汇入了主线”这一事实。</li>
+</ul>
+<h3 id="为什么这是最佳实践">为什么这是最佳实践？</h3>
+<ol type="1">
+<li><strong>清晰且可追溯的历史</strong>：通过 <code>rebase</code> 保持功能分支的线性，使得 <code>main</code> 分支的历史由一个个清晰的功能块（通过 merge commit 连接）组成，而不是一个混乱交织的网络。阅读 <code>git log</code> 会非常轻松。</li>
+<li><strong>避免团队混乱</strong>：如果你 rebase 了一个公共分支（例如 <code>main</code>），所有基于旧的 <code>main</code> 进行开发的同事都会在下一次 <code>git pull</code> 时遇到严重的问题。他们的本地历史和被你重写过的远程历史产生了冲突，需要非常复杂的操作才能修复，这会给整个团队带来灾难。</li>
+</ol>
+<h3 id="推荐的开发工作流">推荐的开发工作流</h3>
+<p>一个标准的、健壮的开发工作流如下：</p>
+<ol type="1">
+<li><strong>开始新任务</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git pull origin main</span><br><span class="line">git checkout -b feature/new-login</span><br></pre></td></tr></table></figure></li>
+<li><strong>开心写代码并提交</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ... coding and committing ...</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add username field&quot;</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add password field&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>定期与主干同步</strong>（使用 Rebase）： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 当 main 分支有更新时</span></span><br><span class="line">git fetch origin main</span><br><span class="line">git rebase origin/main</span><br><span class="line"><span class="comment"># 如果有冲突，解决冲突后 git rebase --continue</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>发起合并请求</strong>：
+<ul>
+<li>将你“整理”好的分支推送到远程：<code>git push origin feature/new-login --force-with-lease</code> (<code>--force-with-lease</code> 是比 <code>--force</code> 更安全的选择，因为它不会覆盖他人的工作)。</li>
+<li>在代码托管平台（如 GitHub）上创建 Pull Request，请求将 <code>feature/new-login</code> 合并到 <code>main</code>。</li>
+<li>团队成员进行代码审查，最终由维护者点击“Merge”按钮，将你的功能安全地汇入主线。</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="五实战小结">⚡ 五、实战小结</h2>
+<ul>
+<li><strong>rebase</strong>：核心用途是在<strong>个人开发分支</strong>上同步主干分支的变更，以保持提交历史的<strong>整洁和线性</strong>。它是合并到公共分支前的“自我修养”。</li>
+<li><strong>cherry-pick</strong>：核心用途是<strong>精确复制</strong>一个或多个提交到其他分支，适合跨分支应用热修复或挑选特定功能。</li>
+<li><strong>黄金准则</strong>：永远记住在私有分支上 rebase，在公共分支上 merge。</li>
+</ul>
+<hr />
+<h2 id="六实用建议">📝 六、实用建议</h2>
+<h3 id="分支命名规范">1. 分支命名规范</h3>
+<ul>
+<li>功能开发：<code>feature/功能简述</code> 如：<code>feature/login-page</code></li>
+<li>Bug 修复：<code>fix/问题简述</code> 如：<code>fix/login-crash</code></li>
+<li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
+<li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
+</ul>
+<h3 id="commit-信息规范">2. Commit 信息规范</h3>
+<ul>
+<li>推荐格式（Angular 规范）：<code>type(scope): subject</code>
+<ul>
+<li><code>type</code>: <code>feat</code>, <code>fix</code>, <code>docs</code>, <code>style</code>, <code>refactor</code>, <code>test</code>, <code>chore</code></li>
+<li><code>scope</code>: 影响范围（可选）</li>
+<li><code>subject</code>: 简短描述</li>
+</ul></li>
+<li>一次 commit 只做一件事，保持原子性。</li>
+</ul>
+<h3 id="团队协作建议">3. 团队协作建议</h3>
+<ul>
+<li><strong>合并前先同步</strong>：在将功能分支合并到 <code>main</code> 之前，应先在自己的分支上执行 <code>git rebase main</code> 来同步最新代码，这能极大减少最终合并时的冲突。</li>
+<li><strong>保护公共分支</strong>：像 <code>main</code>、<code>release</code> 这样的重要分支应设置为受保护状态，禁止 <code>force push</code>，所有变更都必须通过 Pull Request (PR) 进行。</li>
+<li><strong>拥抱代码评审</strong>：充分利用 Pull Request 进行代码评审，这是保证代码质量和知识共享的最佳途径。</li>
+<li><strong>勤于观察状态</strong>：养成良好习惯，多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态，做到心中有数。</li>
+</ul>
+<hr />
+<p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+        <tag>Rebase</tag>
+        <tag>Cherry-pick</tag>
       </tags>
   </entry>
   <entry>
@@ -5362,186 +5666,6 @@ flowchart LR
         <tag>Bash</tag>
         <tag>Zsh</tag>
         <tag>系统配置</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>git之路：rebase &amp; cherry-pick</title>
-    <url>/posts/1566a5aa/</url>
-    <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
-<span id="more"></span>
-<h2 id="一核心概念">🧩 一、核心概念</h2>
-<ul>
-<li><strong>rebase (变基)</strong>：将当前分支的一系列提交“重放”到另一个目标分支之上。其核心用途是<strong>整理个人分支的提交历史</strong>，使其在并入主干时保持线性、清晰。</li>
-<li><strong>cherry-pick (拣选)</strong>：将某个（或某些）特定的提交<strong>复制</strong>到当前分支。它像摘樱桃一样，适合“挑着搬运”某个功能或紧急修复。</li>
-</ul>
-<h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
-<p>下面的两幅 Mermaid 图示分别演示了 Rebase 和 Cherry-pick 在典型协作场景中的作用。将代码块直接放入支持 Mermaid 的 Markdown 环境即可自动渲染。</p>
-<h3 id="图-1-rebase-工作流主干更新后将功能分支变基到最新-main">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</h3>
-<pre>
-<code class="mermaid">
-
-flowchart TD
-    subgraph &quot;main 分支&quot;
-        c0((c0)) --&gt; c1((c1)) --&gt; c3((c3))
-    end
-
-    subgraph &quot;feature&#x2F;a (rebase 前)&quot;
-        c2_before((c2)) --&gt; c4_before((c4))
-    end
-
-    subgraph &quot;feature&#x2F;a (rebase 后)&quot;
-        c2_after((&quot;c2&#39;&quot;)) --&gt; c4_after((&quot;c4&#39;&quot;))
-    end
-
-    c1 --&gt; c2_before
-    c3 --&gt; c2_after
-</code>
-</pre>
-<h3 id="图-2-cherry-pick-工作流从-featurea-拣选-c2-到-main">图 2 · Cherry-pick 工作流（从 feature/a 拣选 c2 到 main）</h3>
-<pre>
-<code class="mermaid">
-
-flowchart TD
-    subgraph &quot;初始历史&quot;
-        c0((c0)) --&gt; c1((c1))
-    end
-
-    subgraph &quot;main 分支&quot;
-        c3((c3)) --&gt; c2_prime((&quot;c2&#39;&quot;))
-        style c2_prime fill:#bbf,stroke:#333,stroke-width:2px
-    end
-
-    subgraph &quot;feature&#x2F;a 分支&quot;
-        c2((c2)) --&gt; c4((c4))
-    end
-    
-    c1 --&gt; c3
-    c1 --&gt; c2
-
-    c2 -.-&gt; c2_prime
-</code>
-</pre>
-<h3 id="场景设定">场景设定</h3>
-<ul>
-<li><code>main</code> 是我们的主分支，开发主线从 <code>c0</code> -&gt; <code>c1</code> 开始。</li>
-<li>从 <code>c1</code> 拉取了一个 <code>feature/a</code> 分支进行功能开发，并提交了 <code>c2</code> 和 <code>c4</code>。</li>
-<li>在此期间，另一位同事完成了 <code>fixbug/b</code> 分支，并将其合并回 <code>main</code>，使得 <code>main</code> 分支前进到 <code>c3</code>。</li>
-</ul>
-<p>此时，你的 <code>feature/a</code> 分支就“落后”于 <code>main</code> 分支了。在准备合并你的功能之前，最好的做法是先将 <code>main</code> 的最新更改同步到 <code>feature/a</code> 分支。这里，<code>rebase</code> 就是最佳选择。</p>
-<h3 id="rebase同步主干保持线性历史">1. Rebase：同步主干，保持线性历史</h3>
-<p>为了让 <code>feature/a</code> 的历史记录更清晰，我们执行变基操作，将 <code>feature/a</code> 的提交“重放”到最新的 <code>main</code> 分支上。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 确保你的功能分支是当前分支</span></span><br><span class="line">git checkout feature/a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 拉取远程主分支的最新代码（好习惯）</span></span><br><span class="line">git fetch origin main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 将当前分支变基到最新的 main 分支上</span></span><br><span class="line">git rebase origin/main <span class="comment"># 或者 git rebase main</span></span><br></pre></td></tr></table></figure>
-<p>执行后，Git 会在内部执行以下操作：</p>
-<ol type="1">
-<li>找到 <code>feature/a</code> 和 <code>main</code> 的共同祖先 <code>c1</code>。</li>
-<li>暂存 <code>feature/a</code> 在 <code>c1</code> 之后独有的提交（<code>c2</code>, <code>c4</code>）。</li>
-<li>将 <code>feature/a</code> 分支的指针指向 <code>main</code> 的最新提交 <code>c3</code>。</li>
-<li>将刚刚暂存的提交 <code>c2</code> 和 <code>c4</code> 重新应用（Replay）在 <code>c3</code> 之后，生成两个<strong>内容相同但ID不同</strong>的新提交 <code>c2'</code> 和 <code>c4'</code>。</li>
-</ol>
-<p>最终，<code>feature/a</code> 的历史就变成了 <code>c0 -&gt; c1 -&gt; c3 -&gt; c2' -&gt; c4'</code>。它看起来就像是你从最新的 <code>main</code> 分支拉取代码然后才开始开发的一样，历史记录干净、线性，非常便于后续的合并和代码审查。</p>
-<p>这个操作完美地诠释了 <code>rebase</code> 在个人开发分支上的核心用途：<strong>保持与主干同步，并维持一个清晰的线性历史。</strong></p>
-<h3 id="cherry-pick挑选特定提交">2. Cherry-pick：挑选特定提交</h3>
-<p>现在，我们换一个场景。假设 <code>feature/a</code> 上的 <code>c2</code> 是一个非常紧急的修复，需要立即上线，但 <code>c4</code> 还没开发完。这时就可以用 <code>cherry-pick</code>。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到需要接收修复的主分支</span></span><br><span class="line">git checkout main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 从 feature/a 分支拣选 c2 提交</span></span><br><span class="line">git cherry-pick c2</span><br></pre></td></tr></table></figure>
-<p>如图右侧所示，<code>main</code> 分支通过 <code>cherry-pick</code>，将 <code>feature/a</code> 上的 <code>c2</code> 提交“拣选”过来，生成了一个新的提交 <code>c5</code>。其他提交 (<code>c4</code>) 不会被带过来，完美满足了只需要部分功能/修复的场景。</p>
-<hr />
-<h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
-<h3 id="基本用法">1. 基本用法</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将当前分支变基到 &lt;目标分支&gt; 上</span></span><br><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="交互式-rebase">2. 交互式 rebase</h3>
-<p>这是 <code>rebase</code> 的一大神器，常用于合并、修改、整理当前分支的提交。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -i 代表 --interactive（交互式）</span></span><br><span class="line"><span class="comment"># HEAD~3 表示整理当前分支最新的 3 个提交</span></span><br><span class="line">git rebase -i HEAD~3</span><br></pre></td></tr></table></figure>
-<p>执行后会打开一个编辑器，你可以对指定范围的提交进行 <code>squash</code> (合并)、<code>edit</code> (修改)、<code>reword</code> (修改提交信息) 等精细化操作，极大提升提交历史的可读性。</p>
-<h3 id="注意事项">3. 注意事项</h3>
-<ul>
-<li>rebase 会重写历史，<strong>永远不要对已经推送并被他人使用的公共分支（如 main）进行 rebase</strong>。</li>
-<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git add .</code> 将文件标记为已解决，然后用 <code>git rebase --continue</code> 继续。</li>
-</ul>
-<hr />
-<h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
-<h3 id="基本用法-1">1. 基本用法</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick &lt;commit-hash&gt;</span><br></pre></td></tr></table></figure>
-<p>将指定的 <code>&lt;commit-hash&gt;</code> 应用到当前分支，生成一个新的提交。</p>
-<h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 拣选多个不连续的提交</span></span><br><span class="line">git cherry-pick &lt;commit-1&gt; &lt;commit-2&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拣选一个连续的提交范围（不包含 commit-A）</span></span><br><span class="line">git cherry-pick &lt;commit-A&gt;..&lt;commit-B&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="注意事项-1">3. 注意事项</h3>
-<ul>
-<li>cherry-pick 也可能遇到冲突，需手动解决并 <code>commit</code>。</li>
-<li>cherry-pick 会生成<strong>新的 commit id</strong>，因为它是在新的分支上下文中应用变更。</li>
-</ul>
-<hr />
-<h2 id="rebase-vs.-merge黄金准则与团队协作">👑 Rebase vs. Merge：黄金准则与团队协作</h2>
-<p>我们已经看到了 <code>rebase</code> 的强大之处，但它也是一把双刃剑，因为它会<strong>重写提交历史</strong>。这就引出了 Git 协作中一条最重要的准则：</p>
-<blockquote>
-<p><strong>黄金准则：在自己的私有分支上自由地 rebase，但永远不要 rebase 一个公共的、共享的分支。</strong></p>
-</blockquote>
-<p>换句话说：</p>
-<ul>
-<li><strong><code>rebase</code> 用来“整理”自己</strong>：在你的个人功能分支（如 <code>feature/a</code>）上，使用 <code>rebase</code> 来同步 <code>main</code> 分支的更新。这属于你自己的“私事”，目的是让你的工作成果能干净地对接到主线上。</li>
-<li><strong><code>merge</code> 用来“汇合”他人</strong>：当你的功能分支准备好被合并到 <code>main</code> 或 <code>develop</code> 这样的公共分支时，应该使用 <code>git merge</code>（通常是通过 GitHub/GitLab 上的 Pull Request/Merge Request）来完成。这次合并会产生一个合并提交（Merge Commit），清晰地记录了“在某个时间点，我们将 <code>feature/a</code> 的所有成果汇入了主线”这一事实。</li>
-</ul>
-<h3 id="为什么这是最佳实践">为什么这是最佳实践？</h3>
-<ol type="1">
-<li><strong>清晰且可追溯的历史</strong>：通过 <code>rebase</code> 保持功能分支的线性，使得 <code>main</code> 分支的历史由一个个清晰的功能块（通过 merge commit 连接）组成，而不是一个混乱交织的网络。阅读 <code>git log</code> 会非常轻松。</li>
-<li><strong>避免团队混乱</strong>：如果你 rebase 了一个公共分支（例如 <code>main</code>），所有基于旧的 <code>main</code> 进行开发的同事都会在下一次 <code>git pull</code> 时遇到严重的问题。他们的本地历史和被你重写过的远程历史产生了冲突，需要非常复杂的操作才能修复，这会给整个团队带来灾难。</li>
-</ol>
-<h3 id="推荐的开发工作流">推荐的开发工作流</h3>
-<p>一个标准的、健壮的开发工作流如下：</p>
-<ol type="1">
-<li><strong>开始新任务</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git pull origin main</span><br><span class="line">git checkout -b feature/new-login</span><br></pre></td></tr></table></figure></li>
-<li><strong>开心写代码并提交</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ... coding and committing ...</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add username field&quot;</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add password field&quot;</span></span><br></pre></td></tr></table></figure></li>
-<li><strong>定期与主干同步</strong>（使用 Rebase）： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 当 main 分支有更新时</span></span><br><span class="line">git fetch origin main</span><br><span class="line">git rebase origin/main</span><br><span class="line"><span class="comment"># 如果有冲突，解决冲突后 git rebase --continue</span></span><br></pre></td></tr></table></figure></li>
-<li><strong>发起合并请求</strong>：
-<ul>
-<li>将你“整理”好的分支推送到远程：<code>git push origin feature/new-login --force-with-lease</code> (<code>--force-with-lease</code> 是比 <code>--force</code> 更安全的选择，因为它不会覆盖他人的工作)。</li>
-<li>在代码托管平台（如 GitHub）上创建 Pull Request，请求将 <code>feature/new-login</code> 合并到 <code>main</code>。</li>
-<li>团队成员进行代码审查，最终由维护者点击“Merge”按钮，将你的功能安全地汇入主线。</li>
-</ul></li>
-</ol>
-<hr />
-<h2 id="五实战小结">⚡ 五、实战小结</h2>
-<ul>
-<li><strong>rebase</strong>：核心用途是在<strong>个人开发分支</strong>上同步主干分支的变更，以保持提交历史的<strong>整洁和线性</strong>。它是合并到公共分支前的“自我修养”。</li>
-<li><strong>cherry-pick</strong>：核心用途是<strong>精确复制</strong>一个或多个提交到其他分支，适合跨分支应用热修复或挑选特定功能。</li>
-<li><strong>黄金准则</strong>：永远记住在私有分支上 rebase，在公共分支上 merge。</li>
-</ul>
-<hr />
-<h2 id="六实用建议">📝 六、实用建议</h2>
-<h3 id="分支命名规范">1. 分支命名规范</h3>
-<ul>
-<li>功能开发：<code>feature/功能简述</code> 如：<code>feature/login-page</code></li>
-<li>Bug 修复：<code>fix/问题简述</code> 如：<code>fix/login-crash</code></li>
-<li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
-<li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
-</ul>
-<h3 id="commit-信息规范">2. Commit 信息规范</h3>
-<ul>
-<li>推荐格式（Angular 规范）：<code>type(scope): subject</code>
-<ul>
-<li><code>type</code>: <code>feat</code>, <code>fix</code>, <code>docs</code>, <code>style</code>, <code>refactor</code>, <code>test</code>, <code>chore</code></li>
-<li><code>scope</code>: 影响范围（可选）</li>
-<li><code>subject</code>: 简短描述</li>
-</ul></li>
-<li>一次 commit 只做一件事，保持原子性。</li>
-</ul>
-<h3 id="团队协作建议">3. 团队协作建议</h3>
-<ul>
-<li><strong>合并前先同步</strong>：在将功能分支合并到 <code>main</code> 之前，应先在自己的分支上执行 <code>git rebase main</code> 来同步最新代码，这能极大减少最终合并时的冲突。</li>
-<li><strong>保护公共分支</strong>：像 <code>main</code>、<code>release</code> 这样的重要分支应设置为受保护状态，禁止 <code>force push</code>，所有变更都必须通过 Pull Request (PR) 进行。</li>
-<li><strong>拥抱代码评审</strong>：充分利用 Pull Request 进行代码评审，这是保证代码质量和知识共享的最佳途径。</li>
-<li><strong>勤于观察状态</strong>：养成良好习惯，多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态，做到心中有数。</li>
-</ul>
-<hr />
-<p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Git</category>
-      </categories>
-      <tags>
-        <tag>Git</tag>
-        <tag>Rebase</tag>
-        <tag>Cherry-pick</tag>
       </tags>
   </entry>
   <entry>
