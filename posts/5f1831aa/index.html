@@ -29,7 +29,7 @@
 <meta property="og:description" content="PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 Dataset、DataLoader、Transforms 和 TensorBoard 是高效训练模型的关键。本文将带你快速入门这四大核心组件。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-10-07T07:24:18.000Z">
-<meta property="article:modified_time" content="2025-10-07T07:45:41.537Z">
+<meta property="article:modified_time" content="2025-10-07T07:49:51.797Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="PyTorch">
 <meta property="article:tag" content="深度学习">
@@ -263,7 +263,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-10-07 15:24:18 / 修改时间：15:45:41" itemprop="dateCreated datePublished" datetime="2025-10-07T15:24:18+08:00">2025-10-07</time>
+      <time title="创建时间：2025-10-07 15:24:18 / 修改时间：15:49:51" itemprop="dateCreated datePublished" datetime="2025-10-07T15:24:18+08:00">2025-10-07</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -353,11 +353,12 @@ graph TD
     end
     subgraph &quot;GPU&#x2F;CPU 内存&quot;
         C[&quot;Torch Tensor&lt;br&#x2F;&gt;[C, H, W]&quot;]
+        D[&quot;Batch Tensor&lt;br&#x2F;&gt;[B, C, H, W]&quot;]
+        C -- &quot;DataLoader 批量化&quot; --&gt; D
     end
 
     A -- &quot;Image.open()&quot; --&gt; B
     B -- &quot;transforms.ToTensor()&quot; --&gt; C
-    C -- &quot;DataLoader 批量化&quot; --&gt; D[&quot;Batch Tensor&lt;br&#x2F;&gt;[B, C, H, W]&quot;]
     D &#x3D;&#x3D;&gt; E[模型输入]
 </code>
 </pre>
