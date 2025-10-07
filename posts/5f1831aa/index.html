@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 Dataset、DataLoader、Transforms 和 TensorBoard 是高效训练模型的关键。本文将带你快速入门这四大核心组件。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pytorch入门">
+<meta property="og:url" content="https://supermarkli.github.io/posts/5f1831aa/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 Dataset、DataLoader、Transforms 和 TensorBoard 是高效训练模型的关键。本文将带你快速入门这四大核心组件。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-10-07T07:24:18.000Z">
+<meta property="article:modified_time" content="2025-10-07T07:35:56.345Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="PyTorch">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/5f1831aa/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/5f1831aa/","path":"posts/5f1831aa/","title":"pytorch入门"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>pytorch入门 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E9%80%9F%E8%AE%B0"><span class="nav-number">1.</span> <span class="nav-text">📚 核心组件速记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%B5%81%E8%BD%AC%E7%A4%BA%E6%84%8F%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">🎨 数据流转示意图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.data.dataset%E5%B0%81%E8%A3%85%E4%BD%A0%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number"></span> <span class="nav-text">1️⃣ torch.utils.data.Dataset：封装你的数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E5%AE%9A%E4%B9%89-dataset"><span class="nav-number">1.</span> <span class="nav-text">示例：创建一个自定义 Dataset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torchvision.transforms%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B8%8E%E5%A2%9E%E5%BC%BA"><span class="nav-number"></span> <span class="nav-text">2️⃣ torchvision.transforms：数据预处理与增强</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E5%8F%98%E6%8D%A2%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-number">1.</span> <span class="nav-text">示例：定义一个变换流水线</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.data.dataloader%E6%89%B9%E9%87%8F%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE"><span class="nav-number"></span> <span class="nav-text">3️⃣ torch.utils.data.DataLoader：批量加载数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BD%BF%E7%94%A8-dataloader"><span class="nav-number">1.</span> <span class="nav-text">示例：使用 DataLoader</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.tensorboard%E5%8F%AF%E8%A7%86%E5%8C%96%E8%AE%AD%E7%BB%83%E8%BF%87%E7%A8%8B"><span class="nav-number"></span> <span class="nav-text">4️⃣ torch.utils.tensorboard：可视化训练过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BD%BF%E7%94%A8-summarywriter"><span class="nav-number">1.</span> <span class="nav-text">示例：使用 SummaryWriter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">📝 小结</span></a></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">74</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/5f1831aa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="pytorch入门 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          pytorch入门
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-10-07 15:24:18 / 修改时间：15:35:56" itemprop="dateCreated datePublished" datetime="2025-10-07T15:24:18+08:00">2025-10-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/AI/PyTorch/" itemprop="url" rel="index"><span itemprop="name">PyTorch</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 <code>Dataset</code>、<code>DataLoader</code>、<code>Transforms</code> 和 <code>TensorBoard</code> 是高效训练模型的关键。本文将带你快速入门这四大核心组件。 <span id="more"></span></p>
+<h3 id="核心组件速记">📚 核心组件速记</h3>
+<table>
+<thead>
+<tr class="header">
+<th>组件</th>
+<th>一句话记忆</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Dataset</code></td>
+<td><code>__getitem__</code> 和 <code>__len__</code> → 封装你的数据源，按索引取数据</td>
+</tr>
+<tr class="even">
+<td><code>DataLoader</code></td>
+<td><code>batch_size</code>, <code>shuffle</code> → 从 <code>Dataset</code> 中批量、随机地取数据</td>
+</tr>
+<tr class="odd">
+<td><code>Transforms</code></td>
+<td><code>Compose</code>, <code>ToTensor</code> → 数据预处理与增强的“流水线”</td>
+</tr>
+<tr class="even">
+<td><code>TensorBoard</code></td>
+<td><code>SummaryWriter</code> → 训练过程可视化，调参与Debug的神器</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="数据流转示意图">🎨 数据流转示意图</h3>
+<p>在 PyTorch 中，数据通常经历从磁盘文件到模型输入的转换过程。理解这个流程是掌握数据加载机制的第一步。</p>
+<pre>
+<code class="mermaid">
+
+graph TD
+    subgraph &quot;硬盘&quot;
+        A[&quot;图片文件 (cat.jpg)&quot;]
+    end
+    subgraph &quot;CPU 内存&quot;
+        B[&quot;PIL Image &#x2F; OpenCV (numpy array)&quot;]
+    end
+    subgraph &quot;GPU&#x2F;CPU 内存&quot;
+        C[&quot;Torch Tensor\n[C, H, W]&quot;]
+    end
+
+    A -- &quot;Image.open()&quot; --&gt; B
+    B -- &quot;transforms.ToTensor()&quot; --&gt; C
+    C -- &quot;DataLoader 批量化&quot; --&gt; D[&quot;Batch Tensor\n[B, C, H, W]&quot;]
+    D &#x3D;&#x3D;&gt; E[模型输入]
+</code>
+</pre>
+<h2 id="torch.utils.data.dataset封装你的数据">1️⃣ <code>torch.utils.data.Dataset</code>：封装你的数据</h2>
+<p><code>Dataset</code> 是一个抽象类，用于表示数据集。所有自定义的数据集都应该继承它，并重写两个核心方法：</p>
+<ul>
+<li><code>__len__(self)</code>: 返回数据集的大小。</li>
+<li><code>__getitem__(self, idx)</code>: 根据索引 <code>idx</code> 返回一条数据（通常是一个样本和对应的标签）。</li>
+</ul>
+<p>这提供了一个统一的接口，让 <code>DataLoader</code> 等工具可以方便地处理各种不同来源的数据。</p>
+<h3 id="示例创建一个自定义-dataset">示例：创建一个自定义 <code>Dataset</code></h3>
+<p>假设我们有一些图片路径和对应的标签，我们可以这样创建一个 <code>Dataset</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyImageDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, image_paths, labels, transform=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.image_paths = image_paths</span><br><span class="line">        <span class="variable language_">self</span>.labels = labels</span><br><span class="line">        <span class="variable language_">self</span>.transform = transform</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.image_paths)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="comment"># 读取图片</span></span><br><span class="line">        image_path = <span class="variable language_">self</span>.image_paths[idx]</span><br><span class="line">        image = Image.<span class="built_in">open</span>(image_path).convert(<span class="string">&quot;RGB&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 获取标签</span></span><br><span class="line">        label = <span class="variable language_">self</span>.labels[idx]</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 应用数据变换</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.transform:</span><br><span class="line">            image = <span class="variable language_">self</span>.transform(image)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> image, label</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">image_files = [<span class="string">&quot;./data/cat.png&quot;</span>, <span class="string">&quot;./data/dog.png&quot;</span>]</span><br><span class="line">image_labels = [<span class="number">0</span>, <span class="number">1</span>]</span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;数据总数: <span class="subst">&#123;<span class="built_in">len</span>(custom_dataset)&#125;</span>&quot;</span>)</span><br><span class="line">first_item = custom_dataset[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;第一个样本: <span class="subst">&#123;first_item&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>记忆：<code>Dataset</code> 就是个“数据地图”，<code>__getitem__</code> 负责“按图索骥”。</p>
+</blockquote>
+<hr />
+<h2 id="torchvision.transforms数据预处理与增强">2️⃣ <code>torchvision.transforms</code>：数据预处理与增强</h2>
+<p>在将数据喂给模型之前，通常需要进行预处理，例如转换为 Tensor、归一化、裁剪、旋转等。<code>transforms</code> 就是用来完成这些操作的工具箱。</p>
+<ul>
+<li><strong>常见变换</strong>：<code>ToTensor()</code>, <code>Resize()</code>, <code>CenterCrop()</code>, <code>RandomHorizontalFlip()</code>, <code>Normalize()</code> 等。</li>
+<li><strong><code>transforms.Compose()</code></strong>: 将多个变换操作串联成一个“流水线”。</li>
+</ul>
+<h3 id="示例定义一个变换流水线">示例：定义一个变换流水线</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个转换流水线</span></span><br><span class="line">data_transform = transforms.Compose([</span><br><span class="line">    transforms.Resize((<span class="number">224</span>, <span class="number">224</span>)),      <span class="comment"># 调整图片大小</span></span><br><span class="line">    transforms.RandomHorizontalFlip(),  <span class="comment"># 随机水平翻转</span></span><br><span class="line">    transforms.ToTensor(),              <span class="comment"># 将 PIL Image 或 numpy.ndarray 转换为 tensor</span></span><br><span class="line">    transforms.Normalize(mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>]) <span class="comment"># 归一化</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 transform 应用到 Dataset</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>为什么要随机翻转？</strong></p>
+<p><code>RandomHorizontalFlip</code> 是一种<strong>数据增强</strong> (Data Augmentation) 技术。它的目的是在不改变图片语义（猫翻转了还是猫）的前提下，增加训练数据的多样性。</p>
+<ul>
+<li><strong>提高泛化能力</strong>：模型会学习到，无论是正着还是反着的猫，都应该被识别为猫，从而对真实世界中更多样的数据表现更好，避免<strong>过拟合</strong>。</li>
+<li><strong>扩充数据集</strong>：相当于免费让你的数据集大小翻倍。</li>
+</ul>
+<p>提示：数据增强（如随机翻转）只在训练时使用，验证和测试时应去掉，以保证结果的一致性。</p>
+</blockquote>
+<hr />
+<h2 id="torch.utils.data.dataloader批量加载数据">3️⃣ <code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
+<p><code>DataLoader</code> 是一个迭代器，它从 <code>Dataset</code> 中自动拉取数据，并将其打包成批次 (batch)。它还提供了许多有用的功能：</p>
+<ul>
+<li><strong><code>batch_size</code></strong>: 每个批次包含的样本数。</li>
+<li><strong><code>shuffle=True</code></strong>: 在每个 epoch 开始时打乱数据顺序，有助于提高模型泛化能力。</li>
+<li><strong><code>num_workers</code></strong>: 使用多少个子进程来预加载数据。增加此值可以加快数据加载速度，但会消耗更多内存和 CPU。</li>
+</ul>
+<h3 id="示例使用-dataloader">示例：使用 <code>DataLoader</code></h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 custom_dataset 已经创建好</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br><span class="line"></span><br><span class="line">data_loader = DataLoader(</span><br><span class="line">    dataset=custom_dataset,</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">4</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 像遍历列表一样遍历 DataLoader</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> images, labels <span class="keyword">in</span> data_loader:</span><br><span class="line">        <span class="comment"># 在这里执行模型训练</span></span><br><span class="line">        <span class="comment"># images 的形状: [32, 3, 224, 224] (假设batch_size=32)</span></span><br><span class="line">        <span class="comment"># labels 的形状: [32]</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<pre>
+<code class="mermaid">
+
+graph TD
+    A[原始数据文件] --&gt; B(Dataset);
+    B -- 按索引 __getitem__ --&gt; C{单条数据};
+    D(Transforms) -- 应用于 --&gt; C;
+    C --&gt; E(DataLoader);
+    E -- 打包成 batch --&gt; F[模型];
+</code>
+</pre>
+<hr />
+<h2 id="torch.utils.tensorboard可视化训练过程">4️⃣ <code>torch.utils.tensorboard</code>：可视化训练过程</h2>
+<p><code>TensorBoard</code> 是一个强大的可视化工具，可以帮助你理解、调试和优化你的模型。PyTorch 通过 <code>SummaryWriter</code> 类与其集成。</p>
+<p><strong>主要功能</strong>: - 记录标量（如 loss、accuracy）的变化曲线。 - 可视化图像、模型图、embedding 等。</p>
+<h3 id="示例使用-summarywriter">示例：使用 <code>SummaryWriter</code></h3>
+<p><code>add_scalar</code> 是最常用的方法之一，它用于记录单个标量值的变化。</p>
+<ul>
+<li><code>tag</code>: 图表的标题，例如 'Loss/train' 或 'Accuracy/validation'。使用 <code>/</code> 可以帮助在 TensorBoard 中对图表进行分组。</li>
+<li><code>scalar_value</code>: 要记录的数值，通常是 loss 值或准确率。</li>
+<li><code>global_step</code>: x 轴坐标，通常是训练的步数（batch index）或轮数（epoch index）。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建一个 writer 实例，日志会保存在 &#x27;logs&#x27; 目录下</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&#x27;logs/experiment_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在训练循环中记录信息</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># ... 训练代码 ...</span></span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        running_loss += loss.item()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每 100 个 batch 记录一次 loss</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            writer.add_scalar(<span class="string">&#x27;training loss&#x27;</span>, running_loss / <span class="number">100</span>, epoch * <span class="built_in">len</span>(data_loader) + i)</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">    假设在每个 epoch 结束后记录一张图片</span><br><span class="line">    writer.add_image(<span class="string">&#x27;one_image&#x27;</span>, images[<span class="number">0</span>], epoch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 训练结束后关闭 writer</span></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
+<p>记录完成后，在终端中运行 <code>tensorboard --logdir=logs</code>，然后访问浏览器中显示的地址（通常是 <code>http://localhost:6006</code>）即可查看可视化结果。</p>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ol type="1">
+<li><strong><code>Dataset</code></strong>：数据源的标准化封装，核心是 <code>__len__</code> 和 <code>__getitem__</code>。</li>
+<li><strong><code>Transforms</code></strong>：数据预处理和增强的流水线，使用 <code>Compose</code> 组合。</li>
+<li><strong><code>DataLoader</code></strong>：将 <code>Dataset</code> 包装成可迭代对象，实现批量、随机和并行加载。</li>
+<li><strong><code>TensorBoard</code></strong>：通过 <code>SummaryWriter</code> 记录训练过程，实现可视化分析。</li>
+</ol>
+<p>熟练运用这四大组件，你的 PyTorch 项目将变得更加规范、高效和易于调试 🚀</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PyTorch/" rel="tag"># PyTorch</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/dc164fc3/" rel="prev" title="CUDA 软件栈">
+                  <i class="fa fa-angle-left"></i> CUDA 软件栈
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">160k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">4:51</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
