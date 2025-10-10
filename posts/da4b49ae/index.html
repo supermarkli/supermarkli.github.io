@@ -21,18 +21,22 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="之前的卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？">
+    <meta name="description" content="引言 卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？">
 <meta property="og:type" content="article">
 <meta property="og:title" content="了解RNN">
 <meta property="og:url" content="https://supermarkli.github.io/posts/da4b49ae/index.html">
 <meta property="og:site_name" content="吃糠咽菜">
-<meta property="og:description" content="之前的卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？">
+<meta property="og:description" content="引言 卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://supermarkli.github.io/assets/image-20251010224631451.png">
+<meta property="og:image" content="https://supermarkli.github.io/assets/image-20251010224853203.png">
+<meta property="og:image" content="https://supermarkli.github.io/assets/image-20251010224930822.png">
 <meta property="article:published_time" content="2025-10-10T10:44:52.000Z">
-<meta property="article:modified_time" content="2025-10-10T10:54:59.923Z">
+<meta property="article:modified_time" content="2025-10-10T14:52:26.872Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="note,coding,life">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supermarkli.github.io/assets/image-20251010224631451.png">
 
 
 <link rel="canonical" href="https://supermarkli.github.io/posts/da4b49ae/">
@@ -171,7 +175,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E5%A5%BD%E7%9A%84%E6%96%B9%E6%A1%88%E8%AF%8D%E5%B5%8C%E5%85%A5"><span class="nav-number">1.</span> <span class="nav-text">更好的方案：词嵌入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rnn-%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E5%BA%8F%E5%88%97%E4%BF%A1%E6%81%AF"><span class="nav-number">2.</span> <span class="nav-text">RNN 如何处理序列信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rnn-%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">RNN 的局限性</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E5%AD%97%E8%BD%AC%E6%95%B0%E5%AD%97%E7%9A%84%E6%9C%B4%E7%B4%A0%E6%80%9D%E6%83%B3"><span class="nav-number">2.</span> <span class="nav-text">文字转数字的朴素思想</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E5%A5%BD%E7%9A%84%E6%96%B9%E6%A1%88%E8%AF%8D%E5%B5%8C%E5%85%A5"><span class="nav-number">3.</span> <span class="nav-text">更好的方案：词嵌入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rnn-%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E5%BA%8F%E5%88%97%E4%BF%A1%E6%81%AF"><span class="nav-number">4.</span> <span class="nav-text">RNN 如何处理序列信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rnn-%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="nav-number">5.</span> <span class="nav-text">RNN 的局限性</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -262,7 +266,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-10-10 18:44:52 / 修改时间：18:54:59" itemprop="dateCreated datePublished" datetime="2025-10-10T18:44:52+08:00">2025-10-10</time>
+      <time title="创建时间：2025-10-10 18:44:52 / 修改时间：22:52:26" itemprop="dateCreated datePublished" datetime="2025-10-10T18:44:52+08:00">2025-10-10</time>
     </span>
 
   
@@ -279,7 +283,7 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.4k</span>
+      <span>1.7k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
@@ -296,15 +300,25 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>之前的卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？ <span id="more"></span> ## 文字转数字的朴素思想</p>
+    <div class="post-body" itemprop="articleBody"><h2 id="引言">引言</h2>
+<p>卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？</p>
+<span id="more"></span>
+<h2 id="文字转数字的朴素思想">文字转数字的朴素思想</h2>
 <p>有一种简单粗暴的方法：每一个文字或词组都用一个数字来代表，建一个非常大的映射关系表。</p>
-<p>但这样有几个显而易见的缺点： 1. 只用一个数字表示，不仅要建的表很大，维度也很低（只有一维）。 2. 数字和数字之间无法表示字与字、词与词之间的联系。</p>
+<p>但这样有几个显而易见的缺点：</p>
+<ol type="1">
+<li>只用一个数字表示，不仅要建的表很大，维度也很低（只有一维）。</li>
+<li>数字和数字之间无法表示字与字、词与词之间的联系。</li>
+</ol>
 <p>为了解决维度低的问题，有人提出了 <strong>one-hot 编码</strong>，即准备一个维度非常高的向量，每个字只有向量中一个位置是 1，其余全是 0。虽然维度低的问题被解决了，但是维度好像又太高了，并且依然没有解决之前的第二个问题。</p>
 <h2 id="更好的方案词嵌入">更好的方案：词嵌入</h2>
 <p>那有没有能解决以上两种问题的方法呢？有的，这种方法就是 <strong>词嵌入（Word Embedding）</strong>。</p>
+<p><img src="/assets/image-20251010224631451.png" /></p>
 <p>通过词嵌入的方式得到的词向量，维度不高不低，每个位置可以理解为一个特征值，但这个特征是通过训练得到的，我们并不知道代表着什么。那这种方式如何表示词与词之间的语义相关性呢？可以用两个向量的点积或余弦相似度来表示向量之间的相关性，进而表示词语之间的相关性。</p>
 <p>这样就将自然语言之间的联系转为可以用数学公式计算的方式。同时，一些数学上的计算结果可能反映出一些很微妙的关系，例如一个训练好的词嵌入矩阵，很可能使得 <code>桌子 - 椅子 = 鼠标 - 键盘</code>。</p>
-<p>把所有词向量组成一个大矩阵，这个大矩阵就叫做 <strong>嵌入矩阵</strong>，每一列表示一个词向量。矩阵中的值由训练得到，比较经典的方法是 word2vec，这里不展开讲解。虽然这样表示的维度比起 one-hot 已经大大下降，但是也超过了人能直接理解的二维、三维，我们管这些向量所在的空间叫做 <strong>潜空间</strong>。我们无法理解潜空间中的位置关系，但是也有一些方法能够把潜空间降维至 2-3 维，方便我们直观看到词与词之间的关系。</p>
+<p>把所有词向量组成一个大矩阵，这个大矩阵就叫做 <strong>嵌入矩阵</strong>，每一列表示一个词向量。</p>
+<p>矩阵中的值由训练得到，比较经典的方法是 word2vec，这里不展开讲解。虽然这样表示的维度比起 one-hot 已经大大下降，但是也超过了人能直接理解的二维、三维，我们管这些向量所在的空间叫做 <strong>潜空间</strong>。</p>
+<p>我们无法理解潜空间中的位置关系，但是也有一些方法能够把潜空间降维至 2-3 维，方便我们直观看到词与词之间的关系。</p>
 <h2 id="rnn-如何处理序列信息">RNN 如何处理序列信息</h2>
 <p>这样我们的第一个问题就算是解决了，我们可以用词嵌入的方法将文本转为数据，但这样就可以了吗？举个例子，一句话中的五个词转为 5 个词向量，每个词向量假设为 300 维度，那么输入层就要有 1500 个神经元。当然是可以的，但是有两个新问题：</p>
 <ol type="1">
@@ -314,15 +328,25 @@
 <p>在之前的图像处理中，我们可以通过卷积的方式来解决这一问题，那现在呢？</p>
 <p>让我们回到经典的神经网络，但是不是一次输入一句话，而是输入一个词。</p>
 <p>可以发现在第二个词的计算过程中，完全没有让第一个词的任何信息参与进来，怎么办呢？我们可以让它先输出一个隐藏状态，然后再经过一次非线性变换，得到输出 Y。这就是 <strong>循环神经网络 RNN（Recurrent Neural Network）</strong>。</p>
+<p><img src="/assets/image-20251010224853203.png" /></p>
 <p>这个 RNN 模型就具备了理解词与词之间先后顺序的能力，可以判断一句话中各个单词的褒贬词性，还能给出一句话，不断生成下一个字，以及完成翻译等自然语言处理工作。</p>
+<p><img src="/assets/image-20251010224930822.png" /></p>
 <h2 id="rnn-的局限性">RNN 的局限性</h2>
 <p>那么 RNN 是否就完美了呢？当然不，RNN 依旧存在两个问题：</p>
 <ol type="1">
 <li><strong>长期依赖问题</strong>：信息会随着时间步的增多而逐渐丢失，无法捕捉长期依赖，而有的语句的关键信息恰好在很远的地方。</li>
 <li><strong>顺序处理限制</strong>：RNN 必须顺序处理，每个时间步必须依赖上一个时间步的隐藏状态的计算结果，这限制了并行计算的能力。</li>
 </ol>
-<p>虽然有一些方法在改进以上两点问题，但是还不够好，那么是否有一个可以彻底抛弃按顺序计算的新方案呢？</p>
+<p>为了解决这些问题，研究者们提出了多种 RNN 的变体。其中最著名的就是 <strong>长短期记忆网络（LSTM）</strong> 和 <strong>门控循环单元（GRU）</strong>。</p>
+<ul>
+<li><strong>LSTM</strong>：通过引入“门”机制（输入门、遗忘门、输出门）来控制信息的流动。这使得网络可以有选择地学习、记忆或遗忘信息，从而更好地捕捉序列中的长期依赖关系。</li>
+<li><strong>GRU</strong>：作为 LSTM 的一种简化变体，它将输入门和遗忘门合并为“更新门”，并引入了“重置门”。GRU 的结构更简单，计算效率更高，在许多任务上也能取得与 LSTM 相近的效果。</li>
+</ul>
+<p>这些改进在很大程度上缓解了 RNN 的梯度消失问题，但它们仍然需要按顺序处理数据，未能解决并行计算的限制。那么，是否有一个可以彻底抛弃按顺序计算的新方案呢？</p>
 <p>有的，那就是 <strong>Transformer</strong>！</p>
+<blockquote>
+<p>参考自 <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
+</blockquote>
 
     </div>
 
@@ -377,7 +401,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">5:10</span>
+    <span title="站点阅读时长">5:11</span>
   </span>
 </div>
 <div class="busuanzi-count">
