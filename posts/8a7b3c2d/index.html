@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="是否曾想在咖啡馆、酒店或任何有网络的地方，像坐在自己书房一样操作家里的电脑？无论是访问重要文件、运行特定软件，还是进行远程维护，直接访问一台不在身边的计算机都是一个常见的需求。 传统方法（如公网 IP + 端口转发）配置复杂且有安全风险。本文将介绍一种极其简单且安全的组合方案：Tailscale + Windows 远程桌面，让你轻松实现稳定、高效的远程访问。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网穿透与远程桌面：用 Tailscale 随时随地访问你的 Windows">
+<meta property="og:url" content="https://supermarkli.github.io/posts/8a7b3c2d/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="是否曾想在咖啡馆、酒店或任何有网络的地方，像坐在自己书房一样操作家里的电脑？无论是访问重要文件、运行特定软件，还是进行远程维护，直接访问一台不在身边的计算机都是一个常见的需求。 传统方法（如公网 IP + 端口转发）配置复杂且有安全风险。本文将介绍一种极其简单且安全的组合方案：Tailscale + Windows 远程桌面，让你轻松实现稳定、高效的远程访问。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-10-16T04:42:21.000Z">
+<meta property="article:modified_time" content="2025-10-16T05:42:25.596Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="内网穿透">
+<meta property="article:tag" content="远程桌面">
+<meta property="article:tag" content="Tailscale">
+<meta property="article:tag" content="网络基础">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/8a7b3c2d/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/8a7b3c2d/","path":"posts/8a7b3c2d/","title":"内网穿透与远程桌面：用 Tailscale 随时随地访问你的 Windows"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>内网穿透与远程桌面：用 Tailscale 随时随地访问你的 Windows | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E9%80%9F%E8%A7%88"><span class="nav-number">1.</span> <span class="nav-text">🧩 一、网络基础概念速览</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BD%91%E5%8D%A1%E4%B8%8E-mac-%E5%9C%B0%E5%9D%80%E7%A1%AC%E4%BB%B6%E8%BA%AB%E4%BB%BD%E8%AF%81"><span class="nav-number">1.1.</span> <span class="nav-text">1. 网卡与 MAC 地址：硬件身份证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ip-%E5%9C%B0%E5%9D%80%E7%BD%91%E7%BB%9C%E4%B8%96%E7%95%8C%E7%9A%84%E9%97%A8%E7%89%8C%E5%8F%B7"><span class="nav-number">1.2.</span> <span class="nav-text">2. IP 地址：网络世界的门牌号</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B7%AF%E7%94%B1%E5%99%A8%E4%B8%8E-nat%E5%AE%B6%E5%BA%AD%E7%BD%91%E7%BB%9C%E5%A4%A7%E7%AE%A1%E5%AE%B6"><span class="nav-number">1.3.</span> <span class="nav-text">3. 路由器与 NAT：家庭网络大管家</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%9C%8D%E5%8A%A1%E7%AA%97%E5%8F%A3"><span class="nav-number">1.4.</span> <span class="nav-text">4. 端口：程序的服务窗口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%B2%E7%81%AB%E5%A2%99%E7%BD%91%E7%BB%9C%E4%B8%96%E7%95%8C%E7%9A%84%E4%BF%9D%E5%AE%89"><span class="nav-number">1.5.</span> <span class="nav-text">5. 防火墙：网络世界的保安</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#vpn%E8%99%9A%E6%8B%9F%E7%9A%84%E4%B8%93%E7%94%A8%E9%80%9A%E9%81%93"><span class="nav-number">1.6.</span> <span class="nav-text">6. VPN：虚拟的专用通道</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8Ctailscale%E8%BD%BB%E6%9D%BE%E5%AE%9E%E7%8E%B0%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F"><span class="nav-number">2.</span> <span class="nav-text">🚀 二、Tailscale：轻松实现内网穿透</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#tailscale-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.1.</span> <span class="nav-text">1. Tailscale 是什么？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tailscale-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">2. Tailscale 工作原理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89windows-%E8%BF%9C%E7%A8%8B%E6%A1%8C%E9%9D%A2-rdp"><span class="nav-number">3.</span> <span class="nav-text">🖥️ 三、Windows 远程桌面 (RDP)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#windows-%E7%89%88%E6%9C%AC%E9%99%90%E5%88%B6%E4%B8%8D%E6%98%AF%E6%89%80%E6%9C%89%E7%89%88%E6%9C%AC%E9%83%BD%E8%83%BD%E8%A2%AB%E8%BF%9C%E7%A8%8B"><span class="nav-number">3.1.</span> <span class="nav-text">1. Windows 版本限制：不是所有版本都能“被远程”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B4%A6%E6%88%B7%E4%B9%8B%E8%B0%9C%E5%BE%AE%E8%BD%AF%E8%B4%A6%E6%88%B7-vs.-%E6%9C%AC%E5%9C%B0%E8%B4%A6%E6%88%B7"><span class="nav-number">3.2.</span> <span class="nav-text">2. 账户之谜：微软账户 vs. 本地账户</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E5%AE%9E%E6%88%98%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">⚡ 四、实战工作流总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">79</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/8a7b3c2d/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="内网穿透与远程桌面：用 Tailscale 随时随地访问你的 Windows | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          内网穿透与远程桌面：用 Tailscale 随时随地访问你的 Windows
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-10-16 12:42:21 / 修改时间：13:42:25" itemprop="dateCreated datePublished" datetime="2025-10-16T12:42:21+08:00">2025-10-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">技术工具</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF%E5%B7%A5%E5%85%B7/%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">系统运维</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>8 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>是否曾想在咖啡馆、酒店或任何有网络的地方，像坐在自己书房一样操作家里的电脑？无论是访问重要文件、运行特定软件，还是进行远程维护，直接访问一台不在身边的计算机都是一个常见的需求。</p>
+<p>传统方法（如公网 IP + 端口转发）配置复杂且有安全风险。本文将介绍一种极其简单且安全的组合方案：<strong>Tailscale + Windows 远程桌面</strong>，让你轻松实现稳定、高效的远程访问。</p>
+<span id="more"></span>
+<h3 id="一网络基础概念速览">🧩 一、网络基础概念速览</h3>
+<p>在深入主题之前，我们先快速过一遍几个核心的网络概念，这有助于你理解为什么需要“内网穿透”。</p>
+<h4 id="网卡与-mac-地址硬件身份证">1. 网卡与 MAC 地址：硬件身份证</h4>
+<ul>
+<li><strong>网卡 (NIC)</strong>: 电脑连接网络（无论是有线还是无线）所必需的物理硬件。</li>
+<li><strong>MAC 地址</strong>: 烧录在网卡上的全球唯一的物理地址，由一串十六进制数字组成。它就像网卡的身份证号码，出厂即定，通常不可更改。</li>
+</ul>
+<blockquote>
+<p><strong>省流</strong>：网卡是电脑上网的硬件，MAC 地址是这张网卡的“身份证号”，全球唯一。</p>
+</blockquote>
+<h4 id="ip-地址网络世界的门牌号">2. IP 地址：网络世界的门牌号</h4>
+<ul>
+<li><strong>内网 IP (Private IP)</strong>：通常以 <code>192.168.x.x</code>、<code>172.16.x.x</code> 或 <code>10.x.x.x</code> 开头，是你在家庭或办公室局域网内的唯一标识。它就像你家小区里的“1栋101号”，只有小区内部的人才知道。</li>
+<li><strong>公网 IP (Public IP)</strong>：由你的网络服务提供商（ISP）分配的，是你在整个互联网上的唯一标识。它好比你家小区的“XX市XX区XX街道XX号”，是世界各地都能找到的地址。</li>
+</ul>
+<blockquote>
+<p><strong>省流</strong>：公网 IP 是你在互联网上的地址，全世界独一无二；内网 IP 是你在局域网内的地址，只在内部有效。</p>
+</blockquote>
+<h4 id="路由器与-nat家庭网络大管家">3. 路由器与 NAT：家庭网络大管家</h4>
+<ul>
+<li><strong>路由器 (Router)</strong>: 连接你家庭/办公室内部所有设备（构成一个局域网），并负责将这个局域网连接到互联网的设备。</li>
+<li><strong>NAT (网络地址转换)</strong>: 这是路由器的核心功能之一。它允许多台内网设备通过<strong>共享同一个公网 IP 地址</strong>来访问互联网。当外部数据返回时，NAT 会根据记录，准确地将数据转发给局域网内正确的设备。</li>
+</ul>
+<blockquote>
+<p><strong>省流</strong>：路由器是家庭网络的网关，负责内外沟通。NAT 技术让很多内网设备能共用一个公网 IP 上网，但也因此把它们“藏”在了内网中，导致外网无法直接找到它们。</p>
+</blockquote>
+<h4 id="端口程序的服务窗口">4. 端口：程序的服务窗口</h4>
+<p>如果说 IP 地址是一栋大楼的地址，那么端口号就是这栋楼里具体的房间号或窗口号。一台电脑上可以同时运行很多网络服务（网页服务、游戏、远程桌面等），操作系统就是用端口号来区分数据应该交给哪个程序处理。 - <code>80</code> 端口通常用于 HTTP 网页服务。 - <code>443</code> 端口用于 HTTPS 加密网页服务。 - <code>3389</code> 端口是 Windows 远程桌面的默认端口。</p>
+<blockquote>
+<p><strong>省流</strong>：IP 地址用来定位电脑，端口号用来定位电脑上的具体<strong>程序（服务）</strong>。<code>IP:端口号</code> 才能精确找到目标。</p>
+</blockquote>
+<h4 id="防火墙网络世界的保安">5. 防火墙：网络世界的保安</h4>
+<p>防火墙是一个网络安全系统，它像一个保安，根据预设的规则来监控和控制进出网络的流量。它可以阻止未经授权的访问，保护你的电脑免受攻击。但有时，它也可能“过于尽职”，阻止了正常的远程桌面连接请求。</p>
+<blockquote>
+<p><strong>省流</strong>：防火墙是网络保安，按规则放行或拦截数据。它在保护安全的同时，也可能需要你手动设置“白名单”来允许特定连接通过。</p>
+</blockquote>
+<h4 id="vpn虚拟的专用通道">6. VPN：虚拟的专用通道</h4>
+<p>VPN (Virtual Private Network) 的核心思想是在公共网络（如互联网）上建立一个加密的、虚拟的私人通道。连接到 VPN 的设备，即使地理位置分散，也仿佛置身于同一个局域网内，可以安全地互相通信。</p>
+<blockquote>
+<p><strong>省流</strong>：VPN 就像是在公共互联网上为你挖了一条加密的私人隧道，安全地连接两个或多个地方。</p>
+</blockquote>
+<p>下面的图示总结了这些概念如何协同工作。从外部直接访问“电脑A”是非常困难的，因为它被路由器（NAT）和防火墙保护着。</p>
+<pre>
+<code class="mermaid">
+
+graph TD
+    subgraph &quot;互联网 (Public Network)&quot;
+        Internet(&quot;🌐 Internet&quot;)
+    end
+    subgraph &quot;家庭网络 (Private Network)&quot;
+        Router(&quot;路由器 &lt;br&#x2F;&gt; NAT + 防火墙&quot;) --&gt; PC1(&quot;电脑A &lt;br&#x2F;&gt; 192.168.1.10&quot;)
+        Router --&gt; Phone(&quot;手机 &lt;br&#x2F;&gt; 192.168.1.11&quot;)
+    end
+    Internet -- &quot;公网 IP&quot; --&gt; Router
+</code>
+</pre>
+<h3 id="二tailscale轻松实现内网穿透">🚀 二、Tailscale：轻松实现内网穿透</h3>
+<p>要解决从外网访问内网设备的问题，就需要“内网穿透”，即打通内外网的壁垒。Tailscale 就是实现这一目标的“神器”。</p>
+<h4 id="tailscale-是什么">1. Tailscale 是什么？</h4>
+<p>Tailscale 是一个基于 <strong>WireGuard®</strong> 协议构建的零配置 VPN 服务。WireGuard® 是一种现代化、高性能的 VPN 协议，以其代码简洁、速度快和安全性高而著称。Tailscale 在其基础上，增加了一个强大的自动管理层，能为你所有的设备（电脑、手机、服务器等）创建一个安全、扁平的私有网络，无论这些设备身处何地，都能像在同一个局-网中一样互相访问。</p>
+<blockquote>
+<p><strong>省流</strong>：一个基于先进的 WireGuard® 协议的“魔法”工具，能把你所有设备拉进一个虚拟局域网，让它们能用一个固定的内网 IP ( <code>100.x.x.x</code> ) 互相访问，过程全自动。</p>
+</blockquote>
+<h4 id="tailscale-工作原理">2. Tailscale 工作原理</h4>
+<p>Tailscale 的优雅之处在于它简化了复杂的网络连接过程：</p>
+<ol type="1">
+<li><strong>协调服务器</strong>：所有设备通过一个协调服务器（使用 Google、Microsoft 等账户登录）来交换各自的公钥和网络地址信息。这好比去一个中介那里登记自己的联系方式。</li>
+<li><strong>P2P 直连</strong>：设备拿到对方信息后，会尝试通过 <strong>NAT 穿透</strong> 技术建立一条点对点（P2P）的加密隧道。这是最高效的连接方式。</li>
+<li><strong>DERP 中继</strong>：如果因为网络环境限制无法直连，Tailscale 会自动通过它的全球中继服务器（DERP）来转发流量，确保连接永远可用，尽管速度可能会慢一些。</li>
+</ol>
+<blockquote>
+<p><strong>省流</strong>：设备们先去“中介”交换联系方式，然后尝试“直接通话”（P2P）。如果不行，就通过“传话筒”（中继）沟通。所有通话都是加密的，安全可靠。</p>
+</blockquote>
+<pre>
+<code class="mermaid">
+
+graph TD
+    subgraph &quot;阶段一：握手 (通过协调服务器)&quot;
+        Laptop1(&quot;笔记本&quot;) -- &quot;1. 注册并获取对方信息&quot; --&gt; Coord[&quot;协调服务器&quot;]
+        Desktop1(&quot;台式机&quot;) -- &quot;1. 注册并获取对方信息&quot; --&gt; Coord
+    end
+    
+    subgraph &quot;阶段二：连接建立&quot;
+        subgraph &quot;首选路径&quot;
+            Laptop2(&quot;笔记本&quot;) -- &quot;2. 尝试 P2P 直连 (NAT 穿透)&quot; --&gt; Desktop2(&quot;台式机&quot;)
+            style Laptop2 fill:#bbf,stroke:#333
+            style Desktop2 fill:#bbf,stroke:#333
+        end
+        subgraph &quot;备用路径&quot;
+            Laptop3(&quot;笔记本&quot;) -. &quot;3. 若直连失败，自动切换&quot; .-&gt; DERP[&quot;DERP 中继&quot;]
+            DERP -.-&gt; Desktop3(&quot;台式机&quot;)
+        end
+    end
+
+    Coord -- &quot;交换地址和公钥&quot; --&gt; Laptop2
+    Coord -- &quot;交换地址和公钥&quot; --&gt; Desktop2
+    
+    linkStyle 1 stroke:green,stroke-width:2px;
+    linkStyle 4,5 stroke:orange,stroke-dasharray: 5 5;
+</code>
+</pre>
+<h3 id="三windows-远程桌面-rdp">🖥️ 三、Windows 远程桌面 (RDP)</h3>
+<p>有了 Tailscale 打通网络，我们还需要一个工具来实际操作远程电脑。Windows 自带的远程桌面（RDP）就是最佳选择之一。</p>
+<h4 id="windows-版本限制不是所有版本都能被远程">1. Windows 版本限制：不是所有版本都能“被远程”</h4>
+<p>这是最关键的一点：<strong>只有特定版本的 Windows 才能作为远程桌面主机（被连接）</strong>。Windows 家庭版只能作为客户端（去连接别人），不能被连接。</p>
+<blockquote>
+<p>如果你的设备预装的是家庭版系统，可以考虑使用一些工具将其升级至专业版以解锁此功能，例如 HEU_KMS_Activator: https://github.com/zbezj/HEU_KMS_Activator/releases</p>
+</blockquote>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Windows 版本</th>
+<th style="text-align: center;">作为客户端 (连接别人)</th>
+<th style="text-align: center;">作为主机 (被别人连接)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>家庭版 (Home)</strong></td>
+<td style="text-align: center;">✅ 支持</td>
+<td style="text-align: center;">❌ <strong>不支持</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>专业版 (Pro)</strong></td>
+<td style="text-align: center;">✅ 支持</td>
+<td style="text-align: center;">✅ 支持</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>企业版 (Enterprise)</strong></td>
+<td style="text-align: center;">✅ 支持</td>
+<td style="text-align: center;">✅ 支持</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>教育版 (Education)</strong></td>
+<td style="text-align: center;">✅ 支持</td>
+<td style="text-align: center;">✅ 支持</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>省流</strong>：想让你家的电脑被远程控制，系统至少得是 <strong>Windows 专业版</strong>。</p>
+</blockquote>
+<p>你可以在 <code>设置 -&gt; 系统 -&gt; 关于</code> 中查看你的 Windows 版本。</p>
+<h4 id="账户之谜微软账户-vs.-本地账户">2. 账户之谜：微软账户 vs. 本地账户</h4>
+<p>为了远程连接，目标电脑上的用户账户<strong>必须设置密码</strong>。这里就引出了另一个常见问题：使用哪种账户登录？</p>
+<ul>
+<li><strong>本地账户 (Local Account)</strong>：这是传统的 Windows 账户，信息只保存在当前这台电脑上，不与任何在线服务关联。</li>
+<li><strong>微软账户 (Microsoft Account)</strong>：使用你的邮箱（如 <code>@outlook.com</code>, <code>@hotmail.com</code>）登录，可以在多台设备间同步设置、壁纸等，并与 OneDrive 等微软服务深度集成。</li>
+</ul>
+<p><strong>进行远程连接时：</strong></p>
+<ol type="1">
+<li><strong>使用本地账户</strong>：这是最简单直接的方式。在远程桌面客户端中，直接输入你设置的<strong>用户名</strong>和<strong>密码</strong>即可。</li>
+<li><strong>使用微软账户</strong>：这里是许多人出错的地方。用户名<strong>不是</strong>你邮箱 <code>@</code> 前面的部分，而是你的<strong>完整邮箱地址</strong>！例如，<code>my_email@outlook.com</code>。密码就是你的微软账户密码。</li>
+</ol>
+<blockquote>
+<p><strong>省流</strong>：远程桌面需要带密码的账户。用<strong>本地账户</strong>最省事。用<strong>微软账户</strong>时，用户名记得填<strong>完整邮箱地址</strong>。</p>
+</blockquote>
+<h3 id="四实战工作流总结">⚡ 四、实战工作流总结</h3>
+<p>现在，我们将所有部分串联起来，形成一个简单清晰的操作流程：</p>
+<ol type="1">
+<li><strong>安装 Tailscale</strong>：在你需要远程访问的电脑（主机）和你用来控制的设备（客户端，可以是另一台电脑或手机）上都安装并登录同一个 Tailscale 账户。</li>
+<li><strong>获取 IP 地址</strong>：在主机上，打开 Tailscale，找到并记下它分配的 <code>100.x.x.x</code> 格式的 IP 地址。这个 IP 地址是固定不变的。</li>
+<li><strong>开启远程桌面</strong>：确保主机是 Windows 专业版或更高版本。进入 <code>设置 -&gt; 系统 -&gt; 远程桌面</code>，打开开关。</li>
+<li><strong>检查用户账户</strong>：确保你计划用来登录的用户账户（无论是本地还是微软账户）已经设置了登录密码。</li>
+<li><strong>开始连接</strong>：在客户端设备上，打开远程桌面连接工具（Windows 自带，或从应用商店下载 Microsoft Remote Desktop），在“计算机”一栏输入主机上 Tailscale 的 <code>100.x.x.x</code> IP 地址，然后点击连接，按提示输入主机的用户名和密码。</li>
+</ol>
+<p>完成！现在你已经可以随时随地、安全地访问你的远程主机了。整个过程无需任何复杂的网络配置，Tailscale 已经为你处理好了一切。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+              <a href="/tags/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/" rel="tag"># 内网穿透</a>
+              <a href="/tags/%E8%BF%9C%E7%A8%8B%E6%A1%8C%E9%9D%A2/" rel="tag"># 远程桌面</a>
+              <a href="/tags/Tailscale/" rel="tag"># Tailscale</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80/" rel="tag"># 网络基础</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/8c9ab17b/" rel="prev" title="大模型百词">
+                  <i class="fa fa-angle-left"></i> 大模型百词
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">181k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:29</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
