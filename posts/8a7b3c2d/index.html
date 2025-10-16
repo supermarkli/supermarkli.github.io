@@ -29,7 +29,7 @@
 <meta property="og:description" content="是否曾想在咖啡馆、酒店或任何有网络的地方，像坐在自己书房一样操作家里的电脑？无论是访问重要文件、运行特定软件，还是进行远程维护，直接访问一台不在身边的计算机都是一个常见的需求。 传统方法（如公网 IP + 端口转发）配置复杂且有安全风险。本文将介绍一种极其简单且安全的组合方案：Tailscale + Windows 远程桌面，让你轻松实现稳定、高效的远程访问。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-10-16T04:42:21.000Z">
-<meta property="article:modified_time" content="2025-10-16T05:45:59.756Z">
+<meta property="article:modified_time" content="2025-10-16T05:48:09.020Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="Windows">
 <meta property="article:tag" content="内网穿透">
@@ -266,7 +266,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-10-16 12:42:21 / 修改时间：13:45:59" itemprop="dateCreated datePublished" datetime="2025-10-16T12:42:21+08:00">2025-10-16</time>
+      <time title="创建时间：2025-10-16 12:42:21 / 修改时间：13:48:09" itemprop="dateCreated datePublished" datetime="2025-10-16T12:42:21+08:00">2025-10-16</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -393,27 +393,27 @@ graph TD
 <code class="mermaid">
 
 graph TD
-    subgraph &quot;物理位置 A (咖啡馆)&quot;
-        Laptop(&quot;笔记本电脑&quot;)
-    end
-    subgraph &quot;物理位置 B (家庭)&quot;
-        Desktop(&quot;台式机&quot;)
-    end
-    
-    Coord[&quot;协调服务器&lt;br&#x2F;&gt;(交换公钥和地址)&quot;]
-    DERP[&quot;DERP 中继&lt;br&#x2F;&gt;(备用通道)&quot;]
-
-    Laptop -- &quot;1. 登录&#x2F;注册&quot; --&gt; Coord
-    Desktop -- &quot;1. 登录&#x2F;注册&quot; --&gt; Coord
-    
-    Laptop -- &quot;2. 尝试建立直接连接 (P2P)&quot; --&gt; Desktop
-    Laptop -. &quot;3. 若直连失败，通过中继连接&quot; .-&gt; DERP
-    DERP -.-&gt; Desktop
-    
-    style Laptop fill:#bbf,stroke:#333
-    style Desktop fill:#bbf,stroke:#333
-    linkStyle 2 stroke:green,stroke-width:2px;
-    linkStyle 3,4 stroke:orange,stroke-dasharray: 5 5;
+     subgraph &quot;物理位置 A (咖啡馆)&quot;
+         Laptop(&quot;笔记本电脑&quot;)
+     end
+     subgraph &quot;物理位置 B (家庭)&quot;
+         Desktop(&quot;台式机&quot;)
+     end
+     
+     Coord[&quot;协调服务器&lt;br&#x2F;&gt;(交换公钥和地址)&quot;]
+     DERP[&quot;DERP 中继&lt;br&#x2F;&gt;(备用通道)&quot;]
+ 
+     Laptop -- &quot;(1) 登录&#x2F;注册&quot; --&gt; Coord
+     Desktop -- &quot;(1) 登录&#x2F;注册&quot; --&gt; Coord
+     
+     Laptop -- &quot;(2) 尝试建立直接连接 (P2P)&quot; --&gt; Desktop
+     Laptop -. &quot;(3) 若直连失败，通过中继连接&quot; .-&gt; DERP
+     DERP -.-&gt; Desktop
+     
+     style Laptop fill:#bbf,stroke:#333
+     style Desktop fill:#bbf,stroke:#333
+     linkStyle 2 stroke:green,stroke-width:2px;
+     linkStyle 3,4 stroke:orange,stroke-dasharray: 5 5;
 </code>
 </pre>
 <h3 id="三windows-远程桌面-rdp">🖥️ 三、Windows 远程桌面 (RDP)</h3>
