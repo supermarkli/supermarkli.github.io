@@ -21,30 +21,29 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="计算机通信的层次 计算机通信是计算机网络形成的基础，这篇博客我们来简单了解一下现有的计算机网络通信协议。">
+    <meta name="description" content="我们熟悉的 Transformer 等模型采用“自回归”方式逐词生成文本，这限制了生成速度且不易保证长文本连贯。受图像生成领域成功的 扩散模型 (Diffusion Model) 启发，研究者将其引入文本生成，扩散语言模型 (Diffusion Language Model) 应运而生。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="计算机网络通信漫谈 - 从TCP&#x2F;IP到gRPC">
-<meta property="og:url" content="https://supermarkli.github.io/posts/f520f9c/index.html">
+<meta property="og:title" content="了解Diffusion Language Model">
+<meta property="og:url" content="https://supermarkli.github.io/posts/a1d79e4c/index.html">
 <meta property="og:site_name" content="吃糠咽菜">
-<meta property="og:description" content="计算机通信的层次 计算机通信是计算机网络形成的基础，这篇博客我们来简单了解一下现有的计算机网络通信协议。">
+<meta property="og:description" content="我们熟悉的 Transformer 等模型采用“自回归”方式逐词生成文本，这限制了生成速度且不易保证长文本连贯。受图像生成领域成功的 扩散模型 (Diffusion Model) 启发，研究者将其引入文本生成，扩散语言模型 (Diffusion Language Model) 应运而生。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-01-10T02:00:00.000Z">
-<meta property="article:modified_time" content="2025-08-06T08:48:58.190Z">
+<meta property="og:image" content="https://supermarkli.github.io/assets/image.png">
+<meta property="article:published_time" content="2025-10-25T03:02:35.000Z">
+<meta property="article:modified_time" content="2025-10-25T03:22:26.691Z">
 <meta property="article:author" content="吃糠咽菜">
-<meta property="article:tag" content="TLS">
-<meta property="article:tag" content="网络协议">
-<meta property="article:tag" content="gRPC">
-<meta property="article:tag" content="HTTP">
+<meta property="article:tag" content="note,coding,life">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://supermarkli.github.io/assets/image.png">
 
 
-<link rel="canonical" href="https://supermarkli.github.io/posts/f520f9c/">
+<link rel="canonical" href="https://supermarkli.github.io/posts/a1d79e4c/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/f520f9c/","path":"posts/f520f9c/","title":"计算机网络通信漫谈 - 从TCP/IP到gRPC"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/a1d79e4c/","path":"posts/a1d79e4c/","title":"了解Diffusion Language Model"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>计算机网络通信漫谈 - 从TCP/IP到gRPC | 吃糠咽菜</title>
+<title>了解Diffusion Language Model | 吃糠咽菜</title>
   
 
 
@@ -174,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%9C%BA%E9%80%9A%E4%BF%A1%E7%9A%84%E5%B1%82%E6%AC%A1"><span class="nav-number">1.</span> <span class="nav-text">计算机通信的层次</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">网络分层模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%9A%84%E6%BC%94%E8%BF%9B"><span class="nav-number">2.</span> <span class="nav-text">协议栈的演进</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E4%BC%A0%E8%BE%93%E5%B1%82---tcp%E4%B8%8Eudp"><span class="nav-number">2.1.</span> <span class="nav-text">基础传输层 - TCP与UDP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%B1%82%E7%9A%84%E5%8F%91%E5%B1%95"><span class="nav-number">2.2.</span> <span class="nav-text">应用层的发展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#http---%E4%BA%92%E8%81%94%E7%BD%91%E7%9A%84%E9%80%9A%E7%94%A8%E8%AF%AD%E8%A8%80"><span class="nav-number">2.2.1.</span> <span class="nav-text">HTTP - 互联网的通用语言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#grpc---%E7%8E%B0%E4%BB%A3%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%96%B0%E9%80%89%E6%8B%A9"><span class="nav-number">2.2.2.</span> <span class="nav-text">gRPC - 现代分布式系统的新选择</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E4%BC%A0%E8%BE%93---tls%E7%9A%84%E9%87%8D%E8%A6%81%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">安全传输 - TLS的重要性</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">什么是扩散模型？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%B0%86%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B%E7%94%A8%E4%BA%8E%E6%96%87%E6%9C%AC"><span class="nav-number">2.</span> <span class="nav-text">如何将扩散模型用于文本？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#diffusion-%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">Diffusion 语言模型的工作原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#diffusion-%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">4.</span> <span class="nav-text">Diffusion 语言模型的优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E6%B2%BF%E7%A0%94%E7%A9%B6%E8%BF%9B%E5%B1%95"><span class="nav-number">5.</span> <span class="nav-text">前沿研究进展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -235,7 +234,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/f520f9c/">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/a1d79e4c/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/csnr.jpg">
@@ -248,12 +247,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="计算机网络通信漫谈 - 从TCP&#x2F;IP到gRPC | 吃糠咽菜">
+      <meta itemprop="name" content="了解Diffusion Language Model | 吃糠咽菜">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          计算机网络通信漫谈 - 从TCP/IP到gRPC
+          了解Diffusion Language Model
         </h1>
 
         <div class="post-meta-container">
@@ -263,28 +262,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
+      
 
-      <time title="创建时间：2025-01-10 10:00:00" itemprop="dateCreated datePublished" datetime="2025-01-10T10:00:00+08:00">2025-01-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-08-06 16:48:58" itemprop="dateModified" datetime="2025-08-06T16:48:58+08:00">2025-08-06</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">计算机基础</span></a>
-        </span>
-          ，
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E7%BD%91%E7%BB%9C%E4%B8%8E%E9%80%9A%E4%BF%A1/" itemprop="url" rel="index"><span itemprop="name">网络与通信</span></a>
-        </span>
+      <time title="创建时间：2025-10-25 11:02:35 / 修改时间：11:22:26" itemprop="dateCreated datePublished" datetime="2025-10-25T11:02:35+08:00">2025-10-25</time>
     </span>
 
   
@@ -301,14 +281,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.2k</span>
+      <span>1.8k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>2 分钟</span>
+      <span>3 分钟</span>
     </span>
 </div>
 
@@ -318,52 +298,44 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h2 id="计算机通信的层次">计算机通信的层次</h2>
-<p>计算机通信是计算机网络形成的基础，这篇博客我们来简单了解一下现有的计算机网络通信协议。</p>
+    <div class="post-body" itemprop="articleBody"><p>我们熟悉的 Transformer 等模型采用“自回归”方式逐词生成文本，这限制了生成速度且不易保证长文本连贯。受图像生成领域成功的 <strong>扩散模型 (Diffusion Model)</strong> 启发，研究者将其引入文本生成，<strong>扩散语言模型 (Diffusion Language Model)</strong> 应运而生。</p>
 <span id="more"></span>
-<h3 id="网络分层模型">网络分层模型</h3>
-<p>理论上有OSI七层模型,但在实际应用中我们更常用TCP/IP四层模型:</p>
-<ul>
-<li>应用层:HTTP、FTP、SMTP、gRPC等应用协议</li>
-<li>传输层:TCP、UDP等传输控制协议</li>
-<li>网络层:IP、ICMP等网络协议</li>
-<li>网络接口层:以太网、WiFi等物理传输协议</li>
-</ul>
-<p>这种分层设计让我们可以在不改变其他层的情况下优化或替换某一层的实现。就像我们可以在同样的TCP协议上开发HTTP、FTP等不同的应用协议,也可以用WiFi或网线作为物理传输介质。</p>
-<h2 id="协议栈的演进">协议栈的演进</h2>
-<h3 id="基础传输层---tcp与udp">基础传输层 - TCP与UDP</h3>
-<p>传输层是整个协议栈的核心,提供了两种主要的传输服务:</p>
-<p>TCP(传输控制协议): - 面向连接:通信前需要建立连接(三次握手) - 可靠传输:使用确认机制和重传机制保证数据可靠到达 - 流量控制:根据接收方处理能力调整发送速率 - 拥塞控制:根据网络状况调整发送速率 - 适用场景:文件传输、网页访问等对可靠性要求高的应用</p>
-<p>UDP(用户数据报协议): - 无连接:不需要建立连接即可传输数据 - 不可靠:不保证数据一定送达 - 无流量控制和拥塞控制 - 开销小、延迟低 - 适用场景:视频直播、游戏等对实时性要求高的应用</p>
-<h3 id="应用层的发展">应用层的发展</h3>
-<h4 id="http---互联网的通用语言">HTTP - 互联网的通用语言</h4>
-<p>HTTP协议构建在TCP之上,经历了几个重要版本:</p>
-<p>HTTP/1.1: - 持久连接:复用TCP连接 - 管道化请求:支持多个请求排队 - 但存在队头阻塞问题</p>
-<p>HTTP/2: - 多路复用:在同一连接上并发处理多个请求 - 头部压缩:减少传输开销 - 服务器推送:主动推送相关资源 - 二进制分帧:更高效的数据传输</p>
-<h4 id="grpc---现代分布式系统的新选择">gRPC - 现代分布式系统的新选择</h4>
-<p>gRPC是基于HTTP/2构建的高性能RPC框架: - 协议层次: * 应用层:gRPC API * 中间层:HTTP/2 * 传输层:TCP * 安全层:TLS(可选)</p>
-<p>四种通信模式: 1. 一元RPC(Unary): - 类似HTTP/1.1的请求-响应模式 - 适用于传统的客户端-服务器交互</p>
-<ol start="2" type="1">
-<li>服务器流式RPC(Server Streaming):
-<ul>
-<li>客户端发送一个请求,服务器返回数据流</li>
-<li>适用于服务器推送场景,如订阅更新</li>
-</ul></li>
-<li>客户端流式RPC(Client Streaming):
-<ul>
-<li>客户端发送数据流,服务器返回一个响应</li>
-<li>适用于数据上传场景</li>
-</ul></li>
-<li>双向流式RPC(Bidirectional Streaming):
-<ul>
-<li>客户端和服务器同时收发数据流</li>
-<li>适用于实时通信场景,如在线游戏</li>
-</ul></li>
+<h2 id="什么是扩散模型">什么是扩散模型？</h2>
+<p><img src="/assets/image.png" /></p>
+<p>在深入了解其如何应用于语言之前，我们先通过一个直观的例子——图像生成——来理解扩散模型的核心思想。它主要包含两个过程：</p>
+<ol type="1">
+<li><p><strong>前向过程（Forward Process）</strong>：也叫“扩散”过程。想象一下，我们从一张清晰的图片开始，一步步地、逐渐地向图片中添加微小的“噪声”，直到这张图片完全变成一个毫无规律的噪声图。这个过程是固定的、可控的。</p></li>
+<li><p><strong>反向过程（Reverse Process）</strong>：也叫“去噪”过程。这是真正的“生成”环节。我们训练一个神经网络，让它学会上述过程的“逆操作”——即从一张纯噪声的图片开始，一步步地、逐渐地去除噪声，最终还原出一张清晰、有意义的图片。</p></li>
 </ol>
-<p>gRPC的优势: - 基于HTTP/2的高性能 - Protocol Buffers的高效序列化 - 强类型接口定义 - 跨语言支持 - 内置流控和安全机制</p>
-<h2 id="安全传输---tls的重要性">安全传输 - TLS的重要性</h2>
-<p>TLS在传输层和应用层之间提供了安全保障: - 加密:保护数据不被窃听 - 认证:验证通信双方身份 - 完整性:确保数据不被篡改</p>
-<p>现代应用如HTTPS和gRPC都默认集成了TLS,为应用提供端到端的安全保障。</p>
+<p>一旦模型学会了如何“去噪”，我们就可以给它任何随机噪声，让它“创造”出全新的、从未见过的图片。</p>
+<h2 id="如何将扩散模型用于文本">如何将扩散模型用于文本？</h2>
+<p>直接将扩散模型应用于文本面临一个核心挑战：<strong>文本是离散的，而扩散过程处理的是连续的数据</strong>。我们无法像给图片像素值加噪声那样，给一个“词”加上一点“噪声”变成另一个“半词”。</p>
+<p>解决方案是：<strong>在连续空间中操作</strong>。</p>
+<p>我们不直接处理文字，而是先将文字通过 <strong>词嵌入（Word Embedding）</strong> 技术转换为高维度的连续向量。这样，文本序列就变成了一组向量，我们可以在这个连续的向量空间中执行扩散和去噪过程。</p>
+<h2 id="diffusion-语言模型的工作原理">Diffusion 语言模型的工作原理</h2>
+<p>理解了以上概念后，扩散语言模型的工作流程就清晰了：</p>
+<ol type="1">
+<li><strong>前向过程</strong>：取一个句子，将其转换为词向量序列。然后，逐步向这些向量中添加噪声，直到它们变成一组随机向量。</li>
+<li><strong>反向过程</strong>：训练一个模型（通常是基于 Transformer 架构）来学习逆转这个过程。模型的任务是接收一串加了噪声的向量，并预测出“更干净”的向量应该是什么样子。</li>
+<li><strong>文本生成</strong>：当需要生成新文本时，我们从一组完全随机的向量开始，然后反复利用训练好的去噪模型进行迭代处理。每一步，向量都会变得“更清晰”一点，逐渐从无序的噪声收敛为有意义的词向量。最后，将这些“去噪”完成的词向量转换回人类可读的文字，就完成了一次文本生成。</li>
+</ol>
+<h2 id="diffusion-语言模型的优势">Diffusion 语言模型的优势</h2>
+<p>与传统的自回归模型相比，扩散语言模型展现出一些独特的优势：</p>
+<ul>
+<li><strong>并行生成</strong>：扩散模型在生成时是迭代式地对整个序列进行优化的，而不是像自回归模型那样必须逐词生成。这为并行计算和更快的生成速度提供了可能。</li>
+<li><strong>全局一致性</strong>：由于模型的每一步去噪都是基于对整个序列的观察，它能更好地捕捉全局依赖关系，生成的文本在长距离连贯性和结构完整性上可能更具优势。</li>
+<li><strong>可控性更强</strong>：扩散模型的迭代特性使其在生成过程中更容易被引导和控制。我们可以通过修改去噪过程来控制生成文本的风格、主题或结构，使其更适用于文本编辑、修复和改写等任务。</li>
+</ul>
+<h2 id="前沿研究进展">前沿研究进展</h2>
+<p>尽管扩散语言模型是一个较新的研究方向，但它已经展现出惊人的潜力，涌现了许多前沿工作：</p>
+<ul>
+<li><strong>大规模模型的成功</strong>：以 <strong>LLaDA</strong> 为代表的研究表明，当参数规模扩大到数十亿级别时，精心设计的扩散语言模型在性能上足以媲美甚至在某些复杂任务上超越顶尖的自回归模型（如 LLaMA3、GPT-4o），这证明了该技术路线的可行性与潜力。</li>
+<li><strong>效率与质量的权衡</strong>：一些研究也指出，当前扩散语言模型在推理时为了达到高质量的生成效果，可能需要较多的“去噪”迭代步骤，这导致其计算成本相对较高。如何平衡生成质量与推理效率，是目前该领域的研究热点之一。</li>
+<li><strong>多模态统一框架</strong>：部分工作（如 <strong>Transfusion</strong> 架构）尝试将扩散模型与 Transformer 深度融合，在一个统一的框架内同时处理文本和图像的生成任务，为多模态内容创作提供了新的思路。</li>
+<li><strong>行业巨头的投入</strong>：以 Google 推出的 <strong>Gemini Diffusion</strong> 为例，科技巨头们也开始在该领域发力，进一步验证了文本扩散模型作为下一代生成技术核心的潜力。</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>扩散语言模型通过借鉴图像生成领域的成功经验，为自然语言生成任务提供了一种全新的、非自回归的解决方案。它通过在连续的词向量空间中进行“加噪”和“去噪”，克服了文本数据的离散性难题。尽管这一领域仍处于快速发展阶段，但其在并行生成、全局连贯性和可控性方面展现出的巨大潜力，预示着它将成为未来自然语言处理领域一个重要的研究方向。</p>
 
     </div>
 
@@ -372,25 +344,16 @@
     
 
     <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/TLS/" rel="tag"># TLS</a>
-              <a href="/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/" rel="tag"># 网络协议</a>
-              <a href="/tags/gRPC/" rel="tag"># gRPC</a>
-              <a href="/tags/HTTP/" rel="tag"># HTTP</a>
-          </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/posts/32f5e233/" rel="prev" title="TLS Note">
-                  <i class="fa fa-angle-left"></i> TLS Note
+                <a href="/posts/8a7b3c2d/" rel="prev" title="内网穿透与远程桌面：用 Tailscale 随时随地访问你的 Windows">
+                  <i class="fa fa-angle-left"></i> 内网穿透与远程桌面：用 Tailscale 随时随地访问你的 Windows
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/posts/b1b647fa/" rel="next" title="Understanding the Linux Kernel Lecture 1 Note">
-                  Understanding the Linux Kernel Lecture 1 Note <i class="fa fa-angle-right"></i>
-                </a>
             </div>
           </div>
     </footer>
