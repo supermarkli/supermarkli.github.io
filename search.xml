@@ -535,6 +535,228 @@ graph TD;
 ]]></content>
   </entry>
   <entry>
+    <title>H100 服务器 CUDA + PyTorch 环境速配指南</title>
+    <url>/posts/e5b1c8d2/</url>
+    <content><![CDATA[<p>想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CUDA</td>
+<td>NVIDIA 的并行计算平台 + 运行时/驱动 + C/C++ 扩展（带 <code>__global__</code>/<code>__device__</code> 等关键字）。</td>
+<td>GPU 编程底座</td>
+</tr>
+<tr class="even">
+<td>PyTorch</td>
+<td>流行的深度学习框架，支持动态图，<code>torch.Tensor</code> 可在 GPU 上做张量运算。</td>
+<td>DL 里最火的“积木”</td>
+</tr>
+<tr class="odd">
+<td>Wheel (<code>.whl</code>)</td>
+<td>Python 的二进制打包格式，包含编译好的扩展。带 <code>+cu124</code> 表示内置 CUDA‐12.4。</td>
+<td>“pip 装包”的快递盒</td>
+</tr>
+<tr class="even">
+<td><code>nvcc</code></td>
+<td>CUDA C/C++ 编译器前端，.cu → PTX/SASS，可指定 <code>-arch=sm_xx</code>。</td>
+<td>编译 .cu</td>
+</tr>
+<tr class="odd">
+<td><code>nvdisasm</code></td>
+<td>PTX/SASS 反汇编工具，用来看编译后指令。</td>
+<td>拆快递看指令</td>
+</tr>
+<tr class="even">
+<td>Compute Sanitizer</td>
+<td>GPU 版 “Valgrind”，检测越界、数据竞争等。</td>
+<td>GPU 内存查错</td>
+</tr>
+<tr class="odd">
+<td><code>conda</code> / <code>mamba</code></td>
+<td>包/环境管理器，用独立前缀隔离 Python &amp; 依赖，避免系统污染。</td>
+<td>独立小房间</td>
+</tr>
+<tr class="even">
+<td><code>pip</code></td>
+<td>Python 官方包管理器，配 <code>--index-url</code> 拉特定 wheel；需在虚拟环境或 conda env 下用。</td>
+<td>安装 Python 包</td>
+</tr>
+</tbody>
+</table>
+<p>省流：CUDA = GPU 底座；PyTorch = AI 积木；wheel = 打好车的包；<code>nvcc/nvdisasm/sanitizer</code> = 编译/查看/查错工具；conda/pip = 装包管家。</p>
+<h3 id="cu-文件到底是什么">📄 .cu 文件到底是什么？</h3>
+<p><code>.cu</code> 是 NVIDIA CUDA 源文件默认扩展名，可<strong>同时</strong>放 CPU 端 C/C++ 代码和 GPU 端 kernel：</p>
+<ol type="1">
+<li><strong>CPU 端（Host）代码</strong>：普通 C/C++ 语句，由主机 CPU 执行。</li>
+<li><strong>GPU 端（Device）代码</strong>：用 <code>__global__</code> / <code>__device__</code> / <code>__host__</code> 关键字标注的函数或 <code>&lt;&lt;&lt;grid,block&gt;&gt;&gt;</code> 启动的 kernel，将被编译为 PTX/SASS 在 GPU 上跑。</li>
+</ol>
+<p>为什么单独用 <code>.cu</code>？ - 让 <code>nvcc</code> 识别文件需要“双重编译”：CPU 端交给主机编译器，GPU 端生成 PTX/SASS。<br />
+- 一个文件里即可 <code>cudaMalloc/cudaMemcpy</code> 及定义 kernel，方便小项目/快速实验。</p>
+<p>常见编译方式： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 直接生成可执行</span></span><br><span class="line">nvcc vec_add.cu -o vec_add</span><br><span class="line"></span><br><span class="line"><span class="comment"># 先生成对象，再由 g++ 链接</span></span><br><span class="line">nvcc -c my_kernel.cu -o my_kernel.o</span><br><span class="line">g++ host_main.cpp my_kernel.o -lcudart -L/usr/local/cuda/lib64</span><br></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>.c/.cpp</th>
+<th>.cu</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>写 CPU 代码</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr class="even">
+<td>写 GPU kernel</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr class="odd">
+<td>编译器</td>
+<td>gcc/clang</td>
+<td>nvcc（内部仍调 gcc/clang 处理 Host 部分）</td>
+</tr>
+<tr class="even">
+<td>关键字</td>
+<td>无</td>
+<td><code>__global__</code> <code>__device__</code> 等</td>
+</tr>
+<tr class="odd">
+<td>启动 kernel</td>
+<td>❌</td>
+<td><code>kernel&lt;&lt;&lt;grid,block&gt;&gt;&gt;(...)</code></td>
+</tr>
+</tbody>
+</table>
+<p>省流：<code>.cu = 普通 C/C++ + GPU kernel</code>，只要用 <code>nvcc</code> 就能编译运行。</p>
+<h3 id="系统信息">🖥️ 1 系统信息</h3>
+<table>
+<thead>
+<tr class="header">
+<th>组件</th>
+<th>版本</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>OS</td>
+<td>Ubuntu 24.04.2 LTS (x86-64)</td>
+</tr>
+<tr class="even">
+<td>GPU</td>
+<td>NVIDIA H100 PCIe</td>
+</tr>
+<tr class="odd">
+<td>驱动</td>
+<td>570.133.20</td>
+</tr>
+<tr class="even">
+<td>目标 CUDA</td>
+<td>12.6 (系统 Runtime)<br/>12.4 (PyTorch wheel 内置)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="安装-cuda-工具链">🔧 2 安装 CUDA 工具链</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1) 添加官方仓库</span></span><br><span class="line">wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb</span><br><span class="line"><span class="built_in">sudo</span> dpkg -i cuda-keyring_1.1-1_all.deb</span><br><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 安装核心工具</span></span><br><span class="line"><span class="built_in">sudo</span> apt install -y cuda-toolkit-12-6          <span class="comment"># nvcc / nvdisasm</span></span><br><span class="line"><span class="built_in">sudo</span> apt install -y nvidia-compute-sanitizer   <span class="comment"># Compute Sanitizer</span></span><br></pre></td></tr></table></figure>
+<p><strong>验证版本</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc --version &amp;&amp; nvdisasm --version &amp;&amp; compute-sanitizer --version</span><br><span class="line">nvidia-smi | <span class="built_in">head</span> -5</span><br></pre></td></tr></table></figure></p>
+<h3 id="conda-环境隔离">📦 3 Conda 环境隔离</h3>
+<ol type="1">
+<li>安装 Miniforge <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget -O Miniforge3.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh</span><br><span class="line">bash Miniforge3.sh -b -p <span class="variable">$HOME</span>/miniforge</span><br><span class="line"><span class="built_in">eval</span> <span class="string">&quot;<span class="subst">$($HOME/miniforge/bin/conda shell.zsh hook)</span>&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li>把缓存/临时目录挪到大分区（假设 <code>/opt/ext</code> 空间充足） <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /opt/ext/conda_pkgs /opt/ext/tmp &amp;&amp; \</span><br><span class="line">  <span class="built_in">sudo</span> <span class="built_in">chown</span> -R <span class="variable">$USER</span>:<span class="variable">$USER</span> /opt/ext/conda_pkgs /opt/ext/tmp</span><br><span class="line"></span><br><span class="line"><span class="comment"># ~/.condarc</span></span><br><span class="line"><span class="built_in">printf</span> <span class="string">&quot;pkgs_dirs:\n  - /opt/ext/conda_pkgs\n&quot;</span> &gt; ~/.condarc</span><br><span class="line"><span class="comment"># ~/.zshrc</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;export TMPDIR=/opt/ext/tmp&#x27;</span> &gt;&gt; ~/.zshrc &amp;&amp; <span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure></li>
+<li>创建 GPU 环境 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda create -n gpu python=3.11 -y</span><br><span class="line">conda activate gpu</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="安装-gpu-版-pytorchcuda-12.4-wheel">🔥 4 安装 GPU 版 PyTorch（CUDA-12.4 wheel）</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python -m pip install --upgrade pip</span><br><span class="line">pip install --no-cache-dir torch torchvision torchaudio \</span><br><span class="line">     --index-url https://download.pytorch.org/whl/cu124</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>注意</strong><br />
+• 轮子名必须带 <code>+cu124</code>，否则是 CPU 版。<br />
+• <code>--no-cache-dir</code> 省磁盘。</p>
+</blockquote>
+<p><strong>快速验证</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python - &lt;&lt;<span class="string">&#x27;PY&#x27;</span></span><br><span class="line">import torch, torchvision</span><br><span class="line"><span class="built_in">print</span>(torch.__version__, torch.version.cuda, torch.cuda.is_available())</span><br><span class="line"><span class="built_in">print</span>(torchvision.__version__)</span><br><span class="line">PY</span><br><span class="line"><span class="comment"># ➜ 2.6.0+cu124 12.4 True</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="生成环境日志">📝 5 生成环境日志</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python projects/gpu_fuzz/gen/collect_env.py \</span><br><span class="line">       &gt; projects/gpu_learn/log/env.txt 2&gt;&amp;1</span><br><span class="line"><span class="built_in">head</span> -n 24 projects/gpu_learn/log/env.txt</span><br></pre></td></tr></table></figure>
+<p>重点确认： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PyTorch version: 2.6.0+cu124</span><br><span class="line">CUDA runtime version: 12.6.85</span><br><span class="line">Is CUDA available: True</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>详细解读（常见疑问都在这里）： - <code>PyTorch version: 2.6.0+cu124</code> —— <strong>2.6.0</strong> 是框架版本；<code>+cu124</code> 表示它自带 CUDA-12.4 编译产物（cuDNN/cuBLAS 等)。 - <code>Is debug build: False</code> —— 官方 Release 版（True 时为带断言的调试版，速度慢）。 - <code>CUDA used to build PyTorch: 12.4</code> —— wheel 内置的编译 CUDA 版本；与系统 <code>runtime 12.6</code> 向下兼容即可。 - <code>OS / GCC / Clang / CMake</code> —— 编译本地 C++/CUDA 扩展时要用到的工具链版本，记录可复现性。 - <code>Python version: 3.11.x (conda-forge)</code> —— 确认与你的虚拟环境一致，便于后续 <code>pip install</code> ABI 兼容。 - <code>Is CUDA available: True</code> —— <code>torch.cuda.is_available()</code> 结果，若 False 请先查驱动 / 环境变量。 - <code>CUDA runtime version: 12.6.85</code> —— 驱动自带的 <code>libcuda.so</code> runtime 版本，只要 ≥ wheel 内的 12.4 即 OK。 - <code>CUDA_MODULE_LOADING: LAZY</code> —— 默认懒加载 PTX，可减少启动时延；如需即时插桩可设 <code>EAGER</code>。 - <code>GPU 0: NVIDIA H100 PCIe</code> —— 检测到的物理 GPU，与预期硬件相符。 - <code>cuDNN/cuBLAS/cuFFT/…</code> —— 列表展示 wheel 自带的具体子库版本，用于排查 “库不匹配” 问题。 - <code>CPU:</code>及后续 —— 主机硬件与漏洞缓解信息，可忽略；仅在编译器优化或虚拟化环境排错时有用。</p>
+<p>省流：<strong>三行打勾 + 驱动≥CUDA + GPU 型号正确 = 环境健康。</strong></p>
+</blockquote>
+<h3 id="最小-cuda-样例验证">🛠️ 6 最小 CUDA 样例验证</h3>
+<ol type="1">
+<li>编译 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> projects/gpu_learn</span><br><span class="line">nvcc vec_add.cu -o vec_add -O2</span><br></pre></td></tr></table></figure></li>
+<li>运行 &amp; Sanitizer <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./vec_add                                    <span class="comment"># → [vec_add] PASS</span></span><br><span class="line">compute-sanitizer --tool memcheck ./vec_add  <span class="comment"># → ERROR SUMMARY: 0 errors</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="版本自检截图清单">📸 7 版本自检截图清单</h3>
+<ol type="1">
+<li><code>nvcc --version</code><br />
+</li>
+<li><code>nvidia-smi</code>（前 5 行）<br />
+</li>
+<li><code>nvdisasm --version</code> (可选)<br />
+</li>
+<li><code>compute-sanitizer --version</code><br />
+</li>
+<li><code>projects/gpu_learn/log/env.txt</code>（前 24 行）</li>
+</ol>
+<p>全部放入 <code>gpu_learn/log/</code> 即完成 Day-1 验收。</p>
+<h3 id="关键注意事项速览">⚠️ 8 关键注意事项速览</h3>
+<table>
+<thead>
+<tr class="header">
+<th>事项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GPU 轮子</td>
+<td><code>torch …+cuXXX</code> 必须与目标 CUDA 一致；纯版本号 = CPU 轮子</td>
+</tr>
+<tr class="even">
+<td>驱动 ≥ CUDA</td>
+<td>驱动 570 支持 CUDA 12.x，无需额外系统级 Runtime</td>
+</tr>
+<tr class="odd">
+<td>独立包目录</td>
+<td><code>pkgs_dirs</code> &amp; <code>TMPDIR</code> 指向大分区，避免 <code>/</code> 爆盘</td>
+</tr>
+<tr class="even">
+<td>PEP 668</td>
+<td>系统 Python 禁止 pip，务必用 Conda/venv</td>
+</tr>
+<tr class="odd">
+<td>Sanitizer 延迟加载</td>
+<td><code>CUDA_MODULE_LOADING=LAZY</code> 已在 env.txt 中展示</td>
+</tr>
+</tbody>
+</table>
+<p>至此，阶段 0 / Day-1 环境就绪，接下来可愉快开发 CUDA/PyTorch 应用 🚀</p>
+]]></content>
+      <categories>
+        <category>深度学习</category>
+        <category>环境配置</category>
+      </categories>
+      <tags>
+        <tag>CUDA</tag>
+        <tag>PyTorch</tag>
+        <tag>H100</tag>
+        <tag>GPU</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CUDA核心概念与内存层次</title>
     <url>/posts/d4b8f045/</url>
     <content><![CDATA[<p>想在一张图看懂 GPU 的线程组织与内存层次？本文用表格 + Mermaid 图 + 代码示例，3 分钟带你摸清 Kernel、Warp、合并访存与 bank 冲突的底层逻辑。</p>
@@ -835,228 +1057,6 @@ flowchart TD
 <p>记住一句话：<strong>GPU 用“成群线程”换吞吐，用“切 Warp”藏延迟，性能归根结底是访存模式与并行度的艺术 ✨</strong></p>
 </blockquote>
 ]]></content>
-  </entry>
-  <entry>
-    <title>H100 服务器 CUDA + PyTorch 环境速配指南</title>
-    <url>/posts/e5b1c8d2/</url>
-    <content><![CDATA[<p>想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？</p>
-<span id="more"></span>
-<h3 id="基本概念速读">📚 基本概念速读</h3>
-<table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>定义</th>
-<th>省流</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>CUDA</td>
-<td>NVIDIA 的并行计算平台 + 运行时/驱动 + C/C++ 扩展（带 <code>__global__</code>/<code>__device__</code> 等关键字）。</td>
-<td>GPU 编程底座</td>
-</tr>
-<tr class="even">
-<td>PyTorch</td>
-<td>流行的深度学习框架，支持动态图，<code>torch.Tensor</code> 可在 GPU 上做张量运算。</td>
-<td>DL 里最火的“积木”</td>
-</tr>
-<tr class="odd">
-<td>Wheel (<code>.whl</code>)</td>
-<td>Python 的二进制打包格式，包含编译好的扩展。带 <code>+cu124</code> 表示内置 CUDA‐12.4。</td>
-<td>“pip 装包”的快递盒</td>
-</tr>
-<tr class="even">
-<td><code>nvcc</code></td>
-<td>CUDA C/C++ 编译器前端，.cu → PTX/SASS，可指定 <code>-arch=sm_xx</code>。</td>
-<td>编译 .cu</td>
-</tr>
-<tr class="odd">
-<td><code>nvdisasm</code></td>
-<td>PTX/SASS 反汇编工具，用来看编译后指令。</td>
-<td>拆快递看指令</td>
-</tr>
-<tr class="even">
-<td>Compute Sanitizer</td>
-<td>GPU 版 “Valgrind”，检测越界、数据竞争等。</td>
-<td>GPU 内存查错</td>
-</tr>
-<tr class="odd">
-<td><code>conda</code> / <code>mamba</code></td>
-<td>包/环境管理器，用独立前缀隔离 Python &amp; 依赖，避免系统污染。</td>
-<td>独立小房间</td>
-</tr>
-<tr class="even">
-<td><code>pip</code></td>
-<td>Python 官方包管理器，配 <code>--index-url</code> 拉特定 wheel；需在虚拟环境或 conda env 下用。</td>
-<td>安装 Python 包</td>
-</tr>
-</tbody>
-</table>
-<p>省流：CUDA = GPU 底座；PyTorch = AI 积木；wheel = 打好车的包；<code>nvcc/nvdisasm/sanitizer</code> = 编译/查看/查错工具；conda/pip = 装包管家。</p>
-<h3 id="cu-文件到底是什么">📄 .cu 文件到底是什么？</h3>
-<p><code>.cu</code> 是 NVIDIA CUDA 源文件默认扩展名，可<strong>同时</strong>放 CPU 端 C/C++ 代码和 GPU 端 kernel：</p>
-<ol type="1">
-<li><strong>CPU 端（Host）代码</strong>：普通 C/C++ 语句，由主机 CPU 执行。</li>
-<li><strong>GPU 端（Device）代码</strong>：用 <code>__global__</code> / <code>__device__</code> / <code>__host__</code> 关键字标注的函数或 <code>&lt;&lt;&lt;grid,block&gt;&gt;&gt;</code> 启动的 kernel，将被编译为 PTX/SASS 在 GPU 上跑。</li>
-</ol>
-<p>为什么单独用 <code>.cu</code>？ - 让 <code>nvcc</code> 识别文件需要“双重编译”：CPU 端交给主机编译器，GPU 端生成 PTX/SASS。<br />
-- 一个文件里即可 <code>cudaMalloc/cudaMemcpy</code> 及定义 kernel，方便小项目/快速实验。</p>
-<p>常见编译方式： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 直接生成可执行</span></span><br><span class="line">nvcc vec_add.cu -o vec_add</span><br><span class="line"></span><br><span class="line"><span class="comment"># 先生成对象，再由 g++ 链接</span></span><br><span class="line">nvcc -c my_kernel.cu -o my_kernel.o</span><br><span class="line">g++ host_main.cpp my_kernel.o -lcudart -L/usr/local/cuda/lib64</span><br></pre></td></tr></table></figure></p>
-<table>
-<thead>
-<tr class="header">
-<th>特性</th>
-<th>.c/.cpp</th>
-<th>.cu</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>写 CPU 代码</td>
-<td>✅</td>
-<td>✅</td>
-</tr>
-<tr class="even">
-<td>写 GPU kernel</td>
-<td>❌</td>
-<td>✅</td>
-</tr>
-<tr class="odd">
-<td>编译器</td>
-<td>gcc/clang</td>
-<td>nvcc（内部仍调 gcc/clang 处理 Host 部分）</td>
-</tr>
-<tr class="even">
-<td>关键字</td>
-<td>无</td>
-<td><code>__global__</code> <code>__device__</code> 等</td>
-</tr>
-<tr class="odd">
-<td>启动 kernel</td>
-<td>❌</td>
-<td><code>kernel&lt;&lt;&lt;grid,block&gt;&gt;&gt;(...)</code></td>
-</tr>
-</tbody>
-</table>
-<p>省流：<code>.cu = 普通 C/C++ + GPU kernel</code>，只要用 <code>nvcc</code> 就能编译运行。</p>
-<h3 id="系统信息">🖥️ 1 系统信息</h3>
-<table>
-<thead>
-<tr class="header">
-<th>组件</th>
-<th>版本</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>OS</td>
-<td>Ubuntu 24.04.2 LTS (x86-64)</td>
-</tr>
-<tr class="even">
-<td>GPU</td>
-<td>NVIDIA H100 PCIe</td>
-</tr>
-<tr class="odd">
-<td>驱动</td>
-<td>570.133.20</td>
-</tr>
-<tr class="even">
-<td>目标 CUDA</td>
-<td>12.6 (系统 Runtime)<br/>12.4 (PyTorch wheel 内置)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="安装-cuda-工具链">🔧 2 安装 CUDA 工具链</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1) 添加官方仓库</span></span><br><span class="line">wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb</span><br><span class="line"><span class="built_in">sudo</span> dpkg -i cuda-keyring_1.1-1_all.deb</span><br><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 安装核心工具</span></span><br><span class="line"><span class="built_in">sudo</span> apt install -y cuda-toolkit-12-6          <span class="comment"># nvcc / nvdisasm</span></span><br><span class="line"><span class="built_in">sudo</span> apt install -y nvidia-compute-sanitizer   <span class="comment"># Compute Sanitizer</span></span><br></pre></td></tr></table></figure>
-<p><strong>验证版本</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc --version &amp;&amp; nvdisasm --version &amp;&amp; compute-sanitizer --version</span><br><span class="line">nvidia-smi | <span class="built_in">head</span> -5</span><br></pre></td></tr></table></figure></p>
-<h3 id="conda-环境隔离">📦 3 Conda 环境隔离</h3>
-<ol type="1">
-<li>安装 Miniforge <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget -O Miniforge3.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh</span><br><span class="line">bash Miniforge3.sh -b -p <span class="variable">$HOME</span>/miniforge</span><br><span class="line"><span class="built_in">eval</span> <span class="string">&quot;<span class="subst">$($HOME/miniforge/bin/conda shell.zsh hook)</span>&quot;</span></span><br></pre></td></tr></table></figure></li>
-<li>把缓存/临时目录挪到大分区（假设 <code>/opt/ext</code> 空间充足） <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /opt/ext/conda_pkgs /opt/ext/tmp &amp;&amp; \</span><br><span class="line">  <span class="built_in">sudo</span> <span class="built_in">chown</span> -R <span class="variable">$USER</span>:<span class="variable">$USER</span> /opt/ext/conda_pkgs /opt/ext/tmp</span><br><span class="line"></span><br><span class="line"><span class="comment"># ~/.condarc</span></span><br><span class="line"><span class="built_in">printf</span> <span class="string">&quot;pkgs_dirs:\n  - /opt/ext/conda_pkgs\n&quot;</span> &gt; ~/.condarc</span><br><span class="line"><span class="comment"># ~/.zshrc</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;export TMPDIR=/opt/ext/tmp&#x27;</span> &gt;&gt; ~/.zshrc &amp;&amp; <span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure></li>
-<li>创建 GPU 环境 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda create -n gpu python=3.11 -y</span><br><span class="line">conda activate gpu</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h3 id="安装-gpu-版-pytorchcuda-12.4-wheel">🔥 4 安装 GPU 版 PyTorch（CUDA-12.4 wheel）</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python -m pip install --upgrade pip</span><br><span class="line">pip install --no-cache-dir torch torchvision torchaudio \</span><br><span class="line">     --index-url https://download.pytorch.org/whl/cu124</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>注意</strong><br />
-• 轮子名必须带 <code>+cu124</code>，否则是 CPU 版。<br />
-• <code>--no-cache-dir</code> 省磁盘。</p>
-</blockquote>
-<p><strong>快速验证</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python - &lt;&lt;<span class="string">&#x27;PY&#x27;</span></span><br><span class="line">import torch, torchvision</span><br><span class="line"><span class="built_in">print</span>(torch.__version__, torch.version.cuda, torch.cuda.is_available())</span><br><span class="line"><span class="built_in">print</span>(torchvision.__version__)</span><br><span class="line">PY</span><br><span class="line"><span class="comment"># ➜ 2.6.0+cu124 12.4 True</span></span><br></pre></td></tr></table></figure></p>
-<h3 id="生成环境日志">📝 5 生成环境日志</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python projects/gpu_fuzz/gen/collect_env.py \</span><br><span class="line">       &gt; projects/gpu_learn/log/env.txt 2&gt;&amp;1</span><br><span class="line"><span class="built_in">head</span> -n 24 projects/gpu_learn/log/env.txt</span><br></pre></td></tr></table></figure>
-<p>重点确认： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PyTorch version: 2.6.0+cu124</span><br><span class="line">CUDA runtime version: 12.6.85</span><br><span class="line">Is CUDA available: True</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>详细解读（常见疑问都在这里）： - <code>PyTorch version: 2.6.0+cu124</code> —— <strong>2.6.0</strong> 是框架版本；<code>+cu124</code> 表示它自带 CUDA-12.4 编译产物（cuDNN/cuBLAS 等)。 - <code>Is debug build: False</code> —— 官方 Release 版（True 时为带断言的调试版，速度慢）。 - <code>CUDA used to build PyTorch: 12.4</code> —— wheel 内置的编译 CUDA 版本；与系统 <code>runtime 12.6</code> 向下兼容即可。 - <code>OS / GCC / Clang / CMake</code> —— 编译本地 C++/CUDA 扩展时要用到的工具链版本，记录可复现性。 - <code>Python version: 3.11.x (conda-forge)</code> —— 确认与你的虚拟环境一致，便于后续 <code>pip install</code> ABI 兼容。 - <code>Is CUDA available: True</code> —— <code>torch.cuda.is_available()</code> 结果，若 False 请先查驱动 / 环境变量。 - <code>CUDA runtime version: 12.6.85</code> —— 驱动自带的 <code>libcuda.so</code> runtime 版本，只要 ≥ wheel 内的 12.4 即 OK。 - <code>CUDA_MODULE_LOADING: LAZY</code> —— 默认懒加载 PTX，可减少启动时延；如需即时插桩可设 <code>EAGER</code>。 - <code>GPU 0: NVIDIA H100 PCIe</code> —— 检测到的物理 GPU，与预期硬件相符。 - <code>cuDNN/cuBLAS/cuFFT/…</code> —— 列表展示 wheel 自带的具体子库版本，用于排查 “库不匹配” 问题。 - <code>CPU:</code>及后续 —— 主机硬件与漏洞缓解信息，可忽略；仅在编译器优化或虚拟化环境排错时有用。</p>
-<p>省流：<strong>三行打勾 + 驱动≥CUDA + GPU 型号正确 = 环境健康。</strong></p>
-</blockquote>
-<h3 id="最小-cuda-样例验证">🛠️ 6 最小 CUDA 样例验证</h3>
-<ol type="1">
-<li>编译 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> projects/gpu_learn</span><br><span class="line">nvcc vec_add.cu -o vec_add -O2</span><br></pre></td></tr></table></figure></li>
-<li>运行 &amp; Sanitizer <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./vec_add                                    <span class="comment"># → [vec_add] PASS</span></span><br><span class="line">compute-sanitizer --tool memcheck ./vec_add  <span class="comment"># → ERROR SUMMARY: 0 errors</span></span><br></pre></td></tr></table></figure></li>
-</ol>
-<h3 id="版本自检截图清单">📸 7 版本自检截图清单</h3>
-<ol type="1">
-<li><code>nvcc --version</code><br />
-</li>
-<li><code>nvidia-smi</code>（前 5 行）<br />
-</li>
-<li><code>nvdisasm --version</code> (可选)<br />
-</li>
-<li><code>compute-sanitizer --version</code><br />
-</li>
-<li><code>projects/gpu_learn/log/env.txt</code>（前 24 行）</li>
-</ol>
-<p>全部放入 <code>gpu_learn/log/</code> 即完成 Day-1 验收。</p>
-<h3 id="关键注意事项速览">⚠️ 8 关键注意事项速览</h3>
-<table>
-<thead>
-<tr class="header">
-<th>事项</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>GPU 轮子</td>
-<td><code>torch …+cuXXX</code> 必须与目标 CUDA 一致；纯版本号 = CPU 轮子</td>
-</tr>
-<tr class="even">
-<td>驱动 ≥ CUDA</td>
-<td>驱动 570 支持 CUDA 12.x，无需额外系统级 Runtime</td>
-</tr>
-<tr class="odd">
-<td>独立包目录</td>
-<td><code>pkgs_dirs</code> &amp; <code>TMPDIR</code> 指向大分区，避免 <code>/</code> 爆盘</td>
-</tr>
-<tr class="even">
-<td>PEP 668</td>
-<td>系统 Python 禁止 pip，务必用 Conda/venv</td>
-</tr>
-<tr class="odd">
-<td>Sanitizer 延迟加载</td>
-<td><code>CUDA_MODULE_LOADING=LAZY</code> 已在 env.txt 中展示</td>
-</tr>
-</tbody>
-</table>
-<p>至此，阶段 0 / Day-1 环境就绪，接下来可愉快开发 CUDA/PyTorch 应用 🚀</p>
-]]></content>
-      <categories>
-        <category>深度学习</category>
-        <category>环境配置</category>
-      </categories>
-      <tags>
-        <tag>CUDA</tag>
-        <tag>PyTorch</tag>
-        <tag>H100</tag>
-        <tag>GPU</tag>
-      </tags>
   </entry>
   <entry>
     <title>Compute Sanitizer 实用指南：从 0 到熟练</title>
@@ -3126,226 +3126,6 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>终端与Shell：从入门到看懂，一篇就够</title>
-    <url>/posts/82543a5f/</url>
-    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
-<span id="more"></span>
-<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
-<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
-<h4 id="三层模型">1. 三层模型</h4>
-<p>命令行交互的世界可以被清晰地划分为三层：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
-<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
-<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
-<table>
-<thead>
-<tr class="header">
-<th>现实场景</th>
-<th>对应技术</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>你手机里的「外卖 App 界面」</td>
-<td><strong>终端 Terminal</strong></td>
-<td>显示菜单、字体、动画，本身不做饭</td>
-</tr>
-<tr class="even">
-<td>你选的「厨师」</td>
-<td><strong>Shell</strong></td>
-<td>读懂你的菜单（命令），指挥厨房做菜</td>
-</tr>
-<tr class="odd">
-<td>厨房里的「食材/灶具/电」</td>
-<td><strong>内核/程序</strong></td>
-<td>真正读写文件、启动进程、调用硬件</td>
-</tr>
-</tbody>
-</table>
-<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
-<hr />
-<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
-<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
-<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
-<ul>
-<li><strong>主要功能</strong>:
-<ul>
-<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
-<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
-<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
-<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
-</ul></li>
-<li><strong>主流实现</strong>:
-<ul>
-<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
-<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
-<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
-</ul></li>
-</ul>
-<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
-<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
-<ul>
-<li><strong>主要功能</strong>:
-<ul>
-<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
-<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
-<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
-<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
-</ul></li>
-<li><strong>主流实现</strong>:
-<ul>
-<li><strong>POSIX 家族 (Linux/macOS)</strong>:
-<ul>
-<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
-<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
-<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
-</ul></li>
-<li><strong>Windows 家族</strong>:
-<ul>
-<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
-<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
-</ul></li>
-</ul></li>
-</ul>
-<hr />
-<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
-<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>属于哪一层</th>
-<th>简单一句话说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>cmd.exe</strong></td>
-<td>Shell</td>
-<td>Windows 最老的命令解释器，功能简单。</td>
-</tr>
-<tr class="even">
-<td><strong>PowerShell</strong></td>
-<td>Shell</td>
-<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
-</tr>
-<tr class="odd">
-<td><strong>bash</strong></td>
-<td>Shell</td>
-<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
-</tr>
-<tr class="even">
-<td><strong>zsh</strong></td>
-<td>Shell</td>
-<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
-</tr>
-<tr class="odd">
-<td><strong>Windows Terminal</strong></td>
-<td>终端</td>
-<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
-</tr>
-<tr class="even">
-<td><strong>iTerm2</strong></td>
-<td>终端</td>
-<td>macOS 平台功能最强大的终端之一。</td>
-</tr>
-<tr class="odd">
-<td><strong>WSL</strong></td>
-<td>系统兼容层</td>
-<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
-</tr>
-<tr class="even">
-<td><strong>Oh My Zsh</strong></td>
-<td>zsh 配置框架</td>
-<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
-</tr>
-<tr class="odd">
-<td><strong>Powerlevel10k</strong></td>
-<td>zsh 主题</td>
-<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
-<h4 id="windows-平台">1. Windows 平台</h4>
-<ul>
-<li><strong>现代组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>Windows Terminal</code></li>
-<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
-</ul></li>
-<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-<h4 id="macos-平台">2. macOS 平台</h4>
-<ul>
-<li><strong>主流组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>iTerm2</code></li>
-<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
-</ul></li>
-<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
-</ul>
-<h4 id="linux-平台">3. Linux 平台</h4>
-<ul>
-<li><strong>常见组合</strong>:
-<ul>
-<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
-<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
-</ul></li>
-<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
-</ul>
-<hr />
-<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>误区</th>
-<th>正解</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Windows Terminal 就是一个新的 Shell</td>
-<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
-</tr>
-<tr class="even">
-<td>Git Bash 是一个终端</td>
-<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
-</tr>
-<tr class="odd">
-<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
-<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="六终极总结">✅ 六、终极总结</h3>
-<blockquote>
-<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
-<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
-</blockquote>
-<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
-<p>Happy Hacking! 🎉</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Terminal</tag>
-        <tag>Shell</tag>
-        <tag>Windows</tag>
-        <tag>macOS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Tensor 基础：布局、算子与形状推导</title>
     <url>/posts/f1e2d3c4/</url>
     <content><![CDATA[<p>想看懂卷积、池化公式却老被 <code>NCHW</code>、<code>stride</code> 搞糊涂？本文聚焦 <strong>张量布局 → 常见算子 → 形状计算公式</strong>，用一篇梳理基础概念。</p>
@@ -4152,6 +3932,226 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
+    <title>终端与Shell：从入门到看懂，一篇就够</title>
+    <url>/posts/82543a5f/</url>
+    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
+<span id="more"></span>
+<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
+<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
+<h4 id="三层模型">1. 三层模型</h4>
+<p>命令行交互的世界可以被清晰地划分为三层：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
+<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
+<table>
+<thead>
+<tr class="header">
+<th>现实场景</th>
+<th>对应技术</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>你手机里的「外卖 App 界面」</td>
+<td><strong>终端 Terminal</strong></td>
+<td>显示菜单、字体、动画，本身不做饭</td>
+</tr>
+<tr class="even">
+<td>你选的「厨师」</td>
+<td><strong>Shell</strong></td>
+<td>读懂你的菜单（命令），指挥厨房做菜</td>
+</tr>
+<tr class="odd">
+<td>厨房里的「食材/灶具/电」</td>
+<td><strong>内核/程序</strong></td>
+<td>真正读写文件、启动进程、调用硬件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
+<hr />
+<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
+<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
+<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
+<ul>
+<li><strong>主要功能</strong>:
+<ul>
+<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
+<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
+<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
+<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
+</ul></li>
+<li><strong>主流实现</strong>:
+<ul>
+<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
+<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
+<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
+</ul></li>
+</ul>
+<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
+<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
+<ul>
+<li><strong>主要功能</strong>:
+<ul>
+<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
+<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
+<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
+<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
+</ul></li>
+<li><strong>主流实现</strong>:
+<ul>
+<li><strong>POSIX 家族 (Linux/macOS)</strong>:
+<ul>
+<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
+<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
+<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
+</ul></li>
+<li><strong>Windows 家族</strong>:
+<ul>
+<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
+<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
+</ul></li>
+</ul></li>
+</ul>
+<hr />
+<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
+<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>属于哪一层</th>
+<th>简单一句话说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>cmd.exe</strong></td>
+<td>Shell</td>
+<td>Windows 最老的命令解释器，功能简单。</td>
+</tr>
+<tr class="even">
+<td><strong>PowerShell</strong></td>
+<td>Shell</td>
+<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
+</tr>
+<tr class="odd">
+<td><strong>bash</strong></td>
+<td>Shell</td>
+<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
+</tr>
+<tr class="even">
+<td><strong>zsh</strong></td>
+<td>Shell</td>
+<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
+</tr>
+<tr class="odd">
+<td><strong>Windows Terminal</strong></td>
+<td>终端</td>
+<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
+</tr>
+<tr class="even">
+<td><strong>iTerm2</strong></td>
+<td>终端</td>
+<td>macOS 平台功能最强大的终端之一。</td>
+</tr>
+<tr class="odd">
+<td><strong>WSL</strong></td>
+<td>系统兼容层</td>
+<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
+</tr>
+<tr class="even">
+<td><strong>Oh My Zsh</strong></td>
+<td>zsh 配置框架</td>
+<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
+</tr>
+<tr class="odd">
+<td><strong>Powerlevel10k</strong></td>
+<td>zsh 主题</td>
+<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
+<h4 id="windows-平台">1. Windows 平台</h4>
+<ul>
+<li><strong>现代组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>Windows Terminal</code></li>
+<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
+</ul></li>
+<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="macos-平台">2. macOS 平台</h4>
+<ul>
+<li><strong>主流组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>iTerm2</code></li>
+<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
+</ul></li>
+<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
+</ul>
+<h4 id="linux-平台">3. Linux 平台</h4>
+<ul>
+<li><strong>常见组合</strong>:
+<ul>
+<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
+<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
+</ul></li>
+<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
+</ul>
+<hr />
+<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Windows Terminal 就是一个新的 Shell</td>
+<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
+</tr>
+<tr class="even">
+<td>Git Bash 是一个终端</td>
+<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
+</tr>
+<tr class="odd">
+<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
+<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="六终极总结">✅ 六、终极总结</h3>
+<blockquote>
+<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
+<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
+</blockquote>
+<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
+<p>Happy Hacking! 🎉</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Terminal</tag>
+        <tag>Shell</tag>
+        <tag>Windows</tag>
+        <tag>macOS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CMake 入门</title>
     <url>/posts/233853f2/</url>
     <content><![CDATA[<p>不论你是写 C/C++、CUDA，还是要同时照顾 Linux/Windows/macOS，当项目走出“玩具”阶段，构建就会成为最大的摩擦源：不同编译器、不同 IDE、不同参数、不同依赖的发现与链接。如果还靠手写 <code>Makefile</code> 或分别维护 VS/Xcode 工程，成本会直线上升。</p>
@@ -4291,6 +4291,247 @@ graph TD;
         <tag>CMake</tag>
         <tag>构建系统</tag>
         <tag>C/C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>eBPF 入门：原理、程序类型与上手实践</title>
+    <url>/posts/a9c3e7b1/</url>
+    <content><![CDATA[<p>为什么近几年大家都在谈 eBPF？一句话：在不改内核源码的前提下，把“小而安全”的代码段挂到内核关键路径里运行，从而获得接近内核旁路的性能，同时保留 Linux 内核栈的安全与可维护性。</p>
+<span id="more"></span>
+<h3 id="ebpf-是什么">eBPF 是什么？</h3>
+<ul>
+<li><strong>定义</strong>：eBPF（extended Berkeley Packet Filter）是一种在 Linux 内核中安全运行的通用字节码与运行环境。</li>
+<li><strong>工作方式</strong>：用户态加载 eBPF 字节码 → 内核验证器（Verifier）进行安全检查 → 通过后 JIT 编译并附着在特定钩子（hook）上执行。</li>
+<li><strong>核心优势</strong>：
+<ul>
+<li><strong>性能</strong>：在内核态早路径执行，减少用户/内核切换与协议栈开销。</li>
+<li><strong>安全</strong>：Verifier 强校验（边界、类型、调用、上界循环等）避免内核崩溃。</li>
+<li><strong>可编程</strong>：通过不同 hook 点覆盖网络、跟踪、系统调用、调度等多场景。</li>
+</ul></li>
+<li><p><strong>原理</strong>：把一小段经过严格安全检查的“字节码程序”挂在内核关键路径的钩子上，事件一来就执行；程序只做受限且安全的操作，状态放在可共享的 Map 里，必要时由 JIT 变成本机机器码以提升性能。</p></li>
+<li><strong>它是怎么跑起来的</strong>：
+<ol type="1">
+<li>写 C/Rust 小程序并编译为 eBPF 字节码；</li>
+<li>用户态通过 <code>bpf()</code> 系统调用加载；</li>
+<li>Verifier 逐条检查安全与终止性；</li>
+<li>通过后将程序附着到某个 hook（XDP/TC/Kprobe/Tracepoint/LSM 等）；</li>
+<li>事件触发时内核调用你的 eBPF 程序；</li>
+<li>程序通过内核 helper 做受控操作，并用 Map 读写共享状态；</li>
+<li>为提速可由 JIT 将字节码编译为本机机器码。</li>
+</ol></li>
+<li><strong>关键组件</strong>：
+<ul>
+<li>字节码与运行时：跨版本、可验证；</li>
+<li>Verifier：安全门卫；</li>
+<li>Hook：把程序接到正确时机与位置；</li>
+<li>Helper：白名单式内核能力（解析包头、重定向、时间等）；</li>
+<li>Map：共享状态与内核/用户态通信；</li>
+<li>JIT：将字节码转为机器码以提速。</li>
+</ul></li>
+<li><strong>为何又快又安全</strong>：
+<ul>
+<li>快：处于内核早路径，少用户/内核切换；JIT 后是本机机器码；</li>
+<li>安全：受限指令集 + 强验证 + 只能通过 helper 间接触达敏感资源。</li>
+</ul></li>
+<li><strong>对比内核模块（LKM）</strong>：
+<ul>
+<li>eBPF：热插拔、受限且强校验，出错不易拖垮内核；</li>
+<li>LKM：能力无限但易带来稳定性风险，开发调试成本更高。</li>
+</ul></li>
+</ul>
+<h3 id="能挂到哪里常见-hook-一览">能挂到哪里？常见 Hook 一览</h3>
+<ul>
+<li><strong>XDP（eXpress Data Path）</strong>：网卡驱动最前面的收包路径，极低延迟，典型用于丢弃、重定向、负载均衡等。</li>
+<li><strong>TC（Traffic Control）</strong>：在 <code>ingress/egress</code> 对 <code>skb</code> 处理，能访问更丰富的协议栈信息。</li>
+<li><strong>Socket/CGroups</strong>：基于 socket/cgroup 的细粒度策略，如重定向、QoS、准入控制。</li>
+<li><strong>Kprobe/Kretprobe/Tracepoint/USDT</strong>：内核/用户态可观测性与性能分析。</li>
+<li><strong>LSM（Linux Security Module）</strong>：基于 eBPF 的细粒度安全策略（需要内核支持）。</li>
+</ul>
+<h3 id="ebpf-程序类型与典型用途">eBPF 程序类型与典型用途</h3>
+<ul>
+<li><strong>XDP 程序</strong>：包过滤、负载均衡、DoS 缓解、快速 ACK。</li>
+<li><strong>TC BPF</strong>：深度包处理、QoS/整形、服务网格加速。</li>
+<li><strong>Tracing BPF</strong>：火焰图、系统调用/调度/文件 IO 观测。</li>
+<li><strong>LSM BPF</strong>：进程/文件访问控制、细粒度安全策略。</li>
+</ul>
+<h3 id="ebpf-maps状态与通信的基石">eBPF Maps：状态与通信的基石</h3>
+<ul>
+<li><strong>作用</strong>：在内核 eBPF 与用户态之间共享数据，也用于多个 eBPF 程序之间共享状态。</li>
+<li><strong>常见类型</strong>：<code>HASH</code>、<code>LRU_HASH</code>、<code>ARRAY</code>、<code>PERCPU_ARRAY</code>、<code>RINGBUF</code>、<code>PROG_ARRAY</code>、<code>SOCKHASH</code>/<code>SOCKMAP</code> 等。</li>
+<li><strong>实践要点</strong>：
+<ul>
+<li>小对象热数据放 <code>ARRAY/PERCPU_ARRAY</code>，高并发键值对用 <code>LRU_HASH</code>。</li>
+<li>大量事件传输用 <code>RINGBUF</code>，低开销批量消费。</li>
+<li>使用 <code>pinning</code> 将 map 固定到 bpffs，支持热更新与进程重启后的复用。</li>
+</ul></li>
+</ul>
+<h3 id="一图看懂网络路径中的-ebpf-挂载点">一图看懂网络路径中的 eBPF 挂载点</h3>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    NIC[&quot;网卡（RX 队列）&quot;] --&gt; XDP[&quot;XDP 钩子（驱动早路径）&quot;]
+    XDP --&gt; TC_ING[&quot;TC Ingress（进入协议栈前）&quot;]
+    TC_ING --&gt; IPSTACK[&quot;内核网络栈（路由&#x2F;防火墙&#x2F;套接字）&quot;]
+    IPSTACK --&gt; TC_EGR[&quot;TC Egress（离开协议栈）&quot;]
+    TC_EGR --&gt; NIC_TX[&quot;网卡（TX 队列）&quot;]
+    IPSTACK --&gt; SOCK[&quot;Socket&#x2F;CGroups eBPF&quot;]
+</code>
+</pre>
+<h3 id="最小-xdp-示例丢弃非期望包并计数">最小 XDP 示例：丢弃非期望包，并计数</h3>
+<blockquote>
+<p>目标：在 XDP 处直接丢弃不需要的流量，并通过 <code>MAP</code> 暴露计数供用户态读取（示例为入门直觉，不含全部错误处理）。</p>
+</blockquote>
+<ul>
+<li><strong>内核端（eBPF C）核心思路</strong>：
+<ul>
+<li>定义 <code>BPF_MAP_TYPE_ARRAY</code> 计数器。</li>
+<li>在 XDP 回调里匹配条件（如以太类型/UDP 端口等），命中则递增计数并 <code>XDP_DROP</code>，否则 <code>XDP_PASS</code>。</li>
+</ul></li>
+<li><strong>用户态（libbpf/BCC 或者 bpf2go 等）</strong>：
+<ul>
+<li>加载/验证/附着程序到指定网卡。</li>
+<li>周期性读取 <code>map</code> 中的计数。</li>
+</ul></li>
+</ul>
+<h4 id="代码xdp_drop.c">代码（xdp_drop.c）</h4>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// minimal XDP: 丢弃所有包并做计数</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/bpf.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    __uint(type, BPF_MAP_TYPE_ARRAY);</span><br><span class="line">    __uint(max_entries, <span class="number">1</span>);</span><br><span class="line">    __type(key, __u32);</span><br><span class="line">    __type(value, __u64);</span><br><span class="line">&#125; drop_cnt <span class="title function_">SEC</span><span class="params">(<span class="string">&quot;.maps&quot;</span>)</span>;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;xdp&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">xdp_drop_all</span><span class="params">(<span class="keyword">struct</span> xdp_md *ctx)</span> &#123;</span><br><span class="line">    __u32 key = <span class="number">0</span>;</span><br><span class="line">    __u64 *val = bpf_map_lookup_elem(&amp;drop_cnt, &amp;key);</span><br><span class="line">    <span class="keyword">if</span> (val) __sync_fetch_and_add(val, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> XDP_DROP; <span class="comment">// 示例：全部丢弃；按需替换为条件判定</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;GPL&quot;</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="逐行讲解">逐行讲解</h4>
+<ul>
+<li>引入头文件：<code>&lt;linux/bpf.h&gt;</code> 与 <code>&lt;bpf/bpf_helpers.h&gt;</code> 提供 eBPF 所需类型与辅助宏。</li>
+<li>定义 <code>drop_cnt</code> map：<code>BPF_MAP_TYPE_ARRAY</code> 且 <code>max_entries=1</code>，只用索引 <code>0</code> 存一个 64 位计数；<code>SEC(".maps")</code> 表示把它放在 maps 段，便于内核识别与加载。</li>
+<li><code>SEC("xdp")</code>：把后面的函数标记为 XDP 程序入口，会被附着到 XDP 钩子。</li>
+<li><code>int xdp_drop_all(struct xdp_md *ctx)</code>：XDP 回调；每个到来的包都会调用一次；<code>ctx</code> 是该包上下文。</li>
+<li><code>__u32 key = 0;</code>：仅使用数组 map 的第 0 项作为计数槽位。</li>
+<li><code>bpf_map_lookup_elem(&amp;drop_cnt, &amp;key)</code>：取出计数槽位的地址。</li>
+<li><code>__sync_fetch_and_add(val, 1)</code>：原子加 1，避免多核并发更新丢计数。</li>
+<li><code>return XDP_DROP;</code>：丢弃当前包（不再进入协议栈）。若只想“统计不丢包”，可改为 <code>XDP_PASS</code>。</li>
+<li><code>LICENSE = "GPL";</code>：声明 GPL 许可，部分 helper 需要 GPL 才可用。</li>
+</ul>
+<h4 id="编译生成-ebpf-对象文件">编译（生成 eBPF 对象文件）</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">clang -O2 -g -target bpf -c xdp_drop.c -o build/xdp_drop.o</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>-O2</code>：优化等级 2，生成更高质量字节码（更易通过 Verifier，运行更快）。</li>
+<li><code>-g</code>：带调试信息，便于排查与 <code>bpftool prog dump jited/llvm</code> 对照。</li>
+<li><code>-target bpf</code>：指定编译到 eBPF 目标架构。</li>
+<li><code>-c xdp_drop.c</code>：只编译不链接，生成目标文件。</li>
+<li><code>-o build/xdp_drop.o</code>：输出到目标路径（需先 <code>mkdir -p build</code>）。</li>
+</ul></li>
+</ul>
+<h4 id="加载与附着使用-bpftool并同时固定-map">加载与附着（使用 bpftool，并同时固定 map）</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t bpf bpf /sys/fs/bpf || <span class="literal">true</span></span><br><span class="line"><span class="built_in">sudo</span> bpftool prog load build/xdp_drop.o /sys/fs/bpf/xdp_drop <span class="built_in">type</span> xdp \</span><br><span class="line">  map name drop_cnt pinned /sys/fs/bpf/drop_cnt</span><br><span class="line"><span class="built_in">sudo</span> bpftool net attach xdp pinned /sys/fs/bpf/xdp_drop dev &lt;iface&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>mount -t bpf bpf /sys/fs/bpf</code>：挂载 bpffs（BPF 虚拟文件系统），用于固定程序/Map。</li>
+<li><code>bpftool prog load … type xdp</code>：把对象文件加载为 XDP 类型程序，并指定固定路径 <code>/sys/fs/bpf/xdp_drop</code>。</li>
+<li><code>map name drop_cnt pinned …</code>：在加载时将名为 <code>drop_cnt</code> 的 map 固定到给定路径，便于后续读取与热更新。</li>
+<li><code>bpftool net attach xdp pinned … dev &lt;iface&gt;</code>：把已固定的程序附着到指定网卡 <code>&lt;iface&gt;</code>（如 <code>eth0</code>）。</li>
+</ul></li>
+</ul>
+<h4 id="验证查看计数并制造流量">验证（查看计数并制造流量）</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool map dump pinned /sys/fs/bpf/drop_cnt | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>map dump pinned &lt;path&gt;</code>：读取固定在 <code>&lt;path&gt;</code> 的 map 内容；<code>| cat</code> 防止分页器拦截，完整输出到终端。</li>
+<li>预期看到 <code>key: 0 value: &lt;N&gt;</code>，随着入站流量增长而递增。</li>
+</ul></li>
+</ul>
+<h4 id="卸载与清理">卸载与清理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool net detach xdp dev &lt;iface&gt;</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /sys/fs/bpf/xdp_drop /sys/fs/bpf/drop_cnt</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>net detach xdp dev &lt;iface&gt;</code>：从网卡卸载 XDP 程序。</li>
+<li><code>rm -f …</code>：删除固定的程序与 map 对象，释放 bpffs 资源。</li>
+</ul></li>
+</ul>
+<h3 id="工具链与开发路线">工具链与开发路线</h3>
+<ul>
+<li><strong>核心工具</strong>：
+<ul>
+<li><code>clang/llvm</code>：将 C 编译为 eBPF 字节码。</li>
+<li><code>bpftool</code>：检查/加载/查看 map 与 prog，配合 <code>bpffs</code> 管理对象。</li>
+<li><code>libbpf</code>/<code>libbpf-rs</code>/<code>bcc</code>：三种常见开发栈；前两者偏生产可部署，<code>bcc</code> 上手快但运行时依赖较重。</li>
+</ul></li>
+<li><strong>建议路径</strong>：
+<ol type="1">
+<li>本机或 VM 安装较新内核与 <code>bpftool/clang</code>；</li>
+<li>用 <code>xdp-tutorial</code> 或 <code>libbpf-bootstrap</code> 起步；</li>
+<li>先做可观测性（风险低），再做网络路径改写（逐步放行/灰度）；</li>
+<li>为 map 启用 <code>pinning</code>，为服务编写最小的“控制面”管理进程；</li>
+<li>加上可观测性（统计、延迟、错误码）与回滚开关。</li>
+</ol></li>
+</ul>
+<h3 id="什么是-jitjust-in-time">什么是 JIT（Just-In-Time）</h3>
+<ul>
+<li><p><strong>定义</strong>：JIT（即时编译）在运行时把中间表示/字节码编译成本机机器码执行，相比纯解释更快，相比 AOT（预编译全部）启动更灵活。</p></li>
+<li><strong>对比直觉</strong>：
+<ul>
+<li>解释执行：逐条解析，启动快，运行慢。</li>
+<li>AOT：运行前全部编译，运行快，首次构建/启动稍慢。</li>
+<li>JIT：运行中按需编译，折中并可做运行时优化。</li>
+</ul></li>
+<li><strong>在 eBPF 中的工作流</strong>：
+<ul>
+<li>用户态加载 BPF 字节码 → Verifier 安全/终止性检查 → 通过后 JIT 为当前架构机器码（x86-64/ARM64） → 挂载到对应 hook 执行。</li>
+<li>若 JIT 被禁用或不支持，则回退为解释器执行；若 Verifier 未通过，直接拒绝加载。</li>
+</ul></li>
+<li><strong>与 JVM/JS 的 JIT 差异</strong>：
+<ul>
+<li>eBPF 的 JIT 通常是“一次性编译”，不做热点探测/去优化；优化更偏向架构相关的轻量指令选择（peephole、寄存器分配）。</li>
+</ul></li>
+</ul>
+<h3 id="与内核旁路的比较dpdkrdma">与内核旁路的比较（DPDK/RDMA）</h3>
+<ul>
+<li><strong>eBPF</strong>：保留内核网络栈生态与安全边界，延迟/吞吐优异（非极限），工程可运维性强。</li>
+<li><strong>DPDK/RDMA</strong>：极致性能与控制，但需要专用驱动/巨页/轮询，系统集成成本更高。</li>
+<li><strong>折中理念</strong>：将“高频快路径”放 eBPF，“复杂慢路径”留在用户态或完整协议栈。</li>
+</ul>
+<h3 id="常见坑与排查">常见坑与排查</h3>
+<ul>
+<li><strong>Verifier 不通过</strong>：缩短函数/循环，给出边界检查与上界，使用 <code>__always_inline</code>；善用 <code>bpftool prog load</code> 的日志。</li>
+<li><strong>性能不达标</strong>：
+<ul>
+<li>XDP 程序中避免复杂解析与多次访问内存；</li>
+<li>合理使用 <code>XDP_REDIRECT</code> 到目标队列或 <code>AF_XDP</code>；</li>
+<li>批量读取 ringbuf，减少用户态唤醒开销。</li>
+</ul></li>
+<li><strong>热更新中断</strong>：确保对象 <code>pin</code> 到 bpffs，并采用“双程序切换”减少流量抖动。</li>
+</ul>
+<h3 id="运行与验证示例流程">运行与验证（示例流程）</h3>
+<ul>
+<li><strong>编译与加载</strong>（以 libbpf 为例）：
+<ol type="1">
+<li>编译 eBPF 程序为 <code>*.o</code>；</li>
+<li><code>bpftool prog load</code> 加载，<code>bpftool net attach xdp dev &lt;iface&gt; pinned &lt;path&gt;</code> 附着；</li>
+<li><code>bpftool map dump pinned &lt;path&gt;</code> 查看计数；</li>
+<li>用 <code>ping/iperf/wrk</code> 压测并对比 <code>XDP_PASS/XDP_DROP</code> 行为。</li>
+</ol></li>
+<li><strong>回滚</strong>：
+<ul>
+<li>临时卸载：<code>bpftool net detach xdp dev &lt;iface&gt;</code>；</li>
+<li>恢复策略：保留旧版本对象于 bpffs，切换符号链接并原子替换。</li>
+</ul></li>
+</ul>
+<h3 id="小结">📝 小结</h3>
+<ul>
+<li><strong>一句话</strong>：eBPF 让我们在不改内核的前提下，将小而高效的逻辑“内联”到内核关键路径，既快又安全。</li>
+<li><strong>入门三步</strong>：选 hook → 写最小程序 + map → 用 bpftool 验证与观测。</li>
+<li><strong>进阶方向</strong>：编排与热更新、fast-path/slow-path 分层、复杂状态一致性与可观测性。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>系统内核</category>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>eBPF</tag>
+        <tag>网络</tag>
       </tags>
   </entry>
   <entry>
@@ -4983,292 +5224,6 @@ graph TD;
       </tags>
   </entry>
   <entry>
-    <title>eBPF 入门：原理、程序类型与上手实践</title>
-    <url>/posts/a9c3e7b1/</url>
-    <content><![CDATA[<p>为什么近几年大家都在谈 eBPF？一句话：在不改内核源码的前提下，把“小而安全”的代码段挂到内核关键路径里运行，从而获得接近内核旁路的性能，同时保留 Linux 内核栈的安全与可维护性。</p>
-<span id="more"></span>
-<h3 id="ebpf-是什么">eBPF 是什么？</h3>
-<ul>
-<li><strong>定义</strong>：eBPF（extended Berkeley Packet Filter）是一种在 Linux 内核中安全运行的通用字节码与运行环境。</li>
-<li><strong>工作方式</strong>：用户态加载 eBPF 字节码 → 内核验证器（Verifier）进行安全检查 → 通过后 JIT 编译并附着在特定钩子（hook）上执行。</li>
-<li><strong>核心优势</strong>：
-<ul>
-<li><strong>性能</strong>：在内核态早路径执行，减少用户/内核切换与协议栈开销。</li>
-<li><strong>安全</strong>：Verifier 强校验（边界、类型、调用、上界循环等）避免内核崩溃。</li>
-<li><strong>可编程</strong>：通过不同 hook 点覆盖网络、跟踪、系统调用、调度等多场景。</li>
-</ul></li>
-<li><p><strong>原理</strong>：把一小段经过严格安全检查的“字节码程序”挂在内核关键路径的钩子上，事件一来就执行；程序只做受限且安全的操作，状态放在可共享的 Map 里，必要时由 JIT 变成本机机器码以提升性能。</p></li>
-<li><strong>它是怎么跑起来的</strong>：
-<ol type="1">
-<li>写 C/Rust 小程序并编译为 eBPF 字节码；</li>
-<li>用户态通过 <code>bpf()</code> 系统调用加载；</li>
-<li>Verifier 逐条检查安全与终止性；</li>
-<li>通过后将程序附着到某个 hook（XDP/TC/Kprobe/Tracepoint/LSM 等）；</li>
-<li>事件触发时内核调用你的 eBPF 程序；</li>
-<li>程序通过内核 helper 做受控操作，并用 Map 读写共享状态；</li>
-<li>为提速可由 JIT 将字节码编译为本机机器码。</li>
-</ol></li>
-<li><strong>关键组件</strong>：
-<ul>
-<li>字节码与运行时：跨版本、可验证；</li>
-<li>Verifier：安全门卫；</li>
-<li>Hook：把程序接到正确时机与位置；</li>
-<li>Helper：白名单式内核能力（解析包头、重定向、时间等）；</li>
-<li>Map：共享状态与内核/用户态通信；</li>
-<li>JIT：将字节码转为机器码以提速。</li>
-</ul></li>
-<li><strong>为何又快又安全</strong>：
-<ul>
-<li>快：处于内核早路径，少用户/内核切换；JIT 后是本机机器码；</li>
-<li>安全：受限指令集 + 强验证 + 只能通过 helper 间接触达敏感资源。</li>
-</ul></li>
-<li><strong>对比内核模块（LKM）</strong>：
-<ul>
-<li>eBPF：热插拔、受限且强校验，出错不易拖垮内核；</li>
-<li>LKM：能力无限但易带来稳定性风险，开发调试成本更高。</li>
-</ul></li>
-</ul>
-<h3 id="能挂到哪里常见-hook-一览">能挂到哪里？常见 Hook 一览</h3>
-<ul>
-<li><strong>XDP（eXpress Data Path）</strong>：网卡驱动最前面的收包路径，极低延迟，典型用于丢弃、重定向、负载均衡等。</li>
-<li><strong>TC（Traffic Control）</strong>：在 <code>ingress/egress</code> 对 <code>skb</code> 处理，能访问更丰富的协议栈信息。</li>
-<li><strong>Socket/CGroups</strong>：基于 socket/cgroup 的细粒度策略，如重定向、QoS、准入控制。</li>
-<li><strong>Kprobe/Kretprobe/Tracepoint/USDT</strong>：内核/用户态可观测性与性能分析。</li>
-<li><strong>LSM（Linux Security Module）</strong>：基于 eBPF 的细粒度安全策略（需要内核支持）。</li>
-</ul>
-<h3 id="ebpf-程序类型与典型用途">eBPF 程序类型与典型用途</h3>
-<ul>
-<li><strong>XDP 程序</strong>：包过滤、负载均衡、DoS 缓解、快速 ACK。</li>
-<li><strong>TC BPF</strong>：深度包处理、QoS/整形、服务网格加速。</li>
-<li><strong>Tracing BPF</strong>：火焰图、系统调用/调度/文件 IO 观测。</li>
-<li><strong>LSM BPF</strong>：进程/文件访问控制、细粒度安全策略。</li>
-</ul>
-<h3 id="ebpf-maps状态与通信的基石">eBPF Maps：状态与通信的基石</h3>
-<ul>
-<li><strong>作用</strong>：在内核 eBPF 与用户态之间共享数据，也用于多个 eBPF 程序之间共享状态。</li>
-<li><strong>常见类型</strong>：<code>HASH</code>、<code>LRU_HASH</code>、<code>ARRAY</code>、<code>PERCPU_ARRAY</code>、<code>RINGBUF</code>、<code>PROG_ARRAY</code>、<code>SOCKHASH</code>/<code>SOCKMAP</code> 等。</li>
-<li><strong>实践要点</strong>：
-<ul>
-<li>小对象热数据放 <code>ARRAY/PERCPU_ARRAY</code>，高并发键值对用 <code>LRU_HASH</code>。</li>
-<li>大量事件传输用 <code>RINGBUF</code>，低开销批量消费。</li>
-<li>使用 <code>pinning</code> 将 map 固定到 bpffs，支持热更新与进程重启后的复用。</li>
-</ul></li>
-</ul>
-<h3 id="一图看懂网络路径中的-ebpf-挂载点">一图看懂网络路径中的 eBPF 挂载点</h3>
-<pre>
-<code class="mermaid">
-
-flowchart LR
-    NIC[&quot;网卡（RX 队列）&quot;] --&gt; XDP[&quot;XDP 钩子（驱动早路径）&quot;]
-    XDP --&gt; TC_ING[&quot;TC Ingress（进入协议栈前）&quot;]
-    TC_ING --&gt; IPSTACK[&quot;内核网络栈（路由&#x2F;防火墙&#x2F;套接字）&quot;]
-    IPSTACK --&gt; TC_EGR[&quot;TC Egress（离开协议栈）&quot;]
-    TC_EGR --&gt; NIC_TX[&quot;网卡（TX 队列）&quot;]
-    IPSTACK --&gt; SOCK[&quot;Socket&#x2F;CGroups eBPF&quot;]
-</code>
-</pre>
-<h3 id="最小-xdp-示例丢弃非期望包并计数">最小 XDP 示例：丢弃非期望包，并计数</h3>
-<blockquote>
-<p>目标：在 XDP 处直接丢弃不需要的流量，并通过 <code>MAP</code> 暴露计数供用户态读取（示例为入门直觉，不含全部错误处理）。</p>
-</blockquote>
-<ul>
-<li><strong>内核端（eBPF C）核心思路</strong>：
-<ul>
-<li>定义 <code>BPF_MAP_TYPE_ARRAY</code> 计数器。</li>
-<li>在 XDP 回调里匹配条件（如以太类型/UDP 端口等），命中则递增计数并 <code>XDP_DROP</code>，否则 <code>XDP_PASS</code>。</li>
-</ul></li>
-<li><strong>用户态（libbpf/BCC 或者 bpf2go 等）</strong>：
-<ul>
-<li>加载/验证/附着程序到指定网卡。</li>
-<li>周期性读取 <code>map</code> 中的计数。</li>
-</ul></li>
-</ul>
-<h4 id="代码xdp_drop.c">代码（xdp_drop.c）</h4>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// minimal XDP: 丢弃所有包并做计数</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/bpf.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    __uint(type, BPF_MAP_TYPE_ARRAY);</span><br><span class="line">    __uint(max_entries, <span class="number">1</span>);</span><br><span class="line">    __type(key, __u32);</span><br><span class="line">    __type(value, __u64);</span><br><span class="line">&#125; drop_cnt <span class="title function_">SEC</span><span class="params">(<span class="string">&quot;.maps&quot;</span>)</span>;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;xdp&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">xdp_drop_all</span><span class="params">(<span class="keyword">struct</span> xdp_md *ctx)</span> &#123;</span><br><span class="line">    __u32 key = <span class="number">0</span>;</span><br><span class="line">    __u64 *val = bpf_map_lookup_elem(&amp;drop_cnt, &amp;key);</span><br><span class="line">    <span class="keyword">if</span> (val) __sync_fetch_and_add(val, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> XDP_DROP; <span class="comment">// 示例：全部丢弃；按需替换为条件判定</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;GPL&quot;</span>;</span><br></pre></td></tr></table></figure>
-<h4 id="逐行讲解">逐行讲解</h4>
-<ul>
-<li>引入头文件：<code>&lt;linux/bpf.h&gt;</code> 与 <code>&lt;bpf/bpf_helpers.h&gt;</code> 提供 eBPF 所需类型与辅助宏。</li>
-<li>定义 <code>drop_cnt</code> map：<code>BPF_MAP_TYPE_ARRAY</code> 且 <code>max_entries=1</code>，只用索引 <code>0</code> 存一个 64 位计数；<code>SEC(".maps")</code> 表示把它放在 maps 段，便于内核识别与加载。</li>
-<li><code>SEC("xdp")</code>：把后面的函数标记为 XDP 程序入口，会被附着到 XDP 钩子。</li>
-<li><code>int xdp_drop_all(struct xdp_md *ctx)</code>：XDP 回调；每个到来的包都会调用一次；<code>ctx</code> 是该包上下文。</li>
-<li><code>__u32 key = 0;</code>：仅使用数组 map 的第 0 项作为计数槽位。</li>
-<li><code>bpf_map_lookup_elem(&amp;drop_cnt, &amp;key)</code>：取出计数槽位的地址。</li>
-<li><code>__sync_fetch_and_add(val, 1)</code>：原子加 1，避免多核并发更新丢计数。</li>
-<li><code>return XDP_DROP;</code>：丢弃当前包（不再进入协议栈）。若只想“统计不丢包”，可改为 <code>XDP_PASS</code>。</li>
-<li><code>LICENSE = "GPL";</code>：声明 GPL 许可，部分 helper 需要 GPL 才可用。</li>
-</ul>
-<h4 id="编译生成-ebpf-对象文件">编译（生成 eBPF 对象文件）</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">clang -O2 -g -target bpf -c xdp_drop.c -o build/xdp_drop.o</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>参数说明</strong>：
-<ul>
-<li><code>-O2</code>：优化等级 2，生成更高质量字节码（更易通过 Verifier，运行更快）。</li>
-<li><code>-g</code>：带调试信息，便于排查与 <code>bpftool prog dump jited/llvm</code> 对照。</li>
-<li><code>-target bpf</code>：指定编译到 eBPF 目标架构。</li>
-<li><code>-c xdp_drop.c</code>：只编译不链接，生成目标文件。</li>
-<li><code>-o build/xdp_drop.o</code>：输出到目标路径（需先 <code>mkdir -p build</code>）。</li>
-</ul></li>
-</ul>
-<h4 id="加载与附着使用-bpftool并同时固定-map">加载与附着（使用 bpftool，并同时固定 map）</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t bpf bpf /sys/fs/bpf || <span class="literal">true</span></span><br><span class="line"><span class="built_in">sudo</span> bpftool prog load build/xdp_drop.o /sys/fs/bpf/xdp_drop <span class="built_in">type</span> xdp \</span><br><span class="line">  map name drop_cnt pinned /sys/fs/bpf/drop_cnt</span><br><span class="line"><span class="built_in">sudo</span> bpftool net attach xdp pinned /sys/fs/bpf/xdp_drop dev &lt;iface&gt;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>参数说明</strong>：
-<ul>
-<li><code>mount -t bpf bpf /sys/fs/bpf</code>：挂载 bpffs（BPF 虚拟文件系统），用于固定程序/Map。</li>
-<li><code>bpftool prog load … type xdp</code>：把对象文件加载为 XDP 类型程序，并指定固定路径 <code>/sys/fs/bpf/xdp_drop</code>。</li>
-<li><code>map name drop_cnt pinned …</code>：在加载时将名为 <code>drop_cnt</code> 的 map 固定到给定路径，便于后续读取与热更新。</li>
-<li><code>bpftool net attach xdp pinned … dev &lt;iface&gt;</code>：把已固定的程序附着到指定网卡 <code>&lt;iface&gt;</code>（如 <code>eth0</code>）。</li>
-</ul></li>
-</ul>
-<h4 id="验证查看计数并制造流量">验证（查看计数并制造流量）</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool map dump pinned /sys/fs/bpf/drop_cnt | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>参数说明</strong>：
-<ul>
-<li><code>map dump pinned &lt;path&gt;</code>：读取固定在 <code>&lt;path&gt;</code> 的 map 内容；<code>| cat</code> 防止分页器拦截，完整输出到终端。</li>
-<li>预期看到 <code>key: 0 value: &lt;N&gt;</code>，随着入站流量增长而递增。</li>
-</ul></li>
-</ul>
-<h4 id="卸载与清理">卸载与清理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool net detach xdp dev &lt;iface&gt;</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /sys/fs/bpf/xdp_drop /sys/fs/bpf/drop_cnt</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>参数说明</strong>：
-<ul>
-<li><code>net detach xdp dev &lt;iface&gt;</code>：从网卡卸载 XDP 程序。</li>
-<li><code>rm -f …</code>：删除固定的程序与 map 对象，释放 bpffs 资源。</li>
-</ul></li>
-</ul>
-<h3 id="工具链与开发路线">工具链与开发路线</h3>
-<ul>
-<li><strong>核心工具</strong>：
-<ul>
-<li><code>clang/llvm</code>：将 C 编译为 eBPF 字节码。</li>
-<li><code>bpftool</code>：检查/加载/查看 map 与 prog，配合 <code>bpffs</code> 管理对象。</li>
-<li><code>libbpf</code>/<code>libbpf-rs</code>/<code>bcc</code>：三种常见开发栈；前两者偏生产可部署，<code>bcc</code> 上手快但运行时依赖较重。</li>
-</ul></li>
-<li><strong>建议路径</strong>：
-<ol type="1">
-<li>本机或 VM 安装较新内核与 <code>bpftool/clang</code>；</li>
-<li>用 <code>xdp-tutorial</code> 或 <code>libbpf-bootstrap</code> 起步；</li>
-<li>先做可观测性（风险低），再做网络路径改写（逐步放行/灰度）；</li>
-<li>为 map 启用 <code>pinning</code>，为服务编写最小的“控制面”管理进程；</li>
-<li>加上可观测性（统计、延迟、错误码）与回滚开关。</li>
-</ol></li>
-</ul>
-<h3 id="什么是-jitjust-in-time">什么是 JIT（Just-In-Time）</h3>
-<ul>
-<li><p><strong>定义</strong>：JIT（即时编译）在运行时把中间表示/字节码编译成本机机器码执行，相比纯解释更快，相比 AOT（预编译全部）启动更灵活。</p></li>
-<li><strong>对比直觉</strong>：
-<ul>
-<li>解释执行：逐条解析，启动快，运行慢。</li>
-<li>AOT：运行前全部编译，运行快，首次构建/启动稍慢。</li>
-<li>JIT：运行中按需编译，折中并可做运行时优化。</li>
-</ul></li>
-<li><strong>在 eBPF 中的工作流</strong>：
-<ul>
-<li>用户态加载 BPF 字节码 → Verifier 安全/终止性检查 → 通过后 JIT 为当前架构机器码（x86-64/ARM64） → 挂载到对应 hook 执行。</li>
-<li>若 JIT 被禁用或不支持，则回退为解释器执行；若 Verifier 未通过，直接拒绝加载。</li>
-</ul></li>
-<li><strong>与 JVM/JS 的 JIT 差异</strong>：
-<ul>
-<li>eBPF 的 JIT 通常是“一次性编译”，不做热点探测/去优化；优化更偏向架构相关的轻量指令选择（peephole、寄存器分配）。</li>
-</ul></li>
-</ul>
-<h3 id="与内核旁路的比较dpdkrdma">与内核旁路的比较（DPDK/RDMA）</h3>
-<ul>
-<li><strong>eBPF</strong>：保留内核网络栈生态与安全边界，延迟/吞吐优异（非极限），工程可运维性强。</li>
-<li><strong>DPDK/RDMA</strong>：极致性能与控制，但需要专用驱动/巨页/轮询，系统集成成本更高。</li>
-<li><strong>折中理念</strong>：将“高频快路径”放 eBPF，“复杂慢路径”留在用户态或完整协议栈。</li>
-</ul>
-<h3 id="常见坑与排查">常见坑与排查</h3>
-<ul>
-<li><strong>Verifier 不通过</strong>：缩短函数/循环，给出边界检查与上界，使用 <code>__always_inline</code>；善用 <code>bpftool prog load</code> 的日志。</li>
-<li><strong>性能不达标</strong>：
-<ul>
-<li>XDP 程序中避免复杂解析与多次访问内存；</li>
-<li>合理使用 <code>XDP_REDIRECT</code> 到目标队列或 <code>AF_XDP</code>；</li>
-<li>批量读取 ringbuf，减少用户态唤醒开销。</li>
-</ul></li>
-<li><strong>热更新中断</strong>：确保对象 <code>pin</code> 到 bpffs，并采用“双程序切换”减少流量抖动。</li>
-</ul>
-<h3 id="运行与验证示例流程">运行与验证（示例流程）</h3>
-<ul>
-<li><strong>编译与加载</strong>（以 libbpf 为例）：
-<ol type="1">
-<li>编译 eBPF 程序为 <code>*.o</code>；</li>
-<li><code>bpftool prog load</code> 加载，<code>bpftool net attach xdp dev &lt;iface&gt; pinned &lt;path&gt;</code> 附着；</li>
-<li><code>bpftool map dump pinned &lt;path&gt;</code> 查看计数；</li>
-<li>用 <code>ping/iperf/wrk</code> 压测并对比 <code>XDP_PASS/XDP_DROP</code> 行为。</li>
-</ol></li>
-<li><strong>回滚</strong>：
-<ul>
-<li>临时卸载：<code>bpftool net detach xdp dev &lt;iface&gt;</code>；</li>
-<li>恢复策略：保留旧版本对象于 bpffs，切换符号链接并原子替换。</li>
-</ul></li>
-</ul>
-<h3 id="小结">📝 小结</h3>
-<ul>
-<li><strong>一句话</strong>：eBPF 让我们在不改内核的前提下，将小而高效的逻辑“内联”到内核关键路径，既快又安全。</li>
-<li><strong>入门三步</strong>：选 hook → 写最小程序 + map → 用 bpftool 验证与观测。</li>
-<li><strong>进阶方向</strong>：编排与热更新、fast-path/slow-path 分层、复杂状态一致性与可观测性。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>系统内核</category>
-        <category>计算机网络</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>eBPF</tag>
-        <tag>网络</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
-<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
-<h3 id="token401问题">token401问题</h3>
-<h4 id="登录401">登录401</h4>
-<p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
-</figure>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<figure>
-<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
-</figure>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<p>发现可以正常读取了</p>
-<h4 id="过期401">过期401</h4>
-<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-<h3 id="数据读取问题">数据读取问题</h3>
-<p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-<h3 id="其他问题">其他问题</h3>
-<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>InfluxDB</tag>
-        <tag>数据库</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>git之路：rebase &amp; cherry-pick</title>
     <url>/posts/1566a5aa/</url>
     <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
@@ -5446,6 +5401,51 @@ flowchart TD
         <tag>Git</tag>
         <tag>Rebase</tag>
         <tag>Cherry-pick</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
+<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
+<h3 id="token401问题">token401问题</h3>
+<h4 id="登录401">登录401</h4>
+<p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
+</figure>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<figure>
+<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
+</figure>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<p>发现可以正常读取了</p>
+<h4 id="过期401">过期401</h4>
+<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据读取问题">数据读取问题</h3>
+<p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<h3 id="其他问题">其他问题</h3>
+<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>InfluxDB</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -6510,98 +6510,6 @@ graph TD
       </tags>
   </entry>
   <entry>
-    <title>混合加密入门：集安全与效率于一身的艺术</title>
-    <url>/posts/8c9a7e4f/</url>
-    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
-<ul>
-<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
-<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
-</ul>
-<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
-<span id="more"></span>
-<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
-<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
-<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
-<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
-<ul>
-<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
-<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
-<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
-<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
-</ul>
-<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
-<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
-<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
-<ul>
-<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
-<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
-</ul>
-<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
-<ul>
-<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
-<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
-<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
-</ul>
-<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
-<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
-<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
-<p>它的执行流程如同一场精心编排的双人舞：</p>
-<ol type="1">
-<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
-<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
-<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
-<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
-<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
-<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
-</ol>
-<p>至此，一次安全又高效的通信便完成了。</p>
-我们可以用下面这个流程图来清晰地展示这个过程：
-<pre class="mermaid">sequenceDiagram
-    participant Sender as 发送方
-    participant Receiver as 接收方
-
-    Note over Sender, Receiver: 混合加密流程
-
-    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
-    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
-    
-    rect rgba(255, 220, 220, 0.4)
-        note right of Sender: 获取接收方的公钥
-        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
-    end
-    
-    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
-    
-    rect rgba(220, 255, 220, 0.4)
-        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
-        note right of Receiver: 获得对称密钥
-        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
-    end
-    
-    Receiver->>Sender: 通信已安全建立</pre>
-<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
-<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
-<ul>
-<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
-<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
-<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
-<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
-</ul>
-<h3 id="四总结">✨ 四、总结</h3>
-<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
-<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>加密</tag>
-        <tag>密码学</tag>
-        <tag>安全</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>大模型百词</title>
     <url>/posts/8c9ab17b/</url>
     <content><![CDATA[<p>当下，大模型（Large Model）无疑是科技领域最炙手可热的话题。从 ChatGPT 的惊艳亮相到各类 AIGC 应用的层出不穷，我们每天都会接触到海量的新名词和新概念。为了帮助大家更好地理解这个日新月异的领域，本文梳理了一系列核心术语，希望能为你构建一个清晰的知识地图。</p>
@@ -6733,6 +6641,98 @@ graph TD
 <li><strong>语音转文字 (Automatic Speech Recognition, ASR)</strong></li>
 </ol>
 ]]></content>
+  </entry>
+  <entry>
+    <title>混合加密入门：集安全与效率于一身的艺术</title>
+    <url>/posts/8c9a7e4f/</url>
+    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
+<ul>
+<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
+<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
+</ul>
+<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
+<span id="more"></span>
+<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
+<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
+<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
+<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
+<ul>
+<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
+<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
+<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
+<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
+</ul>
+<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
+<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
+<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
+<ul>
+<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
+<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
+</ul>
+<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
+<ul>
+<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
+<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
+<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
+</ul>
+<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
+<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
+<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
+<p>它的执行流程如同一场精心编排的双人舞：</p>
+<ol type="1">
+<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
+<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
+<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
+<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
+<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
+<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
+</ol>
+<p>至此，一次安全又高效的通信便完成了。</p>
+我们可以用下面这个流程图来清晰地展示这个过程：
+<pre class="mermaid">sequenceDiagram
+    participant Sender as 发送方
+    participant Receiver as 接收方
+
+    Note over Sender, Receiver: 混合加密流程
+
+    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
+    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
+    
+    rect rgba(255, 220, 220, 0.4)
+        note right of Sender: 获取接收方的公钥
+        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
+    end
+    
+    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
+    
+    rect rgba(220, 255, 220, 0.4)
+        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
+        note right of Receiver: 获得对称密钥
+        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
+    end
+    
+    Receiver->>Sender: 通信已安全建立</pre>
+<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
+<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
+<ul>
+<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
+<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
+<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
+<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
+</ul>
+<h3 id="四总结">✨ 四、总结</h3>
+<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
+<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>加密</tag>
+        <tag>密码学</tag>
+        <tag>安全</tag>
+      </tags>
   </entry>
   <entry>
     <title>编码</title>
@@ -6938,6 +6938,85 @@ graph TD
         <tag>计算机基础</tag>
         <tag>编码</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>计算机中的P = NP? 问题</title>
+    <url>/posts/181d0004/</url>
+    <content><![CDATA[<p>在计算机科学领域，有一个悬赏一百万美元的世纪难题，它就是“P=NP?”问题。这个问题非常重要，它关系到计算机的算力极限，也和我们生活中的很多问题（如密码学、物流规划、人工智能等）息息相关。</p>
+<span id="more"></span>
+<h2 id="时间复杂度">时间复杂度</h2>
+<p>在讨论P与NP问题之前，我们需要先简单了解一下<strong>时间复杂度</strong>，它是衡量一个算法运行效率的标尺。我们通常用大O符号来表示，比如 O(n), O(n²), O(2ⁿ) 等。</p>
+<p>常见的算法时间复杂度增长趋势如下： <code>O(1) &lt; O(log n) &lt; O(n) &lt; O(n log n) &lt; O(n²) &lt; O(n³) &lt; O(2ⁿ) &lt; O(n!) &lt; O(nⁿ)</code></p>
+<ul>
+<li><strong>多项式时间复杂度</strong>：如 O(1), O(log n), O(n), O(n log n), O(n²), O(n³) 等。它们的特点是，随着问题规模 n 的增长，计算时间的增长速度是可控的。</li>
+<li><strong>指数时间复杂度</strong>：如 O(2ⁿ), O(n!) 等。这类算法的计算时间会随着问题规模 n 的增长而急剧增加，当 n 稍大时，计算就会变得不切实际。</li>
+</ul>
+<h2 id="p-问题">P 问题</h2>
+<p><strong>P 问题</strong> (Polynomial time) 指的是那些<strong>可以在多项式时间内被解决的问题</strong>。</p>
+<p>简单来说，如果一个问题能找到一个高效的算法，在有限且可接受的时间内计算出结果，那么它就是一个P问题。我们日常遇到的大部分问题，比如排序、查找等，都属于P问题。</p>
+<h2 id="np-问题">NP 问题</h2>
+<p><strong>NP 问题</strong> (Nondeterministic Polynomial time) 指的是那些<strong>可以在多-项式时间内验证一个解是否正确的问题</strong>。</p>
+<p>注意这里的关键词是“验证”而不是“解决”。NP问题不保证能被快速解决，但如果你给我一个解，我能很快地判断出它是不是正确的解。</p>
+<p>一个很经典的例子是“旅行商问题（TSP）”：给定一系列城市和每对城市之间的距离，求解访问每一座城市一次并返回起点的最短路径。</p>
+<ul>
+<li>解决这个问题非常困难，需要尝试大量的可能性。</li>
+<li>但如果有人给了你一条具体的路径，你可以很容易地计算出总长度，并验证它是否满足某个条件（比如，是否小于1000公里）。</li>
+</ul>
+<p>所有的P问题都是NP问题，因为如果一个问题能被快速解决，那么它的解也一定能被快速验证。</p>
+<h2 id="np-hard-和-np-complete">NP-Hard 和 NP-Complete</h2>
+<p>在NP问题中，有一类最难的问题，它们被称为 <strong>NP-Complete</strong> 和 <strong>NP-Hard</strong>。</p>
+<ul>
+<li><p><strong>NP-Hard</strong>：如果<strong>所有</strong>的NP问题都能在多项式时间内“归约”到问题 X，那么 X 就是一个 NP-Hard 问题。“归约”可以通俗地理解为“转化”。这意味着 X 问题的难度大于等于任何一个NP问题。它就像是NP世界里的“万恶之源”。</p></li>
+<li><p><strong>NP-Complete</strong>：一个问题既是 NP-Hard 的，同时它本身又是一个 NP 问题，那么它就被称为 <strong>NP-Complete</strong> 问题。NP-Complete 问题是 NP 问题中最难的一类。</p></li>
+</ul>
+<p>常见的 NP-Complete 问题包括： - <strong>逻辑电路问题 (SAT)</strong>：给定一个逻辑电路，是否存在一种输入，使其输出为 True。 - <strong>哈密顿回路问题</strong>：在一个图中，是否存在一条经过每个顶点一次且仅一次的回路。 - <strong>旅行商问题 (TSP)</strong>：前面已经介绍过。</p>
+<h2 id="pnp-世纪难题">P=NP? 世纪难题</h2>
+<p>理解了以上概念后，“P=NP?”问题的核心就浮出水面了：</p>
+<blockquote>
+<p><strong>所有能被快速验证解的问题（NP），是否也都存在快速解决它们的算法（P）？</strong></p>
+</blockquote>
+<p>如果 <code>P=NP</code>，意味着所有NP问题（包括所有NP-Complete问题）都能在多项式时间内被解决。这将给科学技术带来革命性的变化：密码学可能被轻易破解，物流和规划问题能找到完美的最优解，人工智能的发展也会迈出一大步。</p>
+<p>反之，如果 <code>P≠NP</code>，则意味着存在一类问题，我们能快速验证其解，却无法快速求解。这也符合我们目前的普遍认知。</p>
+<p>这个问题在2000年被美国克雷数学研究所列为七个“千年大奖问题”之一，悬赏一百万美元求解。</p>
+<h3 id="p与np的关系图">P与NP的关系图</h3>
+<p>如果 <code>P ≠ NP</code>，它们的关系如下：</p>
+<pre>
+<code class="mermaid">
+
+graph TD;
+    subgraph &quot;NP-Hard&quot;
+        subgraph &quot;NP&quot;
+            subgraph &quot;P&quot;
+                p_node[&quot;P&quot;]
+            end
+            subgraph &quot;NP-Complete&quot;
+                npc_node[&quot;NP-Complete&quot;]
+            end
+            p_node --&gt; npc_node;
+        end
+    end
+    style P fill:#f9f,stroke:#333,stroke-width:2px
+    style NP fill:#ccf,stroke:#333,stroke-width:2px
+    style &quot;NP-Complete&quot; fill:#f99,stroke:#333,stroke-width:2px
+</code>
+</pre>
+<p>如果 <code>P = NP</code>，那么 P、NP 和 NP-Complete 将会重合：</p>
+<pre>
+<code class="mermaid">
+
+graph TD;
+    subgraph &quot;NP-Hard&quot;
+        subgraph &quot;P &#x3D; NP &#x3D; NP-Complete&quot;
+            p_node[&quot;P, NP, NP-Complete&quot;]
+        end
+    end
+    style &quot;P &#x3D; NP &#x3D; NP-Complete&quot; fill:#ccf,stroke:#333,stroke-width:2px
+</code>
+</pre>
+<blockquote>
+<p>本文内容部分参考了周扬荣老师的PPT。</p>
+</blockquote>
+]]></content>
   </entry>
   <entry>
     <title>计算机网络通信漫谈 - 从TCP/IP到gRPC</title>
