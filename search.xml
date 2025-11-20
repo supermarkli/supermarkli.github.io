@@ -353,6 +353,825 @@ graph LR
       </tags>
   </entry>
   <entry>
+    <title>BIOS</title>
+    <url>/posts/ea91aa61/</url>
+    <content><![CDATA[<p>想快速看懂“上电到操作系统启动”这段黑屏时间到底发生了什么？</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BIOS</td>
+<td>Basic Input/Output System，主板固化固件，负责最初的硬件初始化与引导。</td>
+<td>启动第一棒</td>
+</tr>
+<tr class="even">
+<td>UEFI</td>
+<td>现代固件接口，取代传统 16bit BIOS；但业内仍习惯统称“BIOS”。</td>
+<td>BIOS 2.0</td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td>Power-On Self-Test，BIOS 执行的自检流程，点亮蜂鸣器/Debug LED。</td>
+<td>自体检</td>
+</tr>
+<tr class="even">
+<td>Boot Device</td>
+<td>BIOS 搜索可启动介质（SSD/U 盘/网卡）的目标。</td>
+<td>“从哪儿启动”</td>
+</tr>
+<tr class="odd">
+<td>CMOS</td>
+<td>Complementary Metal-Oxide-Semiconductor，存储 BIOS 设置的小容量存储器，断电时靠纽扣电池供电。</td>
+<td>设置仓库</td>
+</tr>
+</tbody>
+</table>
+<h3 id="按下电源键的逐帧解说">⚡ 按下电源键的逐帧解说</h3>
+<ol type="1">
+<li><strong>硬件上电阶段（Power-On）</strong>
+<ul>
+<li>主板供电，所有核心电压被拉起。<br />
+</li>
+<li>CPU 复位后被强制从物理地址 <code>0xFFFFFFF0</code> 取第一条指令（实模式下无虚拟地址转换）。<br />
+</li>
+<li>该地址由芯片组映射到 BIOS ROM，因此固件立即接管执行。</li>
+</ul></li>
+<li><strong>POST 自检阶段（Power-On Self Test）</strong>
+<ul>
+<li>检测 CPU 是否正常。<br />
+</li>
+<li>检测内存大小和完整性。<br />
+</li>
+<li>检测显卡、键盘等基本设备。<br />
+</li>
+<li>若一切正常，蜂鸣器发出“嘀”的提示音。</li>
+</ul></li>
+<li><strong>BIOS 初始化阶段</strong>
+<ul>
+<li>初始化中断向量表（IVT）。<br />
+</li>
+<li>初始化显卡、磁盘控制器等硬件。<br />
+</li>
+<li>提供 BIOS 中断服务（INT 0x10、0x13 等）。<br />
+</li>
+<li>读取 CMOS，获取启动设备顺序。</li>
+</ul></li>
+<li><strong>寻找引导设备</strong>
+<ul>
+<li>按顺序尝试设备（硬盘 → 光驱 → USB 等）。<br />
+</li>
+<li>读取每个设备的第一个扇区（512 字节）。<br />
+</li>
+<li>检查扇区末尾是否为 <code>0x55AA</code> 引导标志，确认后继续加载。</li>
+</ul></li>
+<li><strong>加载 MBR 到内存</strong>
+<ul>
+<li>将引导扇区加载到物理地址 <code>0x7C00</code>。<br />
+</li>
+<li>设置 <code>CS:IP = 0x0000:0x7C00</code>。<br />
+</li>
+<li>跳转执行（CPU 控制权交给引导程序）。</li>
+</ul></li>
+<li><strong>引导程序执行（Stage 1 / Stage 2）</strong>
+<ul>
+<li>Stage 1：运行 MBR 引导扇区（512 字节）。<br />
+</li>
+<li>Stage 2：加载扩展引导加载器（负责加载内核等）。<br />
+</li>
+<li>切换到保护模式（16 位 → 32 位）。</li>
+</ul></li>
+<li><strong>内核接管系统</strong>
+<ul>
+<li>完成内核初始化。<br />
+</li>
+<li>设置中断描述符表（IDT）。<br />
+</li>
+<li>初始化内存管理。<br />
+</li>
+<li>启动第一个进程。</li>
+</ul></li>
+</ol>
+<h3 id="bios-在哪里">🧠 BIOS 在哪里？</h3>
+<ul>
+<li>固化在主板上的 EEPROM / SPI Flash 芯片里。</li>
+<li>地址通常映射到物理内存高端（如 <code>0xF0000-0xFFFFF</code> 区域）。</li>
+<li>不依赖操作系统，通电后即可独立工作。</li>
+</ul>
+<p><strong>物理地址空间分布（32位系统）：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>地址范围</th>
+<th>映射内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>0x00000000 - 0x0009FFFF</code></td>
+<td>常规 RAM</td>
+<td>640KB 传统内存（<strong><code>0x00000-0x003FF</code> 为 IVT，占用前 1KB</strong>）</td>
+</tr>
+<tr class="even">
+<td><code>0x000A0000 - 0x000BFFFF</code></td>
+<td>视频 RAM (VRAM)</td>
+<td>显卡显存映射</td>
+</tr>
+<tr class="odd">
+<td><code>0x000C0000 - 0x000DFFFF</code></td>
+<td>扩展 ROM</td>
+<td>网卡/RAID 卡 Option ROM</td>
+</tr>
+<tr class="even">
+<td><code>0x000E0000 - 0x000EFFFF</code></td>
+<td>保留区域</td>
+<td>未使用</td>
+</tr>
+<tr class="odd">
+<td><code>0x000F0000 - 0x000FFFFF</code></td>
+<td>BIOS ROM (低端)</td>
+<td>传统 BIOS 代码区</td>
+</tr>
+<tr class="even">
+<td><code>0x00100000 - 0x3FFFFFFF</code></td>
+<td>扩展 RAM</td>
+<td>1MB 以上常规内存</td>
+</tr>
+<tr class="odd">
+<td><code>0xFFF00000 - 0xFFFFFFFF</code></td>
+<td>BIOS ROM (高端)</td>
+<td><strong><code>0xFFFFFFF0</code> 位于此区域</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>0xFFFFFFF0</code> 访问的是什么？</strong></p>
+<ul>
+<li>这是<strong>内存映射 I/O（MMIO）地址</strong>，由<strong>芯片组（北桥/南桥）</strong>将 CPU 的物理地址请求映射到主板上的 <strong>BIOS ROM 芯片</strong>。</li>
+<li>CPU 访问 <code>0xFFFFFFF0</code> 时，芯片组会拦截这个地址，转而从 SPI Flash/EEPROM 芯片中读取数据。</li>
+<li>这种映射在硬件层面完成，无需软件参与，确保 CPU 上电后能立即执行 BIOS 代码。</li>
+</ul>
+<p><strong>ROM 是内存吗？与硬盘存储有什么区别？</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>ROM（只读存储器）</th>
+<th>RAM（随机存取存储器）</th>
+<th>硬盘存储（HDD/SSD）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>是否属于内存</strong></td>
+<td>✅ 是（非易失性内存）</td>
+<td>✅ 是（易失性内存）</td>
+<td>❌ 不是（外存/存储设备）</td>
+</tr>
+<tr class="even">
+<td><strong>断电后数据</strong></td>
+<td>保留</td>
+<td>丢失</td>
+<td>保留</td>
+</tr>
+<tr class="odd">
+<td><strong>访问速度</strong></td>
+<td>较慢（纳秒级）</td>
+<td>很快（纳秒级）</td>
+<td>很慢（微秒/毫秒级）</td>
+</tr>
+<tr class="even">
+<td><strong>可写性</strong></td>
+<td>只读（或需特殊方式写入）</td>
+<td>可读写</td>
+<td>可读写</td>
+</tr>
+<tr class="odd">
+<td><strong>容量</strong></td>
+<td>小（几MB到几十MB）</td>
+<td>中等（几GB到几十GB）</td>
+<td>大（几百GB到几TB）</td>
+</tr>
+<tr class="even">
+<td><strong>用途</strong></td>
+<td>BIOS、固件、引导代码</td>
+<td>运行程序、临时数据</td>
+<td>操作系统、文件、数据</td>
+</tr>
+<tr class="odd">
+<td><strong>CPU 直接访问</strong></td>
+<td>✅ 可以（通过内存映射）</td>
+<td>✅ 可以</td>
+<td>❌ 不可以（需通过驱动）</td>
+</tr>
+<tr class="even">
+<td><strong>物理位置</strong></td>
+<td>主板芯片</td>
+<td>内存条插槽</td>
+<td>SATA/NVMe 接口</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bios-的四大职责">🧱 BIOS 的四大职责</h3>
+<h4 id="post">🔍 POST</h4>
+<p><strong>加电自检（POST）</strong>：验证 CPU、内存、显卡、键盘等核心器件是否健康。</p>
+<table>
+<thead>
+<tr class="header">
+<th>步骤</th>
+<th>要做什么</th>
+<th>输出结果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>检测 CPU</td>
+<td>验证寄存器、跑基本指令序列</td>
+<td>CPU OK / 错误蜂鸣码</td>
+</tr>
+<tr class="even">
+<td>检测内存</td>
+<td>统计容量、快速读写测试、记录可用区域</td>
+<td>内存容量 + 可用信息</td>
+</tr>
+<tr class="odd">
+<td>检测显卡</td>
+<td>初始化显示适配器、点亮 BIOS 画面</td>
+<td>有画面或报显卡故障</td>
+</tr>
+<tr class="even">
+<td>检测其他设备</td>
+<td>键盘控制器、磁盘控制器、其他 PCI 设备</td>
+<td>可用外设列表</td>
+</tr>
+</tbody>
+</table>
+<h4 id="硬件初始化">🛠️ 硬件初始化</h4>
+<ol start="2" type="1">
+<li><strong>硬件初始化</strong>：配置芯片组、显卡、磁盘控制器，为系统做好底层环境。</li>
+</ol>
+<table>
+<thead>
+<tr class="header">
+<th>模块</th>
+<th>关键动作</th>
+<th>输出结果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>芯片组/总线</td>
+<td>设置北桥/南桥、PCIe Root Complex、Vcore/Vtt、电源状态</td>
+<td>控制器上线，CPU/内存/外设路径打通</td>
+</tr>
+<tr class="even">
+<td>存储控制器</td>
+<td>初始化 SATA/NVMe/AHCI、分配 I/O Port/MMIO</td>
+<td>磁盘/NVMe 可被扫描、读写</td>
+</tr>
+<tr class="odd">
+<td>显示/外设</td>
+<td>启动 GOP/VESA、USB 控制器、风扇曲线、安全策略</td>
+<td>BIOS 画面正常显示，输入设备可用</td>
+</tr>
+<tr class="even">
+<td>内存映射</td>
+<td>构建 E820、ACPI、SMBIOS 等表的基址与长度</td>
+<td>OS 能正确识别硬件拓扑与资源</td>
+</tr>
+</tbody>
+</table>
+<h4 id="建立中断向量表">建立中断向量表</h4>
+<p>BIOS 在内存最低地址 (<code>0x00000 - 0x003FF</code>) 建立中断向量表：</p>
+<p><strong>实模式中断向量表 (IVT) 结构：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>地址范围</th>
+<th>中断向量</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>0x0000-0x0003</code></td>
+<td>INT 0x00 (除零)</td>
+<td>除法错误</td>
+</tr>
+<tr class="even">
+<td><code>0x0004-0x0007</code></td>
+<td>INT 0x01 (单步)</td>
+<td>调试单步</td>
+</tr>
+<tr class="odd">
+<td><code>0x0008-0x000B</code></td>
+<td>INT 0x02 (NMI)</td>
+<td>不可屏蔽中断</td>
+</tr>
+<tr class="even">
+<td><code>...</code></td>
+<td><code>...</code></td>
+<td><code>...</code></td>
+</tr>
+<tr class="odd">
+<td><code>0x0040-0x0043</code></td>
+<td>INT 0x10</td>
+<td>视频服务 ⭐</td>
+</tr>
+<tr class="even">
+<td><code>0x004C-0x004F</code></td>
+<td>INT 0x13</td>
+<td>磁盘服务 ⭐</td>
+</tr>
+<tr class="odd">
+<td><code>0x0058-0x005B</code></td>
+<td>INT 0x16</td>
+<td>键盘服务 ⭐</td>
+</tr>
+<tr class="even">
+<td><code>...</code></td>
+<td><code>...</code></td>
+<td><code>...</code></td>
+</tr>
+</tbody>
+</table>
+<p>每个中断向量占 4 字节：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[2字节偏移地址] [2字节段地址]</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>为什么偏移地址在前？存储格式详解：</strong></p>
+<p>这是 <strong>x86 架构的小端序（Little-Endian）</strong> 存储格式。以 INT 0x10 为例（IVT 地址 <code>0x0040</code>）：</p>
+<table>
+<thead>
+<tr class="header">
+<th>地址</th>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>0x0040</code></td>
+<td><code>IP_low</code></td>
+<td>偏移地址低字节（如 <code>0x00</code>）</td>
+</tr>
+<tr class="even">
+<td><code>0x0041</code></td>
+<td><code>IP_high</code></td>
+<td>偏移地址高字节（如 <code>0x50</code>）</td>
+</tr>
+<tr class="odd">
+<td><code>0x0042</code></td>
+<td><code>CS_low</code></td>
+<td>段地址低字节（如 <code>0xC0</code>）</td>
+</tr>
+<tr class="even">
+<td><code>0x0043</code></td>
+<td><code>CS_high</code></td>
+<td>段地址高字节（如 <code>0xF0</code>）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>小端序规则</strong>：多字节数据中，<strong>低字节存储在低地址，高字节存储在高地址</strong>。 - 偏移地址 <code>IP = 0x5000</code> → 存储为 <code>[0x00, 0x50]</code>（低字节在前） - 段地址 <code>CS = 0xF000</code> → 存储为 <code>[0x00, 0xF0]</code>（低字节在前）</p>
+<p><strong>为什么 IP 在 CS 之前？</strong> - 这是 x86 实模式的约定：<strong>先存储偏移地址（IP），再存储段地址（CS）</strong>。 - CPU 读取时按顺序：先读 IP（2字节），再读 CS（2字节），然后执行 <code>jmp CS:IP</code>。 - 这种顺序与实模式下的段:偏移寻址方式一致：<code>物理地址 = CS × 16 + IP</code>。</p>
+</blockquote>
+<h4 id="引导加载">🚀 引导加载</h4>
+<p><strong>引导加载流程：</strong></p>
+<ol type="1">
+<li><strong>读取 CMOS 获取启动设备顺序</strong></li>
+<li><strong>按顺序尝试每个设备：</strong>
+<ul>
+<li>软盘驱动器（很少用了）</li>
+<li>硬盘（HDD/SSD）</li>
+<li>光驱（CD/DVD）</li>
+<li>USB 设备</li>
+<li>网络启动（PXE）</li>
+</ul></li>
+<li><strong>读取设备的第 0 扇区（512字节）</strong></li>
+<li><strong>检查最后两字节是否为 0x55AA</strong>
+<ul>
+<li>是 → 这是有效的引导扇区</li>
+<li>否 → 尝试下一个设备</li>
+</ul></li>
+<li><strong>将引导扇区加载到内存 0x0000:0x7c00</strong> &gt; <strong><code>0x0000:0x7c00</code> 是什么意思？</strong> &gt; - 这是<strong>实模式下的段:偏移地址表示法</strong>，格式为 <code>段地址:偏移地址</code>。 &gt; - <strong>物理地址计算公式</strong>：<code>物理地址 = 段地址 × 16 + 偏移地址</code> &gt; - <code>0x0000:0x7c00</code> = <code>0x0000 × 16 + 0x7c00</code> = <code>0x00000 + 0x7c00</code> = <strong><code>0x7c00</code></strong>（物理地址） &gt; - 最终指向物理地址 <code>0x7c00</code>。 &gt; - 实模式下用段:偏移表示，是因为 16 位寄存器只能表示 64KB，通过段地址可以访问更大的地址空间。</li>
+<li><strong>设置寄存器：</strong>
+<ul>
+<li><code>CS = 0x0000</code>（代码段寄存器）</li>
+<li><code>IP = 0x7c00</code>（指令指针寄存器）</li>
+<li><code>DL = 启动设备号 (0x00=软盘, 0x80=硬盘)</code></li>
+</ul></li>
+<li><strong>跳转执行: JMP 0x0000:0x7c00</strong></li>
+</ol>
+<p><strong>为什么是 0x7C00？</strong></p>
+<p>这是一个历史遗留问题：IBM PC 5150 (1981年) 规定的地址。</p>
+<h3 id="bios-中断服务详解">🔌 BIOS 中断服务详解</h3>
+<p><strong>中断是什么？</strong></p>
+<p>中断（Interrupt）是 CPU 暂停当前执行流程，转而去处理特定事件或请求的机制。中断分为三类：</p>
+<ul>
+<li><strong>硬件中断</strong>：由硬件设备触发（如键盘按下、时钟滴答、网卡收到数据包），通过中断控制器（如 8259 PIC）通知 CPU。</li>
+<li><strong>软件中断</strong>：由程序主动触发（如 <code>int 0x10</code> 调用 BIOS 视频服务），用于调用系统服务。</li>
+<li><strong>异常中断</strong>：由 CPU 内部事件触发（如除零错误、页错误、非法指令），用于错误处理。</li>
+</ul>
+<p><strong>什么是“中断向量”？</strong></p>
+<ul>
+<li><strong>中断向量（Interrupt Vector）</strong> 是一个“入口索引”，用于指示某个中断的处理函数地址。</li>
+<li>在 BIOS 实模式中，中断向量由 <strong>IVT（Interrupt Vector Table）</strong> 管理：表项编号 0x00~0xFF，对应中断号。</li>
+<li><strong>IVT 中存储的是中断处理函数的地址</strong>（实模式的段:偏移）。因此可以理解为：“中断向量”=“中断号对应的处理函数地址”。</li>
+<li>CPU 收到中断后，会用中断号（向量）作为索引，在 IVT 中查到处理函数的段地址和偏移地址，然后跳转执行。</li>
+</ul>
+<p><strong>中断的地址是物理地址还是虚拟地址？</strong></p>
+<p>在<strong>实模式下</strong>（BIOS 运行的环境）： - 中断向量表中的地址是<strong>物理地址</strong>（更准确说是<strong>实模式地址</strong>）。 - IVT 位于物理地址 <code>0x00000-0x003FF</code>，每个向量存储的是处理程序的<strong>段地址:偏移地址</strong>（实模式寻址方式）。 - CPU 通过 <code>段地址 × 16 + 偏移地址</code> 计算出物理地址，直接访问内存，无需虚拟地址转换。</p>
+<p>在<strong>保护模式下</strong>（操作系统运行的环境）： - 使用 <strong>IDT（Interrupt Descriptor Table）</strong> 替代 IVT。 - IDT 中的地址可以是<strong>虚拟地址</strong>（如果启用了分页），CPU 会通过页表转换为物理地址。</p>
+<p>BIOS 提供了一系列中断服务，让引导程序可以使用硬件：</p>
+<h4 id="深入理解中断向量表-ivt">💡 深入理解：中断向量表 (IVT)</h4>
+<p>在实模式下，BIOS 中断是通过中断向量表（Interrupt Vector Table, IVT）来实现的。</p>
+<p><strong>IVT 的结构：</strong></p>
+<ul>
+<li><strong>地址范围</strong>：<code>0x00000 - 0x003FF</code>（1024 字节 = 1KB）</li>
+<li><strong>每个中断向量</strong>：占 4 字节（2 字节偏移地址 + 2 字节段地址）</li>
+<li><strong>总向量数</strong>：256 个中断向量（<code>0x00</code> 到 <code>0xFF</code>）</li>
+</ul>
+<p><strong>内存布局：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>地址</th>
+<th>大小</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>0x0000</code></td>
+<td>2 字节</td>
+<td><code>INT 0x00</code> 偏移地址</td>
+</tr>
+<tr class="even">
+<td><code>0x0002</code></td>
+<td>2 字节</td>
+<td><code>INT 0x00</code> 段地址</td>
+</tr>
+<tr class="odd">
+<td><code>0x0004</code></td>
+<td>2 字节</td>
+<td><code>INT 0x01</code> 偏移地址</td>
+</tr>
+<tr class="even">
+<td><code>0x0006</code></td>
+<td>2 字节</td>
+<td><code>INT 0x01</code> 段地址</td>
+</tr>
+<tr class="odd">
+<td><code>...</code></td>
+<td><code>...</code></td>
+<td><code>...</code></td>
+</tr>
+<tr class="even">
+<td><code>0x0040</code></td>
+<td>2 字节</td>
+<td><code>INT 0x10</code> 偏移地址 ⭐</td>
+</tr>
+<tr class="odd">
+<td><code>0x0042</code></td>
+<td>2 字节</td>
+<td><code>INT 0x10</code> 段地址 ⭐</td>
+</tr>
+<tr class="even">
+<td><code>...</code></td>
+<td><code>...</code></td>
+<td><code>...</code></td>
+</tr>
+<tr class="odd">
+<td><code>0x03FC</code></td>
+<td>2 字节</td>
+<td><code>INT 0xFF</code> 偏移地址</td>
+</tr>
+<tr class="even">
+<td><code>0x03FE</code></td>
+<td>2 字节</td>
+<td><code>INT 0xFF</code> 段地址</td>
+</tr>
+</tbody>
+</table>
+<h4 id="中断调用过程">🔄 中断调用过程</h4>
+<p>当执行 <code>int 0x10</code> 时，CPU 自动执行以下步骤：</p>
+<ol type="1">
+<li><p><strong>将 FLAGS 寄存器压栈（保存状态）</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">push FLAGS</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>清除 IF 标志（禁止中断嵌套）</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cli</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>清除 TF 标志（禁止单步调试）</strong></p></li>
+<li><p><strong>将返回地址压栈（CS 和 IP）</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">push CS</span><br><span class="line">push IP</span><br></pre></td></tr></table></figure></p></li>
+<li><strong>从 IVT 读取中断处理程序地址</strong>
+<ul>
+<li>计算：<code>中断向量地址 = 0x10 × 4 = 0x40</code></li>
+<li>读取 IP：<code>读取 [0x40] → IP(偏移)</code></li>
+<li>读取 CS：<code>读取 [0x42] → CS(段地址)</code></li>
+</ul></li>
+<li><p><strong>跳转到中断处理程序</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">jmp CS:IP</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>中断处理程序执行完毕后，执行 <code>iret</code> 返回</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iret: pop IP, pop CS, pop FLAGS</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+<p><strong>图示说明：</strong></p>
+<p>调用：<code>int 0x10</code></p>
+<ol type="1">
+<li><p><strong>保存现场（栈）</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[FLAGS]  ← SP (栈顶)</span><br><span class="line">[CS]</span><br><span class="line">[IP]</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>计算中断向量地址</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x10 × 4 = 0x40</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>读取 IVT</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">0x40: IP_low  (偏移地址低字节)</span><br><span class="line">0x41: IP_high (偏移地址高字节)</span><br><span class="line">0x42: CS_low  (段地址低字节)</span><br><span class="line">0x43: CS_high (段地址高字节)</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>跳转到 BIOS 代码</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">jmp [读取的CS]:[读取的IP]</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>BIOS 处理并返回</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iret (恢复现场)</span><br></pre></td></tr></table></figure></p></li>
+</ol>
+<h4 id="常见中断向量">📋 常见中断向量</h4>
+<table>
+<thead>
+<tr class="header">
+<th>中断号</th>
+<th>IVT地址</th>
+<th>用途</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0x00</td>
+<td>0x0000</td>
+<td>除零错误</td>
+<td>CPU异常</td>
+</tr>
+<tr class="even">
+<td>0x01</td>
+<td>0x0004</td>
+<td>单步调试</td>
+<td>CPU调试</td>
+</tr>
+<tr class="odd">
+<td>0x03</td>
+<td>0x000C</td>
+<td>断点</td>
+<td>CPU调试</td>
+</tr>
+<tr class="even">
+<td>0x08</td>
+<td>0x0020</td>
+<td>时钟中断</td>
+<td>硬件IRQ0</td>
+</tr>
+<tr class="odd">
+<td>0x09</td>
+<td>0x0024</td>
+<td>键盘中断</td>
+<td>硬件IRQ1</td>
+</tr>
+<tr class="even">
+<td>0x0E</td>
+<td>0x0038</td>
+<td>软盘中断</td>
+<td>硬件IRQ6</td>
+</tr>
+<tr class="odd">
+<td>0x10</td>
+<td>0x0040</td>
+<td>视频服务</td>
+<td>BIOS服务 ⭐</td>
+</tr>
+<tr class="even">
+<td>0x13</td>
+<td>0x004C</td>
+<td>磁盘服务</td>
+<td>BIOS服务 ⭐</td>
+</tr>
+<tr class="odd">
+<td>0x15</td>
+<td>0x0054</td>
+<td>系统服务</td>
+<td>BIOS服务 ⭐</td>
+</tr>
+<tr class="even">
+<td>0x16</td>
+<td>0x0058</td>
+<td>键盘服务</td>
+<td>BIOS服务 ⭐</td>
+</tr>
+<tr class="odd">
+<td>0x1A</td>
+<td>0x0068</td>
+<td>时钟服务</td>
+<td>BIOS服务</td>
+</tr>
+<tr class="even">
+<td>0x21</td>
+<td>0x0084</td>
+<td>DOS服务</td>
+<td>操作系统(后期)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="自定义中断向量示例">💻 自定义中断向量示例</h4>
+<p>安装自定义的 INT 0x80 处理程序（类似 Linux 系统调用）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">my_int80_handler:</span><br><span class="line">    ; 处理逻辑</span><br><span class="line">    cmp ah, 0x01</span><br><span class="line">    je print_string    ; 功能1:打印字符串</span><br><span class="line">    ; ...</span><br><span class="line">    iret              ; 必须用iret返回!</span><br><span class="line"></span><br><span class="line">install_handler:</span><br><span class="line">    cli               ; 关闭中断</span><br><span class="line">    ; 计算IVT地址: 0x80 × 4 = 0x200</span><br><span class="line">    xor ax, ax</span><br><span class="line">    mov es, ax        ; ES = 0</span><br><span class="line">    mov bx, 0x0200    ; 偏移 = 0x200</span><br><span class="line">    </span><br><span class="line">    ; 写入偏移地址</span><br><span class="line">    mov word [es:bx], my_int80_handler</span><br><span class="line">    ; 写入段地址</span><br><span class="line">    mov word [es:bx+2], cs</span><br><span class="line">    </span><br><span class="line">    sti               ; 恢复中断</span><br><span class="line">    ret</span><br></pre></td></tr></table></figure>
+<h4 id="重要注意事项">⚠️ 重要注意事项</h4>
+<ol type="1">
+<li><strong>保护模式下 IVT 不可用</strong>
+<ul>
+<li>进入保护模式后，<strong>IVT 被 IDT（Interrupt Descriptor Table）取代</strong>。</li>
+<li>BIOS 中断只能在实模式下使用。</li>
+<li>这就是为什么必须在切换到保护模式前完成所有硬件检测和数据读取。</li>
+</ul></li>
+<li><strong>中断优先级</strong>
+<ul>
+<li><strong>CPU 异常（0x00-0x1F）</strong>：优先级最高，不可屏蔽。</li>
+<li><strong>硬件中断（0x08-0x0F, 0x70-0x77）</strong>：可屏蔽，由 <code>cli</code>/<code>sti</code> 控制。</li>
+<li><strong>软件中断（0x20-0xFF）</strong>：通过 <code>int</code> 指令主动触发。</li>
+</ul></li>
+<li><strong>中断重入问题</strong>
+<ul>
+<li><code>int</code> 指令会自动清除 IF 标志，防止中断嵌套。</li>
+<li>中断处理程序可选择性使用 <code>sti</code> 重新启用中断。</li>
+</ul></li>
+</ol>
+<blockquote>
+<p><strong>IF 标志是什么？</strong> - IF（Interrupt Flag）位于 CPU 的 EFLAGS/FLAGS 寄存器中，用于控制<strong>可屏蔽硬件中断</strong>是否被响应。 - IF=1 表示允许 PIC 发送的硬件中断，IF=0 则屏蔽（也就是 <code>cli</code> 指令的效果）。 - 当执行 <code>int</code> 指令或进入中断处理程序时，CPU 会自动清除 IF=0，避免中断嵌套；处理完毕后通常用 <code>iret</code> 恢复原有 IF 状态，或通过 <code>sti</code> 手动重新开启。</p>
+</blockquote>
+<h3 id="常用-bios-中断服务详解">📺 常用 BIOS 中断服务详解</h3>
+<h4 id="int-0x10---视频服务">INT 0x10 - 视频服务</h4>
+<p>这是我们在引导程序中最常用的中断之一。</p>
+<table>
+<thead>
+<tr class="header">
+<th>AH值</th>
+<th>功能</th>
+<th>参数</th>
+<th>用途示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0x00</td>
+<td>设置视频模式</td>
+<td>AL=模式号</td>
+<td>切换文本/图形模式</td>
+</tr>
+<tr class="even">
+<td>0x01</td>
+<td>设置光标形状</td>
+<td>CX=形状</td>
+<td>修改光标外观</td>
+</tr>
+<tr class="odd">
+<td>0x02</td>
+<td>设置光标位置</td>
+<td>DH=行, DL=列</td>
+<td>移动光标</td>
+</tr>
+<tr class="even">
+<td>0x06</td>
+<td>滚动窗口</td>
+<td>AL=行数</td>
+<td>清屏</td>
+</tr>
+<tr class="odd">
+<td>0x0E</td>
+<td>显示字符</td>
+<td>AL=字符</td>
+<td>输出文本 ⭐</td>
+</tr>
+<tr class="even">
+<td>0x13</td>
+<td>显示字符串</td>
+<td>ES:BP=地址</td>
+<td>批量输出</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>什么是 AH？</strong></p>
+<p>在 x86 架构中，CPU 提供了多组通用寄存器（如 AX、BX、CX、DX），每个寄存器 16 位。在实际应用中，这些寄存器还可以细分低 8 位（如 AL、BL）与高 8 位（如 AH、BH）： - <code>AX</code>：16 位寄存器，可以看作由高 8 位 <code>AH</code> 和低 8 位 <code>AL</code> 组成。 - <code>AH</code>（“A High”）：AX 的高 8 位，常用于传递功能号或状态（例如 BIOS 中断的功能号一般通过 <code>AH</code> 传递）。 - <code>AL</code>（“A Low”）：AX 的低 8 位，常用于传递附加参数或数据（如字符等）。</p>
+</blockquote>
+<p><strong>示例：输出 "Hello" 到屏幕</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mov ah, 0x0E    ; 功能号:Teletype输出</span><br><span class="line">mov al, &#x27;H&#x27;     ; 字符</span><br><span class="line">int 0x10        ; 调用BIOS</span><br><span class="line">;重复输出e, l, l, o</span><br></pre></td></tr></table></figure>
+<h4 id="int-0x13---磁盘服务">INT 0x13 - 磁盘服务</h4>
+<p>用于读写磁盘扇区：</p>
+<table>
+<thead>
+<tr class="header">
+<th>AH值</th>
+<th>功能</th>
+<th>参数</th>
+<th>返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0x00</td>
+<td>复位磁盘</td>
+<td>DL=驱动器号</td>
+<td>CF=错误标志</td>
+</tr>
+<tr class="even">
+<td>0x02</td>
+<td>读扇区 ⭐</td>
+<td>AL=扇区数, CH=柱面, CL=扇区, DH=磁头, DL=驱动器, ES:BX=缓冲区</td>
+<td>AL=实际读取扇区数</td>
+</tr>
+<tr class="odd">
+<td>0x03</td>
+<td>写扇区</td>
+<td>同上</td>
+<td>AL=实际写入扇区数</td>
+</tr>
+<tr class="even">
+<td>0x08</td>
+<td>获取驱动器参数</td>
+<td>DL=驱动器</td>
+<td>返回几何参数</td>
+</tr>
+<tr class="odd">
+<td>0x41</td>
+<td>检测扩展功能</td>
+<td>-</td>
+<td>是否支持LBA</td>
+</tr>
+<tr class="even">
+<td>0x42</td>
+<td>扩展读 (LBA)</td>
+<td>DS:SI=参数包</td>
+<td>支持大于8GB磁盘</td>
+</tr>
+</tbody>
+</table>
+<h4 id="chs-寻址模式">CHS 寻址模式</h4>
+<ul>
+<li><strong>C (Cylinder)</strong>：柱面号: 0-1023</li>
+<li><strong>H (Head)</strong>：磁头号: 0-255</li>
+<li><strong>S (Sector)</strong>：扇区号: 1-63（注意：从1开始！）</li>
+</ul>
+<p><strong>计算公式：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">物理扇区号 = (C × 磁头数 + H) × 每磁道扇区数 + (S - 1)</span><br></pre></td></tr></table></figure>
+<h4 id="int-0x16---键盘服务">INT 0x16 - 键盘服务</h4>
+<table>
+<thead>
+<tr class="header">
+<th>AH值</th>
+<th>功能</th>
+<th>返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0x00</td>
+<td>读取按键</td>
+<td>AL=ASCII, AH=扫描码</td>
+</tr>
+<tr class="even">
+<td>0x01</td>
+<td>检查按键</td>
+<td>ZF=1无按键, AL=字符</td>
+</tr>
+<tr class="odd">
+<td>0x02</td>
+<td>读取状态</td>
+<td>AL=Shift/Ctrl/Alt状态</td>
+</tr>
+</tbody>
+</table>
+<h4 id="int-0x15---系统服务">INT 0x15 - 系统服务</h4>
+<table>
+<thead>
+<tr class="header">
+<th>AH值</th>
+<th>功能</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0xE8, 0x01</td>
+<td>获取内存大小</td>
+<td>检测系统内存</td>
+</tr>
+<tr class="even">
+<td>0xE8, 0x20</td>
+<td>获取内存映射</td>
+<td>获取详细内存布局 ⭐</td>
+</tr>
+<tr class="odd">
+<td>0x24, 0x01</td>
+<td>启用A20</td>
+<td>访问1MB以上内存</td>
+</tr>
+</tbody>
+</table>
+]]></content>
+  </entry>
+  <entry>
     <title>CSS Note</title>
     <url>/posts/752f9918/</url>
     <content><![CDATA[<h2 id="css心得">CSS心得</h2>
@@ -3205,6 +4024,135 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
+    <title>关于Intel TDX的深度思考与技术剖析</title>
+    <url>/posts/b63e909c/</url>
+    <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
+<span id="more"></span>
+<h3 id="引言云时代的信任难题">引言：云时代的信任难题</h3>
+<p>在当前的云计算和联邦学习场景下，数据隐私和计算过程的保密性至关重要。我们常常面临一个核心的信任悖论：我们希望利用云服务商强大的计算能力处理敏感数据，却又不能完全信任服务所在的平台，包括云厂商、甚至是拥有最高权限的租户管理员。如何确保我们的代码和数据在“别人”的服务器上，能够不被窥探、不被篡改地安全运行？可信执行环境（TEE）技术，特别是Intel TDX，为我们提供了破解这一难题的钥匙。</p>
+<h3 id="第一章tee与intel-tdx核心概念">第一章：TEE与Intel TDX核心概念</h3>
+<p>您可以将TEE想象成CPU内部一个被硬件强制隔离的“安全保险库”或“黑盒”。它主要提供以下四种核心保障：</p>
+<ul>
+<li><strong>隔离性 (Isolation)</strong>: 在TEE（Intel TDX中称为Trust Domain）内部运行的代码和数据，与服务器上运行的其他所有软件（包括操作系统、Hypervisor/虚拟机管理器，甚至是拥有物理访问权限的管理员）都是<strong>完全隔离的</strong>。</li>
+<li><strong>机密性 (Confidentiality)</strong>: TEE内的数据在CPU外部（例如在内存条DRAM上）始终是加密的。即使有人用逻辑分析仪去嗅探内存总线，也拿不到明文。</li>
+<li><strong>完整性 (Integrity)</strong>: TEE会确保加载到其内部的代码没有被篡改。</li>
+<li><strong>远程证明 (Remote Attestation)</strong>: 这是TEE的“杀手级特性”。客户端可以在与服务器通信之前，通过一个密码学协议，要求服务器上的TEE 证明自己的身份。这个证明可以告诉客户端：“我是一个货真价实的、由Intel制造的CPU中的TEE，我正在运行的代码就是你期望的那个版本（通过代码哈希值验证），并且我没有被篡改过。”</li>
+</ul>
+<h3 id="第二章信任模型的演进从完全信任到零信任">第二章：信任模型的演进：从完全信任到零信任</h3>
+<p>TEE的出现并非一蹴而就，它的价值体现在计算信任模型的不断演进中。</p>
+<h4 id="传统虚拟化-传统vm">传统虚拟化 (传统VM)</h4>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件 -&gt; Hypervisor -&gt; 虚拟机(VM)</code>。Hypervisor运行在最高权限，完全控制硬件。</li>
+<li><strong>信任模型</strong>: Hypervisor是全能的上帝。它可以随时暂停VM，检查其完整的内存状态，看到所有明文。租户必须<strong>完全信任</strong>云服务商。</li>
+</ul>
+<h4 id="sgx时代-enclave模型">SGX时代 (Enclave模型)</h4>
+<p>为了解决对Hypervisor的信任问题，Intel推出了SGX。</p>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件 -&gt; OS/Hypervisor -&gt; 应用程序 -&gt; Enclave</code>。Enclave是从应用程序的地址空间中“挖”出来的一块受硬件保护的内存区域。</li>
+<li><strong>信任模型</strong>: 信任边界缩小到Enclave内部。Hypervisor/OS无法窥探Enclave，但它仍然管理着整个应用程序和操作系统。这种模型对应用改造要求高，且与外部世界交互繁琐。</li>
+</ul>
+<h4 id="tdx时代-机密虚拟机模型">TDX时代 (机密虚拟机模型)</h4>
+<p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
+<li><strong>信任模型的革命性变化</strong>:
+<ul>
+<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
+<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
+</ul></li>
+</ul>
+<h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
+<p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
+<ul>
+<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
+<ul>
+<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
+<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
+<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
+</ul></li>
+<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
+<ul>
+<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
+<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
+<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
+</ul></li>
+<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
+<ul>
+<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
+<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
+<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
+</ul></li>
+</ul>
+<h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
+<p>仅仅将应用放入TEE环境是不足以保证安全的，开发者必须遵循特定的安全编程模式来管理所有进出TEE的数据流。</p>
+<h4 id="数据处理如何避免明文泄露">4.1 数据处理：如何避免明文泄露</h4>
+<p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
+<ul>
+<li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
+<li><strong>正确（安全）的设计模式</strong>:
+<ul>
+<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
+<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
+</ul></li>
+</ul>
+<h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>
+<p>既然TEE是黑盒，那作为最关键秘密的<strong>密钥，最初是如何安全地进入这个黑盒的？</strong> 这需要通过远程证明和密钥提供（Secret Provisioning）的协同过程来完成。</p>
+<h5 id="密钥的提供-secret-provisioning">密钥的提供 (Secret Provisioning)</h5>
+<p>这个过程就像一次高度安全的、经过身份验证的“隔空投送”。</p>
+<ol type="1">
+<li><strong>TEE发起证明</strong>: TEE应用启动后，请求CPU硬件生成一份包含其代码身份指纹（MRENCLAVE）、开发者身份（MRSIGNER）和临时公钥的<strong>证明报告（Quote）</strong>，并由CPU内嵌的硬件私钥签名。</li>
+<li><strong>密钥所有者验证证明</strong>: 密钥所有者收到Quote后，会进行双重验证：
+<ul>
+<li><strong>硬件验证</strong>: 请求Intel的证明服务器，验证Quote的硬件签名，确保它来自真实的Intel CPU。</li>
+<li><strong>软件验证</strong>: 比对自己手中经过审计的代码哈希值与Quote中的MRENCLAVE，确保TEE中运行的是未经篡改的、正确的代码版本。</li>
+</ul></li>
+<li><strong>安全“投送”密钥</strong>: 验证通过后，密钥所有者完全信任了远端的TEE。它会从Quote中提取出TEE的临时公钥，用它加密真正的私钥，然后将这个加密的“密钥包裹”发回给TEE。</li>
+<li><strong>TEE内部拆解</strong>: TEE应用收到“密钥包裹”后，用自己对应的临时私钥在受保护的内存中解密，安全地获得真实私钥。</li>
+</ol>
+<h5 id="密钥的持久化-sealing">密钥的持久化 (Sealing)</h5>
+<p>为了避免每次重启都重复上述复杂的提供流程，TEE应用在首次获取密钥后，可以利用前述的<strong>Sealing机制</strong>，将其用硬件绑定的密钥加密后，安全地保存在外部磁盘上。重启后，只有在同一台机器上、运行着同样代码的TEE应用，才能成功解封（unseal），将密钥重新加载到内存中。</p>
+<h4 id="io安全警惕自我泄露">4.3 I/O安全：警惕“自我泄露”</h4>
+<p>TEE保护的是计算过程，但它不会自动保护应用的I/O。如果开发者在代码里写了<code>print(private_key)</code>，TEE会忠实地执行，并将这个秘密通过标准输出（stdout）泄露给不受信的Guest OS，最终被租户看到。</p>
+<p>这揭示了TEE安全编程的关键原则：<strong>开发者必须有意识地管理所有进出TEE的信道，视之为潜在的泄露风险。</strong></p>
+<ul>
+<li><p><strong>防御措施1：代码审计（最重要）</strong>: 任何敏感数据变量，绝不能传递给任何执行I/O操作的函数（如<code>print()</code>, <code>log.info()</code>, <code>file.write()</code>）。客户端信任的，正是那个经过审计、确认没有此类行为的代码版本。</p></li>
+<li><p><strong>防御措施2：安全日志系统</strong>: 对日志进行过滤或加密，或在生产环境中完全禁用高风险的日志级别。</p></li>
+<li><p><strong>防御措施3：运行时配置</strong>: 将应用的stdout和stderr重定向到<code>/dev/null</code>，作为一种兜底措施。</p></li>
+</ul>
+<h3 id="第五章tee安全模型的动态性与挑战">第五章：TEE安全模型的动态性与挑战</h3>
+<h4 id="代码篡改不可能完成的任务">5.1 代码篡改：不可能完成的任务</h4>
+<p>从系统管理员的角度看，修改磁盘上的一个脚本文件非常简单。但对于TEE来说，要在不被发现的情况下恶意修改代码，却几乎不可能。</p>
+<p>这里的关键在于区分两个概念：</p>
+<ul>
+<li><p><strong>修改文件内容的能力</strong>: 租户拥有。</p></li>
+<li><p><strong>伪造程序身份的能力</strong>: 租户没有。</p></li>
+</ul>
+<p>TEE安全模型的核心基石是：<strong>代码的任何一丝一毫的改变，都会导致其身份指纹(MRENCLAVE)发生雪崩式的、不可预测的变化。</strong> 当客户端进行远程证明时，它会立刻发现代码指纹与预期的不匹配，从而拒绝信任、中止连接。同样，被修改后的代码也无法解封（unseal）由旧版本代码封存（seal）的秘密。</p>
+<p>因此，租户可以“作恶”，但他无法“隐藏作恶的意图”。在他试图运行恶意代码的那一刻，他就在远程证明的照妖镜下原形毕露了。</p>
+<h4 id="证明的瞬时性与对策">5.2 证明的“瞬时性”与对策</h4>
+<p>远程证明本质上是一个“瞬时快照”，它只证明TEE在生成报告那一刻的身份和状态，本身无法记录历史变化。这带来了潜在的“作恶后改回”的攻击窗口。</p>
+<p>在实践中，必须将远程证明与持续的、有状态的安全协议结合起来，弥补“瞬时性”带来的缺口：</p>
+<ul>
+<li><strong>方案1：会话绑定 (Session Binding)</strong>: 将瞬时证明与当前会话（如TLS会话）的关键信息（如临时公key）绑定。对“瞬时”TEE的信任，被安全地传递给了对“当前整个会话”的信任。任何导致TEE重启或代码变更的行为都会破坏会话，客户端会立刻发现。这足以防止“先证明后作恶”的攻击。</li>
+<li><strong>方案2：可信日志/区块链</strong>: 对于需要更强审计性的场景，可以将TEE每次执行的关键操作（如模型聚合）生成日志条目，并用其身份密钥签名，发布到只能追加、无法修改的存储系统（如区块链）上。这为TEE的瞬时行为提供了不可篡改的历史记录和持久化信任。</li>
+</ul>
+<h3 id="结论">结论</h3>
+<p>Intel TDX等TEE技术通过提供硬件层面的隔离性、机密性、完整性和远程证明能力，从根本上重塑了云环境下的信任模型。它将信任的根基从对“人”或“软件供应商”的主观信任，转移到了对“开源审计过的代码”和“CPU硬件设计”的客观、可验证的信任。</p>
+<p>然而，TEE并非一个能让不安全的代码自动变得安全的“魔法棒”。它提供的是一个<strong>可信的执行环境</strong>，而非一个<strong>可信的应用</strong>。要真正发挥TEE的威力，开发者必须承担起<strong>编写安全代码的责任</strong>，遵循严格的安全编程范式，谨慎管理所有的数据I/O、密钥生命周期和会话状态。</p>
+<p>通过将强大的硬件保障与严谨的软件开发实践相结合，我们才能真正构建出端到端的、能抵御来自特权软件甚至物理攻击的机密计算解决方案。</p>
+<p>以上为个人理解，敬请批评指正。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>TDX</tag>
+        <tag>TEE</tag>
+        <tag>Intel</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TLS Note</title>
     <url>/posts/32f5e233/</url>
     <content><![CDATA[<h2 id="什么是tls">1. 什么是TLS</h2>
@@ -3349,135 +4297,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
         <tag>网络安全</tag>
         <tag>加密</tag>
         <tag>HTTPS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>关于Intel TDX的深度思考与技术剖析</title>
-    <url>/posts/b63e909c/</url>
-    <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
-<span id="more"></span>
-<h3 id="引言云时代的信任难题">引言：云时代的信任难题</h3>
-<p>在当前的云计算和联邦学习场景下，数据隐私和计算过程的保密性至关重要。我们常常面临一个核心的信任悖论：我们希望利用云服务商强大的计算能力处理敏感数据，却又不能完全信任服务所在的平台，包括云厂商、甚至是拥有最高权限的租户管理员。如何确保我们的代码和数据在“别人”的服务器上，能够不被窥探、不被篡改地安全运行？可信执行环境（TEE）技术，特别是Intel TDX，为我们提供了破解这一难题的钥匙。</p>
-<h3 id="第一章tee与intel-tdx核心概念">第一章：TEE与Intel TDX核心概念</h3>
-<p>您可以将TEE想象成CPU内部一个被硬件强制隔离的“安全保险库”或“黑盒”。它主要提供以下四种核心保障：</p>
-<ul>
-<li><strong>隔离性 (Isolation)</strong>: 在TEE（Intel TDX中称为Trust Domain）内部运行的代码和数据，与服务器上运行的其他所有软件（包括操作系统、Hypervisor/虚拟机管理器，甚至是拥有物理访问权限的管理员）都是<strong>完全隔离的</strong>。</li>
-<li><strong>机密性 (Confidentiality)</strong>: TEE内的数据在CPU外部（例如在内存条DRAM上）始终是加密的。即使有人用逻辑分析仪去嗅探内存总线，也拿不到明文。</li>
-<li><strong>完整性 (Integrity)</strong>: TEE会确保加载到其内部的代码没有被篡改。</li>
-<li><strong>远程证明 (Remote Attestation)</strong>: 这是TEE的“杀手级特性”。客户端可以在与服务器通信之前，通过一个密码学协议，要求服务器上的TEE 证明自己的身份。这个证明可以告诉客户端：“我是一个货真价实的、由Intel制造的CPU中的TEE，我正在运行的代码就是你期望的那个版本（通过代码哈希值验证），并且我没有被篡改过。”</li>
-</ul>
-<h3 id="第二章信任模型的演进从完全信任到零信任">第二章：信任模型的演进：从完全信任到零信任</h3>
-<p>TEE的出现并非一蹴而就，它的价值体现在计算信任模型的不断演进中。</p>
-<h4 id="传统虚拟化-传统vm">传统虚拟化 (传统VM)</h4>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件 -&gt; Hypervisor -&gt; 虚拟机(VM)</code>。Hypervisor运行在最高权限，完全控制硬件。</li>
-<li><strong>信任模型</strong>: Hypervisor是全能的上帝。它可以随时暂停VM，检查其完整的内存状态，看到所有明文。租户必须<strong>完全信任</strong>云服务商。</li>
-</ul>
-<h4 id="sgx时代-enclave模型">SGX时代 (Enclave模型)</h4>
-<p>为了解决对Hypervisor的信任问题，Intel推出了SGX。</p>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件 -&gt; OS/Hypervisor -&gt; 应用程序 -&gt; Enclave</code>。Enclave是从应用程序的地址空间中“挖”出来的一块受硬件保护的内存区域。</li>
-<li><strong>信任模型</strong>: 信任边界缩小到Enclave内部。Hypervisor/OS无法窥探Enclave，但它仍然管理着整个应用程序和操作系统。这种模型对应用改造要求高，且与外部世界交互繁琐。</li>
-</ul>
-<h4 id="tdx时代-机密虚拟机模型">TDX时代 (机密虚拟机模型)</h4>
-<p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
-<li><strong>信任模型的革命性变化</strong>:
-<ul>
-<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
-<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
-</ul></li>
-</ul>
-<h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
-<p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
-<ul>
-<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
-<ul>
-<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
-<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
-<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
-</ul></li>
-<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
-<ul>
-<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
-<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
-<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
-</ul></li>
-<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
-<ul>
-<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
-<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
-<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
-</ul></li>
-</ul>
-<h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
-<p>仅仅将应用放入TEE环境是不足以保证安全的，开发者必须遵循特定的安全编程模式来管理所有进出TEE的数据流。</p>
-<h4 id="数据处理如何避免明文泄露">4.1 数据处理：如何避免明文泄露</h4>
-<p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
-<ul>
-<li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
-<li><strong>正确（安全）的设计模式</strong>:
-<ul>
-<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
-<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
-</ul></li>
-</ul>
-<h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>
-<p>既然TEE是黑盒，那作为最关键秘密的<strong>密钥，最初是如何安全地进入这个黑盒的？</strong> 这需要通过远程证明和密钥提供（Secret Provisioning）的协同过程来完成。</p>
-<h5 id="密钥的提供-secret-provisioning">密钥的提供 (Secret Provisioning)</h5>
-<p>这个过程就像一次高度安全的、经过身份验证的“隔空投送”。</p>
-<ol type="1">
-<li><strong>TEE发起证明</strong>: TEE应用启动后，请求CPU硬件生成一份包含其代码身份指纹（MRENCLAVE）、开发者身份（MRSIGNER）和临时公钥的<strong>证明报告（Quote）</strong>，并由CPU内嵌的硬件私钥签名。</li>
-<li><strong>密钥所有者验证证明</strong>: 密钥所有者收到Quote后，会进行双重验证：
-<ul>
-<li><strong>硬件验证</strong>: 请求Intel的证明服务器，验证Quote的硬件签名，确保它来自真实的Intel CPU。</li>
-<li><strong>软件验证</strong>: 比对自己手中经过审计的代码哈希值与Quote中的MRENCLAVE，确保TEE中运行的是未经篡改的、正确的代码版本。</li>
-</ul></li>
-<li><strong>安全“投送”密钥</strong>: 验证通过后，密钥所有者完全信任了远端的TEE。它会从Quote中提取出TEE的临时公钥，用它加密真正的私钥，然后将这个加密的“密钥包裹”发回给TEE。</li>
-<li><strong>TEE内部拆解</strong>: TEE应用收到“密钥包裹”后，用自己对应的临时私钥在受保护的内存中解密，安全地获得真实私钥。</li>
-</ol>
-<h5 id="密钥的持久化-sealing">密钥的持久化 (Sealing)</h5>
-<p>为了避免每次重启都重复上述复杂的提供流程，TEE应用在首次获取密钥后，可以利用前述的<strong>Sealing机制</strong>，将其用硬件绑定的密钥加密后，安全地保存在外部磁盘上。重启后，只有在同一台机器上、运行着同样代码的TEE应用，才能成功解封（unseal），将密钥重新加载到内存中。</p>
-<h4 id="io安全警惕自我泄露">4.3 I/O安全：警惕“自我泄露”</h4>
-<p>TEE保护的是计算过程，但它不会自动保护应用的I/O。如果开发者在代码里写了<code>print(private_key)</code>，TEE会忠实地执行，并将这个秘密通过标准输出（stdout）泄露给不受信的Guest OS，最终被租户看到。</p>
-<p>这揭示了TEE安全编程的关键原则：<strong>开发者必须有意识地管理所有进出TEE的信道，视之为潜在的泄露风险。</strong></p>
-<ul>
-<li><p><strong>防御措施1：代码审计（最重要）</strong>: 任何敏感数据变量，绝不能传递给任何执行I/O操作的函数（如<code>print()</code>, <code>log.info()</code>, <code>file.write()</code>）。客户端信任的，正是那个经过审计、确认没有此类行为的代码版本。</p></li>
-<li><p><strong>防御措施2：安全日志系统</strong>: 对日志进行过滤或加密，或在生产环境中完全禁用高风险的日志级别。</p></li>
-<li><p><strong>防御措施3：运行时配置</strong>: 将应用的stdout和stderr重定向到<code>/dev/null</code>，作为一种兜底措施。</p></li>
-</ul>
-<h3 id="第五章tee安全模型的动态性与挑战">第五章：TEE安全模型的动态性与挑战</h3>
-<h4 id="代码篡改不可能完成的任务">5.1 代码篡改：不可能完成的任务</h4>
-<p>从系统管理员的角度看，修改磁盘上的一个脚本文件非常简单。但对于TEE来说，要在不被发现的情况下恶意修改代码，却几乎不可能。</p>
-<p>这里的关键在于区分两个概念：</p>
-<ul>
-<li><p><strong>修改文件内容的能力</strong>: 租户拥有。</p></li>
-<li><p><strong>伪造程序身份的能力</strong>: 租户没有。</p></li>
-</ul>
-<p>TEE安全模型的核心基石是：<strong>代码的任何一丝一毫的改变，都会导致其身份指纹(MRENCLAVE)发生雪崩式的、不可预测的变化。</strong> 当客户端进行远程证明时，它会立刻发现代码指纹与预期的不匹配，从而拒绝信任、中止连接。同样，被修改后的代码也无法解封（unseal）由旧版本代码封存（seal）的秘密。</p>
-<p>因此，租户可以“作恶”，但他无法“隐藏作恶的意图”。在他试图运行恶意代码的那一刻，他就在远程证明的照妖镜下原形毕露了。</p>
-<h4 id="证明的瞬时性与对策">5.2 证明的“瞬时性”与对策</h4>
-<p>远程证明本质上是一个“瞬时快照”，它只证明TEE在生成报告那一刻的身份和状态，本身无法记录历史变化。这带来了潜在的“作恶后改回”的攻击窗口。</p>
-<p>在实践中，必须将远程证明与持续的、有状态的安全协议结合起来，弥补“瞬时性”带来的缺口：</p>
-<ul>
-<li><strong>方案1：会话绑定 (Session Binding)</strong>: 将瞬时证明与当前会话（如TLS会话）的关键信息（如临时公key）绑定。对“瞬时”TEE的信任，被安全地传递给了对“当前整个会话”的信任。任何导致TEE重启或代码变更的行为都会破坏会话，客户端会立刻发现。这足以防止“先证明后作恶”的攻击。</li>
-<li><strong>方案2：可信日志/区块链</strong>: 对于需要更强审计性的场景，可以将TEE每次执行的关键操作（如模型聚合）生成日志条目，并用其身份密钥签名，发布到只能追加、无法修改的存储系统（如区块链）上。这为TEE的瞬时行为提供了不可篡改的历史记录和持久化信任。</li>
-</ul>
-<h3 id="结论">结论</h3>
-<p>Intel TDX等TEE技术通过提供硬件层面的隔离性、机密性、完整性和远程证明能力，从根本上重塑了云环境下的信任模型。它将信任的根基从对“人”或“软件供应商”的主观信任，转移到了对“开源审计过的代码”和“CPU硬件设计”的客观、可验证的信任。</p>
-<p>然而，TEE并非一个能让不安全的代码自动变得安全的“魔法棒”。它提供的是一个<strong>可信的执行环境</strong>，而非一个<strong>可信的应用</strong>。要真正发挥TEE的威力，开发者必须承担起<strong>编写安全代码的责任</strong>，遵循严格的安全编程范式，谨慎管理所有的数据I/O、密钥生命周期和会话状态。</p>
-<p>通过将强大的硬件保障与严谨的软件开发实践相结合，我们才能真正构建出端到端的、能抵御来自特权软件甚至物理攻击的机密计算解决方案。</p>
-<p>以上为个人理解，敬请批评指正。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>TDX</tag>
-        <tag>TEE</tag>
-        <tag>Intel</tag>
       </tags>
   </entry>
   <entry>
@@ -6145,50 +6964,6 @@ graph TD
 ]]></content>
   </entry>
   <entry>
-    <title>了解Transformer</title>
-    <url>/posts/9008a9df/</url>
-    <content><![CDATA[<p>在之前的文章中我们了解到，RNN（及其变体如 LSTM、GRU）在处理序列数据时，必须按照时间步顺序计算，这导致其无法进行大规模并行计算。同时，它也难以解决长距离依赖的问题。</p>
-<p>为了解决这两个核心痛点，一种全新的、不依赖于循环结构的模型——Transformer 横空出世。</p>
-<span id="more"></span>
-<p>和之前一样，输入神经网络的数据，要先转换为 <strong>词嵌入（Word Embedding）</strong> 向量。</p>
-<h2 id="第一步融入位置信息">第一步：融入位置信息</h2>
-<p>由于 Transformer 抛弃了 RNN 的循环结构，模型本身无法感知输入序列中词语的先后顺序。</p>
-<p>为了解决这个问题，我们需要给每个词的词向量中添加 <strong>位置编码（Positional Encoding）</strong>，以此来表示这个词在句子中的绝对或相对位置。</p>
-<p>这样，每个词的输入向量就同时包含了语义信息和位置信息。</p>
-<h2 id="核心机制自注意力self-attention">核心机制：自注意力（Self-Attention）</h2>
-<p>仅仅包含位置信息是不够的，每个词的向量中还不包含与其他词的关系。为了让模型“注意”到句子中其他词的存在并建立联系，Transformer 引入了 <strong>自注意力机制</strong>。</p>
-<p>该机制的核心思想是为句子中的每个词动态地计算一个权重系数，这个权重代表了在编码当前词时，句子中其他词对它的重要性。这是通过三个特殊的向量来实现的：</p>
-<ul>
-<li><strong>Query (查询向量 Q)</strong>：代表当前词，用于去“查询”其他词。</li>
-<li><strong>Key (键向量 K)</strong>：代表被查询的词，用于和查询向量进行匹配。</li>
-<li><strong>Value (值向量 V)</strong>：代表被查询词的实际内容。</li>
-</ul>
-<p>这三个向量是通过将每个词的词向量（已包含位置编码）分别与三个可训练的权重矩阵 <code>Wq</code>、<code>Wk</code>、<code>Wv</code> 相乘得到的。</p>
-<p><img src="/assets/image-20251010230923988.png" /></p>
-<p>计算过程如下： 1. 拿一个词的查询向量 <code>q</code> 去和所有词（包括它自己）的键向量 <code>k</code> 做点积，得到一个 <strong>注意力分数</strong>。这个分数衡量了两个词之间的相关性。 2. 对得到的分数进行归一化处理（例如通过 SoftMax）。 3. 将归一化后的分数与每个词对应的值向量 <code>v</code> 相乘。 4. 将所有加权后的值向量 <code>v</code> 相加，就得到了一个新的向量 <code>a</code>。</p>
-<p><img src="/assets/image-20251010231017325.png" /></p>
-<p>这个新向量 <code>a</code> 就包含了整个句子上下文的信息，并且是为当前词量身定制的。对句子中的每一个词都执行相同的操作，我们就能得到一组全新的、富含上下文信息的词向量。</p>
-<p><img src="/assets/image-20251010231100716.png" /></p>
-<h2 id="优化多头注意力multi-head-attention">优化：多头注意力（Multi-Head Attention）</h2>
-<p>一个词与另一个词的关系可能有很多种（例如，语法关系、语义关系等）。如果只用一组 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵来计算相关性，灵活性会很低。</p>
-<p>因此，Transformer 提出了 <strong>多头注意力机制</strong>。它通过设置多组独立的 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵（每一组被称为一个“头”），将原始的 Q, K, V 映射到不同的子空间中，学习不同方面的相关性。</p>
-<p><img src="/assets/image-20251010231200452.png" /></p>
-<p>每个头都会独立地执行一次注意力计算，得到一个输出向量。最后，将所有头的输出向量拼接起来，再经过一次线性变换，就得到了最终的输出。这样，模型就能在不同维度上综合地理解词与词之间的关系。</p>
-<h2 id="整体架构编码器与解码器">整体架构：编码器与解码器</h2>
-<p>Transformer 的整体架构由 <strong>编码器（Encoder）</strong> 和 <strong>解码器（Decoder）</strong> 两大部分组成，每一部分都由多层堆叠而成。我们上面介绍的多头注意力机制就是其核心组件。</p>
-<ul>
-<li><strong>编码器</strong>：负责将输入序列处理成一系列富含上下文信息的表示。</li>
-<li><strong>解码器</strong>：根据编码器的输出和之前已生成的结果，来生成下一个词。</li>
-</ul>
-<p><img src="/assets/image-20251010231339402.png" /></p>
-<h2 id="总结">总结</h2>
-<p>Transformer 通过引入自注意力机制和位置编码，完全摒弃了传统的循环和卷积结构。其强大的并行计算能力和捕捉长距离依赖的优势，使其在自然语言处理领域取得了革命性的成功，并为后续的 BERT、GPT 等大规模预训练模型奠定了基础。</p>
-<blockquote>
-<p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
-</blockquote>
-]]></content>
-  </entry>
-  <entry>
     <title>了解RNN</title>
     <url>/posts/da4b49ae/</url>
     <content><![CDATA[<p>卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？</p>
@@ -6234,6 +7009,50 @@ graph TD
 </ul>
 <p>这些改进在很大程度上缓解了 RNN 的梯度消失问题，但它们仍然需要按顺序处理数据，未能解决并行计算的限制。那么，是否有一个可以彻底抛弃按顺序计算的新方案呢？</p>
 <p>有的，那就是 <strong>Transformer</strong>！</p>
+<blockquote>
+<p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
+</blockquote>
+]]></content>
+  </entry>
+  <entry>
+    <title>了解Transformer</title>
+    <url>/posts/9008a9df/</url>
+    <content><![CDATA[<p>在之前的文章中我们了解到，RNN（及其变体如 LSTM、GRU）在处理序列数据时，必须按照时间步顺序计算，这导致其无法进行大规模并行计算。同时，它也难以解决长距离依赖的问题。</p>
+<p>为了解决这两个核心痛点，一种全新的、不依赖于循环结构的模型——Transformer 横空出世。</p>
+<span id="more"></span>
+<p>和之前一样，输入神经网络的数据，要先转换为 <strong>词嵌入（Word Embedding）</strong> 向量。</p>
+<h2 id="第一步融入位置信息">第一步：融入位置信息</h2>
+<p>由于 Transformer 抛弃了 RNN 的循环结构，模型本身无法感知输入序列中词语的先后顺序。</p>
+<p>为了解决这个问题，我们需要给每个词的词向量中添加 <strong>位置编码（Positional Encoding）</strong>，以此来表示这个词在句子中的绝对或相对位置。</p>
+<p>这样，每个词的输入向量就同时包含了语义信息和位置信息。</p>
+<h2 id="核心机制自注意力self-attention">核心机制：自注意力（Self-Attention）</h2>
+<p>仅仅包含位置信息是不够的，每个词的向量中还不包含与其他词的关系。为了让模型“注意”到句子中其他词的存在并建立联系，Transformer 引入了 <strong>自注意力机制</strong>。</p>
+<p>该机制的核心思想是为句子中的每个词动态地计算一个权重系数，这个权重代表了在编码当前词时，句子中其他词对它的重要性。这是通过三个特殊的向量来实现的：</p>
+<ul>
+<li><strong>Query (查询向量 Q)</strong>：代表当前词，用于去“查询”其他词。</li>
+<li><strong>Key (键向量 K)</strong>：代表被查询的词，用于和查询向量进行匹配。</li>
+<li><strong>Value (值向量 V)</strong>：代表被查询词的实际内容。</li>
+</ul>
+<p>这三个向量是通过将每个词的词向量（已包含位置编码）分别与三个可训练的权重矩阵 <code>Wq</code>、<code>Wk</code>、<code>Wv</code> 相乘得到的。</p>
+<p><img src="/assets/image-20251010230923988.png" /></p>
+<p>计算过程如下： 1. 拿一个词的查询向量 <code>q</code> 去和所有词（包括它自己）的键向量 <code>k</code> 做点积，得到一个 <strong>注意力分数</strong>。这个分数衡量了两个词之间的相关性。 2. 对得到的分数进行归一化处理（例如通过 SoftMax）。 3. 将归一化后的分数与每个词对应的值向量 <code>v</code> 相乘。 4. 将所有加权后的值向量 <code>v</code> 相加，就得到了一个新的向量 <code>a</code>。</p>
+<p><img src="/assets/image-20251010231017325.png" /></p>
+<p>这个新向量 <code>a</code> 就包含了整个句子上下文的信息，并且是为当前词量身定制的。对句子中的每一个词都执行相同的操作，我们就能得到一组全新的、富含上下文信息的词向量。</p>
+<p><img src="/assets/image-20251010231100716.png" /></p>
+<h2 id="优化多头注意力multi-head-attention">优化：多头注意力（Multi-Head Attention）</h2>
+<p>一个词与另一个词的关系可能有很多种（例如，语法关系、语义关系等）。如果只用一组 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵来计算相关性，灵活性会很低。</p>
+<p>因此，Transformer 提出了 <strong>多头注意力机制</strong>。它通过设置多组独立的 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵（每一组被称为一个“头”），将原始的 Q, K, V 映射到不同的子空间中，学习不同方面的相关性。</p>
+<p><img src="/assets/image-20251010231200452.png" /></p>
+<p>每个头都会独立地执行一次注意力计算，得到一个输出向量。最后，将所有头的输出向量拼接起来，再经过一次线性变换，就得到了最终的输出。这样，模型就能在不同维度上综合地理解词与词之间的关系。</p>
+<h2 id="整体架构编码器与解码器">整体架构：编码器与解码器</h2>
+<p>Transformer 的整体架构由 <strong>编码器（Encoder）</strong> 和 <strong>解码器（Decoder）</strong> 两大部分组成，每一部分都由多层堆叠而成。我们上面介绍的多头注意力机制就是其核心组件。</p>
+<ul>
+<li><strong>编码器</strong>：负责将输入序列处理成一系列富含上下文信息的表示。</li>
+<li><strong>解码器</strong>：根据编码器的输出和之前已生成的结果，来生成下一个词。</li>
+</ul>
+<p><img src="/assets/image-20251010231339402.png" /></p>
+<h2 id="总结">总结</h2>
+<p>Transformer 通过引入自注意力机制和位置编码，完全摒弃了传统的循环和卷积结构。其强大的并行计算能力和捕捉长距离依赖的优势，使其在自然语言处理领域取得了革命性的成功，并为后续的 BERT、GPT 等大规模预训练模型奠定了基础。</p>
 <blockquote>
 <p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
 </blockquote>
