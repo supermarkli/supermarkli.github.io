@@ -29,7 +29,7 @@
 <meta property="og:description" content="想快速看懂“上电到操作系统启动”这段黑屏时间到底发生了什么？">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-11-19T09:09:15.000Z">
-<meta property="article:modified_time" content="2025-11-21T04:28:49.017Z">
+<meta property="article:modified_time" content="2025-11-21T05:14:06.577Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="note,coding,life">
 <meta name="twitter:card" content="summary">
@@ -268,7 +268,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-11-21 12:28:49" itemprop="dateModified" datetime="2025-11-21T12:28:49+08:00">2025-11-21</time>
+      <time title="修改时间：2025-11-21 13:14:06" itemprop="dateModified" datetime="2025-11-21T13:14:06+08:00">2025-11-21</time>
     </span>
 
   
@@ -285,14 +285,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>7.5k</span>
+      <span>11k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>14 分钟</span>
+      <span>21 分钟</span>
     </span>
 </div>
 
@@ -326,7 +326,7 @@
 </tr>
 <tr class="even">
 <td>UEFI</td>
-<td>现代固件接口，取代传统 16bit BIOS；但业内仍习惯统称“BIOS”。</td>
+<td>现代固件接口，取代传统 16bit BIOS；但业内仍习惯统称"BIOS"。</td>
 <td>BIOS 2.0</td>
 </tr>
 <tr class="odd">
@@ -346,6 +346,66 @@
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>UEFI vs 传统 BIOS 简要对比：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>传统 BIOS</th>
+<th>UEFI</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>启动方式</strong></td>
+<td>从固定地址 <code>0xFFFFFFF0</code> 启动，16位实模式</td>
+<td>从 EFI 系统分区（ESP）启动，支持 32/64 位</td>
+</tr>
+<tr class="even">
+<td><strong>分区表</strong></td>
+<td>主要使用 MBR（主引导记录）</td>
+<td>主要使用 GPT（GUID 分区表）</td>
+</tr>
+<tr class="odd">
+<td><strong>磁盘容量限制</strong></td>
+<td>MBR 限制 2TB</td>
+<td>GPT 支持 9.4 ZB（zettabytes）</td>
+</tr>
+<tr class="even">
+<td><strong>启动速度</strong></td>
+<td>较慢（需要 POST 自检）</td>
+<td>较快（并行初始化，跳过部分自检）</td>
+</tr>
+<tr class="odd">
+<td><strong>图形界面</strong></td>
+<td>文本界面</td>
+<td>支持图形界面和鼠标操作</td>
+</tr>
+<tr class="even">
+<td><strong>安全启动</strong></td>
+<td>不支持</td>
+<td>支持 Secure Boot（安全启动）</td>
+</tr>
+<tr class="odd">
+<td><strong>网络启动</strong></td>
+<td>需要 Option ROM</td>
+<td>原生支持 PXE 网络启动</td>
+</tr>
+<tr class="even">
+<td><strong>编程语言</strong></td>
+<td>汇编语言为主</td>
+<td>主要使用 C 语言</td>
+</tr>
+<tr class="odd">
+<td><strong>兼容性</strong></td>
+<td>仅支持 x86/x64</td>
+<td>支持 x86、x64、ARM 等多种架构</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意</strong>：本文主要介绍<strong>传统 BIOS</strong>的工作原理，这是理解现代 UEFI 的基础。UEFI 在底层仍然兼容传统 BIOS 的某些机制（如 Legacy Boot 模式）。</p>
+</blockquote>
 <h3 id="按下电源键的逐帧解说">⚡ 按下电源键的逐帧解说</h3>
 <ol type="1">
 <li><strong>硬件上电阶段（Power-On）</strong>
@@ -464,6 +524,20 @@
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>64位系统的地址映射：</strong></p>
+<ul>
+<li>64位系统（x86-64）在启动时仍然使用<strong>兼容模式</strong>，地址映射与32位系统基本相同。</li>
+<li>CPU 上电后从 <code>0xFFFFFFF0</code> 启动（仍然是32位地址空间的高端）。</li>
+<li>在进入64位长模式（Long Mode）之前，系统仍然使用32位地址空间布局。</li>
+<li><strong>主要区别</strong>：
+<ul>
+<li>64位模式下，物理地址空间可以扩展到 2⁴⁸ 或 2⁵² 字节（取决于 CPU 支持）。</li>
+<li>但 BIOS ROM 的映射位置（<code>0xF0000-0xFFFFF</code> 和 <code>0xFFF00000-0xFFFFFFFF</code>）保持不变，以确保向后兼容。</li>
+<li>现代 UEFI 系统可能使用不同的映射方式，但传统 BIOS 模式仍然遵循上述布局。</li>
+</ul></li>
+</ul>
+</blockquote>
 <p><strong>为什么 BIOS 分低端和高端？</strong></p>
 <p>这是 x86 架构的历史兼容性与现代启动机制共同作用的结果：</p>
 <ol type="1">
@@ -626,6 +700,25 @@
 </table>
 <h4 id="建立中断向量表">建立中断向量表</h4>
 <p>BIOS 在内存最低地址 (<code>0x00000 - 0x003FF</code>) 建立中断向量表：</p>
+<blockquote>
+<p><strong>IVT 是什么时候建立的？</strong></p>
+<ul>
+<li><strong>时机</strong>：IVT 的初始化发生在 <strong>BIOS 初始化阶段</strong>（POST 自检完成后）。</li>
+<li><strong>过程</strong>：
+<ol type="1">
+<li>BIOS 从 ROM 中读取中断处理程序的地址（段:偏移）。</li>
+<li>将这些地址写入 IVT 的对应位置（每个中断向量占 4 字节）。</li>
+<li>例如：INT 0x10 的处理程序地址写入 <code>0x0040-0x0043</code>。</li>
+</ol></li>
+<li><strong>为什么在初始化阶段？</strong>
+<ul>
+<li>POST 阶段主要检测硬件，此时中断服务还未准备好。</li>
+<li>初始化阶段配置硬件后，才能提供稳定的中断服务。</li>
+<li>IVT 必须在引导程序使用 BIOS 中断（如 INT 0x10、INT 0x13）之前建立完成。</li>
+</ul></li>
+<li><strong>注意</strong>：IVT 位于 RAM 中（<code>0x00000-0x003FF</code>），而不是 ROM 中，因此可以被修改。引导程序可以修改 IVT 来安装自定义中断处理程序。</li>
+</ul>
+</blockquote>
 <p><strong>实模式中断向量表 (IVT) 结构：</strong></p>
 <table>
 <thead>
@@ -725,6 +818,19 @@
 <li>CPU 读取时按顺序：先读 IP（2字节），再读 CS（2字节），然后执行 <code>jmp CS:IP</code>。</li>
 <li>这种顺序与实模式下的段:偏移寻址方式一致：<code>物理地址 = CS × 16 + IP</code>。</li>
 </ul>
+<p><strong>为什么段地址要乘以 16？</strong></p>
+<ul>
+<li>在实模式下，段地址（CS、DS、ES 等）是 16 位寄存器，只能表示 0-65535（64KB）。</li>
+<li>但 8086 需要访问 20 位地址空间（1MB = 2²⁰ = 1,048,576 字节），需要 20 根地址线。</li>
+<li><strong>解决方案</strong>：将 16 位段地址<strong>左移 4 位</strong>（相当于乘以 16），得到 20 位基地址，再加上 16 位偏移地址。</li>
+<li>例如：<code>CS = 0xF000</code>，<code>IP = 0x5000</code>
+<ul>
+<li>段基址 = <code>0xF000 × 16 = 0xF000 × 0x10 = 0xF0000</code>（20位地址）</li>
+<li>物理地址 = <code>0xF0000 + 0x5000 = 0xF5000</code></li>
+</ul></li>
+<li>这样，16 位段地址可以覆盖整个 1MB 地址空间，每个段最大 64KB（偏移地址范围 0-65535）。</li>
+<li><strong>段重叠</strong>：由于段地址以 16 字节为单位，相邻段会重叠。例如 <code>0x0000:0x0010</code> 和 <code>0x0001:0x0000</code> 指向同一个物理地址 <code>0x00010</code>。</li>
+</ul>
 </blockquote>
 <h4 id="引导加载">🚀 引导加载</h4>
 <p><strong>引导加载流程：</strong></p>
@@ -743,7 +849,22 @@
 <ul>
 <li>是 → 这是有效的引导扇区</li>
 <li>否 → 尝试下一个设备</li>
+</ul>
+<blockquote>
+<p><strong>为什么是 0x55AA？</strong></p>
+<ul>
+<li><strong>引导扇区签名</strong>：<code>0x55AA</code> 是 MBR（Master Boot Record）和引导扇区的<strong>魔数（Magic Number）</strong>，位于扇区的最后两个字节（偏移 510-511）。</li>
+<li><strong>字节顺序</strong>：由于 x86 是小端序（Little-Endian），<code>0x55AA</code> 在内存中存储为 <code>[0xAA, 0x55]</code>（低字节在前）。</li>
+<li><strong>为什么选择这个值？</strong>
+<ul>
+<li><code>0x55 = 01010101</code>（二进制），<code>0xAA = 10101010</code>（二进制）</li>
+<li>这两个字节的<strong>奇偶校验位都是奇数</strong>（1 的个数为奇数），可以用于简单的错误检测。</li>
+<li>这个组合在正常数据中出现的概率很低，适合作为"签名"。</li>
 </ul></li>
+<li><strong>位置</strong>：放在扇区末尾（510-511 字节），确保整个扇区被正确读取后才能验证。</li>
+<li><strong>历史</strong>：这是 IBM PC 兼容机规定的标准，所有引导扇区都必须以 <code>0x55AA</code> 结尾，否则 BIOS 不会将其识别为可引导设备。</li>
+</ul>
+</blockquote></li>
 <li><p><strong>将引导扇区加载到内存 0x0000:0x7c00</strong></p>
 <blockquote>
 <strong><code>0x0000:0x7c00</code> 是什么意思？</strong>
@@ -764,7 +885,101 @@
 <li><p><strong>跳转执行: JMP 0x0000:0x7c00</strong></p></li>
 </ol>
 <p><strong>为什么是 0x7C00？</strong></p>
-<p>这是一个历史遗留问题：IBM PC 5150 (1981年) 规定的地址。</p>
+<p>这是 IBM PC 5150 (1981年) 规定的地址，选择这个值有以下几个原因：</p>
+<ol type="1">
+<li><strong>内存布局考虑</strong>
+<ul>
+<li>引导扇区大小为 512 字节（0x200 字节）。</li>
+<li><code>0x7C00</code> 到 <code>0x7DFF</code>（512字节）用于存放引导代码。</li>
+<li><code>0x7E00</code> 开始可以用于引导程序的栈空间和数据区。</li>
+</ul></li>
+<li><strong>与 BIOS 数据区的距离</strong>
+<ul>
+<li>BIOS 数据区（BDA）位于 <code>0x00400-0x004FF</code>（256字节）。</li>
+<li>IVT 位于 <code>0x00000-0x003FF</code>（1KB）。</li>
+<li>选择 <code>0x7C00</code> 确保引导代码与这些关键区域有足够距离，避免冲突。</li>
+</ul></li>
+<li><strong>栈空间预留</strong>
+<ul>
+<li>实模式下，栈通常向下增长（从高地址向低地址）。</li>
+<li><code>0x7C00</code> 以下有足够的空间（约 32KB）可以作为栈使用。</li>
+<li>例如：设置 <code>SS:SP = 0x0000:0x7C00</code>，栈可以向下扩展到 <code>0x0000</code>。</li>
+</ul></li>
+<li><strong>历史约定</strong>
+<ul>
+<li>IBM PC 5150 的 BIOS 设计者选择了这个值，后续所有兼容机都遵循这个约定。</li>
+<li>即使现代系统已经不需要这些限制，为了兼容性仍然使用 <code>0x7C00</code>。</li>
+</ul></li>
+<li><strong>计算验证</strong>
+<ul>
+<li><code>0x7C00 = 31744</code> 字节 = 31KB</li>
+<li>从 <code>0x00000</code> 到 <code>0x7C00</code> 有 31KB 空间，足够存放 IVT、BDA、视频缓冲区等。</li>
+<li>引导扇区加载后，还有约 32KB 空间可用于栈和临时数据。</li>
+</ul></li>
+</ol>
+<p><strong>MBR vs GPT 分区表：</strong></p>
+<p>传统 BIOS 主要使用 <strong>MBR（Master Boot Record）</strong> 分区表，而现代 UEFI 系统使用 <strong>GPT（GUID Partition Table）</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>MBR</th>
+<th>GPT</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>全称</strong></td>
+<td>Master Boot Record（主引导记录）</td>
+<td>GUID Partition Table（GUID 分区表）</td>
+</tr>
+<tr class="even">
+<td><strong>位置</strong></td>
+<td>磁盘第一个扇区（512字节）</td>
+<td>磁盘开头多个扇区，有主备份</td>
+</tr>
+<tr class="odd">
+<td><strong>分区数量</strong></td>
+<td>最多 4 个主分区（或 3 个主分区 + 1 个扩展分区）</td>
+<td>理论上无限制（通常支持 128 个分区）</td>
+</tr>
+<tr class="even">
+<td><strong>磁盘容量限制</strong></td>
+<td>最大 2TB（由于使用 32 位 LBA）</td>
+<td>最大 9.4 ZB（zettabytes，使用 64 位 LBA）</td>
+</tr>
+<tr class="odd">
+<td><strong>分区表备份</strong></td>
+<td>无备份，损坏后难以恢复</td>
+<td>有主备份和次备份，更安全</td>
+</tr>
+<tr class="even">
+<td><strong>兼容性</strong></td>
+<td>所有操作系统都支持</td>
+<td>需要 UEFI 或 GPT 兼容的 BIOS</td>
+</tr>
+<tr class="odd">
+<td><strong>引导代码</strong></td>
+<td>MBR 包含引导代码（446字节）</td>
+<td>GPT 不包含引导代码，由 EFI 系统分区（ESP）处理</td>
+</tr>
+<tr class="even">
+<td><strong>CRC 校验</strong></td>
+<td>无</td>
+<td>有，可以检测分区表损坏</td>
+</tr>
+<tr class="odd">
+<td><strong>使用场景</strong></td>
+<td>传统 BIOS + 小容量磁盘</td>
+<td>UEFI + 大容量磁盘（&gt;2TB）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MBR 结构（512字节）：</strong> - <strong>0x000-0x1BD</strong>（446字节）：引导代码 - <strong>0x1BE-0x1FD</strong>（64字节）：4 个分区表项（每个 16 字节） - <strong>0x1FE-0x1FF</strong>（2字节）：引导签名 <code>0x55AA</code></p>
+<p><strong>GPT 结构：</strong> - <strong>保护性 MBR</strong>：第一个扇区，用于兼容不支持 GPT 的系统 - <strong>GPT 头</strong>：包含分区表信息 - <strong>分区表项</strong>：每个分区 128 字节，包含 GUID、名称、起始/结束 LBA 等 - <strong>备份分区表</strong>：磁盘末尾有完整备份</p>
+<blockquote>
+<p><strong>注意</strong>：本文主要介绍传统 BIOS + MBR 的引导方式，这是理解现代 UEFI + GPT 的基础。</p>
+</blockquote>
 <h3 id="bios-中断服务详解">🔌 BIOS 中断服务详解</h3>
 <p><strong>中断是什么？</strong></p>
 <p>中断（Interrupt）是 CPU 暂停当前执行流程，转而去处理特定事件或请求的机制。中断分为三类：</p>
@@ -888,6 +1103,13 @@
 <li><p><strong>跳转到中断处理程序</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmp CS:IP</span><br></pre></td></tr></table></figure></p></li>
 <li><p><strong>中断处理程序执行完毕后，执行 <code>iret</code> 返回</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iret: pop IP, pop CS, pop FLAGS</span><br></pre></td></tr></table></figure></p></li>
 </ol>
+<blockquote>
+<p><strong>中断处理程序的栈管理：</strong></p>
+<p><strong>栈的使用：</strong> - 当 CPU 执行 <code>int</code> 指令时，会自动将 <strong>FLAGS、CS、IP</strong> 依次压栈（按此顺序）。 - 栈指针（SP）会<strong>自动减少</strong>（栈向下增长），为这些数据预留空间。 - 中断处理程序可以使用栈来保存其他寄存器（如 AX、BX 等），但<strong>必须在使用前保存，使用后恢复</strong>。</p>
+<p><strong>栈布局（进入中断处理程序时）：</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">高地址</span><br><span class="line">[原始 FLAGS]  ← SP（栈顶，最低地址）</span><br><span class="line">[原始 CS]</span><br><span class="line">[原始 IP]     ← 栈底（最高地址）</span><br><span class="line">低地址</span><br></pre></td></tr></table></figure></p>
+<p><strong>必须用 <code>iret</code> 返回的原因：</strong> - <code>iret</code> 指令会<strong>按相反顺序</strong>弹出 IP、CS、FLAGS，恢复 CPU 状态。 - 如果用普通的 <code>ret</code> 返回，只会弹出 IP 和 CS，<strong>不会恢复 FLAGS</strong>，导致中断标志（IF）等状态错误。 - <code>iret</code> 还会<strong>自动恢复 IF 标志</strong>（如果之前被清除），重新允许硬件中断。</p>
+<p><strong>寄存器保存约定：</strong> - <strong>必须保存</strong>：如果中断处理程序会修改的寄存器（如 AX、BX、CX、DX、SI、DI、BP、DS、ES 等）。 - <strong>不需要保存</strong>：FLAGS、CS、IP（CPU 自动保存）。 - <strong>示例</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">my_handler:</span><br><span class="line">    push ax      ; 保存寄存器</span><br><span class="line">    push bx</span><br><span class="line">    ; ... 处理逻辑 ...</span><br><span class="line">    pop bx       ; 恢复寄存器（注意顺序相反）</span><br><span class="line">    pop ax</span><br><span class="line">    iret         ; 必须用 iret 返回</span><br></pre></td></tr></table></figure></p>
+</blockquote>
 <p><strong>图示说明：</strong></p>
 <p>调用：<code>int 0x10</code></p>
 <ol type="1">
@@ -1186,6 +1408,13 @@
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p><strong>什么是 A20 地址线？为什么需要启用它？</strong></p>
+<p><strong>A20 的历史背景：</strong> - 在早期的 8086/8088 CPU 中，只有 20 根地址线（A0-A19），可以访问 1MB 的地址空间（0x00000-0xFFFFF）。 - 8086 使用<strong>段:偏移</strong>寻址方式，理论上可以表示 <code>0xFFFF:0xFFFF = 0x10FFEF</code>（约 1MB + 64KB），但由于只有 20 根地址线，超出 1MB 的地址会<strong>回绕</strong>到低地址（例如 <code>0x100000</code> 会回绕到 <code>0x00000</code>）。 - 这种回绕特性被一些程序利用，作为"内存保护"机制。</p>
+<p><strong>80286 及以后的问题：</strong> - 80286 引入了 24 根地址线（可访问 16MB），80386 引入了 32 根地址线（可访问 4GB）。 - 为了保持向后兼容，IBM 在 AT 机型的键盘控制器中增加了一个开关，默认<strong>关闭 A20 地址线</strong>，使系统行为与 8086 一致。 - 这个开关控制的就是<strong>第 21 根地址线（A20）</strong>，因此被称为 "A20 Gate"。</p>
+<p><strong>为什么需要启用 A20？</strong> - 要访问 1MB 以上的内存（扩展内存），必须启用 A20 地址线。 - 现代操作系统和引导程序都需要访问超过 1MB 的内存，因此必须在进入保护模式前启用 A20。</p>
+<p><strong>启用 A20 的方法：</strong> - 通过键盘控制器（8042）的端口 0x64/0x60 - 通过 BIOS 中断 INT 0x15, AH=0x24, AL=0x01 - 通过 Fast A20（直接操作端口 0x92，更快但可能不兼容所有硬件）</p>
+</blockquote>
 
     </div>
 
@@ -1234,13 +1463,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">192k</span>
+    <span title="站点总字数">196k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">5:49</span>
+    <span title="站点阅读时长">5:56</span>
   </span>
 </div>
 <div class="busuanzi-count">
