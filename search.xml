@@ -184,175 +184,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Python 包与环境管理指南：Conda, Pip, venv 与 uv</title>
-    <url>/posts/7066aaf6/</url>
-    <content><![CDATA[<h2 id="python-包与环境管理">Python 包与环境管理</h2>
-<p>在 Python 的世界里，高效、可靠的包与环境管理是项目成功的基石。本文将梳理 Python 生态中几个主流工具的演进、特点与适用场景，帮助你做出最佳选择。</p>
-<span id="more"></span>
-<h3 id="conda-的起源为什么不仅仅是-pip-与-venv">Conda 的起源：为什么不仅仅是 pip 与 venv？</h3>
-<p>在 Conda 出现之前，Python 社区主要使用 <code>venv</code>（或其前身 <code>virtualenv</code>）来创建隔离的环境，并使用 <code>pip</code> 从 Python 包索引 (PyPI) 安装包。这套工具链在许多场景下都工作得很好，但在科学计算和数据科学领域，开发者们遇到了一些棘手的问题：</p>
-<ol type="1">
-<li><strong>非 Python 依赖管理</strong>：
-<ul>
-<li>许多核心的科学计算库（如 NumPy, SciPy）底层依赖于 C, C++, 或 Fortran 编写的库（例如 BLAS, LAPACK）。<code>pip</code> 是一个纯粹的 Python 包管理器，无法处理这些非 Python 语言的依赖。这导致用户在安装时常常需要手动处理编译环境和库文件，过程非常痛苦，尤其是在 Windows 上。</li>
-</ul></li>
-<li><strong>复杂的依赖冲突</strong>：
-<ul>
-<li><code>pip</code> 的依赖解析能力有限。当项目中包含大量包，且这些包之间有复杂的依赖关系时，<code>pip</code> 很容易安装一组版本互相不兼容的包，导致环境损坏。它缺少一个强大的求解器来确保整个环境中的所有包（包括它们的传递依赖）都是相互兼容的。</li>
-</ul></li>
-<li><strong>Python 版本管理</strong>：
-<ul>
-<li><code>venv</code> 创建的环境与创建它时所用的 Python 解释器是绑定的。如果想为项目 A 使用 Python 3.8，为项目 B 使用 Python 3.9，就需要手动在系统上安装和管理多个 Python 版本，操作繁琐。</li>
-</ul></li>
-</ol>
-<p><strong>Conda</strong> 的诞生正是为了解决以上所有问题。它被设计成一个<strong>语言无关的包和环境管理系统</strong>：</p>
-<ul>
-<li><strong>全面的包管理</strong>：Conda 不仅能管理 Python 包，还能管理任何语言编写的库和可执行文件。这使得分发和安装依赖复杂的科学计算栈变得轻而易举。</li>
-<li><strong>真正的环境隔离</strong>：Conda 环境不仅隔离包，还能隔离 Python 解释器本身。你可以用一条命令轻松创建包含特定 Python 版本（如 3.7, 3.8, 3.9）的环境。</li>
-<li><strong>强大的依赖求解器</strong>：Conda 在安装包时会进行严格的依赖关系检查，确保环境中所有包的版本都是相互兼容的，从而从根本上避免了“依赖地狱”。</li>
-</ul>
-<h3 id="anaconda-生态系统发行版与通道">Anaconda 生态系统：发行版与通道</h3>
-<p>Conda 生态系统主要由两部分组成：<strong>发行版 (Distributions)</strong>，即你下载的安装程序；以及<strong>通道 (Channels)</strong>，即存储和分发软件包的远程仓库。下图清晰地展示了它们之间的关系：</p>
-<pre>
-<code class="mermaid">
-
-graph LR
-    subgraph distributions[&quot;发行版 (Distributions)&quot;]
-        direction TB
-        subgraph anaconda_dist[&quot;Anaconda Distribution&quot;]
-            conda1[&quot;conda&quot;]
-            packages[&quot;NumPy, SciPy ...&quot;]
-        end
-        subgraph miniconda_dist[&quot;MINICONDA&quot;]
-            conda2[&quot;conda&quot;]
-        end
-        subgraph miniforge_dist[&quot;miniforge&quot;]
-            conda3[&quot;conda&quot;]
-            mamba[&quot;Mamba&quot;]
-        end
-    end
-
-    subgraph anaconda_org[&quot;软件源 (Channels on ANACONDA.ORG)&quot;]
-        direction TB
-        conda_forge[&quot;conda-forge&quot;]
-        subgraph defaults[&quot;defaults&quot;]
-            style defaults stroke:#c00,stroke-width:2px
-            main[&quot;main&quot;]
-            R[&quot;R&quot;]
-            msys2[&quot;msys2&quot;]
-        end
-    end
-    
-    anaconda_dist -- &quot;默认使用&quot; --&gt; defaults
-    miniconda_dist -- &quot;默认使用&quot; --&gt; defaults
-    miniforge_dist -- &quot;默认使用&quot; --&gt; conda_forge
-</code>
-</pre>
-<h4 id="发行版-distributions">发行版 (Distributions)</h4>
-<p>发行版是你实际安装在电脑上的软件。</p>
-<ul>
-<li><strong>Anaconda Distribution</strong>: 一个“全家桶”式的发行版。它体积庞大（通常接近 1GB），预装了 Conda、Python 以及数百个常用的数据科学包（如 NumPy, Pandas, SciPy, Jupyter Notebook等）。对于初学者来说，这是一个开箱即用的环境。</li>
-<li><strong>Miniconda</strong>: 一个最小化的 Conda 安装器。它只包含 Conda、Python 以及一些必要的依赖。用户可以根据自己的需要，创建一个干净的环境并手动安装所需的包。它非常适合那些希望保持环境纯净、只安装必要工具的开发者。</li>
-<li><strong>Miniforge</strong>: 一个由 <code>conda-forge</code> 社区维护的最小化安装器。它与 Miniconda 类似，但其核心区别在于<strong>默认配置使用 <code>conda-forge</code> 通道</strong>。此外，它经常会附带 <strong>Mamba</strong>——一个用 C++ 重写的 Conda 的高速替代品，可以极大地提升包的安装和环境解析速度。由于其轻量、高速和社区驱动的特性，Miniforge（或 Mambaforge）现在被许多经验丰富的开发者视为首选。</li>
-</ul>
-<h4 id="通道-channels">通道 (Channels)</h4>
-<p>通道是存放软件包的云端仓库。<code>conda install</code> 命令默认会从配置好的通道中查找和下载包。</p>
-<ul>
-<li><strong><code>defaults</code></strong>: 由 Anaconda 公司官方维护的通道。它包含了一系列经过良好测试和构建的常用包。<code>Anaconda</code> 和 <code>Miniconda</code> 安装后默认使用此通道。</li>
-<li><strong><code>conda-forge</code></strong>: 一个由社区驱动的、开放的通道，也是目前最大、最活跃的 Conda 通道。它提供了海量的软件包，更新速度通常也比 <code>defaults</code> 更快。</li>
-</ul>
-<h3 id="新的挑战者uv-与极致的速度">新的挑战者：uv 与极致的速度</h3>
-<p>2024 年，由 <code>ruff</code> 的作者 Astral 公司推出的 <code>uv</code> 横空出世，它是一个用 Rust 编写的<strong>极速 Python 包安装器和解析器</strong>。它的目标不是完全取代 Conda，而是成为 <code>pip</code>、<code>pip-tools</code> 和 <code>venv</code> 的一个性能超强的“统一替代品”。</p>
-<p><strong>uv 的核心特点</strong>：</p>
-<ul>
-<li><strong>极致的速度</strong>：<code>uv</code> 的速度非常快，在安装和解析依赖时通常比 <code>pip</code> 快 10-100 倍。这得益于其底层的 Rust 实现和巧妙的缓存策略。</li>
-<li><strong>统一的工具链</strong>：它将 <code>pip</code> 的安装、<code>venv</code> 的环境创建、<code>pip-tools</code> 的依赖锁定等功能整合到一个命令行工具 <code>uv</code> 中。</li>
-<li><strong><code>pip</code> API 兼容</strong>：它的设计目标是作为 <code>pip</code> 的直接替代品，许多命令（如 <code>uv pip install</code>）都与 <code>pip</code> 保持一致。</li>
-</ul>
-<p><strong>uv 与 Conda 的核心区别</strong>： 最重要的一点是：<code>uv</code> 和 <code>pip</code> 一样，是一个<strong>纯粹的 Python 包管理器</strong>。它<strong>无法处理非 Python 依赖</strong>。这意味着，如果你需要安装依赖于底层 C/C++ 库的科学计算包，<code>uv</code> 自身无法解决这个问题，你仍然需要一个像 Conda 这样的系统来管理这些底层依赖。</p>
-<h3 id="实战建议conda-还是-uv我应该选择哪个">实战建议：Conda 还是 uv？我应该选择哪个？</h3>
-<p>这是一个场景问题，答案取决于你的项目类型。</p>
-<ul>
-<li><strong>场景一：数据科学、机器学习、科学计算</strong>
-<ul>
-<li><strong>首选</strong>: <strong>Conda (推荐 Miniforge/Mambaforge)</strong></li>
-<li><strong>原因</strong>: 这类项目严重依赖具有复杂非 Python 依赖的库（如 PyTorch, TensorFlow, NumPy, SciPy, CUDA Tookit）。Conda 是目前唯一能完美处理这类二进制依赖关系的工具。<strong>在这种场景下，Conda 是不可或缺的。</strong></li>
-</ul></li>
-<li><strong>场景二：Web 开发、命令行工具等纯 Python 项目</strong>
-<ul>
-<li><strong>首选</strong>: <strong>uv + venv</strong></li>
-<li><strong>原因</strong>: 这类项目的依赖通常都是纯 Python 包。<code>uv</code> 的速度优势在这里能得到最大程度的发挥，它可以极大地加速本地开发和 CI/CD 流程。你可以用 <code>uv venv</code> 创建环境，用 <code>uv pip install</code> 安装包，体验飞一般的速度。</li>
-</ul></li>
-<li><strong>场景三：混合动力模式</strong>
-<ul>
-<li><strong>方案</strong>: <strong>使用 Conda 管理环境和底层依赖，使用 uv 管理 Python 包</strong></li>
-<li><strong>原因</strong>: 这是目前许多高级玩家推崇的模式。你可以获得两者的最大优势：
-<ol type="1">
-<li>用 <code>conda</code> 创建一个干净的环境，并安装好 Python 和那些棘手的非 Python 依赖库（例如 <code>conda install python=3.10 pytorch cuda-toolkit -c pytorch -c nvidia</code>）。</li>
-<li>激活这个 Conda 环境。</li>
-<li>在这个环境中使用 <code>uv</code> 来管理所有纯 Python 的应用层依赖（例如 <code>uv pip install -r requirements.txt</code>）。</li>
-</ol></li>
-</ul>
-<blockquote>
-<p><strong>深入探讨：为什么这种混合模式不会冲突？</strong> 核心在于，当您激活一个 Conda 环境后，该环境的 <code>bin</code> 目录会被添加到系统 <code>PATH</code> 的最前端。<code>uv</code> 和 <code>pip</code> 一样，会智能地使用 <code>PATH</code> 中找到的第一个 Python 解释器。因此，<code>uv</code> 会将包正确地安装到当前激活的 Conda 环境中。 此外，现代 Conda 在执行操作时，会检查并识别出由 <code>pip</code>/<code>uv</code> 安装的包，并将其纳入依赖解析的考量范围，从而<strong>避免了冲突</strong>。这种智能集成使得“Conda管底层，uv/pip管应用层”的模式成为可能且高效。</p>
-</blockquote></li>
-</ul>
-<p><strong>结论</strong>: - 如果你的工作流涉及<strong>非 Python 依赖</strong>，请继续使用 <strong>Conda</strong> 作为你的基础环境管理器。 - 如果你的项目是<strong>纯 Python</strong>的，大胆地换用 <strong>uv</strong>，享受极致的速度。 - 如果你想两全其美，<strong>Conda + uv</strong> 的混合模式是当前的最佳实践。</p>
-<h3 id="基本命令对比"><strong>基本命令对比</strong></h3>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">操作</th>
-<th style="text-align: left;">Conda</th>
-<th style="text-align: left;">uv</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;"><strong>创建环境</strong></td>
-<td style="text-align: left;"><code>conda create -n myenv python=3.10</code></td>
-<td style="text-align: left;"><code>uv venv myenv --python 3.10</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>激活环境</strong></td>
-<td style="text-align: left;"><code>conda activate myenv</code></td>
-<td style="text-align: left;"><code>source myenv/bin/activate</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><strong>安装包</strong></td>
-<td style="text-align: left;"><code>conda install numpy</code></td>
-<td style="text-align: left;"><code>uv pip install numpy</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>从文件安装</strong></td>
-<td style="text-align: left;"><code>conda env create -f env.yml</code></td>
-<td style="text-align: left;"><code>uv pip install -r requirements.txt</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;"><strong>列出已安装包</strong></td>
-<td style="text-align: left;"><code>conda list</code></td>
-<td style="text-align: left;"><code>uv pip list</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><strong>删除环境</strong></td>
-<td style="text-align: left;"><code>conda remove -n myenv --all</code></td>
-<td style="text-align: left;"><code>rm -rf myenv</code></td>
-</tr>
-</tbody>
-</table>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Python</category>
-      </categories>
-      <tags>
-        <tag>Conda</tag>
-        <tag>Python</tag>
-        <tag>uv</tag>
-        <tag>pip</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>BIOS</title>
     <url>/posts/ea91aa61/</url>
     <content><![CDATA[<p>想快速看懂“上电到操作系统启动”这段黑屏时间到底发生了什么？</p>
@@ -834,8 +665,17 @@ graph LR
 <li>CPU 收到中断后，会用中断号（向量）作为索引，在 IVT 中查到处理函数的段地址和偏移地址，然后跳转执行。</li>
 </ul>
 <p><strong>中断的地址是物理地址还是虚拟地址？</strong></p>
-<p>在<strong>实模式下</strong>（BIOS 运行的环境）： - 中断向量表中的地址是<strong>物理地址</strong>（更准确说是<strong>实模式地址</strong>）。 - IVT 位于物理地址 <code>0x00000-0x003FF</code>，每个向量存储的是处理程序的<strong>段地址:偏移地址</strong>（实模式寻址方式）。 - CPU 通过 <code>段地址 × 16 + 偏移地址</code> 计算出物理地址，直接访问内存，无需虚拟地址转换。</p>
-<p>在<strong>保护模式下</strong>（操作系统运行的环境）： - 使用 <strong>IDT（Interrupt Descriptor Table）</strong> 替代 IVT。 - IDT 中的地址可以是<strong>虚拟地址</strong>（如果启用了分页），CPU 会通过页表转换为物理地址。</p>
+<p>在<strong>实模式下</strong>（BIOS 运行的环境）：</p>
+<ul>
+<li>中断向量表中的地址是<strong>物理地址</strong>（更准确说是<strong>实模式地址</strong>）。</li>
+<li>IVT 位于物理地址 <code>0x00000-0x003FF</code>，每个向量存储的是处理程序的<strong>段地址:偏移地址</strong>（实模式寻址方式）。</li>
+<li>CPU 通过 <code>段地址 × 16 + 偏移地址</code> 计算出物理地址，直接访问内存，无需虚拟地址转换。</li>
+</ul>
+<p>在<strong>保护模式下</strong>（操作系统运行的环境）：</p>
+<ul>
+<li>使用 <strong>IDT（Interrupt Descriptor Table）</strong> 替代 IVT。</li>
+<li>IDT 中的地址可以是<strong>虚拟地址</strong>（如果启用了分页），CPU 会通过页表转换为物理地址。</li>
+</ul>
 <p>BIOS 提供了一系列中断服务，让引导程序可以使用硬件：</p>
 <h4 id="深入理解中断向量表-ivt">💡 深入理解：中断向量表 (IVT)</h4>
 <p>在实模式下，BIOS 中断是通过中断向量表（Interrupt Vector Table, IVT）来实现的。</p>
@@ -911,8 +751,17 @@ graph LR
 <p>当执行 <code>int 0x10</code> 时，CPU 自动执行以下步骤：</p>
 <ol type="1">
 <li><p><strong>将 FLAGS 寄存器压栈（保存状态）</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">push FLAGS</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>清除 IF 标志（禁止中断嵌套）</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cli</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>清除 TF 标志（禁止单步调试）</strong></p></li>
+<li><strong>CPU 自动清除 IF 标志（禁止中断嵌套）</strong>
+<ul>
+<li>CPU 自动将 IF 标志设为 0，屏蔽可屏蔽硬件中断。</li>
+<li>这相当于自动执行了 <code>cli</code>（Clear Interrupt Flag）指令的效果。</li>
+<li>注意：这是 CPU 的<strong>自动行为</strong>，不需要在代码中手动执行 <code>cli</code>。</li>
+</ul></li>
+<li><strong>CPU 自动清除 TF 标志（禁止单步调试）</strong>
+<ul>
+<li>CPU 自动将 TF（Trap Flag）标志设为 0，禁用单步调试模式。</li>
+<li>这也是 CPU 的<strong>自动行为</strong>，确保中断处理程序不会在调试模式下执行。</li>
+</ul></li>
 <li><p><strong>将返回地址压栈（CS 和 IP）</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">push CS</span><br><span class="line">push IP</span><br></pre></td></tr></table></figure></p></li>
 <li><strong>从 IVT 读取中断处理程序地址</strong>
 <ul>
@@ -1041,7 +890,12 @@ graph LR
 </ul></li>
 </ol>
 <blockquote>
-<p><strong>IF 标志是什么？</strong> - IF（Interrupt Flag）位于 CPU 的 EFLAGS/FLAGS 寄存器中，用于控制<strong>可屏蔽硬件中断</strong>是否被响应。 - IF=1 表示允许 PIC 发送的硬件中断，IF=0 则屏蔽（也就是 <code>cli</code> 指令的效果）。 - 当执行 <code>int</code> 指令或进入中断处理程序时，CPU 会自动清除 IF=0，避免中断嵌套；处理完毕后通常用 <code>iret</code> 恢复原有 IF 状态，或通过 <code>sti</code> 手动重新开启。</p>
+<p><strong>IF 标志是什么？</strong></p>
+<ul>
+<li>IF（Interrupt Flag）位于 CPU 的 EFLAGS/FLAGS 寄存器中，用于控制<strong>可屏蔽硬件中断</strong>是否被响应。</li>
+<li>IF=1 表示允许 PIC 发送的硬件中断，IF=0 则屏蔽（也就是 <code>cli</code> 指令的效果）。</li>
+<li>当执行 <code>int</code> 指令或进入中断处理程序时，CPU 会自动清除 IF=0，避免中断嵌套；处理完毕后通常用 <code>iret</code> 恢复原有 IF 状态，或通过 <code>sti</code> 手动重新开启。</li>
+</ul>
 </blockquote>
 <h3 id="常用-bios-中断服务详解">📺 常用 BIOS 中断服务详解</h3>
 <h4 id="int-0x10---视频服务">INT 0x10 - 视频服务</h4>
@@ -1095,8 +949,12 @@ graph LR
 </tbody>
 </table>
 <blockquote>
-<p><strong>什么是 AH？</strong></p>
-<p>在 x86 架构中，CPU 提供了多组通用寄存器（如 AX、BX、CX、DX），每个寄存器 16 位。在实际应用中，这些寄存器还可以细分低 8 位（如 AL、BL）与高 8 位（如 AH、BH）： - <code>AX</code>：16 位寄存器，可以看作由高 8 位 <code>AH</code> 和低 8 位 <code>AL</code> 组成。 - <code>AH</code>（“A High”）：AX 的高 8 位，常用于传递功能号或状态（例如 BIOS 中断的功能号一般通过 <code>AH</code> 传递）。 - <code>AL</code>（“A Low”）：AX 的低 8 位，常用于传递附加参数或数据（如字符等）。</p>
+<p><strong>什么是 AH？</strong> 在 x86 架构中，CPU 提供了多组通用寄存器（如 AX、BX、CX、DX），每个寄存器 16 位。在实际应用中，这些寄存器还可以细分低 8 位（如 AL、BL）与高 8 位（如 AH、BH）：</p>
+<ul>
+<li><code>AX</code>：16 位寄存器，可以看作由高 8 位 <code>AH</code> 和低 8 位 <code>AL</code> 组成。</li>
+<li><code>AH</code>（“A High”）：AX 的高 8 位，常用于传递功能号或状态（例如 BIOS 中断的功能号一般通过 <code>AH</code> 传递）。</li>
+<li><code>AL</code>（“A Low”）：AX 的低 8 位，常用于传递附加参数或数据（如字符等）。</li>
+</ul>
 </blockquote>
 <p><strong>示例：输出 "Hello" 到屏幕</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mov ah, 0x0E    ; 功能号:Teletype输出</span><br><span class="line">mov al, &#x27;H&#x27;     ; 字符</span><br><span class="line">int 0x10        ; 调用BIOS</span><br><span class="line">;重复输出e, l, l, o</span><br></pre></td></tr></table></figure>
@@ -1395,6 +1253,175 @@ graph TD;
 <p><strong><code>Makefile</code></strong> <figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 用于构建内核模块</span></span><br><span class="line">obj-m += simple_gpu.o</span><br><span class="line"></span><br><span class="line"><span class="section">all: app</span></span><br><span class="line"></span><br><span class="line"><span class="section">app: main.c libsimple_cuda.so</span></span><br><span class="line">	gcc main.c -o app -L. -lsimple_cuda</span><br><span class="line"></span><br><span class="line"><span class="section">libsimple_cuda.so: libsimple_cuda.c simple_gpu.h</span></span><br><span class="line">	gcc -shared -fPIC libsimple_cuda.c -o libsimple_cuda.so</span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br><span class="line">	rm -f app libsimple_cuda.so</span><br></pre></td></tr></table></figure></p>
 <p><strong>执行步骤</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 编译所有组件</span></span><br><span class="line">make modules</span><br><span class="line">make app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 加载内核模块并创建设备文件</span></span><br><span class="line"><span class="built_in">sudo</span> insmod simple_gpu.ko</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mknod</span> /dev/simple_gpu c 100 0</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 666 /dev/simple_gpu</span><br><span class="line"></span><br><span class="line">&gt; **命令解析**:</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> insmod simple_gpu.ko`: **加载内核模块**。`insmod` 命令将驱动代码 (`.ko`) 加载到内核。驱动内的 `init` 函数会执行，并向内核注册一个主设备号 (本例中为 100)。</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> <span class="built_in">mknod</span> /dev/simple_gpu c 100 0`: **创建设备文件**。`<span class="built_in">mknod</span>` 在 `/dev` 目录下创建一个特殊的文件节点，它通过主设备号 `100` 与我们的驱动关联起来，成为用户态程序与驱动通信的入口。</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> <span class="built_in">chmod</span> 666 /dev/simple_gpu`: **赋予权限**。`<span class="built_in">chmod</span>` 允许所有用户读写该设备文件，否则普通用户的应用程序会因权限不足而无法打开它。</span><br><span class="line">&gt;</span><br><span class="line">&gt; **关于主设备号 `100`**: 在本例中，`100` 是我们在驱动代码 (`simple_gpu.c`) 中硬编码的一个约定数字，`<span class="built_in">mknod</span>` 命令必须使用与之相同的值。在真实世界的驱动中，硬编码有冲突风险，因此通常采用 **动态分配**：驱动向内核申请一个 **任意** 可用的主设备号，内核分配后，由 `udev` 等现代化服务自动在 `/dev` 目录下创建对应的设备文件，无需手动执行 `<span class="built_in">mknod</span>`。</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 运行应用程序</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=.</span><br><span class="line">./app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 查看内核日志</span></span><br><span class="line">dmesg | <span class="built_in">tail</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 卸载模块并清理</span></span><br><span class="line"><span class="built_in">sudo</span> rmmod simple_gpu</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> /dev/simple_gpu</span><br></pre></td></tr></table></figure></p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>Python 包与环境管理指南：Conda, Pip, venv 与 uv</title>
+    <url>/posts/7066aaf6/</url>
+    <content><![CDATA[<h2 id="python-包与环境管理">Python 包与环境管理</h2>
+<p>在 Python 的世界里，高效、可靠的包与环境管理是项目成功的基石。本文将梳理 Python 生态中几个主流工具的演进、特点与适用场景，帮助你做出最佳选择。</p>
+<span id="more"></span>
+<h3 id="conda-的起源为什么不仅仅是-pip-与-venv">Conda 的起源：为什么不仅仅是 pip 与 venv？</h3>
+<p>在 Conda 出现之前，Python 社区主要使用 <code>venv</code>（或其前身 <code>virtualenv</code>）来创建隔离的环境，并使用 <code>pip</code> 从 Python 包索引 (PyPI) 安装包。这套工具链在许多场景下都工作得很好，但在科学计算和数据科学领域，开发者们遇到了一些棘手的问题：</p>
+<ol type="1">
+<li><strong>非 Python 依赖管理</strong>：
+<ul>
+<li>许多核心的科学计算库（如 NumPy, SciPy）底层依赖于 C, C++, 或 Fortran 编写的库（例如 BLAS, LAPACK）。<code>pip</code> 是一个纯粹的 Python 包管理器，无法处理这些非 Python 语言的依赖。这导致用户在安装时常常需要手动处理编译环境和库文件，过程非常痛苦，尤其是在 Windows 上。</li>
+</ul></li>
+<li><strong>复杂的依赖冲突</strong>：
+<ul>
+<li><code>pip</code> 的依赖解析能力有限。当项目中包含大量包，且这些包之间有复杂的依赖关系时，<code>pip</code> 很容易安装一组版本互相不兼容的包，导致环境损坏。它缺少一个强大的求解器来确保整个环境中的所有包（包括它们的传递依赖）都是相互兼容的。</li>
+</ul></li>
+<li><strong>Python 版本管理</strong>：
+<ul>
+<li><code>venv</code> 创建的环境与创建它时所用的 Python 解释器是绑定的。如果想为项目 A 使用 Python 3.8，为项目 B 使用 Python 3.9，就需要手动在系统上安装和管理多个 Python 版本，操作繁琐。</li>
+</ul></li>
+</ol>
+<p><strong>Conda</strong> 的诞生正是为了解决以上所有问题。它被设计成一个<strong>语言无关的包和环境管理系统</strong>：</p>
+<ul>
+<li><strong>全面的包管理</strong>：Conda 不仅能管理 Python 包，还能管理任何语言编写的库和可执行文件。这使得分发和安装依赖复杂的科学计算栈变得轻而易举。</li>
+<li><strong>真正的环境隔离</strong>：Conda 环境不仅隔离包，还能隔离 Python 解释器本身。你可以用一条命令轻松创建包含特定 Python 版本（如 3.7, 3.8, 3.9）的环境。</li>
+<li><strong>强大的依赖求解器</strong>：Conda 在安装包时会进行严格的依赖关系检查，确保环境中所有包的版本都是相互兼容的，从而从根本上避免了“依赖地狱”。</li>
+</ul>
+<h3 id="anaconda-生态系统发行版与通道">Anaconda 生态系统：发行版与通道</h3>
+<p>Conda 生态系统主要由两部分组成：<strong>发行版 (Distributions)</strong>，即你下载的安装程序；以及<strong>通道 (Channels)</strong>，即存储和分发软件包的远程仓库。下图清晰地展示了它们之间的关系：</p>
+<pre>
+<code class="mermaid">
+
+graph LR
+    subgraph distributions[&quot;发行版 (Distributions)&quot;]
+        direction TB
+        subgraph anaconda_dist[&quot;Anaconda Distribution&quot;]
+            conda1[&quot;conda&quot;]
+            packages[&quot;NumPy, SciPy ...&quot;]
+        end
+        subgraph miniconda_dist[&quot;MINICONDA&quot;]
+            conda2[&quot;conda&quot;]
+        end
+        subgraph miniforge_dist[&quot;miniforge&quot;]
+            conda3[&quot;conda&quot;]
+            mamba[&quot;Mamba&quot;]
+        end
+    end
+
+    subgraph anaconda_org[&quot;软件源 (Channels on ANACONDA.ORG)&quot;]
+        direction TB
+        conda_forge[&quot;conda-forge&quot;]
+        subgraph defaults[&quot;defaults&quot;]
+            style defaults stroke:#c00,stroke-width:2px
+            main[&quot;main&quot;]
+            R[&quot;R&quot;]
+            msys2[&quot;msys2&quot;]
+        end
+    end
+    
+    anaconda_dist -- &quot;默认使用&quot; --&gt; defaults
+    miniconda_dist -- &quot;默认使用&quot; --&gt; defaults
+    miniforge_dist -- &quot;默认使用&quot; --&gt; conda_forge
+</code>
+</pre>
+<h4 id="发行版-distributions">发行版 (Distributions)</h4>
+<p>发行版是你实际安装在电脑上的软件。</p>
+<ul>
+<li><strong>Anaconda Distribution</strong>: 一个“全家桶”式的发行版。它体积庞大（通常接近 1GB），预装了 Conda、Python 以及数百个常用的数据科学包（如 NumPy, Pandas, SciPy, Jupyter Notebook等）。对于初学者来说，这是一个开箱即用的环境。</li>
+<li><strong>Miniconda</strong>: 一个最小化的 Conda 安装器。它只包含 Conda、Python 以及一些必要的依赖。用户可以根据自己的需要，创建一个干净的环境并手动安装所需的包。它非常适合那些希望保持环境纯净、只安装必要工具的开发者。</li>
+<li><strong>Miniforge</strong>: 一个由 <code>conda-forge</code> 社区维护的最小化安装器。它与 Miniconda 类似，但其核心区别在于<strong>默认配置使用 <code>conda-forge</code> 通道</strong>。此外，它经常会附带 <strong>Mamba</strong>——一个用 C++ 重写的 Conda 的高速替代品，可以极大地提升包的安装和环境解析速度。由于其轻量、高速和社区驱动的特性，Miniforge（或 Mambaforge）现在被许多经验丰富的开发者视为首选。</li>
+</ul>
+<h4 id="通道-channels">通道 (Channels)</h4>
+<p>通道是存放软件包的云端仓库。<code>conda install</code> 命令默认会从配置好的通道中查找和下载包。</p>
+<ul>
+<li><strong><code>defaults</code></strong>: 由 Anaconda 公司官方维护的通道。它包含了一系列经过良好测试和构建的常用包。<code>Anaconda</code> 和 <code>Miniconda</code> 安装后默认使用此通道。</li>
+<li><strong><code>conda-forge</code></strong>: 一个由社区驱动的、开放的通道，也是目前最大、最活跃的 Conda 通道。它提供了海量的软件包，更新速度通常也比 <code>defaults</code> 更快。</li>
+</ul>
+<h3 id="新的挑战者uv-与极致的速度">新的挑战者：uv 与极致的速度</h3>
+<p>2024 年，由 <code>ruff</code> 的作者 Astral 公司推出的 <code>uv</code> 横空出世，它是一个用 Rust 编写的<strong>极速 Python 包安装器和解析器</strong>。它的目标不是完全取代 Conda，而是成为 <code>pip</code>、<code>pip-tools</code> 和 <code>venv</code> 的一个性能超强的“统一替代品”。</p>
+<p><strong>uv 的核心特点</strong>：</p>
+<ul>
+<li><strong>极致的速度</strong>：<code>uv</code> 的速度非常快，在安装和解析依赖时通常比 <code>pip</code> 快 10-100 倍。这得益于其底层的 Rust 实现和巧妙的缓存策略。</li>
+<li><strong>统一的工具链</strong>：它将 <code>pip</code> 的安装、<code>venv</code> 的环境创建、<code>pip-tools</code> 的依赖锁定等功能整合到一个命令行工具 <code>uv</code> 中。</li>
+<li><strong><code>pip</code> API 兼容</strong>：它的设计目标是作为 <code>pip</code> 的直接替代品，许多命令（如 <code>uv pip install</code>）都与 <code>pip</code> 保持一致。</li>
+</ul>
+<p><strong>uv 与 Conda 的核心区别</strong>： 最重要的一点是：<code>uv</code> 和 <code>pip</code> 一样，是一个<strong>纯粹的 Python 包管理器</strong>。它<strong>无法处理非 Python 依赖</strong>。这意味着，如果你需要安装依赖于底层 C/C++ 库的科学计算包，<code>uv</code> 自身无法解决这个问题，你仍然需要一个像 Conda 这样的系统来管理这些底层依赖。</p>
+<h3 id="实战建议conda-还是-uv我应该选择哪个">实战建议：Conda 还是 uv？我应该选择哪个？</h3>
+<p>这是一个场景问题，答案取决于你的项目类型。</p>
+<ul>
+<li><strong>场景一：数据科学、机器学习、科学计算</strong>
+<ul>
+<li><strong>首选</strong>: <strong>Conda (推荐 Miniforge/Mambaforge)</strong></li>
+<li><strong>原因</strong>: 这类项目严重依赖具有复杂非 Python 依赖的库（如 PyTorch, TensorFlow, NumPy, SciPy, CUDA Tookit）。Conda 是目前唯一能完美处理这类二进制依赖关系的工具。<strong>在这种场景下，Conda 是不可或缺的。</strong></li>
+</ul></li>
+<li><strong>场景二：Web 开发、命令行工具等纯 Python 项目</strong>
+<ul>
+<li><strong>首选</strong>: <strong>uv + venv</strong></li>
+<li><strong>原因</strong>: 这类项目的依赖通常都是纯 Python 包。<code>uv</code> 的速度优势在这里能得到最大程度的发挥，它可以极大地加速本地开发和 CI/CD 流程。你可以用 <code>uv venv</code> 创建环境，用 <code>uv pip install</code> 安装包，体验飞一般的速度。</li>
+</ul></li>
+<li><strong>场景三：混合动力模式</strong>
+<ul>
+<li><strong>方案</strong>: <strong>使用 Conda 管理环境和底层依赖，使用 uv 管理 Python 包</strong></li>
+<li><strong>原因</strong>: 这是目前许多高级玩家推崇的模式。你可以获得两者的最大优势：
+<ol type="1">
+<li>用 <code>conda</code> 创建一个干净的环境，并安装好 Python 和那些棘手的非 Python 依赖库（例如 <code>conda install python=3.10 pytorch cuda-toolkit -c pytorch -c nvidia</code>）。</li>
+<li>激活这个 Conda 环境。</li>
+<li>在这个环境中使用 <code>uv</code> 来管理所有纯 Python 的应用层依赖（例如 <code>uv pip install -r requirements.txt</code>）。</li>
+</ol></li>
+</ul>
+<blockquote>
+<p><strong>深入探讨：为什么这种混合模式不会冲突？</strong> 核心在于，当您激活一个 Conda 环境后，该环境的 <code>bin</code> 目录会被添加到系统 <code>PATH</code> 的最前端。<code>uv</code> 和 <code>pip</code> 一样，会智能地使用 <code>PATH</code> 中找到的第一个 Python 解释器。因此，<code>uv</code> 会将包正确地安装到当前激活的 Conda 环境中。 此外，现代 Conda 在执行操作时，会检查并识别出由 <code>pip</code>/<code>uv</code> 安装的包，并将其纳入依赖解析的考量范围，从而<strong>避免了冲突</strong>。这种智能集成使得“Conda管底层，uv/pip管应用层”的模式成为可能且高效。</p>
+</blockquote></li>
+</ul>
+<p><strong>结论</strong>: - 如果你的工作流涉及<strong>非 Python 依赖</strong>，请继续使用 <strong>Conda</strong> 作为你的基础环境管理器。 - 如果你的项目是<strong>纯 Python</strong>的，大胆地换用 <strong>uv</strong>，享受极致的速度。 - 如果你想两全其美，<strong>Conda + uv</strong> 的混合模式是当前的最佳实践。</p>
+<h3 id="基本命令对比"><strong>基本命令对比</strong></h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">操作</th>
+<th style="text-align: left;">Conda</th>
+<th style="text-align: left;">uv</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>创建环境</strong></td>
+<td style="text-align: left;"><code>conda create -n myenv python=3.10</code></td>
+<td style="text-align: left;"><code>uv venv myenv --python 3.10</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>激活环境</strong></td>
+<td style="text-align: left;"><code>conda activate myenv</code></td>
+<td style="text-align: left;"><code>source myenv/bin/activate</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>安装包</strong></td>
+<td style="text-align: left;"><code>conda install numpy</code></td>
+<td style="text-align: left;"><code>uv pip install numpy</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>从文件安装</strong></td>
+<td style="text-align: left;"><code>conda env create -f env.yml</code></td>
+<td style="text-align: left;"><code>uv pip install -r requirements.txt</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>列出已安装包</strong></td>
+<td style="text-align: left;"><code>conda list</code></td>
+<td style="text-align: left;"><code>uv pip list</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>删除环境</strong></td>
+<td style="text-align: left;"><code>conda remove -n myenv --all</code></td>
+<td style="text-align: left;"><code>rm -rf myenv</code></td>
+</tr>
+</tbody>
+</table>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Conda</tag>
+        <tag>Python</tag>
+        <tag>uv</tag>
+        <tag>pip</tag>
+      </tags>
   </entry>
   <entry>
     <title>H100 服务器 CUDA + PyTorch 环境速配指南</title>
@@ -1921,43 +1948,6 @@ flowchart TD
 ]]></content>
   </entry>
   <entry>
-    <title>DeepSeek本地部署</title>
-    <url>/posts/4f6ed32b/</url>
-    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
-<span id="more"></span>
-<h2 id="下载ollama">下载Ollama</h2>
-<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
-<p>下载地址：https://ollama.com/download/windows</p>
-<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
-<p>如下图所示</p>
-<p><img src="/assets/deepseek部署01.png" /></p>
-<blockquote>
-<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
-</blockquote>
-<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
-<p><img src="/assets/deepseek部署02.png" /></p>
-<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
-<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
-<h2 id="下载deepseek">下载DeepSeek</h2>
-<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
-<p><img src="/assets/deepseek部署03.png" /></p>
-<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
-<p>如下图所示：</p>
-<p><img src="/assets/deepseek部署04.png" /></p>
-<p>最终效果如下图所示：</p>
-<p><img src="/assets/deepseek部署05.png" /></p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>人工智能</category>
-      </categories>
-      <tags>
-        <tag>大语言模型</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Compute Sanitizer 实用指南：从 0 到熟练</title>
     <url>/posts/a1b2c3d4/</url>
     <content><![CDATA[<p>想把 CUDA 程序里的“越界读写、未初始化、数据竞争、Barrier 不匹配”这类顽固 Bug 一网打尽？Compute Sanitizer（前身 <code>cuda-memcheck</code>）就是你的第一生产力工具。本文以“能上手能排错”为目标，按难度循序渐进，从最小示例、常见报错，到命令参数与协同工具给出一份“即插即用”的参考。</p>
@@ -2168,6 +2158,43 @@ flowchart TD
         <tag>GPU</tag>
         <tag>调试</tag>
         <tag>工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DeepSeek本地部署</title>
+    <url>/posts/4f6ed32b/</url>
+    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
+<span id="more"></span>
+<h2 id="下载ollama">下载Ollama</h2>
+<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
+<p>下载地址：https://ollama.com/download/windows</p>
+<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
+<p>如下图所示</p>
+<p><img src="/assets/deepseek部署01.png" /></p>
+<blockquote>
+<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
+</blockquote>
+<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
+<p><img src="/assets/deepseek部署02.png" /></p>
+<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
+<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
+<h2 id="下载deepseek">下载DeepSeek</h2>
+<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
+<p><img src="/assets/deepseek部署03.png" /></p>
+<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
+<p>如下图所示：</p>
+<p><img src="/assets/deepseek部署04.png" /></p>
+<p>最终效果如下图所示：</p>
+<p><img src="/assets/deepseek部署05.png" /></p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>人工智能</category>
+      </categories>
+      <tags>
+        <tag>大语言模型</tag>
       </tags>
   </entry>
   <entry>
@@ -2392,6 +2419,157 @@ LBD --&gt; DLQ[&quot;死信队列&lt;br&#x2F;&gt;(可选)&quot;]
         <tag>Serverless</tag>
         <tag>FaaS</tag>
         <tag>云原生</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>开源许可证速查：MIT、Apache 2.0、GPL v3 怎么选？</title>
+    <url>/posts/c3f2a1b9/</url>
+    <content><![CDATA[<p>面对五花八门的开源许可证，最常被问到的无非三件事：能不能商用？能不能改了闭源？要不要写专利和修改声明？这篇文章用一张速查表和几条决策准则，帮你在 1 分钟内选对证。</p>
+<span id="more"></span>
+<h2 id="先看结论速查表">🧭 先看结论（速查表）</h2>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>MIT 许可证</th>
+<th>Apache 2.0 许可证</th>
+<th>GPL 许可证 (v3)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>类型</td>
+<td>宽松（Permissive）</td>
+<td>宽松（Permissive）</td>
+<td>传染共享（Copyleft）</td>
+</tr>
+<tr class="even">
+<td>商业使用</td>
+<td>允许</td>
+<td>允许</td>
+<td>允许</td>
+</tr>
+<tr class="odd">
+<td>修改后闭源</td>
+<td>允许</td>
+<td>允许</td>
+<td>不允许</td>
+</tr>
+<tr class="even">
+<td>需要包含原许可证</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr class="odd">
+<td>需要说明修改</td>
+<td>否</td>
+<td>是</td>
+<td>是</td>
+</tr>
+<tr class="even">
+<td>专利授权</td>
+<td>无明确说明</td>
+<td>明确授权</td>
+<td>明确授权</td>
+</tr>
+<tr class="odd">
+<td>“传染性”</td>
+<td>无</td>
+<td>无</td>
+<td>强</td>
+</tr>
+</tbody>
+</table>
+<p>图表要点：如果你希望“随便用、闭源也行”，首选 MIT 或 Apache 2.0；如果你希望“别人用到你的代码时必须开源”，选择 GPL v3。</p>
+<hr />
+<h2 id="三大许可证一口气读懂">🧩 三大许可证，一口气读懂</h2>
+<h3 id="mit最宽松落地最简单">✅ MIT：最宽松、落地最简单</h3>
+<ul>
+<li>核心义务：在再分发时保留原始版权与许可证文本。</li>
+<li>适用场景：前端库、工具脚本、样例项目、教育项目等，希望最低合规成本、最大化传播。</li>
+<li>风险点：没有明确的专利授权条款，企业法务更偏好 Apache 2.0。</li>
+</ul>
+<h3 id="apache-2.0工程团队的默认首选">✅ Apache 2.0：工程团队的默认首选</h3>
+<ul>
+<li>核心义务：保留 <code>LICENSE</code> 与 <code>NOTICE</code>，对修改做合理标识；自带专利授权与专利反诉终止条款。</li>
+<li>适用场景：需要进入企业或商业产品的库/服务；关注专利风险的项目。</li>
+<li>亮点：与 MIT 同样宽松，但合规边界更清晰，专利条款更友好。</li>
+</ul>
+<h3 id="gpl-v3强-copyleft确保改动也开源">🔁 GPL v3：强 Copyleft，确保改动也开源</h3>
+<ul>
+<li>核心义务：凡分发衍生作品，必须以 GPL 兼容方式开源全部相关源代码，并保留许可证与修改说明。</li>
+<li>适用场景：你希望代码永远开源、阻止他人闭源使用改动成果（例如工具链、基础软件）。</li>
+<li>注意：对闭源商业分发不友好；与部分生态的许可证兼容性较差。</li>
+</ul>
+<hr />
+<h2 id="怎么选用这-4-个问题秒定">🧠 怎么选？用这 4 个问题秒定</h2>
+<ol type="1">
+<li>你是否希望别人基于你的代码做出的产品可以闭源？
+<ul>
+<li>是 → 选 MIT 或 Apache 2.0</li>
+<li>否 → 选 GPL v3（若是网络服务场景且更在意“通过网络提供服务”也触发开源义务，可考虑 AGPL）</li>
+</ul></li>
+<li>你是否担心专利纠纷？
+<ul>
+<li>是 → 优先 Apache 2.0（自带明确专利授权与防滥诉条款）</li>
+<li>否 → MIT 也可</li>
+</ul></li>
+<li>你的目标用户是谁？
+<ul>
+<li>企业/商业产品集成 → Apache 2.0 更易被法务接受</li>
+<li>个人/教学/社区 Demo → MIT 简洁好用</li>
+</ul></li>
+<li>你是否需要与其他许可证兼容？
+<ul>
+<li>npm/Go/Rust 等社区通用库 → MIT/Apache 2.0 兼容面更广</li>
+<li>想“强制开源传递” → GPL 系列</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="合规清单实操">🗂️ 合规清单（实操）</h2>
+<ul>
+<li>在仓库根目录放置 <code>LICENSE</code> 文件；Apache 2.0 另需 <code>NOTICE</code>（列出版权与声明）。</li>
+<li>再分发二进制或源代码时，携带原始许可证文本；Apache 2.0 对“修改过的文件”做适当标注。</li>
+<li>第三方依赖合规：记录依赖及其许可证；打包/发行时附上对应的 <code>LICENSE/NOTICE</code> 汇总。</li>
+<li>版权年份与持有人保持最新；多人或公司名义应统一口径。</li>
+<li>公司项目：与法务确认是否需要额外的贡献者许可协议（CLA）。</li>
+</ul>
+<hr />
+<h2 id="常见误区">❓ 常见误区</h2>
+<ul>
+<li>“用了 GPL 的库就必须把我的 SaaS 也开源？”——如果只是通过网络调用且未分发程序，GPL 的触发较弱，但 AGPL 明确将“网络提供服务”纳入义务，注意区分。</li>
+<li>“MIT 就没有任何限制？”——仍需保留版权与许可证文本；没有专利条款并不等于无限责任。</li>
+<li>“Apache 2.0 一定要每个文件头都加版权声明吗？”——并非强制，但为便于溯源，核心文件加上版权头是常见实践。</li>
+</ul>
+<hr />
+<h2 id="模板与参考">📎 模板与参考</h2>
+<ul>
+<li>官方文本：
+<ul>
+<li>MIT：<a href="https://opensource.org/license/mit/">Open Source Initiative</a></li>
+<li>Apache 2.0：<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></li>
+<li>GPL v3：<a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPLv3</a></li>
+</ul></li>
+<li>模板生成：<code>choosealicense.com</code> 提供多语言示例与合规提示。</li>
+</ul>
+<hr />
+<h2 id="小结">✨ 小结</h2>
+<ul>
+<li>想要传播最广、合规成本最低：选 <strong>MIT</strong>。</li>
+<li>想兼顾企业合规与专利风险：选 <strong>Apache 2.0</strong>。</li>
+<li>想确保改动继续开源并回馈社区：选 <strong>GPL v3</strong>（或在“网络服务”场景下考虑 <strong>AGPL</strong>）。</li>
+</ul>
+<p>把本文表格收藏到书签，你的许可证选择基本不会错。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>开源</category>
+      </categories>
+      <tags>
+        <tag>开源</tag>
+        <tag>License</tag>
+        <tag>许可证</tag>
       </tags>
   </entry>
   <entry>
@@ -2750,157 +2928,6 @@ flowchart TD
         <tag>CPU</tag>
         <tag>并行计算</tag>
         <tag>计算机基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>开源许可证速查：MIT、Apache 2.0、GPL v3 怎么选？</title>
-    <url>/posts/c3f2a1b9/</url>
-    <content><![CDATA[<p>面对五花八门的开源许可证，最常被问到的无非三件事：能不能商用？能不能改了闭源？要不要写专利和修改声明？这篇文章用一张速查表和几条决策准则，帮你在 1 分钟内选对证。</p>
-<span id="more"></span>
-<h2 id="先看结论速查表">🧭 先看结论（速查表）</h2>
-<table>
-<thead>
-<tr class="header">
-<th>特性</th>
-<th>MIT 许可证</th>
-<th>Apache 2.0 许可证</th>
-<th>GPL 许可证 (v3)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>类型</td>
-<td>宽松（Permissive）</td>
-<td>宽松（Permissive）</td>
-<td>传染共享（Copyleft）</td>
-</tr>
-<tr class="even">
-<td>商业使用</td>
-<td>允许</td>
-<td>允许</td>
-<td>允许</td>
-</tr>
-<tr class="odd">
-<td>修改后闭源</td>
-<td>允许</td>
-<td>允许</td>
-<td>不允许</td>
-</tr>
-<tr class="even">
-<td>需要包含原许可证</td>
-<td>是</td>
-<td>是</td>
-<td>是</td>
-</tr>
-<tr class="odd">
-<td>需要说明修改</td>
-<td>否</td>
-<td>是</td>
-<td>是</td>
-</tr>
-<tr class="even">
-<td>专利授权</td>
-<td>无明确说明</td>
-<td>明确授权</td>
-<td>明确授权</td>
-</tr>
-<tr class="odd">
-<td>“传染性”</td>
-<td>无</td>
-<td>无</td>
-<td>强</td>
-</tr>
-</tbody>
-</table>
-<p>图表要点：如果你希望“随便用、闭源也行”，首选 MIT 或 Apache 2.0；如果你希望“别人用到你的代码时必须开源”，选择 GPL v3。</p>
-<hr />
-<h2 id="三大许可证一口气读懂">🧩 三大许可证，一口气读懂</h2>
-<h3 id="mit最宽松落地最简单">✅ MIT：最宽松、落地最简单</h3>
-<ul>
-<li>核心义务：在再分发时保留原始版权与许可证文本。</li>
-<li>适用场景：前端库、工具脚本、样例项目、教育项目等，希望最低合规成本、最大化传播。</li>
-<li>风险点：没有明确的专利授权条款，企业法务更偏好 Apache 2.0。</li>
-</ul>
-<h3 id="apache-2.0工程团队的默认首选">✅ Apache 2.0：工程团队的默认首选</h3>
-<ul>
-<li>核心义务：保留 <code>LICENSE</code> 与 <code>NOTICE</code>，对修改做合理标识；自带专利授权与专利反诉终止条款。</li>
-<li>适用场景：需要进入企业或商业产品的库/服务；关注专利风险的项目。</li>
-<li>亮点：与 MIT 同样宽松，但合规边界更清晰，专利条款更友好。</li>
-</ul>
-<h3 id="gpl-v3强-copyleft确保改动也开源">🔁 GPL v3：强 Copyleft，确保改动也开源</h3>
-<ul>
-<li>核心义务：凡分发衍生作品，必须以 GPL 兼容方式开源全部相关源代码，并保留许可证与修改说明。</li>
-<li>适用场景：你希望代码永远开源、阻止他人闭源使用改动成果（例如工具链、基础软件）。</li>
-<li>注意：对闭源商业分发不友好；与部分生态的许可证兼容性较差。</li>
-</ul>
-<hr />
-<h2 id="怎么选用这-4-个问题秒定">🧠 怎么选？用这 4 个问题秒定</h2>
-<ol type="1">
-<li>你是否希望别人基于你的代码做出的产品可以闭源？
-<ul>
-<li>是 → 选 MIT 或 Apache 2.0</li>
-<li>否 → 选 GPL v3（若是网络服务场景且更在意“通过网络提供服务”也触发开源义务，可考虑 AGPL）</li>
-</ul></li>
-<li>你是否担心专利纠纷？
-<ul>
-<li>是 → 优先 Apache 2.0（自带明确专利授权与防滥诉条款）</li>
-<li>否 → MIT 也可</li>
-</ul></li>
-<li>你的目标用户是谁？
-<ul>
-<li>企业/商业产品集成 → Apache 2.0 更易被法务接受</li>
-<li>个人/教学/社区 Demo → MIT 简洁好用</li>
-</ul></li>
-<li>你是否需要与其他许可证兼容？
-<ul>
-<li>npm/Go/Rust 等社区通用库 → MIT/Apache 2.0 兼容面更广</li>
-<li>想“强制开源传递” → GPL 系列</li>
-</ul></li>
-</ol>
-<hr />
-<h2 id="合规清单实操">🗂️ 合规清单（实操）</h2>
-<ul>
-<li>在仓库根目录放置 <code>LICENSE</code> 文件；Apache 2.0 另需 <code>NOTICE</code>（列出版权与声明）。</li>
-<li>再分发二进制或源代码时，携带原始许可证文本；Apache 2.0 对“修改过的文件”做适当标注。</li>
-<li>第三方依赖合规：记录依赖及其许可证；打包/发行时附上对应的 <code>LICENSE/NOTICE</code> 汇总。</li>
-<li>版权年份与持有人保持最新；多人或公司名义应统一口径。</li>
-<li>公司项目：与法务确认是否需要额外的贡献者许可协议（CLA）。</li>
-</ul>
-<hr />
-<h2 id="常见误区">❓ 常见误区</h2>
-<ul>
-<li>“用了 GPL 的库就必须把我的 SaaS 也开源？”——如果只是通过网络调用且未分发程序，GPL 的触发较弱，但 AGPL 明确将“网络提供服务”纳入义务，注意区分。</li>
-<li>“MIT 就没有任何限制？”——仍需保留版权与许可证文本；没有专利条款并不等于无限责任。</li>
-<li>“Apache 2.0 一定要每个文件头都加版权声明吗？”——并非强制，但为便于溯源，核心文件加上版权头是常见实践。</li>
-</ul>
-<hr />
-<h2 id="模板与参考">📎 模板与参考</h2>
-<ul>
-<li>官方文本：
-<ul>
-<li>MIT：<a href="https://opensource.org/license/mit/">Open Source Initiative</a></li>
-<li>Apache 2.0：<a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a></li>
-<li>GPL v3：<a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPLv3</a></li>
-</ul></li>
-<li>模板生成：<code>choosealicense.com</code> 提供多语言示例与合规提示。</li>
-</ul>
-<hr />
-<h2 id="小结">✨ 小结</h2>
-<ul>
-<li>想要传播最广、合规成本最低：选 <strong>MIT</strong>。</li>
-<li>想兼顾企业合规与专利风险：选 <strong>Apache 2.0</strong>。</li>
-<li>想确保改动继续开源并回馈社区：选 <strong>GPL v3</strong>（或在“网络服务”场景下考虑 <strong>AGPL</strong>）。</li>
-</ul>
-<p>把本文表格收藏到书签，你的许可证选择基本不会错。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>开源</category>
-      </categories>
-      <tags>
-        <tag>开源</tag>
-        <tag>License</tag>
-        <tag>许可证</tag>
       </tags>
   </entry>
   <entry>
@@ -6311,362 +6338,6 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>pytorch入门</title>
-    <url>/posts/5f1831aa/</url>
-    <content><![CDATA[<p>PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 <code>Dataset</code>、<code>DataLoader</code>、<code>Transforms</code> 和 <code>TensorBoard</code> 是高效训练模型的关键。本文将带你快速入门这四大核心组件。 <span id="more"></span></p>
-<h3 id="核心组件速记">📚 核心组件速记</h3>
-<table>
-<thead>
-<tr class="header">
-<th>组件</th>
-<th>一句话记忆</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>Dataset</code></td>
-<td><code>__getitem__</code> 和 <code>__len__</code> → 封装你的数据源，按索引取数据</td>
-</tr>
-<tr class="even">
-<td><code>DataLoader</code></td>
-<td><code>batch_size</code>, <code>shuffle</code> → 从 <code>Dataset</code> 中批量、随机地取数据</td>
-</tr>
-<tr class="odd">
-<td><code>Transforms</code></td>
-<td><code>Compose</code>, <code>ToTensor</code> → 数据预处理与增强的“流水线”</td>
-</tr>
-<tr class="even">
-<td><code>TensorBoard</code></td>
-<td><code>SummaryWriter</code> → 训练过程可视化，调参与Debug的神器</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="数据流转示意图">🎨 数据流转示意图</h3>
-<p>在 PyTorch 中，数据通常经历从磁盘文件到模型输入的转换过程。理解这个流程是掌握数据加载机制的第一步。</p>
-<pre>
-<code class="mermaid">
-
-graph TD
-    subgraph &quot;硬盘&quot;
-        A[&quot;图片文件 (cat.jpg)&quot;]
-    end
-    subgraph &quot;CPU 内存&quot;
-        B[&quot;PIL Image &#x2F; OpenCV (numpy array)&quot;]
-    end
-    subgraph &quot;GPU&#x2F;CPU 内存&quot;
-        C[&quot;Torch Tensor&lt;br&#x2F;&gt;[C, H, W]&quot;]
-        D[&quot;Batch Tensor&lt;br&#x2F;&gt;[B, C, H, W]&quot;]
-        C -- &quot;DataLoader 批量化&quot; --&gt; D
-    end
-
-    A -- &quot;Image.open()&quot; --&gt; B
-    B -- &quot;transforms.ToTensor()&quot; --&gt; C
-    D &#x3D;&#x3D;&gt; E[模型输入]
-</code>
-</pre>
-<h2 id="torch.utils.data.dataset封装你的数据">1️⃣ <code>torch.utils.data.Dataset</code>：封装你的数据</h2>
-<p><code>Dataset</code> 是一个抽象类，用于表示数据集。所有自定义的数据集都应该继承它，并重写两个核心方法：</p>
-<ul>
-<li><code>__len__(self)</code>: 返回数据集的大小。</li>
-<li><code>__getitem__(self, idx)</code>: 根据索引 <code>idx</code> 返回一条数据（通常是一个样本和对应的标签）。</li>
-</ul>
-<p>这提供了一个统一的接口，让 <code>DataLoader</code> 等工具可以方便地处理各种不同来源的数据。</p>
-<h3 id="示例创建一个自定义-dataset">示例：创建一个自定义 <code>Dataset</code></h3>
-<p>假设我们有一些图片路径和对应的标签，我们可以这样创建一个 <code>Dataset</code>：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyImageDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, image_paths, labels, transform=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.image_paths = image_paths</span><br><span class="line">        <span class="variable language_">self</span>.labels = labels</span><br><span class="line">        <span class="variable language_">self</span>.transform = transform</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.image_paths)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="comment"># 读取图片</span></span><br><span class="line">        image_path = <span class="variable language_">self</span>.image_paths[idx]</span><br><span class="line">        image = Image.<span class="built_in">open</span>(image_path).convert(<span class="string">&quot;RGB&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 获取标签</span></span><br><span class="line">        label = <span class="variable language_">self</span>.labels[idx]</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 应用数据变换</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.transform:</span><br><span class="line">            image = <span class="variable language_">self</span>.transform(image)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> image, label</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">image_files = [<span class="string">&quot;./data/cat.png&quot;</span>, <span class="string">&quot;./data/dog.png&quot;</span>]</span><br><span class="line">image_labels = [<span class="number">0</span>, <span class="number">1</span>]</span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;数据总数: <span class="subst">&#123;<span class="built_in">len</span>(custom_dataset)&#125;</span>&quot;</span>)</span><br><span class="line">first_item = custom_dataset[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;第一个样本: <span class="subst">&#123;first_item&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>记忆：<code>Dataset</code> 就是个“数据地图”，<code>__getitem__</code> 负责“按图索骥”。</p>
-</blockquote>
-<hr />
-<h2 id="torchvision.transforms数据预处理与增强">2️⃣ <code>torchvision.transforms</code>：数据预处理与增强</h2>
-<p>在将数据喂给模型之前，通常需要进行预处理，例如转换为 Tensor、归一化、裁剪、旋转等。<code>transforms</code> 就是用来完成这些操作的工具箱。</p>
-<ul>
-<li><strong>常见变换</strong>：<code>ToTensor()</code>, <code>Resize()</code>, <code>CenterCrop()</code>, <code>RandomHorizontalFlip()</code>, <code>Normalize()</code> 等。</li>
-<li><strong><code>transforms.Compose()</code></strong>: 将多个变换操作串联成一个“流水线”。</li>
-</ul>
-<h3 id="示例定义一个变换流水线">示例：定义一个变换流水线</h3>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个转换流水线</span></span><br><span class="line">data_transform = transforms.Compose([</span><br><span class="line">    transforms.Resize((<span class="number">224</span>, <span class="number">224</span>)),      <span class="comment"># 调整图片大小</span></span><br><span class="line">    transforms.RandomHorizontalFlip(),  <span class="comment"># 随机水平翻转</span></span><br><span class="line">    transforms.ToTensor(),              <span class="comment"># 将 PIL Image 或 numpy.ndarray 转换为 tensor</span></span><br><span class="line">    transforms.Normalize(mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>]) <span class="comment"># 归一化</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 transform 应用到 Dataset</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>为什么要随机翻转？</strong></p>
-<p><code>RandomHorizontalFlip</code> 是一种<strong>数据增强</strong> (Data Augmentation) 技术。它的目的是在不改变图片语义（猫翻转了还是猫）的前提下，增加训练数据的多样性。</p>
-<ul>
-<li><strong>提高泛化能力</strong>：模型会学习到，无论是正着还是反着的猫，都应该被识别为猫，从而对真实世界中更多样的数据表现更好，避免<strong>过拟合</strong>。</li>
-<li><strong>扩充数据集</strong>：相当于免费让你的数据集大小翻倍。</li>
-</ul>
-<p>提示：数据增强（如随机翻转）只在训练时使用，验证和测试时应去掉，以保证结果的一致性。</p>
-</blockquote>
-<hr />
-<h2 id="torch.utils.data.dataloader批量加载数据">3️⃣ <code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
-<p><code>DataLoader</code> 是一个迭代器，它从 <code>Dataset</code> 中自动拉取数据，并将其打包成批次 (batch)。它还提供了许多有用的功能：</p>
-<ul>
-<li><strong><code>batch_size</code></strong>: 每个批次包含的样本数。</li>
-<li><strong><code>shuffle=True</code></strong>: 在每个 epoch 开始时打乱数据顺序，有助于提高模型泛化能力。</li>
-<li><strong><code>num_workers</code></strong>: 使用多少个子进程来预加载数据。增加此值可以加快数据加载速度，但会消耗更多内存和 CPU。</li>
-</ul>
-<h3 id="示例使用-dataloader">示例：使用 <code>DataLoader</code></h3>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 custom_dataset 已经创建好</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br><span class="line"></span><br><span class="line">data_loader = DataLoader(</span><br><span class="line">    dataset=custom_dataset,</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">4</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 像遍历列表一样遍历 DataLoader</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> images, labels <span class="keyword">in</span> data_loader:</span><br><span class="line">        <span class="comment"># 在这里执行模型训练</span></span><br><span class="line">        <span class="comment"># images 的形状: [32, 3, 224, 224] (假设batch_size=32)</span></span><br><span class="line">        <span class="comment"># labels 的形状: [32]</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
-<pre>
-<code class="mermaid">
-
-graph TD
-    A[原始数据文件] --&gt; B(Dataset);
-    B -- 按索引 __getitem__ --&gt; C{单条数据};
-    D(Transforms) -- 应用于 --&gt; C;
-    C --&gt; E(DataLoader);
-    E -- 打包成 batch --&gt; F[模型];
-</code>
-</pre>
-<hr />
-<h2 id="torch.utils.tensorboard可视化训练过程">4️⃣ <code>torch.utils.tensorboard</code>：可视化训练过程</h2>
-<p><code>TensorBoard</code> 是一个强大的可视化工具，可以帮助你理解、调试和优化你的模型。PyTorch 通过 <code>SummaryWriter</code> 类与其集成。</p>
-<p><strong>主要功能</strong>: - 记录标量（如 loss、accuracy）的变化曲线。 - 可视化图像、模型图、embedding 等。</p>
-<h3 id="示例使用-summarywriter">示例：使用 <code>SummaryWriter</code></h3>
-<p><code>add_scalar</code> 是最常用的方法之一，它用于记录单个标量值的变化。</p>
-<ul>
-<li><code>tag</code>: 图表的标题，例如 'Loss/train' 或 'Accuracy/validation'。使用 <code>/</code> 可以帮助在 TensorBoard 中对图表进行分组。</li>
-<li><code>scalar_value</code>: 要记录的数值，通常是 loss 值或准确率。</li>
-<li><code>global_step</code>: x 轴坐标，通常是训练的步数（batch index）或轮数（epoch index）。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建一个 writer 实例，日志会保存在 &#x27;logs&#x27; 目录下</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&#x27;logs/experiment_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在训练循环中记录信息</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># ... 训练代码 ...</span></span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        running_loss += loss.item()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每 100 个 batch 记录一次 loss</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            writer.add_scalar(<span class="string">&#x27;training loss&#x27;</span>, running_loss / <span class="number">100</span>, epoch * <span class="built_in">len</span>(data_loader) + i)</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">    假设在每个 epoch 结束后记录一张图片</span><br><span class="line">    writer.add_image(<span class="string">&#x27;one_image&#x27;</span>, images[<span class="number">0</span>], epoch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 训练结束后关闭 writer</span></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
-<p>记录完成后，在终端中运行 <code>tensorboard --logdir=logs</code>，然后访问浏览器中显示的地址（通常是 <code>http://localhost:6006</code>）即可查看可视化结果。</p>
-<hr />
-<h2 id="小结">📝 小结</h2>
-<ol type="1">
-<li><strong><code>Dataset</code></strong>：数据源的标准化封装，核心是 <code>__len__</code> 和 <code>__getitem__</code>。</li>
-<li><strong><code>Transforms</code></strong>：数据预处理和增强的流水线，使用 <code>Compose</code> 组合。</li>
-<li><strong><code>DataLoader</code></strong>：将 <code>Dataset</code> 包装成可迭代对象，实现批量、随机和并行加载。</li>
-<li><strong><code>TensorBoard</code></strong>：通过 <code>SummaryWriter</code> 记录训练过程，实现可视化分析。</li>
-</ol>
-<p>熟练运用这四大组件，你的 PyTorch 项目将变得更加规范、高效和易于调试 🚀</p>
-]]></content>
-      <categories>
-        <category>AI</category>
-        <category>PyTorch</category>
-      </categories>
-      <tags>
-        <tag>PyTorch</tag>
-        <tag>深度学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Shell 启动脚本：理解 bash、zsh 的启动流程</title>
-    <url>/posts/shell-startup/</url>
-    <content><![CDATA[<p>如果你是一个经常使用 shell 的用户，几乎肯定会在主目录下有一个 <code>.bash_profile</code> 或 <code>.bashrc</code> 脚本，通常包含各种调整，比如设置环境变量（将某个目录添加到 <code>$PATH</code>）、告诉 shell 做聪明的事情（如 <code>set -o noclobber</code>）以及为命令添加各种别名（如 <code>alias please=sudo</code>）。</p>
-<p>（如果你真的很有条理，你会把所有点文件都放在某个仓库中，这样你就可以在所有工作的机器上保持设置同步。）</p>
-<p>无论如何，我怀疑很少有人知道 <code>.bash_profile</code> 和 <code>.bashrc</code> 这样的文件实际上什么时候被执行。当我刚开始时，我只是按照别人的建议把东西放在 <code>.bashrc</code> 中，然后当它不工作时，就放到 <code>.bash_profile</code> 中。我可以在这里停下来，只描述 bash 的启动过程（尽管它很愚蠢），但有一个复杂的情况是，我在几年前切换到了 zsh（并且没有回头），但偶尔会在没有安装 zsh 的机器上使用 bash。</p>
-<span id="more"></span>
-<h2 id="shell-启动脚本的复杂性">Shell 启动脚本的复杂性</h2>
-<p>为了优雅地处理这种情况，我需要能够在它们自己的文件中指定特定于 bash 或 zsh 的内容，然后在通用启动文件中指定任何符合 POSIX 标准的 shell（如别名和环境变量）都能理解的内容。</p>
-<p>我对这个问题的解决方案是定义一些新的点文件文件夹，每个 shell 一个（<code>.bash/</code>、<code>.zsh/</code> 和 <code>.sh/</code>），还有一个用于 shell 无关文件（<code>.shell/</code>）：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.bash/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.sh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">.shell/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.zsh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br></pre></td></tr></table></figure>
-<h2 id="不同类型的-shell">不同类型的 Shell</h2>
-<p>"But!" 你说，"这些不同的文件在这里做什么？" 啊，我很高兴你问了。有两种类型的 shell：</p>
-<ul>
-<li><strong>[非]交互式 shell</strong>（你向它们输入 / shell 脚本）</li>
-<li><strong>[非]登录 shell</strong>（首次登录时运行的 shell / 子 shell）</li>
-</ul>
-<p>所有 shell 都会首先运行 <code>env</code>，然后登录 shell 会运行 <code>login</code>，然后交互式 shell 会运行 <code>interactive</code>。完成后，登录 shell 会运行 <code>logout</code>。</p>
-<h2 id="在哪里放置内容">在哪里放置内容</h2>
-<p>这完全取决于它什么时候需要运行。</p>
-<ul>
-<li>如果它正在设置 / 修改环境变量，它应该放在 <code>login</code> 中</li>
-<li>如果它是别名或终端特定的环境变量（例如，<code>GREP_COLOR</code>），它应该放在 <code>interactive</code> 中</li>
-<li>在我的 <code>.shell/env</code> 文件中，我设置了 <code>umask</code>，还定义了一些有用的函数来修改冒号分隔的路径环境变量（如 <code>$PATH</code>）</li>
-</ul>
-<p>即使你不采用我方案中的其他任何东西，我也建议你看看我的函数在做什么，这与像 <code>export PATH=$PATH:/path/to/dir</code> 这样的东西不同。</p>
-<p>这种特定模式太常见了，如果你考虑 <code>$PATH</code>（或任何你的变量，如 <code>$LD_LIBRARY_PATH</code>）没有设置的情况，它会非常危险。然后，值将是 <code>:/path/to/dir</code>，这通常意味着 <code>/path/to/dir</code> 和当前目录，这通常既是意外行为又是安全问题。</p>
-<p>使用我的实现（见 <code>.shell/env_functions</code>），你可以从任何冒号分隔的环境变量中追加、前置和删除目录，当追加或前置时，你保证该目录只会在该变量中出现一次。</p>
-<h2 id="shell-启动流程详解">Shell 启动流程详解</h2>
-<h3 id="bash-启动流程">Bash 启动流程</h3>
-<p>Bash 的启动流程相对复杂，因为它有多种模式：</p>
-<ol type="1">
-<li><strong>登录 shell</strong>：当 bash 以 <code>-l</code> 参数启动或作为登录 shell 启动时</li>
-<li><strong>交互式 shell</strong>：当 bash 以交互模式启动时</li>
-<li><strong>非交互式 shell</strong>：当 bash 执行脚本时</li>
-<li><strong>远程 shell</strong>：当 bash 检测到通过 ssh 或 rsh 启动时</li>
-</ol>
-<h3 id="zsh-启动流程">Zsh 启动流程</h3>
-<p>Zsh 的启动流程更加简洁和一致：</p>
-<ol type="1">
-<li><strong>全局配置文件</strong>：<code>/etc/zshenv</code>、<code>/etc/zprofile</code>、<code>/etc/zshrc</code>、<code>/etc/zlogout</code></li>
-<li><strong>用户配置文件</strong>：<code>~/.zshenv</code>、<code>~/.zprofile</code>、<code>~/.zshrc</code>、<code>~/.zlogout</code></li>
-</ol>
-<h3 id="启动文件执行顺序">启动文件执行顺序</h3>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zprofile → ~/.zprofile → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">交互式非登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">非交互式 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv</span><br></pre></td></tr></table></figure>
-<h2 id="实际应用建议">实际应用建议</h2>
-<h3 id="环境变量管理">1. 环境变量管理</h3>
-<p>避免使用 <code>export PATH=$PATH:/new/path</code> 这种模式，因为它可能导致重复和空路径问题。相反，使用更安全的方法：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安全的路径添加函数</span></span><br><span class="line"><span class="function"><span class="title">path_append</span></span>() &#123;</span><br><span class="line">    <span class="built_in">local</span> var_name=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> new_path=<span class="string">&quot;<span class="variable">$2</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> current_path=<span class="string">&quot;<span class="variable">$&#123;!var_name&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [[ -z <span class="string">&quot;<span class="variable">$current_path</span>&quot;</span> ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> [[ <span class="string">&quot;:<span class="variable">$current_path</span>:&quot;</span> != *<span class="string">&quot;:<span class="variable">$new_path</span>:&quot;</span>* ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$current_path</span>:<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">path_append PATH <span class="string">&quot;/usr/local/bin&quot;</span></span><br></pre></td></tr></table></figure>
-<h3 id="条件加载">2. 条件加载</h3>
-<p>根据 shell 类型和交互性条件性地加载配置：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 只在交互式 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o interactive ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/interactive</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只在登录 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o login ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/login</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
-<h3 id="跨-shell-兼容性">3. 跨 Shell 兼容性</h3>
-<p>为了在不同 shell 之间保持兼容性，使用 POSIX 兼容的语法：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用 POSIX 兼容的语法</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$SHELL</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    */bash)</span><br><span class="line">        <span class="built_in">source</span> ~/.bash/specific</span><br><span class="line">        ;;</span><br><span class="line">    */zsh)</span><br><span class="line">        <span class="built_in">source</span> ~/.zsh/specific</span><br><span class="line">        ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
-<h2 id="总结">总结</h2>
-<p>理解 shell 启动脚本的执行顺序对于正确配置你的环境至关重要。通过采用模块化的方法，你可以：</p>
-<ol type="1">
-<li><strong>保持配置的整洁</strong>：将不同类型的配置分离到不同的文件中</li>
-<li><strong>提高可维护性</strong>：每个文件都有明确的职责</li>
-<li><strong>增强可移植性</strong>：在不同机器和 shell 之间轻松迁移配置</li>
-<li><strong>避免常见陷阱</strong>：如路径重复、环境变量污染等问题</li>
-</ol>
-<p>记住，shell 启动脚本的执行顺序可能因操作系统、shell 版本和编译选项而异。最好的方法是测试你自己的系统，并根据需要调整配置。</p>
-<hr />
-<p><strong>参考来源：</strong> <a href="https://blog.flowblok.id.au/2013-02/shell-startup-scripts.html">Shell startup scripts - flowblok's blog</a></p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Shell</tag>
-        <tag>Bash</tag>
-        <tag>Zsh</tag>
-        <tag>系统配置</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>了解Diffusion Language Model</title>
-    <url>/posts/a1d79e4c/</url>
-    <content><![CDATA[<p>我们熟悉的 Transformer 等模型采用“自回归”方式逐词生成文本，这限制了生成速度且不易保证长文本连贯。受图像生成领域成功的 <strong>扩散模型 (Diffusion Model)</strong> 启发，研究者将其引入文本生成，<strong>扩散语言模型 (Diffusion Language Model)</strong> 应运而生。</p>
-<span id="more"></span>
-<h2 id="什么是扩散模型">什么是扩散模型？</h2>
-<p><img src="/assets/image.png" /></p>
-<p>在深入了解其如何应用于语言之前，我们先通过一个直观的例子——图像生成——来理解扩散模型的核心思想。它主要包含两个过程：</p>
-<ol type="1">
-<li><p><strong>前向过程（Forward Process）</strong>：也叫“扩散”过程。想象一下，我们从一张清晰的图片开始，一步步地、逐渐地向图片中添加微小的“噪声”，直到这张图片完全变成一个毫无规律的噪声图。这个过程是固定的、可控的。</p></li>
-<li><p><strong>反向过程（Reverse Process）</strong>：也叫“去噪”过程。这是真正的“生成”环节。我们训练一个神经网络，让它学会上述过程的“逆操作”——即从一张纯噪声的图片开始，一步步地、逐渐地去除噪声，最终还原出一张清晰、有意义的图片。</p></li>
-</ol>
-<p>一旦模型学会了如何“去噪”，我们就可以给它任何随机噪声，让它“创造”出全新的、从未见过的图片。</p>
-<h2 id="如何将扩散模型用于文本">如何将扩散模型用于文本？</h2>
-<p>直接将扩散模型应用于文本面临一个核心挑战：<strong>文本是离散的，而扩散过程处理的是连续的数据</strong>。我们无法像给图片像素值加噪声那样，给一个“词”加上一点“噪声”变成另一个“半词”。</p>
-<p>解决方案是：<strong>在连续空间中操作</strong>。</p>
-<p>我们不直接处理文字，而是先将文字通过 <strong>词嵌入（Word Embedding）</strong> 技术转换为高维度的连续向量。这样，文本序列就变成了一组向量，我们可以在这个连续的向量空间中执行扩散和去噪过程。</p>
-<h2 id="diffusion-语言模型的工作原理">Diffusion 语言模型的工作原理</h2>
-<p>理解了以上概念后，扩散语言模型的工作流程就清晰了：</p>
-<ol type="1">
-<li><strong>前向过程</strong>：取一个句子，将其转换为词向量序列。然后，逐步向这些向量中添加噪声，直到它们变成一组随机向量。</li>
-<li><strong>反向过程</strong>：训练一个模型（通常是基于 Transformer 架构）来学习逆转这个过程。模型的任务是接收一串加了噪声的向量，并预测出“更干净”的向量应该是什么样子。</li>
-<li><strong>文本生成</strong>：当需要生成新文本时，我们从一组完全随机的向量开始，然后反复利用训练好的去噪模型进行迭代处理。每一步，向量都会变得“更清晰”一点，逐渐从无序的噪声收敛为有意义的词向量。最后，将这些“去噪”完成的词向量转换回人类可读的文字，就完成了一次文本生成。</li>
-</ol>
-<h2 id="diffusion-语言模型的优势">Diffusion 语言模型的优势</h2>
-<p>与传统的自回归模型相比，扩散语言模型展现出一些独特的优势：</p>
-<ul>
-<li><strong>并行生成</strong>：扩散模型在生成时是迭代式地对整个序列进行优化的，而不是像自回归模型那样必须逐词生成。这为并行计算和更快的生成速度提供了可能。</li>
-<li><strong>全局一致性</strong>：由于模型的每一步去噪都是基于对整个序列的观察，它能更好地捕捉全局依赖关系，生成的文本在长距离连贯性和结构完整性上可能更具优势。</li>
-<li><strong>可控性更强</strong>：扩散模型的迭代特性使其在生成过程中更容易被引导和控制。我们可以通过修改去噪过程来控制生成文本的风格、主题或结构，使其更适用于文本编辑、修复和改写等任务。</li>
-</ul>
-<h2 id="前沿研究进展">前沿研究进展</h2>
-<p>尽管扩散语言模型是一个较新的研究方向，但它已经展现出惊人的潜力，涌现了许多前沿工作：</p>
-<ul>
-<li><strong>大规模模型的成功</strong>：以 <strong>LLaDA</strong> 为代表的研究表明，当参数规模扩大到数十亿级别时，精心设计的扩散语言模型在性能上足以媲美甚至在某些复杂任务上超越顶尖的自回归模型（如 LLaMA3、GPT-4o），这证明了该技术路线的可行性与潜力。</li>
-<li><strong>效率与质量的权衡</strong>：一些研究也指出，当前扩散语言模型在推理时为了达到高质量的生成效果，可能需要较多的“去噪”迭代步骤，这导致其计算成本相对较高。如何平衡生成质量与推理效率，是目前该领域的研究热点之一。</li>
-<li><strong>多模态统一框架</strong>：部分工作（如 <strong>Transfusion</strong> 架构）尝试将扩散模型与 Transformer 深度融合，在一个统一的框架内同时处理文本和图像的生成任务，为多模态内容创作提供了新的思路。</li>
-<li><strong>行业巨头的投入</strong>：以 Google 推出的 <strong>Gemini Diffusion</strong> 为例，科技巨头们也开始在该领域发力，进一步验证了文本扩散模型作为下一代生成技术核心的潜力。</li>
-</ul>
-<h2 id="总结">总结</h2>
-<p>扩散语言模型通过借鉴图像生成领域的成功经验，为自然语言生成任务提供了一种全新的、非自回归的解决方案。它通过在连续的词向量空间中进行“加噪”和“去噪”，克服了文本数据的离散性难题。尽管这一领域仍处于快速发展阶段，但其在并行生成、全局连贯性和可控性方面展现出的巨大潜力，预示着它将成为未来自然语言处理领域一个重要的研究方向。</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>了解RNN</title>
-    <url>/posts/da4b49ae/</url>
-    <content><![CDATA[<p>卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？</p>
-<span id="more"></span>
-<h2 id="文字转数字的朴素思想">文字转数字的朴素思想</h2>
-<p>有一种简单粗暴的方法：每一个文字或词组都用一个数字来代表，建一个非常大的映射关系表。</p>
-<p>但这样有几个显而易见的缺点：</p>
-<ol type="1">
-<li>只用一个数字表示，不仅要建的表很大，维度也很低（只有一维）。</li>
-<li>数字和数字之间无法表示字与字、词与词之间的联系。</li>
-</ol>
-<p>为了解决维度低的问题，有人提出了 <strong>one-hot 编码</strong>，即准备一个维度非常高的向量，每个字只有向量中一个位置是 1，其余全是 0。虽然维度低的问题被解决了，但是维度好像又太高了，并且依然没有解决之前的第二个问题。</p>
-<h2 id="更好的方案词嵌入">更好的方案：词嵌入</h2>
-<p>那有没有能解决以上两种问题的方法呢？有的，这种方法就是 <strong>词嵌入（Word Embedding）</strong>。</p>
-<p><img src="/assets/image-20251010224631451.png" /></p>
-<p>通过词嵌入的方式得到的词向量，维度不高不低，每个位置可以理解为一个特征值，但这个特征是通过训练得到的，我们并不知道代表着什么。那这种方式如何表示词与词之间的语义相关性呢？可以用两个向量的点积或余弦相似度来表示向量之间的相关性，进而表示词语之间的相关性。</p>
-<p>这样就将自然语言之间的联系转为可以用数学公式计算的方式。同时，一些数学上的计算结果可能反映出一些很微妙的关系，例如一个训练好的词嵌入矩阵，很可能使得 <code>桌子 - 椅子 = 鼠标 - 键盘</code>。</p>
-<p>把所有词向量组成一个大矩阵，这个大矩阵就叫做 <strong>嵌入矩阵</strong>，每一列表示一个词向量。</p>
-<p>矩阵中的值由训练得到，比较经典的方法是 word2vec，这里不展开讲解。虽然这样表示的维度比起 one-hot 已经大大下降，但是也超过了人能直接理解的二维、三维，我们管这些向量所在的空间叫做 <strong>潜空间</strong>。</p>
-<p>我们无法理解潜空间中的位置关系，但是也有一些方法能够把潜空间降维至 2-3 维，方便我们直观看到词与词之间的关系。</p>
-<h2 id="rnn-如何处理序列信息">RNN 如何处理序列信息</h2>
-<p>这样我们的第一个问题就算是解决了，我们可以用词嵌入的方法将文本转为数据，但这样就可以了吗？举个例子，一句话中的五个词转为 5 个词向量，每个词向量假设为 300 维度，那么输入层就要有 1500 个神经元。当然是可以的，但是有两个新问题：</p>
-<ol type="1">
-<li>输入层太大了，并且长度不固定；</li>
-<li>无法体现词语的先后顺序，参考之前无法体现图片像素的位置关系。</li>
-</ol>
-<p>在之前的图像处理中，我们可以通过卷积的方式来解决这一问题，那现在呢？</p>
-<p>让我们回到经典的神经网络，但是不是一次输入一句话，而是输入一个词。</p>
-<p>可以发现在第二个词的计算过程中，完全没有让第一个词的任何信息参与进来，怎么办呢？我们可以让它先输出一个隐藏状态，然后再经过一次非线性变换，得到输出 Y。这就是 <strong>循环神经网络 RNN（Recurrent Neural Network）</strong>。</p>
-<p><img src="/assets/image-20251010224853203.png" /></p>
-<p>这个 RNN 模型就具备了理解词与词之间先后顺序的能力，可以判断一句话中各个单词的褒贬词性，还能给出一句话，不断生成下一个字，以及完成翻译等自然语言处理工作。</p>
-<p><img src="/assets/image-20251010224930822.png" /></p>
-<h2 id="rnn-的局限性">RNN 的局限性</h2>
-<p>那么 RNN 是否就完美了呢？当然不，RNN 依旧存在两个问题：</p>
-<ol type="1">
-<li><strong>长期依赖问题</strong>：信息会随着时间步的增多而逐渐丢失，无法捕捉长期依赖，而有的语句的关键信息恰好在很远的地方。</li>
-<li><strong>顺序处理限制</strong>：RNN 必须顺序处理，每个时间步必须依赖上一个时间步的隐藏状态的计算结果，这限制了并行计算的能力。</li>
-</ol>
-<p>为了解决这些问题，研究者们提出了多种 RNN 的变体。其中最著名的就是 <strong>长短期记忆网络（LSTM）</strong> 和 <strong>门控循环单元（GRU）</strong>。</p>
-<ul>
-<li><strong>LSTM</strong>：通过引入“门”机制（输入门、遗忘门、输出门）来控制信息的流动。这使得网络可以有选择地学习、记忆或遗忘信息，从而更好地捕捉序列中的长期依赖关系。</li>
-<li><strong>GRU</strong>：作为 LSTM 的一种简化变体，它将输入门和遗忘门合并为“更新门”，并引入了“重置门”。GRU 的结构更简单，计算效率更高，在许多任务上也能取得与 LSTM 相近的效果。</li>
-</ul>
-<p>这些改进在很大程度上缓解了 RNN 的梯度消失问题，但它们仍然需要按顺序处理数据，未能解决并行计算的限制。那么，是否有一个可以彻底抛弃按顺序计算的新方案呢？</p>
-<p>有的，那就是 <strong>Transformer</strong>！</p>
-<blockquote>
-<p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
-</blockquote>
-]]></content>
-  </entry>
-  <entry>
-    <title>了解Transformer</title>
-    <url>/posts/9008a9df/</url>
-    <content><![CDATA[<p>在之前的文章中我们了解到，RNN（及其变体如 LSTM、GRU）在处理序列数据时，必须按照时间步顺序计算，这导致其无法进行大规模并行计算。同时，它也难以解决长距离依赖的问题。</p>
-<p>为了解决这两个核心痛点，一种全新的、不依赖于循环结构的模型——Transformer 横空出世。</p>
-<span id="more"></span>
-<p>和之前一样，输入神经网络的数据，要先转换为 <strong>词嵌入（Word Embedding）</strong> 向量。</p>
-<h2 id="第一步融入位置信息">第一步：融入位置信息</h2>
-<p>由于 Transformer 抛弃了 RNN 的循环结构，模型本身无法感知输入序列中词语的先后顺序。</p>
-<p>为了解决这个问题，我们需要给每个词的词向量中添加 <strong>位置编码（Positional Encoding）</strong>，以此来表示这个词在句子中的绝对或相对位置。</p>
-<p>这样，每个词的输入向量就同时包含了语义信息和位置信息。</p>
-<h2 id="核心机制自注意力self-attention">核心机制：自注意力（Self-Attention）</h2>
-<p>仅仅包含位置信息是不够的，每个词的向量中还不包含与其他词的关系。为了让模型“注意”到句子中其他词的存在并建立联系，Transformer 引入了 <strong>自注意力机制</strong>。</p>
-<p>该机制的核心思想是为句子中的每个词动态地计算一个权重系数，这个权重代表了在编码当前词时，句子中其他词对它的重要性。这是通过三个特殊的向量来实现的：</p>
-<ul>
-<li><strong>Query (查询向量 Q)</strong>：代表当前词，用于去“查询”其他词。</li>
-<li><strong>Key (键向量 K)</strong>：代表被查询的词，用于和查询向量进行匹配。</li>
-<li><strong>Value (值向量 V)</strong>：代表被查询词的实际内容。</li>
-</ul>
-<p>这三个向量是通过将每个词的词向量（已包含位置编码）分别与三个可训练的权重矩阵 <code>Wq</code>、<code>Wk</code>、<code>Wv</code> 相乘得到的。</p>
-<p><img src="/assets/image-20251010230923988.png" /></p>
-<p>计算过程如下： 1. 拿一个词的查询向量 <code>q</code> 去和所有词（包括它自己）的键向量 <code>k</code> 做点积，得到一个 <strong>注意力分数</strong>。这个分数衡量了两个词之间的相关性。 2. 对得到的分数进行归一化处理（例如通过 SoftMax）。 3. 将归一化后的分数与每个词对应的值向量 <code>v</code> 相乘。 4. 将所有加权后的值向量 <code>v</code> 相加，就得到了一个新的向量 <code>a</code>。</p>
-<p><img src="/assets/image-20251010231017325.png" /></p>
-<p>这个新向量 <code>a</code> 就包含了整个句子上下文的信息，并且是为当前词量身定制的。对句子中的每一个词都执行相同的操作，我们就能得到一组全新的、富含上下文信息的词向量。</p>
-<p><img src="/assets/image-20251010231100716.png" /></p>
-<h2 id="优化多头注意力multi-head-attention">优化：多头注意力（Multi-Head Attention）</h2>
-<p>一个词与另一个词的关系可能有很多种（例如，语法关系、语义关系等）。如果只用一组 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵来计算相关性，灵活性会很低。</p>
-<p>因此，Transformer 提出了 <strong>多头注意力机制</strong>。它通过设置多组独立的 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵（每一组被称为一个“头”），将原始的 Q, K, V 映射到不同的子空间中，学习不同方面的相关性。</p>
-<p><img src="/assets/image-20251010231200452.png" /></p>
-<p>每个头都会独立地执行一次注意力计算，得到一个输出向量。最后，将所有头的输出向量拼接起来，再经过一次线性变换，就得到了最终的输出。这样，模型就能在不同维度上综合地理解词与词之间的关系。</p>
-<h2 id="整体架构编码器与解码器">整体架构：编码器与解码器</h2>
-<p>Transformer 的整体架构由 <strong>编码器（Encoder）</strong> 和 <strong>解码器（Decoder）</strong> 两大部分组成，每一部分都由多层堆叠而成。我们上面介绍的多头注意力机制就是其核心组件。</p>
-<ul>
-<li><strong>编码器</strong>：负责将输入序列处理成一系列富含上下文信息的表示。</li>
-<li><strong>解码器</strong>：根据编码器的输出和之前已生成的结果，来生成下一个词。</li>
-</ul>
-<p><img src="/assets/image-20251010231339402.png" /></p>
-<h2 id="总结">总结</h2>
-<p>Transformer 通过引入自注意力机制和位置编码，完全摒弃了传统的循环和卷积结构。其强大的并行计算能力和捕捉长距离依赖的优势，使其在自然语言处理领域取得了革命性的成功，并为后续的 BERT、GPT 等大规模预训练模型奠定了基础。</p>
-<blockquote>
-<p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
-</blockquote>
-]]></content>
-  </entry>
-  <entry>
     <title>Linux任务控制：从进程管理到后台运行</title>
     <url>/posts/7a8b9c1d/</url>
     <content><![CDATA[<p>在Linux系统中，任务控制是每个用户都需要掌握的核心技能。无论是运行长时间的计算任务、管理多个进程，还是在SSH连接断开后保持程序运行，都离不开任务控制技术。本文将从基础概念出发，系统介绍Linux任务控制的完整知识体系，为你提供一份实用的技术指南。</p>
@@ -6933,6 +6604,531 @@ graph TD
       </tags>
   </entry>
   <entry>
+    <title>pytorch入门</title>
+    <url>/posts/5f1831aa/</url>
+    <content><![CDATA[<p>PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 <code>Dataset</code>、<code>DataLoader</code>、<code>Transforms</code> 和 <code>TensorBoard</code> 是高效训练模型的关键。本文将带你快速入门这四大核心组件。 <span id="more"></span></p>
+<h3 id="核心组件速记">📚 核心组件速记</h3>
+<table>
+<thead>
+<tr class="header">
+<th>组件</th>
+<th>一句话记忆</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Dataset</code></td>
+<td><code>__getitem__</code> 和 <code>__len__</code> → 封装你的数据源，按索引取数据</td>
+</tr>
+<tr class="even">
+<td><code>DataLoader</code></td>
+<td><code>batch_size</code>, <code>shuffle</code> → 从 <code>Dataset</code> 中批量、随机地取数据</td>
+</tr>
+<tr class="odd">
+<td><code>Transforms</code></td>
+<td><code>Compose</code>, <code>ToTensor</code> → 数据预处理与增强的“流水线”</td>
+</tr>
+<tr class="even">
+<td><code>TensorBoard</code></td>
+<td><code>SummaryWriter</code> → 训练过程可视化，调参与Debug的神器</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="数据流转示意图">🎨 数据流转示意图</h3>
+<p>在 PyTorch 中，数据通常经历从磁盘文件到模型输入的转换过程。理解这个流程是掌握数据加载机制的第一步。</p>
+<pre>
+<code class="mermaid">
+
+graph TD
+    subgraph &quot;硬盘&quot;
+        A[&quot;图片文件 (cat.jpg)&quot;]
+    end
+    subgraph &quot;CPU 内存&quot;
+        B[&quot;PIL Image &#x2F; OpenCV (numpy array)&quot;]
+    end
+    subgraph &quot;GPU&#x2F;CPU 内存&quot;
+        C[&quot;Torch Tensor&lt;br&#x2F;&gt;[C, H, W]&quot;]
+        D[&quot;Batch Tensor&lt;br&#x2F;&gt;[B, C, H, W]&quot;]
+        C -- &quot;DataLoader 批量化&quot; --&gt; D
+    end
+
+    A -- &quot;Image.open()&quot; --&gt; B
+    B -- &quot;transforms.ToTensor()&quot; --&gt; C
+    D &#x3D;&#x3D;&gt; E[模型输入]
+</code>
+</pre>
+<h2 id="torch.utils.data.dataset封装你的数据">1️⃣ <code>torch.utils.data.Dataset</code>：封装你的数据</h2>
+<p><code>Dataset</code> 是一个抽象类，用于表示数据集。所有自定义的数据集都应该继承它，并重写两个核心方法：</p>
+<ul>
+<li><code>__len__(self)</code>: 返回数据集的大小。</li>
+<li><code>__getitem__(self, idx)</code>: 根据索引 <code>idx</code> 返回一条数据（通常是一个样本和对应的标签）。</li>
+</ul>
+<p>这提供了一个统一的接口，让 <code>DataLoader</code> 等工具可以方便地处理各种不同来源的数据。</p>
+<h3 id="示例创建一个自定义-dataset">示例：创建一个自定义 <code>Dataset</code></h3>
+<p>假设我们有一些图片路径和对应的标签，我们可以这样创建一个 <code>Dataset</code>：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyImageDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, image_paths, labels, transform=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.image_paths = image_paths</span><br><span class="line">        <span class="variable language_">self</span>.labels = labels</span><br><span class="line">        <span class="variable language_">self</span>.transform = transform</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.image_paths)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="comment"># 读取图片</span></span><br><span class="line">        image_path = <span class="variable language_">self</span>.image_paths[idx]</span><br><span class="line">        image = Image.<span class="built_in">open</span>(image_path).convert(<span class="string">&quot;RGB&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 获取标签</span></span><br><span class="line">        label = <span class="variable language_">self</span>.labels[idx]</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 应用数据变换</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.transform:</span><br><span class="line">            image = <span class="variable language_">self</span>.transform(image)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> image, label</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">image_files = [<span class="string">&quot;./data/cat.png&quot;</span>, <span class="string">&quot;./data/dog.png&quot;</span>]</span><br><span class="line">image_labels = [<span class="number">0</span>, <span class="number">1</span>]</span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;数据总数: <span class="subst">&#123;<span class="built_in">len</span>(custom_dataset)&#125;</span>&quot;</span>)</span><br><span class="line">first_item = custom_dataset[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;第一个样本: <span class="subst">&#123;first_item&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>记忆：<code>Dataset</code> 就是个“数据地图”，<code>__getitem__</code> 负责“按图索骥”。</p>
+</blockquote>
+<hr />
+<h2 id="torchvision.transforms数据预处理与增强">2️⃣ <code>torchvision.transforms</code>：数据预处理与增强</h2>
+<p>在将数据喂给模型之前，通常需要进行预处理，例如转换为 Tensor、归一化、裁剪、旋转等。<code>transforms</code> 就是用来完成这些操作的工具箱。</p>
+<ul>
+<li><strong>常见变换</strong>：<code>ToTensor()</code>, <code>Resize()</code>, <code>CenterCrop()</code>, <code>RandomHorizontalFlip()</code>, <code>Normalize()</code> 等。</li>
+<li><strong><code>transforms.Compose()</code></strong>: 将多个变换操作串联成一个“流水线”。</li>
+</ul>
+<h3 id="示例定义一个变换流水线">示例：定义一个变换流水线</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个转换流水线</span></span><br><span class="line">data_transform = transforms.Compose([</span><br><span class="line">    transforms.Resize((<span class="number">224</span>, <span class="number">224</span>)),      <span class="comment"># 调整图片大小</span></span><br><span class="line">    transforms.RandomHorizontalFlip(),  <span class="comment"># 随机水平翻转</span></span><br><span class="line">    transforms.ToTensor(),              <span class="comment"># 将 PIL Image 或 numpy.ndarray 转换为 tensor</span></span><br><span class="line">    transforms.Normalize(mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>]) <span class="comment"># 归一化</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 transform 应用到 Dataset</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>为什么要随机翻转？</strong></p>
+<p><code>RandomHorizontalFlip</code> 是一种<strong>数据增强</strong> (Data Augmentation) 技术。它的目的是在不改变图片语义（猫翻转了还是猫）的前提下，增加训练数据的多样性。</p>
+<ul>
+<li><strong>提高泛化能力</strong>：模型会学习到，无论是正着还是反着的猫，都应该被识别为猫，从而对真实世界中更多样的数据表现更好，避免<strong>过拟合</strong>。</li>
+<li><strong>扩充数据集</strong>：相当于免费让你的数据集大小翻倍。</li>
+</ul>
+<p>提示：数据增强（如随机翻转）只在训练时使用，验证和测试时应去掉，以保证结果的一致性。</p>
+</blockquote>
+<hr />
+<h2 id="torch.utils.data.dataloader批量加载数据">3️⃣ <code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
+<p><code>DataLoader</code> 是一个迭代器，它从 <code>Dataset</code> 中自动拉取数据，并将其打包成批次 (batch)。它还提供了许多有用的功能：</p>
+<ul>
+<li><strong><code>batch_size</code></strong>: 每个批次包含的样本数。</li>
+<li><strong><code>shuffle=True</code></strong>: 在每个 epoch 开始时打乱数据顺序，有助于提高模型泛化能力。</li>
+<li><strong><code>num_workers</code></strong>: 使用多少个子进程来预加载数据。增加此值可以加快数据加载速度，但会消耗更多内存和 CPU。</li>
+</ul>
+<h3 id="示例使用-dataloader">示例：使用 <code>DataLoader</code></h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 custom_dataset 已经创建好</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br><span class="line"></span><br><span class="line">data_loader = DataLoader(</span><br><span class="line">    dataset=custom_dataset,</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">4</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 像遍历列表一样遍历 DataLoader</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> images, labels <span class="keyword">in</span> data_loader:</span><br><span class="line">        <span class="comment"># 在这里执行模型训练</span></span><br><span class="line">        <span class="comment"># images 的形状: [32, 3, 224, 224] (假设batch_size=32)</span></span><br><span class="line">        <span class="comment"># labels 的形状: [32]</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<pre>
+<code class="mermaid">
+
+graph TD
+    A[原始数据文件] --&gt; B(Dataset);
+    B -- 按索引 __getitem__ --&gt; C{单条数据};
+    D(Transforms) -- 应用于 --&gt; C;
+    C --&gt; E(DataLoader);
+    E -- 打包成 batch --&gt; F[模型];
+</code>
+</pre>
+<hr />
+<h2 id="torch.utils.tensorboard可视化训练过程">4️⃣ <code>torch.utils.tensorboard</code>：可视化训练过程</h2>
+<p><code>TensorBoard</code> 是一个强大的可视化工具，可以帮助你理解、调试和优化你的模型。PyTorch 通过 <code>SummaryWriter</code> 类与其集成。</p>
+<p><strong>主要功能</strong>: - 记录标量（如 loss、accuracy）的变化曲线。 - 可视化图像、模型图、embedding 等。</p>
+<h3 id="示例使用-summarywriter">示例：使用 <code>SummaryWriter</code></h3>
+<p><code>add_scalar</code> 是最常用的方法之一，它用于记录单个标量值的变化。</p>
+<ul>
+<li><code>tag</code>: 图表的标题，例如 'Loss/train' 或 'Accuracy/validation'。使用 <code>/</code> 可以帮助在 TensorBoard 中对图表进行分组。</li>
+<li><code>scalar_value</code>: 要记录的数值，通常是 loss 值或准确率。</li>
+<li><code>global_step</code>: x 轴坐标，通常是训练的步数（batch index）或轮数（epoch index）。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建一个 writer 实例，日志会保存在 &#x27;logs&#x27; 目录下</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&#x27;logs/experiment_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在训练循环中记录信息</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># ... 训练代码 ...</span></span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        running_loss += loss.item()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每 100 个 batch 记录一次 loss</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            writer.add_scalar(<span class="string">&#x27;training loss&#x27;</span>, running_loss / <span class="number">100</span>, epoch * <span class="built_in">len</span>(data_loader) + i)</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">    假设在每个 epoch 结束后记录一张图片</span><br><span class="line">    writer.add_image(<span class="string">&#x27;one_image&#x27;</span>, images[<span class="number">0</span>], epoch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 训练结束后关闭 writer</span></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
+<p>记录完成后，在终端中运行 <code>tensorboard --logdir=logs</code>，然后访问浏览器中显示的地址（通常是 <code>http://localhost:6006</code>）即可查看可视化结果。</p>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ol type="1">
+<li><strong><code>Dataset</code></strong>：数据源的标准化封装，核心是 <code>__len__</code> 和 <code>__getitem__</code>。</li>
+<li><strong><code>Transforms</code></strong>：数据预处理和增强的流水线，使用 <code>Compose</code> 组合。</li>
+<li><strong><code>DataLoader</code></strong>：将 <code>Dataset</code> 包装成可迭代对象，实现批量、随机和并行加载。</li>
+<li><strong><code>TensorBoard</code></strong>：通过 <code>SummaryWriter</code> 记录训练过程，实现可视化分析。</li>
+</ol>
+<p>熟练运用这四大组件，你的 PyTorch 项目将变得更加规范、高效和易于调试 🚀</p>
+]]></content>
+      <categories>
+        <category>AI</category>
+        <category>PyTorch</category>
+      </categories>
+      <tags>
+        <tag>PyTorch</tag>
+        <tag>深度学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>pytorch train 模板</title>
+    <url>/posts/14ba9e2c/</url>
+    <content><![CDATA[<p>本文提供了一个完整、通用的 PyTorch 模型训练流程模板。它涵盖了从数据准备、模型构建、训练循环、测试评估到结果可视化的每一个关键步骤，是快速搭建深度学习项目的实用骨架。 <span id="more"></span></p>
+<h3 id="整体流程一览">🚀 整体流程一览</h3>
+<p>一个标准的 PyTorch 训练任务通常遵循以下流程。我们将通过一个具体的 CIFAR-10 图像分类任务来逐步解析代码。</p>
+<pre>
+<code class="mermaid">
+
+graph TD
+    subgraph &quot;准备阶段&quot;
+        A[&quot;准备数据集 (CIFAR-10)&quot;] --&gt; B[&quot;创建 DataLoader&quot;];
+        C[&quot;定义网络模型 (Tudui)&quot;] --&gt; D[&quot;定义损失函数 (CrossEntropy)&quot;];
+        D --&gt; E[&quot;定义优化器 (SGD)&quot;];
+    end
+
+    subgraph &quot;循环训练与评估 (Epochs)&quot;
+        F[&quot;开始 Epoch 循环&quot;];
+        F --&gt; G[&quot;**训练模式** &#96;model.train()&#96;&quot;];
+        G --&gt; H[&quot;遍历 Train DataLoader&quot;];
+        H --&gt; I[&quot;前向传播 &#96;output &#x3D; model(input)&#96;&quot;];
+        I --&gt; J[&quot;计算损失 &#96;loss &#x3D; loss_fn(output, target)&#96;&quot;];
+        J --&gt; K[&quot;反向传播 &#96;loss.backward()&#96;&quot;];
+        K --&gt; L[&quot;更新参数 &#96;optimizer.step()&#96;&quot;];
+        L --&gt; M[&quot;记录训练 Loss (TensorBoard)&quot;];
+        M --&gt; N[&quot;**评估模式** &#96;model.eval()&#96;&quot;];
+        N --&gt; O[&quot;遍历 Test DataLoader (with &#96;torch.no_grad()&#96;)&quot;];
+        O --&gt; P[&quot;计算测试 Loss 和 Accuracy&quot;];
+        P --&gt; Q[&quot;记录测试结果 (TensorBoard)&quot;];
+        Q --&gt; R[&quot;保存模型 &#96;torch.save()&#96;&quot;];
+        R --&gt; F;
+    end
+    
+    B --&gt; H;
+    E --&gt; L;
+    C --&gt; I;
+    B --&gt; O
+
+    A &amp; C &amp; E --&gt; F
+</code>
+</pre>
+<hr />
+<h3 id="代码详解">📝 代码详解</h3>
+<p>下面我们来分步解析实现这个流程的 Python 代码。</p>
+<h4 id="导入库并准备数据">1. 导入库并准备数据</h4>
+<p>第一步是导入所有必要的库，并使用 <code>torchvision.datasets</code> 加载 CIFAR-10 数据集。</p>
+<ul>
+<li><code>torchvision</code>: 提供了常用的数据集、模型和图像转换。</li>
+<li><code>Tensorboard SummaryWriter</code>: 用于可视化训练过程。</li>
+<li><code>DataLoader</code>: 用于批量加载数据。</li>
+<li><code>transforms.ToTensor</code>: 将 PIL Image 或 NumPy <code>ndarray</code> 转换为 <code>FloatTensor</code>，并将像素值从 <code>[0, 255]</code> 缩放到 <code>[0.0, 1.0]</code>。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> *  <span class="comment"># 模型定义在 model.py 中</span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 准备数据集</span></span><br><span class="line">train_data = torchvision.datasets.CIFAR10(root=<span class="string">&quot;../data&quot;</span>, train=<span class="literal">True</span>, transform=torchvision.transforms.ToTensor(),</span><br><span class="line">                                          download=<span class="literal">True</span>)</span><br><span class="line">test_data = torchvision.datasets.CIFAR10(root=<span class="string">&quot;../data&quot;</span>, train=<span class="literal">False</span>, transform=torchvision.transforms.ToTensor(),</span><br><span class="line">                                         download=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># length 长度</span></span><br><span class="line">train_data_size = <span class="built_in">len</span>(train_data)</span><br><span class="line">test_data_size = <span class="built_in">len</span>(test_data)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;训练数据集的长度为: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(train_data_size))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;测试数据集的长度为: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(test_data_size))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 利用 DataLoader 来加载数据集</span></span><br><span class="line">train_dataloader = DataLoader(train_data, batch_size=<span class="number">64</span>)</span><br><span class="line">test_dataloader = DataLoader(test_data, batch_size=<span class="number">64</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="定义核心组件">2. 定义核心组件</h4>
+<p>接下来，我们创建模型实例、定义损失函数和优化器。</p>
+<ul>
+<li><strong>模型 (<code>Tudui</code>)</strong>: 这是一个自定义的神经网络模型，其具体结构定义在 <code>model.py</code> 文件中。 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Tudui</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(Tudui, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.model = nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">3</span>, <span class="number">32</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>, <span class="number">32</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>, <span class="number">64</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Flatten(),</span><br><span class="line">            nn.Linear(<span class="number">64</span>*<span class="number">4</span>*<span class="number">4</span>, <span class="number">64</span>),</span><br><span class="line">            nn.Linear(<span class="number">64</span>, <span class="number">10</span>)</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = <span class="variable language_">self</span>.model(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure></li>
+<li><strong>损失函数 (<code>nn.CrossEntropyLoss</code>)</strong>: 交叉熵损失函数，常用于多分类任务。它内部已经包含了 Softmax 操作。</li>
+<li><strong>优化器 (<code>torch.optim.SGD</code>)</strong>: 随机梯度下降（Stochastic Gradient Descent）优化器，用于根据损失函数的梯度来更新模型的参数（权重和偏置）。<code>lr</code> 是学习率（learning rate）。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建网络模型</span></span><br><span class="line">tudui = Tudui()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失函数</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优化器</span></span><br><span class="line">learning_rate = <span class="number">1e-2</span></span><br><span class="line">optimizer = torch.optim.SGD(tudui.parameters(), lr=learning_rate)</span><br></pre></td></tr></table></figure>
+<h4 id="设置训练参数与-tensorboard">3. 设置训练参数与 TensorBoard</h4>
+<p>在开始训练之前，我们需要初始化一些计数器和超参数，并设置 TensorBoard 的 <code>SummaryWriter</code> 来记录训练数据。</p>
+<ul>
+<li><code>total_train_step</code> / <code>total_test_step</code>: 记录训练和测试的步数，作为 TensorBoard 的 x 轴。</li>
+<li><code>epoch</code>: 训练的总轮数。一轮（epoch）指完整地遍历一次整个训练数据集。</li>
+<li><code>SummaryWriter</code>: 创建一个写入器实例，它会将事件日志写入指定的目录（<code>../logs_train</code>）。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置训练网络的一些参数</span></span><br><span class="line"><span class="comment"># 记录训练的次数</span></span><br><span class="line">total_train_step = <span class="number">0</span></span><br><span class="line"><span class="comment"># 记录测试的次数</span></span><br><span class="line">total_test_step = <span class="number">0</span></span><br><span class="line"><span class="comment"># 训练的轮数</span></span><br><span class="line">epoch = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加tensorboard</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&quot;../logs_train&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="训练与评估循环">4. 训练与评估循环</h4>
+<p>这是整个脚本的核心。外层是 epoch 循环，内层包含一个训练步骤和一个评估步骤。</p>
+<h5 id="训练步骤">训练步骤</h5>
+<ul>
+<li><code>tudui.train()</code>: 将模型设置为<strong>训练模式</strong>。这会启用 Dropout 和 BatchNorm 等层。</li>
+<li><code>optimizer.zero_grad()</code>: 在计算新梯度之前，清除上一轮的旧梯度。</li>
+<li><code>loss.backward()</code>: 计算损失函数相对于模型参数的梯度（反向传播）。</li>
+<li><code>optimizer.step()</code>: 根据计算出的梯度更新模型参数。</li>
+<li><code>writer.add_scalar()</code>: 每 100 步记录一次训练损失。</li>
+</ul>
+<h5 id="评估步骤">评估步骤</h5>
+<ul>
+<li><code>tudui.eval()</code>: 将模型设置为<strong>评估模式</strong>。这会禁用 Dropout 和 BatchNorm 等层，确保评估结果的确定性。</li>
+<li><code>with torch.no_grad()</code>: 在此代码块内，所有计算都不会追踪梯度，从而节省内存和计算资源。</li>
+<li><strong>计算准确率</strong>: <code>(outputs.argmax(1) == targets).sum()</code> 计算一个批次中预测正确的样本数量。<code>argmax(1)</code> 找到概率最高的类别的索引。</li>
+<li><strong>记录结果</strong>: 在一轮 epoch 结束后，计算并打印在整个测试集上的总损失和正确率，并用 TensorBoard 记录。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(epoch):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;-------第 &#123;&#125; 轮训练开始-------&quot;</span>.<span class="built_in">format</span>(i+<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 训练步骤开始</span></span><br><span class="line">    tudui.train()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">        imgs, targets = data</span><br><span class="line">        outputs = tudui(imgs)</span><br><span class="line">        loss = loss_fn(outputs, targets)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 优化器优化模型</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        total_train_step = total_train_step + <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> total_train_step % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;训练次数: &#123;&#125;, Loss: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_train_step, loss.item()))</span><br><span class="line">            writer.add_scalar(<span class="string">&quot;train_loss&quot;</span>, loss.item(), total_train_step)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 测试步骤开始</span></span><br><span class="line">    tudui.<span class="built_in">eval</span>()</span><br><span class="line">    total_test_loss = <span class="number">0</span></span><br><span class="line">    total_accuracy = <span class="number">0</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> data <span class="keyword">in</span> test_dataloader:</span><br><span class="line">            imgs, targets = data</span><br><span class="line">            outputs = tudui(imgs)</span><br><span class="line">            loss = loss_fn(outputs, targets)</span><br><span class="line">            total_test_loss = total_test_loss + loss.item()</span><br><span class="line">            accuracy = (outputs.argmax(<span class="number">1</span>) == targets).<span class="built_in">sum</span>()</span><br><span class="line">            total_accuracy = total_accuracy + accuracy</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;整体测试集上的Loss: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_test_loss))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;整体测试集上的正确率: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_accuracy/test_data_size))</span><br><span class="line">    writer.add_scalar(<span class="string">&quot;test_loss&quot;</span>, total_test_loss, total_test_step)</span><br><span class="line">    writer.add_scalar(<span class="string">&quot;test_accuracy&quot;</span>, total_accuracy/test_data_size, total_test_step)</span><br><span class="line">    total_test_step = total_test_step + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    torch.save(tudui, <span class="string">&quot;tudui_&#123;&#125;.pth&quot;</span>.<span class="built_in">format</span>(i))</span><br><span class="line">    <span class="comment"># torch.save(tudui.state_dict(), &quot;tudui_&#123;&#125;.pth&quot;.format(i))</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;模型已保存&quot;</span>)</span><br><span class="line"></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>💡 模型的两种保存方式</strong></p>
+<p>PyTorch 提供了两种主要的方式来保存模型，代码中展示了这两种方式：</p>
+<ol type="1">
+<li><strong>保存整个模型对象 (<code>torch.save(model, PATH)</code>)</strong>
+<ul>
+<li><strong>做法</strong>: <code>torch.save(tudui, "tudui_complete.pth")</code></li>
+<li><strong>优点</strong>: 非常简单，加载时也只需一行 <code>model = torch.load("tudui_complete.pth")</code>。</li>
+<li><strong>缺点</strong>: 这种方式使用了 Python 的 <code>pickle</code> 来序列化整个对象，它将模型的类定义、目录结构等都绑定在了一起。如果你的项目代码发生了变化（例如，重命名了模型类或存放模型的文件），加载时就可能会失败。可移植性较差。</li>
+</ul></li>
+<li><strong>仅保存模型参数 (<code>torch.save(model.state_dict(), PATH)</code>) - (推荐)</strong>
+<ul>
+<li><strong>做法</strong>: <code>torch.save(tudui.state_dict(), "tudui_params.pth")</code></li>
+<li><strong>优点</strong>: 只保存模型的“状态字典”(<code>state_dict</code>)，即所有的权重和偏置。它不依赖于具体的类结构，非常轻量和灵活，是官方推荐的、更具 Python 风格的方式。</li>
+<li><strong>缺点</strong>: 加载时需要先创建模型实例，然后再将参数加载进去： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要先创建模型实例</span></span><br><span class="line">model = Tudui() </span><br><span class="line"><span class="comment"># 再加载参数</span></span><br><span class="line">model.load_state_dict(torch.load(<span class="string">&quot;tudui_params.pth&quot;</span>))</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ol>
+<p><strong>结论</strong>：为了代码的健壮性和可移植性，<strong>强烈推荐使用第二种方法</strong>，即只保存和加载模型的 <code>state_dict</code>。</p>
+</blockquote>
+<blockquote>
+<p><strong>为何需要 <code>train()</code> 和 <code>eval()</code>模式?</strong></p>
+<p>模型的某些层（如 <code>Dropout</code> 和 <code>BatchNorm</code>）在训练和评估时的行为是不同的。 - <strong>训练时 (<code>train()</code>模式)</strong>: <code>Dropout</code>会随机失活一些神经元来防止过拟合；<code>BatchNorm</code> 会计算当前批次的均值和方差来归一化数据。 - <strong>评估时 (<code>eval()</code>模式)</strong>: <code>Dropout</code>会被禁用；<code>BatchNorm</code> 会使用在整个训练过程中学习到的全局均值和方差。</p>
+<p>切换模式能确保模型在正确的状态下进行训练和推理。</p>
+</blockquote>
+<hr />
+<h3 id="迁移到-gpu-训练">⚡️ 迁移到 GPU 训练</h3>
+<p>如果你的机器上有 NVIDIA 显卡并正确安装了 CUDA，那么将训练迁移到 GPU 上可以极大地加速计算。PyTorch 让这个过程变得非常简单，核心只有三步：<strong>定义设备</strong>、<strong>模型上设备</strong>、<strong>数据上设备</strong>。</p>
+<h4 id="定义设备">1. 定义设备</h4>
+<p>在代码的准备阶段，首先定义一个 <code>device</code> 对象。下面的代码会自动检测 CUDA 是否可用，如果可用则选择 GPU，否则回退到 CPU。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义训练的设备</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;将使用 &#123;&#125; 设备进行训练&quot;</span>.<span class="built_in">format</span>(device))</span><br></pre></td></tr></table></figure>
+<h4 id="将模型和损失函数移动到设备">2. 将模型和损失函数移动到设备</h4>
+<p>创建完网络模型和损失函数后，调用 <code>.to(device)</code> 方法将它们发送到指定的设备上。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建网络模型</span></span><br><span class="line">tudui = Tudui()</span><br><span class="line">tudui.to(device) <span class="comment"># 发送到设备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失函数</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line">loss_fn.to(device) <span class="comment"># 发送到设备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 优化器 (无需移动)</span></span><br><span class="line">learning_rate = <span class="number">1e-2</span></span><br><span class="line">optimizer = torch.optim.SGD(tudui.parameters(), lr=learning_rate)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>提示</strong>：优化器在初始化时已经注册了模型的参数。当模型被 <code>.to(device)</code> 移动后，优化器会自动感知到参数在 GPU 上，因此<strong>优化器本身不需要被移动</strong>。</p>
+</blockquote>
+<h4 id="将数据移动到设备">3. 将数据移动到设备</h4>
+<p>最后，也是最关键的一步，是在训练和测试的循环中，将<strong>每一批次的数据</strong>也发送到同一个设备上。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在训练/测试循环中</span></span><br><span class="line"><span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">    imgs, targets = data</span><br><span class="line">    imgs = imgs.to(device) <span class="comment"># 将图像数据发送到设备</span></span><br><span class="line">    targets = targets.to(device) <span class="comment"># 将标签数据发送到设备</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 现在模型和数据都在同一个设备上，可以进行计算</span></span><br><span class="line">    outputs = tudui(imgs)</span><br><span class="line">    loss = loss_fn(outputs, targets)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>完成这三步修改后，你的训练代码就能在 GPU 上飞速运行了！</p>
+<hr />
+<h3 id="模型验证">🔬 模型验证</h3>
+<p>训练完成后，我们可以加载保存好的模型，用它来对全新的、从未见过的数据进行预测。下面是一个完整的验证（或称推理，Inference）流程示例。</p>
+<h4 id="准备环境和数据">1. 准备环境和数据</h4>
+<p>首先，我们需要导入相关库，并准备一张待预测的图片。请注意，这张图片需要经过和训练时<strong>完全相同</strong>的预处理（<code>transform</code>）。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"><span class="comment"># 确保 Tudui 类的定义可见</span></span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> Tudui </span><br><span class="line"></span><br><span class="line"><span class="comment"># CIFAR-10 类别</span></span><br><span class="line">classes = (<span class="string">&#x27;plane&#x27;</span>, <span class="string">&#x27;car&#x27;</span>, <span class="string">&#x27;bird&#x27;</span>, <span class="string">&#x27;cat&#x27;</span>, <span class="string">&#x27;deer&#x27;</span>, <span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;frog&#x27;</span>, <span class="string">&#x27;horse&#x27;</span>, <span class="string">&#x27;ship&#x27;</span>, <span class="string">&#x27;truck&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载图片</span></span><br><span class="line">image_path = <span class="string">&quot;imgs/dog.png&quot;</span> <span class="comment"># 请替换为你的图片路径</span></span><br><span class="line">image = Image.<span class="built_in">open</span>(image_path)</span><br><span class="line"><span class="comment"># PNG 图片可能有4个通道 (RGBA)，需要转换为3通道 (RGB)</span></span><br><span class="line">image = image.convert(<span class="string">&#x27;RGB&#x27;</span>) </span><br><span class="line"></span><br><span class="line"><span class="comment"># 和训练时一样的 Transform</span></span><br><span class="line">transform = transforms.Compose([transforms.Resize((<span class="number">32</span>, <span class="number">32</span>)),</span><br><span class="line">                                transforms.ToTensor()])</span><br><span class="line">image = transform(image)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;图片预处理后形状: <span class="subst">&#123;image.shape&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调整形状以匹配模型输入</span></span><br><span class="line"><span class="comment"># 模型需要一个4D张量: [batch_size, channels, height, width]</span></span><br><span class="line">image = torch.reshape(image, (<span class="number">1</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">32</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;调整后送入模型的形状: <span class="subst">&#123;image.shape&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="加载模型并进行预测">2. 加载模型并进行预测</h4>
+<p>接下来，我们加载已经训练好的模型文件，并进行预测。</p>
+<ul>
+<li><code>torch.load()</code>: 加载模型文件。</li>
+<li><code>map_location</code>: 这是一个非常重要的参数！如果你的模型是在 GPU 上训练保存的（<code>.pth</code> 文件中包含了 GPU 张量），而你现在想在只有 CPU 的机器上加载它，就必须指定 <code>map_location=torch.device('cpu')</code>，它会智能地将所有张量重新映射到 CPU 上。</li>
+<li><code>model.eval()</code>: 切换到评估模式，这和训练时的验证步骤一样重要。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 加载模型</span></span><br><span class="line"><span class="comment"># 假设模型是在 GPU 保存的，我们现在用 CPU 加载</span></span><br><span class="line"><span class="comment"># 注意：如果使用 torch.save(model)，加载时不需要 Tudui 类的定义</span></span><br><span class="line"><span class="comment"># 但如果使用 torch.save(model.state_dict())，则需要先 model=Tudui()</span></span><br><span class="line">model = torch.load(<span class="string">&quot;tudui_29_gpu.pth&quot;</span>, map_location=torch.device(<span class="string">&#x27;cpu&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(model)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型评估与预测</span></span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    output = model(image)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;模型输出 (logits): \n<span class="subst">&#123;output&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取预测结果</span></span><br><span class="line">predicted_class_index = output.argmax(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测结果的索引: <span class="subst">&#123;predicted_class_index.item()&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测的类别是: <span class="subst">&#123;classes[predicted_class_index.item()]&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>通过这个流程，你就可以用训练好的模型来处理任何新的输入数据了。</p>
+<hr />
+<h3 id="启动-tensorboard">📈 启动 TensorBoard</h3>
+<p>训练开始后，你可以在终端中运行以下命令来启动 TensorBoard 服务：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tensorboard --logdir=../logs_train</span><br></pre></td></tr></table></figure>
+<p>然后打开浏览器访问 <code>http://localhost:6006</code> 即可看到 <code>train_loss</code>, <code>test_loss</code> 和 <code>test_accuracy</code> 的变化曲线。</p>
+<h3 id="小结">📝 小结</h3>
+<p>这个模板展示了 PyTorch 训练一个模型的标准范式：</p>
+<ol type="1">
+<li><strong>数据加载</strong>：使用 <code>Dataset</code> 和 <code>DataLoader</code>。</li>
+<li><strong>模型构建</strong>：定义网络、损失函数和优化器。</li>
+<li><strong>循环迭代</strong>：通过 <code>for</code> 循环进行多轮 (epoch) 训练。</li>
+<li><strong>训练模式</strong>：在每轮 epoch 开始时调用 <code>model.train()</code>，进行前向传播、计算损失、反向传播和参数更新。</li>
+<li><strong>评估模式</strong>：调用 <code>model.eval()</code> 和 <code>with torch.no_grad()</code>，在测试集上评估模型性能。</li>
+<li><strong>可视化与保存</strong>：使用 <code>TensorBoard</code> 监控过程，使用 <code>torch.save</code> 保存模型。</li>
+</ol>
+<p>参考自 B站up 我是土堆，链接：<a href="https://www.bilibili.com/video/BV1hE411t7RN?spm_id_from=333.788.videopod.episodes&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">https://www.bilibili.com/video/BV1hE411t7RN?spm_id_from=333.788.videopod.episodes&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1</a></p>
+]]></content>
+      <categories>
+        <category>AI</category>
+        <category>PyTorch</category>
+      </categories>
+      <tags>
+        <tag>PyTorch</tag>
+        <tag>深度学习</tag>
+        <tag>训练模板</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Shell 启动脚本：理解 bash、zsh 的启动流程</title>
+    <url>/posts/shell-startup/</url>
+    <content><![CDATA[<p>如果你是一个经常使用 shell 的用户，几乎肯定会在主目录下有一个 <code>.bash_profile</code> 或 <code>.bashrc</code> 脚本，通常包含各种调整，比如设置环境变量（将某个目录添加到 <code>$PATH</code>）、告诉 shell 做聪明的事情（如 <code>set -o noclobber</code>）以及为命令添加各种别名（如 <code>alias please=sudo</code>）。</p>
+<p>（如果你真的很有条理，你会把所有点文件都放在某个仓库中，这样你就可以在所有工作的机器上保持设置同步。）</p>
+<p>无论如何，我怀疑很少有人知道 <code>.bash_profile</code> 和 <code>.bashrc</code> 这样的文件实际上什么时候被执行。当我刚开始时，我只是按照别人的建议把东西放在 <code>.bashrc</code> 中，然后当它不工作时，就放到 <code>.bash_profile</code> 中。我可以在这里停下来，只描述 bash 的启动过程（尽管它很愚蠢），但有一个复杂的情况是，我在几年前切换到了 zsh（并且没有回头），但偶尔会在没有安装 zsh 的机器上使用 bash。</p>
+<span id="more"></span>
+<h2 id="shell-启动脚本的复杂性">Shell 启动脚本的复杂性</h2>
+<p>为了优雅地处理这种情况，我需要能够在它们自己的文件中指定特定于 bash 或 zsh 的内容，然后在通用启动文件中指定任何符合 POSIX 标准的 shell（如别名和环境变量）都能理解的内容。</p>
+<p>我对这个问题的解决方案是定义一些新的点文件文件夹，每个 shell 一个（<code>.bash/</code>、<code>.zsh/</code> 和 <code>.sh/</code>），还有一个用于 shell 无关文件（<code>.shell/</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.bash/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.sh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">.shell/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br><span class="line">.zsh/</span><br><span class="line">    env</span><br><span class="line">    interactive</span><br><span class="line">    login</span><br><span class="line">    logout</span><br></pre></td></tr></table></figure>
+<h2 id="不同类型的-shell">不同类型的 Shell</h2>
+<p>"But!" 你说，"这些不同的文件在这里做什么？" 啊，我很高兴你问了。有两种类型的 shell：</p>
+<ul>
+<li><strong>[非]交互式 shell</strong>（你向它们输入 / shell 脚本）</li>
+<li><strong>[非]登录 shell</strong>（首次登录时运行的 shell / 子 shell）</li>
+</ul>
+<p>所有 shell 都会首先运行 <code>env</code>，然后登录 shell 会运行 <code>login</code>，然后交互式 shell 会运行 <code>interactive</code>。完成后，登录 shell 会运行 <code>logout</code>。</p>
+<h2 id="在哪里放置内容">在哪里放置内容</h2>
+<p>这完全取决于它什么时候需要运行。</p>
+<ul>
+<li>如果它正在设置 / 修改环境变量，它应该放在 <code>login</code> 中</li>
+<li>如果它是别名或终端特定的环境变量（例如，<code>GREP_COLOR</code>），它应该放在 <code>interactive</code> 中</li>
+<li>在我的 <code>.shell/env</code> 文件中，我设置了 <code>umask</code>，还定义了一些有用的函数来修改冒号分隔的路径环境变量（如 <code>$PATH</code>）</li>
+</ul>
+<p>即使你不采用我方案中的其他任何东西，我也建议你看看我的函数在做什么，这与像 <code>export PATH=$PATH:/path/to/dir</code> 这样的东西不同。</p>
+<p>这种特定模式太常见了，如果你考虑 <code>$PATH</code>（或任何你的变量，如 <code>$LD_LIBRARY_PATH</code>）没有设置的情况，它会非常危险。然后，值将是 <code>:/path/to/dir</code>，这通常意味着 <code>/path/to/dir</code> 和当前目录，这通常既是意外行为又是安全问题。</p>
+<p>使用我的实现（见 <code>.shell/env_functions</code>），你可以从任何冒号分隔的环境变量中追加、前置和删除目录，当追加或前置时，你保证该目录只会在该变量中出现一次。</p>
+<h2 id="shell-启动流程详解">Shell 启动流程详解</h2>
+<h3 id="bash-启动流程">Bash 启动流程</h3>
+<p>Bash 的启动流程相对复杂，因为它有多种模式：</p>
+<ol type="1">
+<li><strong>登录 shell</strong>：当 bash 以 <code>-l</code> 参数启动或作为登录 shell 启动时</li>
+<li><strong>交互式 shell</strong>：当 bash 以交互模式启动时</li>
+<li><strong>非交互式 shell</strong>：当 bash 执行脚本时</li>
+<li><strong>远程 shell</strong>：当 bash 检测到通过 ssh 或 rsh 启动时</li>
+</ol>
+<h3 id="zsh-启动流程">Zsh 启动流程</h3>
+<p>Zsh 的启动流程更加简洁和一致：</p>
+<ol type="1">
+<li><strong>全局配置文件</strong>：<code>/etc/zshenv</code>、<code>/etc/zprofile</code>、<code>/etc/zshrc</code>、<code>/etc/zlogout</code></li>
+<li><strong>用户配置文件</strong>：<code>~/.zshenv</code>、<code>~/.zprofile</code>、<code>~/.zshrc</code>、<code>~/.zlogout</code></li>
+</ol>
+<h3 id="启动文件执行顺序">启动文件执行顺序</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zprofile → ~/.zprofile → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">交互式非登录 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv → /etc/zshrc → ~/.zshrc</span><br><span class="line"></span><br><span class="line">非交互式 shell：</span><br><span class="line">/etc/zshenv → ~/.zshenv</span><br></pre></td></tr></table></figure>
+<h2 id="实际应用建议">实际应用建议</h2>
+<h3 id="环境变量管理">1. 环境变量管理</h3>
+<p>避免使用 <code>export PATH=$PATH:/new/path</code> 这种模式，因为它可能导致重复和空路径问题。相反，使用更安全的方法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安全的路径添加函数</span></span><br><span class="line"><span class="function"><span class="title">path_append</span></span>() &#123;</span><br><span class="line">    <span class="built_in">local</span> var_name=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> new_path=<span class="string">&quot;<span class="variable">$2</span>&quot;</span></span><br><span class="line">    <span class="built_in">local</span> current_path=<span class="string">&quot;<span class="variable">$&#123;!var_name&#125;</span>&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> [[ -z <span class="string">&quot;<span class="variable">$current_path</span>&quot;</span> ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> [[ <span class="string">&quot;:<span class="variable">$current_path</span>:&quot;</span> != *<span class="string">&quot;:<span class="variable">$new_path</span>:&quot;</span>* ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">export</span> <span class="string">&quot;<span class="variable">$var_name</span>&quot;</span>=<span class="string">&quot;<span class="variable">$current_path</span>:<span class="variable">$new_path</span>&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">path_append PATH <span class="string">&quot;/usr/local/bin&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="条件加载">2. 条件加载</h3>
+<p>根据 shell 类型和交互性条件性地加载配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 只在交互式 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o interactive ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/interactive</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 只在登录 shell 中加载</span></span><br><span class="line"><span class="keyword">if</span> [[ -o login ]]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.shell/login</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<h3 id="跨-shell-兼容性">3. 跨 Shell 兼容性</h3>
+<p>为了在不同 shell 之间保持兼容性，使用 POSIX 兼容的语法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 使用 POSIX 兼容的语法</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$SHELL</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">    */bash)</span><br><span class="line">        <span class="built_in">source</span> ~/.bash/specific</span><br><span class="line">        ;;</span><br><span class="line">    */zsh)</span><br><span class="line">        <span class="built_in">source</span> ~/.zsh/specific</span><br><span class="line">        ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+<h2 id="总结">总结</h2>
+<p>理解 shell 启动脚本的执行顺序对于正确配置你的环境至关重要。通过采用模块化的方法，你可以：</p>
+<ol type="1">
+<li><strong>保持配置的整洁</strong>：将不同类型的配置分离到不同的文件中</li>
+<li><strong>提高可维护性</strong>：每个文件都有明确的职责</li>
+<li><strong>增强可移植性</strong>：在不同机器和 shell 之间轻松迁移配置</li>
+<li><strong>避免常见陷阱</strong>：如路径重复、环境变量污染等问题</li>
+</ol>
+<p>记住，shell 启动脚本的执行顺序可能因操作系统、shell 版本和编译选项而异。最好的方法是测试你自己的系统，并根据需要调整配置。</p>
+<hr />
+<p><strong>参考来源：</strong> <a href="https://blog.flowblok.id.au/2013-02/shell-startup-scripts.html">Shell startup scripts - flowblok's blog</a></p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Shell</tag>
+        <tag>Bash</tag>
+        <tag>Zsh</tag>
+        <tag>系统配置</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>了解Diffusion Language Model</title>
+    <url>/posts/a1d79e4c/</url>
+    <content><![CDATA[<p>我们熟悉的 Transformer 等模型采用“自回归”方式逐词生成文本，这限制了生成速度且不易保证长文本连贯。受图像生成领域成功的 <strong>扩散模型 (Diffusion Model)</strong> 启发，研究者将其引入文本生成，<strong>扩散语言模型 (Diffusion Language Model)</strong> 应运而生。</p>
+<span id="more"></span>
+<h2 id="什么是扩散模型">什么是扩散模型？</h2>
+<p><img src="/assets/image.png" /></p>
+<p>在深入了解其如何应用于语言之前，我们先通过一个直观的例子——图像生成——来理解扩散模型的核心思想。它主要包含两个过程：</p>
+<ol type="1">
+<li><p><strong>前向过程（Forward Process）</strong>：也叫“扩散”过程。想象一下，我们从一张清晰的图片开始，一步步地、逐渐地向图片中添加微小的“噪声”，直到这张图片完全变成一个毫无规律的噪声图。这个过程是固定的、可控的。</p></li>
+<li><p><strong>反向过程（Reverse Process）</strong>：也叫“去噪”过程。这是真正的“生成”环节。我们训练一个神经网络，让它学会上述过程的“逆操作”——即从一张纯噪声的图片开始，一步步地、逐渐地去除噪声，最终还原出一张清晰、有意义的图片。</p></li>
+</ol>
+<p>一旦模型学会了如何“去噪”，我们就可以给它任何随机噪声，让它“创造”出全新的、从未见过的图片。</p>
+<h2 id="如何将扩散模型用于文本">如何将扩散模型用于文本？</h2>
+<p>直接将扩散模型应用于文本面临一个核心挑战：<strong>文本是离散的，而扩散过程处理的是连续的数据</strong>。我们无法像给图片像素值加噪声那样，给一个“词”加上一点“噪声”变成另一个“半词”。</p>
+<p>解决方案是：<strong>在连续空间中操作</strong>。</p>
+<p>我们不直接处理文字，而是先将文字通过 <strong>词嵌入（Word Embedding）</strong> 技术转换为高维度的连续向量。这样，文本序列就变成了一组向量，我们可以在这个连续的向量空间中执行扩散和去噪过程。</p>
+<h2 id="diffusion-语言模型的工作原理">Diffusion 语言模型的工作原理</h2>
+<p>理解了以上概念后，扩散语言模型的工作流程就清晰了：</p>
+<ol type="1">
+<li><strong>前向过程</strong>：取一个句子，将其转换为词向量序列。然后，逐步向这些向量中添加噪声，直到它们变成一组随机向量。</li>
+<li><strong>反向过程</strong>：训练一个模型（通常是基于 Transformer 架构）来学习逆转这个过程。模型的任务是接收一串加了噪声的向量，并预测出“更干净”的向量应该是什么样子。</li>
+<li><strong>文本生成</strong>：当需要生成新文本时，我们从一组完全随机的向量开始，然后反复利用训练好的去噪模型进行迭代处理。每一步，向量都会变得“更清晰”一点，逐渐从无序的噪声收敛为有意义的词向量。最后，将这些“去噪”完成的词向量转换回人类可读的文字，就完成了一次文本生成。</li>
+</ol>
+<h2 id="diffusion-语言模型的优势">Diffusion 语言模型的优势</h2>
+<p>与传统的自回归模型相比，扩散语言模型展现出一些独特的优势：</p>
+<ul>
+<li><strong>并行生成</strong>：扩散模型在生成时是迭代式地对整个序列进行优化的，而不是像自回归模型那样必须逐词生成。这为并行计算和更快的生成速度提供了可能。</li>
+<li><strong>全局一致性</strong>：由于模型的每一步去噪都是基于对整个序列的观察，它能更好地捕捉全局依赖关系，生成的文本在长距离连贯性和结构完整性上可能更具优势。</li>
+<li><strong>可控性更强</strong>：扩散模型的迭代特性使其在生成过程中更容易被引导和控制。我们可以通过修改去噪过程来控制生成文本的风格、主题或结构，使其更适用于文本编辑、修复和改写等任务。</li>
+</ul>
+<h2 id="前沿研究进展">前沿研究进展</h2>
+<p>尽管扩散语言模型是一个较新的研究方向，但它已经展现出惊人的潜力，涌现了许多前沿工作：</p>
+<ul>
+<li><strong>大规模模型的成功</strong>：以 <strong>LLaDA</strong> 为代表的研究表明，当参数规模扩大到数十亿级别时，精心设计的扩散语言模型在性能上足以媲美甚至在某些复杂任务上超越顶尖的自回归模型（如 LLaMA3、GPT-4o），这证明了该技术路线的可行性与潜力。</li>
+<li><strong>效率与质量的权衡</strong>：一些研究也指出，当前扩散语言模型在推理时为了达到高质量的生成效果，可能需要较多的“去噪”迭代步骤，这导致其计算成本相对较高。如何平衡生成质量与推理效率，是目前该领域的研究热点之一。</li>
+<li><strong>多模态统一框架</strong>：部分工作（如 <strong>Transfusion</strong> 架构）尝试将扩散模型与 Transformer 深度融合，在一个统一的框架内同时处理文本和图像的生成任务，为多模态内容创作提供了新的思路。</li>
+<li><strong>行业巨头的投入</strong>：以 Google 推出的 <strong>Gemini Diffusion</strong> 为例，科技巨头们也开始在该领域发力，进一步验证了文本扩散模型作为下一代生成技术核心的潜力。</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>扩散语言模型通过借鉴图像生成领域的成功经验，为自然语言生成任务提供了一种全新的、非自回归的解决方案。它通过在连续的词向量空间中进行“加噪”和“去噪”，克服了文本数据的离散性难题。尽管这一领域仍处于快速发展阶段，但其在并行生成、全局连贯性和可控性方面展现出的巨大潜力，预示着它将成为未来自然语言处理领域一个重要的研究方向。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>了解RNN</title>
+    <url>/posts/da4b49ae/</url>
+    <content><![CDATA[<p>卷积神经网络适合处理图片信息，那文字信息怎么办呢？首先要明白，对于计算机，或者说神经网络来说，文字都是要转换为数字之后再进行处理的。那么我们要面对的第一个问题就是：如何将文字转换为数字？</p>
+<span id="more"></span>
+<h2 id="文字转数字的朴素思想">文字转数字的朴素思想</h2>
+<p>有一种简单粗暴的方法：每一个文字或词组都用一个数字来代表，建一个非常大的映射关系表。</p>
+<p>但这样有几个显而易见的缺点：</p>
+<ol type="1">
+<li>只用一个数字表示，不仅要建的表很大，维度也很低（只有一维）。</li>
+<li>数字和数字之间无法表示字与字、词与词之间的联系。</li>
+</ol>
+<p>为了解决维度低的问题，有人提出了 <strong>one-hot 编码</strong>，即准备一个维度非常高的向量，每个字只有向量中一个位置是 1，其余全是 0。虽然维度低的问题被解决了，但是维度好像又太高了，并且依然没有解决之前的第二个问题。</p>
+<h2 id="更好的方案词嵌入">更好的方案：词嵌入</h2>
+<p>那有没有能解决以上两种问题的方法呢？有的，这种方法就是 <strong>词嵌入（Word Embedding）</strong>。</p>
+<p><img src="/assets/image-20251010224631451.png" /></p>
+<p>通过词嵌入的方式得到的词向量，维度不高不低，每个位置可以理解为一个特征值，但这个特征是通过训练得到的，我们并不知道代表着什么。那这种方式如何表示词与词之间的语义相关性呢？可以用两个向量的点积或余弦相似度来表示向量之间的相关性，进而表示词语之间的相关性。</p>
+<p>这样就将自然语言之间的联系转为可以用数学公式计算的方式。同时，一些数学上的计算结果可能反映出一些很微妙的关系，例如一个训练好的词嵌入矩阵，很可能使得 <code>桌子 - 椅子 = 鼠标 - 键盘</code>。</p>
+<p>把所有词向量组成一个大矩阵，这个大矩阵就叫做 <strong>嵌入矩阵</strong>，每一列表示一个词向量。</p>
+<p>矩阵中的值由训练得到，比较经典的方法是 word2vec，这里不展开讲解。虽然这样表示的维度比起 one-hot 已经大大下降，但是也超过了人能直接理解的二维、三维，我们管这些向量所在的空间叫做 <strong>潜空间</strong>。</p>
+<p>我们无法理解潜空间中的位置关系，但是也有一些方法能够把潜空间降维至 2-3 维，方便我们直观看到词与词之间的关系。</p>
+<h2 id="rnn-如何处理序列信息">RNN 如何处理序列信息</h2>
+<p>这样我们的第一个问题就算是解决了，我们可以用词嵌入的方法将文本转为数据，但这样就可以了吗？举个例子，一句话中的五个词转为 5 个词向量，每个词向量假设为 300 维度，那么输入层就要有 1500 个神经元。当然是可以的，但是有两个新问题：</p>
+<ol type="1">
+<li>输入层太大了，并且长度不固定；</li>
+<li>无法体现词语的先后顺序，参考之前无法体现图片像素的位置关系。</li>
+</ol>
+<p>在之前的图像处理中，我们可以通过卷积的方式来解决这一问题，那现在呢？</p>
+<p>让我们回到经典的神经网络，但是不是一次输入一句话，而是输入一个词。</p>
+<p>可以发现在第二个词的计算过程中，完全没有让第一个词的任何信息参与进来，怎么办呢？我们可以让它先输出一个隐藏状态，然后再经过一次非线性变换，得到输出 Y。这就是 <strong>循环神经网络 RNN（Recurrent Neural Network）</strong>。</p>
+<p><img src="/assets/image-20251010224853203.png" /></p>
+<p>这个 RNN 模型就具备了理解词与词之间先后顺序的能力，可以判断一句话中各个单词的褒贬词性，还能给出一句话，不断生成下一个字，以及完成翻译等自然语言处理工作。</p>
+<p><img src="/assets/image-20251010224930822.png" /></p>
+<h2 id="rnn-的局限性">RNN 的局限性</h2>
+<p>那么 RNN 是否就完美了呢？当然不，RNN 依旧存在两个问题：</p>
+<ol type="1">
+<li><strong>长期依赖问题</strong>：信息会随着时间步的增多而逐渐丢失，无法捕捉长期依赖，而有的语句的关键信息恰好在很远的地方。</li>
+<li><strong>顺序处理限制</strong>：RNN 必须顺序处理，每个时间步必须依赖上一个时间步的隐藏状态的计算结果，这限制了并行计算的能力。</li>
+</ol>
+<p>为了解决这些问题，研究者们提出了多种 RNN 的变体。其中最著名的就是 <strong>长短期记忆网络（LSTM）</strong> 和 <strong>门控循环单元（GRU）</strong>。</p>
+<ul>
+<li><strong>LSTM</strong>：通过引入“门”机制（输入门、遗忘门、输出门）来控制信息的流动。这使得网络可以有选择地学习、记忆或遗忘信息，从而更好地捕捉序列中的长期依赖关系。</li>
+<li><strong>GRU</strong>：作为 LSTM 的一种简化变体，它将输入门和遗忘门合并为“更新门”，并引入了“重置门”。GRU 的结构更简单，计算效率更高，在许多任务上也能取得与 LSTM 相近的效果。</li>
+</ul>
+<p>这些改进在很大程度上缓解了 RNN 的梯度消失问题，但它们仍然需要按顺序处理数据，未能解决并行计算的限制。那么，是否有一个可以彻底抛弃按顺序计算的新方案呢？</p>
+<p>有的，那就是 <strong>Transformer</strong>！</p>
+<blockquote>
+<p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
+</blockquote>
+]]></content>
+  </entry>
+  <entry>
+    <title>了解Transformer</title>
+    <url>/posts/9008a9df/</url>
+    <content><![CDATA[<p>在之前的文章中我们了解到，RNN（及其变体如 LSTM、GRU）在处理序列数据时，必须按照时间步顺序计算，这导致其无法进行大规模并行计算。同时，它也难以解决长距离依赖的问题。</p>
+<p>为了解决这两个核心痛点，一种全新的、不依赖于循环结构的模型——Transformer 横空出世。</p>
+<span id="more"></span>
+<p>和之前一样，输入神经网络的数据，要先转换为 <strong>词嵌入（Word Embedding）</strong> 向量。</p>
+<h2 id="第一步融入位置信息">第一步：融入位置信息</h2>
+<p>由于 Transformer 抛弃了 RNN 的循环结构，模型本身无法感知输入序列中词语的先后顺序。</p>
+<p>为了解决这个问题，我们需要给每个词的词向量中添加 <strong>位置编码（Positional Encoding）</strong>，以此来表示这个词在句子中的绝对或相对位置。</p>
+<p>这样，每个词的输入向量就同时包含了语义信息和位置信息。</p>
+<h2 id="核心机制自注意力self-attention">核心机制：自注意力（Self-Attention）</h2>
+<p>仅仅包含位置信息是不够的，每个词的向量中还不包含与其他词的关系。为了让模型“注意”到句子中其他词的存在并建立联系，Transformer 引入了 <strong>自注意力机制</strong>。</p>
+<p>该机制的核心思想是为句子中的每个词动态地计算一个权重系数，这个权重代表了在编码当前词时，句子中其他词对它的重要性。这是通过三个特殊的向量来实现的：</p>
+<ul>
+<li><strong>Query (查询向量 Q)</strong>：代表当前词，用于去“查询”其他词。</li>
+<li><strong>Key (键向量 K)</strong>：代表被查询的词，用于和查询向量进行匹配。</li>
+<li><strong>Value (值向量 V)</strong>：代表被查询词的实际内容。</li>
+</ul>
+<p>这三个向量是通过将每个词的词向量（已包含位置编码）分别与三个可训练的权重矩阵 <code>Wq</code>、<code>Wk</code>、<code>Wv</code> 相乘得到的。</p>
+<p><img src="/assets/image-20251010230923988.png" /></p>
+<p>计算过程如下： 1. 拿一个词的查询向量 <code>q</code> 去和所有词（包括它自己）的键向量 <code>k</code> 做点积，得到一个 <strong>注意力分数</strong>。这个分数衡量了两个词之间的相关性。 2. 对得到的分数进行归一化处理（例如通过 SoftMax）。 3. 将归一化后的分数与每个词对应的值向量 <code>v</code> 相乘。 4. 将所有加权后的值向量 <code>v</code> 相加，就得到了一个新的向量 <code>a</code>。</p>
+<p><img src="/assets/image-20251010231017325.png" /></p>
+<p>这个新向量 <code>a</code> 就包含了整个句子上下文的信息，并且是为当前词量身定制的。对句子中的每一个词都执行相同的操作，我们就能得到一组全新的、富含上下文信息的词向量。</p>
+<p><img src="/assets/image-20251010231100716.png" /></p>
+<h2 id="优化多头注意力multi-head-attention">优化：多头注意力（Multi-Head Attention）</h2>
+<p>一个词与另一个词的关系可能有很多种（例如，语法关系、语义关系等）。如果只用一组 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵来计算相关性，灵活性会很低。</p>
+<p>因此，Transformer 提出了 <strong>多头注意力机制</strong>。它通过设置多组独立的 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵（每一组被称为一个“头”），将原始的 Q, K, V 映射到不同的子空间中，学习不同方面的相关性。</p>
+<p><img src="/assets/image-20251010231200452.png" /></p>
+<p>每个头都会独立地执行一次注意力计算，得到一个输出向量。最后，将所有头的输出向量拼接起来，再经过一次线性变换，就得到了最终的输出。这样，模型就能在不同维度上综合地理解词与词之间的关系。</p>
+<h2 id="整体架构编码器与解码器">整体架构：编码器与解码器</h2>
+<p>Transformer 的整体架构由 <strong>编码器（Encoder）</strong> 和 <strong>解码器（Decoder）</strong> 两大部分组成，每一部分都由多层堆叠而成。我们上面介绍的多头注意力机制就是其核心组件。</p>
+<ul>
+<li><strong>编码器</strong>：负责将输入序列处理成一系列富含上下文信息的表示。</li>
+<li><strong>解码器</strong>：根据编码器的输出和之前已生成的结果，来生成下一个词。</li>
+</ul>
+<p><img src="/assets/image-20251010231339402.png" /></p>
+<h2 id="总结">总结</h2>
+<p>Transformer 通过引入自注意力机制和位置编码，完全摒弃了传统的循环和卷积结构。其强大的并行计算能力和捕捉长距离依赖的优势，使其在自然语言处理领域取得了革命性的成功，并为后续的 BERT、GPT 等大规模预训练模型奠定了基础。</p>
+<blockquote>
+<p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
+</blockquote>
+]]></content>
+  </entry>
+  <entry>
     <title>内网穿透与远程桌面：用 Tailscale 随时随地访问你的 Windows</title>
     <url>/posts/8a7b3c2d/</url>
     <content><![CDATA[<p>是否曾想在咖啡馆、酒店或任何有网络的地方，像坐在自己书房一样操作家里的电脑？无论是访问重要文件、运行特定软件，还是进行远程维护，直接访问一台不在身边的计算机都是一个常见的需求。</p>
@@ -7118,6 +7314,91 @@ graph TD
       </tags>
   </entry>
   <entry>
+    <title>前端浏览器缓存机制</title>
+    <url>/posts/50ac740b/</url>
+    <content><![CDATA[<h2 id="前端浏览器缓存机制">前端浏览器缓存机制</h2>
+<p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
+<span id="more"></span>
+<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
+<h4 id="强缓存strong-caching">1. 强缓存（Strong Caching）</h4>
+<p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
+<ul>
+<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p></li>
+<li><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：
+<ul>
+<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
+<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
+<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
+<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
+</ul></li>
+</ul>
+<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
+<h4 id="协商缓存negotiation-caching">2. 协商缓存（Negotiation Caching）</h4>
+<p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
+<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
+<ul>
+<li><strong>Last-Modified &amp; If-Modified-Since</strong>:
+<ul>
+<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
+<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
+</ul></li>
+<li><strong>ETag &amp; If-None-Match</strong>:
+<ul>
+<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
+<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
+</ul></li>
+</ul>
+<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
+<h4 id="哈希与缓存hash">3. 哈希与缓存（Hash）</h4>
+<p><strong>哈希（Hash）</strong>与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
+<p><strong>典型用法</strong>：</p>
+<ul>
+<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
+<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
+</ul>
+<p><strong>总结</strong>：</p>
+<ul>
+<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
+<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
+<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
+</ul>
+<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
+<h3 id="什么是cdn内容分发网络">什么是CDN（内容分发网络）</h3>
+<p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
+<h4 id="cdn的工作原理">CDN的工作原理</h4>
+<ol type="1">
+<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p></li>
+<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p></li>
+<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p></li>
+<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p></li>
+</ol>
+<h4 id="cdn的主要优势">CDN的主要优势</h4>
+<ol type="1">
+<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p></li>
+<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p></li>
+<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p></li>
+<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p></li>
+<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p></li>
+</ol>
+<h4 id="cdn的使用场景">CDN的使用场景</h4>
+<ul>
+<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
+<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
+<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
+</ul>
+<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>前端</tag>
+        <tag>浏览器</tag>
+        <tag>缓存</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>大模型百词</title>
     <url>/posts/8c9ab17b/</url>
     <content><![CDATA[<p>当下，大模型（Large Model）无疑是科技领域最炙手可热的话题。从 ChatGPT 的惊艳亮相到各类 AIGC 应用的层出不穷，我们每天都会接触到海量的新名词和新概念。为了帮助大家更好地理解这个日新月异的领域，本文梳理了一系列核心术语，希望能为你构建一个清晰的知识地图。</p>
@@ -7251,175 +7532,6 @@ graph TD
 ]]></content>
   </entry>
   <entry>
-    <title>pytorch train 模板</title>
-    <url>/posts/14ba9e2c/</url>
-    <content><![CDATA[<p>本文提供了一个完整、通用的 PyTorch 模型训练流程模板。它涵盖了从数据准备、模型构建、训练循环、测试评估到结果可视化的每一个关键步骤，是快速搭建深度学习项目的实用骨架。 <span id="more"></span></p>
-<h3 id="整体流程一览">🚀 整体流程一览</h3>
-<p>一个标准的 PyTorch 训练任务通常遵循以下流程。我们将通过一个具体的 CIFAR-10 图像分类任务来逐步解析代码。</p>
-<pre>
-<code class="mermaid">
-
-graph TD
-    subgraph &quot;准备阶段&quot;
-        A[&quot;准备数据集 (CIFAR-10)&quot;] --&gt; B[&quot;创建 DataLoader&quot;];
-        C[&quot;定义网络模型 (Tudui)&quot;] --&gt; D[&quot;定义损失函数 (CrossEntropy)&quot;];
-        D --&gt; E[&quot;定义优化器 (SGD)&quot;];
-    end
-
-    subgraph &quot;循环训练与评估 (Epochs)&quot;
-        F[&quot;开始 Epoch 循环&quot;];
-        F --&gt; G[&quot;**训练模式** &#96;model.train()&#96;&quot;];
-        G --&gt; H[&quot;遍历 Train DataLoader&quot;];
-        H --&gt; I[&quot;前向传播 &#96;output &#x3D; model(input)&#96;&quot;];
-        I --&gt; J[&quot;计算损失 &#96;loss &#x3D; loss_fn(output, target)&#96;&quot;];
-        J --&gt; K[&quot;反向传播 &#96;loss.backward()&#96;&quot;];
-        K --&gt; L[&quot;更新参数 &#96;optimizer.step()&#96;&quot;];
-        L --&gt; M[&quot;记录训练 Loss (TensorBoard)&quot;];
-        M --&gt; N[&quot;**评估模式** &#96;model.eval()&#96;&quot;];
-        N --&gt; O[&quot;遍历 Test DataLoader (with &#96;torch.no_grad()&#96;)&quot;];
-        O --&gt; P[&quot;计算测试 Loss 和 Accuracy&quot;];
-        P --&gt; Q[&quot;记录测试结果 (TensorBoard)&quot;];
-        Q --&gt; R[&quot;保存模型 &#96;torch.save()&#96;&quot;];
-        R --&gt; F;
-    end
-    
-    B --&gt; H;
-    E --&gt; L;
-    C --&gt; I;
-    B --&gt; O
-
-    A &amp; C &amp; E --&gt; F
-</code>
-</pre>
-<hr />
-<h3 id="代码详解">📝 代码详解</h3>
-<p>下面我们来分步解析实现这个流程的 Python 代码。</p>
-<h4 id="导入库并准备数据">1. 导入库并准备数据</h4>
-<p>第一步是导入所有必要的库，并使用 <code>torchvision.datasets</code> 加载 CIFAR-10 数据集。</p>
-<ul>
-<li><code>torchvision</code>: 提供了常用的数据集、模型和图像转换。</li>
-<li><code>Tensorboard SummaryWriter</code>: 用于可视化训练过程。</li>
-<li><code>DataLoader</code>: 用于批量加载数据。</li>
-<li><code>transforms.ToTensor</code>: 将 PIL Image 或 NumPy <code>ndarray</code> 转换为 <code>FloatTensor</code>，并将像素值从 <code>[0, 255]</code> 缩放到 <code>[0.0, 1.0]</code>。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> *  <span class="comment"># 模型定义在 model.py 中</span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 准备数据集</span></span><br><span class="line">train_data = torchvision.datasets.CIFAR10(root=<span class="string">&quot;../data&quot;</span>, train=<span class="literal">True</span>, transform=torchvision.transforms.ToTensor(),</span><br><span class="line">                                          download=<span class="literal">True</span>)</span><br><span class="line">test_data = torchvision.datasets.CIFAR10(root=<span class="string">&quot;../data&quot;</span>, train=<span class="literal">False</span>, transform=torchvision.transforms.ToTensor(),</span><br><span class="line">                                         download=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># length 长度</span></span><br><span class="line">train_data_size = <span class="built_in">len</span>(train_data)</span><br><span class="line">test_data_size = <span class="built_in">len</span>(test_data)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;训练数据集的长度为: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(train_data_size))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;测试数据集的长度为: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(test_data_size))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 利用 DataLoader 来加载数据集</span></span><br><span class="line">train_dataloader = DataLoader(train_data, batch_size=<span class="number">64</span>)</span><br><span class="line">test_dataloader = DataLoader(test_data, batch_size=<span class="number">64</span>)</span><br></pre></td></tr></table></figure>
-<h4 id="定义核心组件">2. 定义核心组件</h4>
-<p>接下来，我们创建模型实例、定义损失函数和优化器。</p>
-<ul>
-<li><strong>模型 (<code>Tudui</code>)</strong>: 这是一个自定义的神经网络模型，其具体结构定义在 <code>model.py</code> 文件中。 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Tudui</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(Tudui, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.model = nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">3</span>, <span class="number">32</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>, <span class="number">32</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>, <span class="number">64</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Flatten(),</span><br><span class="line">            nn.Linear(<span class="number">64</span>*<span class="number">4</span>*<span class="number">4</span>, <span class="number">64</span>),</span><br><span class="line">            nn.Linear(<span class="number">64</span>, <span class="number">10</span>)</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = <span class="variable language_">self</span>.model(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure></li>
-<li><strong>损失函数 (<code>nn.CrossEntropyLoss</code>)</strong>: 交叉熵损失函数，常用于多分类任务。它内部已经包含了 Softmax 操作。</li>
-<li><strong>优化器 (<code>torch.optim.SGD</code>)</strong>: 随机梯度下降（Stochastic Gradient Descent）优化器，用于根据损失函数的梯度来更新模型的参数（权重和偏置）。<code>lr</code> 是学习率（learning rate）。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建网络模型</span></span><br><span class="line">tudui = Tudui()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失函数</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优化器</span></span><br><span class="line">learning_rate = <span class="number">1e-2</span></span><br><span class="line">optimizer = torch.optim.SGD(tudui.parameters(), lr=learning_rate)</span><br></pre></td></tr></table></figure>
-<h4 id="设置训练参数与-tensorboard">3. 设置训练参数与 TensorBoard</h4>
-<p>在开始训练之前，我们需要初始化一些计数器和超参数，并设置 TensorBoard 的 <code>SummaryWriter</code> 来记录训练数据。</p>
-<ul>
-<li><code>total_train_step</code> / <code>total_test_step</code>: 记录训练和测试的步数，作为 TensorBoard 的 x 轴。</li>
-<li><code>epoch</code>: 训练的总轮数。一轮（epoch）指完整地遍历一次整个训练数据集。</li>
-<li><code>SummaryWriter</code>: 创建一个写入器实例，它会将事件日志写入指定的目录（<code>../logs_train</code>）。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置训练网络的一些参数</span></span><br><span class="line"><span class="comment"># 记录训练的次数</span></span><br><span class="line">total_train_step = <span class="number">0</span></span><br><span class="line"><span class="comment"># 记录测试的次数</span></span><br><span class="line">total_test_step = <span class="number">0</span></span><br><span class="line"><span class="comment"># 训练的轮数</span></span><br><span class="line">epoch = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加tensorboard</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&quot;../logs_train&quot;</span>)</span><br></pre></td></tr></table></figure>
-<h4 id="训练与评估循环">4. 训练与评估循环</h4>
-<p>这是整个脚本的核心。外层是 epoch 循环，内层包含一个训练步骤和一个评估步骤。</p>
-<h5 id="训练步骤">训练步骤</h5>
-<ul>
-<li><code>tudui.train()</code>: 将模型设置为<strong>训练模式</strong>。这会启用 Dropout 和 BatchNorm 等层。</li>
-<li><code>optimizer.zero_grad()</code>: 在计算新梯度之前，清除上一轮的旧梯度。</li>
-<li><code>loss.backward()</code>: 计算损失函数相对于模型参数的梯度（反向传播）。</li>
-<li><code>optimizer.step()</code>: 根据计算出的梯度更新模型参数。</li>
-<li><code>writer.add_scalar()</code>: 每 100 步记录一次训练损失。</li>
-</ul>
-<h5 id="评估步骤">评估步骤</h5>
-<ul>
-<li><code>tudui.eval()</code>: 将模型设置为<strong>评估模式</strong>。这会禁用 Dropout 和 BatchNorm 等层，确保评估结果的确定性。</li>
-<li><code>with torch.no_grad()</code>: 在此代码块内，所有计算都不会追踪梯度，从而节省内存和计算资源。</li>
-<li><strong>计算准确率</strong>: <code>(outputs.argmax(1) == targets).sum()</code> 计算一个批次中预测正确的样本数量。<code>argmax(1)</code> 找到概率最高的类别的索引。</li>
-<li><strong>记录结果</strong>: 在一轮 epoch 结束后，计算并打印在整个测试集上的总损失和正确率，并用 TensorBoard 记录。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(epoch):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;-------第 &#123;&#125; 轮训练开始-------&quot;</span>.<span class="built_in">format</span>(i+<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 训练步骤开始</span></span><br><span class="line">    tudui.train()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">        imgs, targets = data</span><br><span class="line">        outputs = tudui(imgs)</span><br><span class="line">        loss = loss_fn(outputs, targets)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 优化器优化模型</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        total_train_step = total_train_step + <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> total_train_step % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;训练次数: &#123;&#125;, Loss: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_train_step, loss.item()))</span><br><span class="line">            writer.add_scalar(<span class="string">&quot;train_loss&quot;</span>, loss.item(), total_train_step)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 测试步骤开始</span></span><br><span class="line">    tudui.<span class="built_in">eval</span>()</span><br><span class="line">    total_test_loss = <span class="number">0</span></span><br><span class="line">    total_accuracy = <span class="number">0</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> data <span class="keyword">in</span> test_dataloader:</span><br><span class="line">            imgs, targets = data</span><br><span class="line">            outputs = tudui(imgs)</span><br><span class="line">            loss = loss_fn(outputs, targets)</span><br><span class="line">            total_test_loss = total_test_loss + loss.item()</span><br><span class="line">            accuracy = (outputs.argmax(<span class="number">1</span>) == targets).<span class="built_in">sum</span>()</span><br><span class="line">            total_accuracy = total_accuracy + accuracy</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;整体测试集上的Loss: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_test_loss))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;整体测试集上的正确率: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_accuracy/test_data_size))</span><br><span class="line">    writer.add_scalar(<span class="string">&quot;test_loss&quot;</span>, total_test_loss, total_test_step)</span><br><span class="line">    writer.add_scalar(<span class="string">&quot;test_accuracy&quot;</span>, total_accuracy/test_data_size, total_test_step)</span><br><span class="line">    total_test_step = total_test_step + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    torch.save(tudui, <span class="string">&quot;tudui_&#123;&#125;.pth&quot;</span>.<span class="built_in">format</span>(i))</span><br><span class="line">    <span class="comment"># torch.save(tudui.state_dict(), &quot;tudui_&#123;&#125;.pth&quot;.format(i))</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;模型已保存&quot;</span>)</span><br><span class="line"></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>💡 模型的两种保存方式</strong></p>
-<p>PyTorch 提供了两种主要的方式来保存模型，代码中展示了这两种方式：</p>
-<ol type="1">
-<li><strong>保存整个模型对象 (<code>torch.save(model, PATH)</code>)</strong>
-<ul>
-<li><strong>做法</strong>: <code>torch.save(tudui, "tudui_complete.pth")</code></li>
-<li><strong>优点</strong>: 非常简单，加载时也只需一行 <code>model = torch.load("tudui_complete.pth")</code>。</li>
-<li><strong>缺点</strong>: 这种方式使用了 Python 的 <code>pickle</code> 来序列化整个对象，它将模型的类定义、目录结构等都绑定在了一起。如果你的项目代码发生了变化（例如，重命名了模型类或存放模型的文件），加载时就可能会失败。可移植性较差。</li>
-</ul></li>
-<li><strong>仅保存模型参数 (<code>torch.save(model.state_dict(), PATH)</code>) - (推荐)</strong>
-<ul>
-<li><strong>做法</strong>: <code>torch.save(tudui.state_dict(), "tudui_params.pth")</code></li>
-<li><strong>优点</strong>: 只保存模型的“状态字典”(<code>state_dict</code>)，即所有的权重和偏置。它不依赖于具体的类结构，非常轻量和灵活，是官方推荐的、更具 Python 风格的方式。</li>
-<li><strong>缺点</strong>: 加载时需要先创建模型实例，然后再将参数加载进去： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要先创建模型实例</span></span><br><span class="line">model = Tudui() </span><br><span class="line"><span class="comment"># 再加载参数</span></span><br><span class="line">model.load_state_dict(torch.load(<span class="string">&quot;tudui_params.pth&quot;</span>))</span><br></pre></td></tr></table></figure></li>
-</ul></li>
-</ol>
-<p><strong>结论</strong>：为了代码的健壮性和可移植性，<strong>强烈推荐使用第二种方法</strong>，即只保存和加载模型的 <code>state_dict</code>。</p>
-</blockquote>
-<blockquote>
-<p><strong>为何需要 <code>train()</code> 和 <code>eval()</code>模式?</strong></p>
-<p>模型的某些层（如 <code>Dropout</code> 和 <code>BatchNorm</code>）在训练和评估时的行为是不同的。 - <strong>训练时 (<code>train()</code>模式)</strong>: <code>Dropout</code>会随机失活一些神经元来防止过拟合；<code>BatchNorm</code> 会计算当前批次的均值和方差来归一化数据。 - <strong>评估时 (<code>eval()</code>模式)</strong>: <code>Dropout</code>会被禁用；<code>BatchNorm</code> 会使用在整个训练过程中学习到的全局均值和方差。</p>
-<p>切换模式能确保模型在正确的状态下进行训练和推理。</p>
-</blockquote>
-<hr />
-<h3 id="迁移到-gpu-训练">⚡️ 迁移到 GPU 训练</h3>
-<p>如果你的机器上有 NVIDIA 显卡并正确安装了 CUDA，那么将训练迁移到 GPU 上可以极大地加速计算。PyTorch 让这个过程变得非常简单，核心只有三步：<strong>定义设备</strong>、<strong>模型上设备</strong>、<strong>数据上设备</strong>。</p>
-<h4 id="定义设备">1. 定义设备</h4>
-<p>在代码的准备阶段，首先定义一个 <code>device</code> 对象。下面的代码会自动检测 CUDA 是否可用，如果可用则选择 GPU，否则回退到 CPU。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义训练的设备</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;将使用 &#123;&#125; 设备进行训练&quot;</span>.<span class="built_in">format</span>(device))</span><br></pre></td></tr></table></figure>
-<h4 id="将模型和损失函数移动到设备">2. 将模型和损失函数移动到设备</h4>
-<p>创建完网络模型和损失函数后，调用 <code>.to(device)</code> 方法将它们发送到指定的设备上。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建网络模型</span></span><br><span class="line">tudui = Tudui()</span><br><span class="line">tudui.to(device) <span class="comment"># 发送到设备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失函数</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line">loss_fn.to(device) <span class="comment"># 发送到设备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 优化器 (无需移动)</span></span><br><span class="line">learning_rate = <span class="number">1e-2</span></span><br><span class="line">optimizer = torch.optim.SGD(tudui.parameters(), lr=learning_rate)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>提示</strong>：优化器在初始化时已经注册了模型的参数。当模型被 <code>.to(device)</code> 移动后，优化器会自动感知到参数在 GPU 上，因此<strong>优化器本身不需要被移动</strong>。</p>
-</blockquote>
-<h4 id="将数据移动到设备">3. 将数据移动到设备</h4>
-<p>最后，也是最关键的一步，是在训练和测试的循环中，将<strong>每一批次的数据</strong>也发送到同一个设备上。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在训练/测试循环中</span></span><br><span class="line"><span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">    imgs, targets = data</span><br><span class="line">    imgs = imgs.to(device) <span class="comment"># 将图像数据发送到设备</span></span><br><span class="line">    targets = targets.to(device) <span class="comment"># 将标签数据发送到设备</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 现在模型和数据都在同一个设备上，可以进行计算</span></span><br><span class="line">    outputs = tudui(imgs)</span><br><span class="line">    loss = loss_fn(outputs, targets)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-<p>完成这三步修改后，你的训练代码就能在 GPU 上飞速运行了！</p>
-<hr />
-<h3 id="模型验证">🔬 模型验证</h3>
-<p>训练完成后，我们可以加载保存好的模型，用它来对全新的、从未见过的数据进行预测。下面是一个完整的验证（或称推理，Inference）流程示例。</p>
-<h4 id="准备环境和数据">1. 准备环境和数据</h4>
-<p>首先，我们需要导入相关库，并准备一张待预测的图片。请注意，这张图片需要经过和训练时<strong>完全相同</strong>的预处理（<code>transform</code>）。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"><span class="comment"># 确保 Tudui 类的定义可见</span></span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> Tudui </span><br><span class="line"></span><br><span class="line"><span class="comment"># CIFAR-10 类别</span></span><br><span class="line">classes = (<span class="string">&#x27;plane&#x27;</span>, <span class="string">&#x27;car&#x27;</span>, <span class="string">&#x27;bird&#x27;</span>, <span class="string">&#x27;cat&#x27;</span>, <span class="string">&#x27;deer&#x27;</span>, <span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;frog&#x27;</span>, <span class="string">&#x27;horse&#x27;</span>, <span class="string">&#x27;ship&#x27;</span>, <span class="string">&#x27;truck&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载图片</span></span><br><span class="line">image_path = <span class="string">&quot;imgs/dog.png&quot;</span> <span class="comment"># 请替换为你的图片路径</span></span><br><span class="line">image = Image.<span class="built_in">open</span>(image_path)</span><br><span class="line"><span class="comment"># PNG 图片可能有4个通道 (RGBA)，需要转换为3通道 (RGB)</span></span><br><span class="line">image = image.convert(<span class="string">&#x27;RGB&#x27;</span>) </span><br><span class="line"></span><br><span class="line"><span class="comment"># 和训练时一样的 Transform</span></span><br><span class="line">transform = transforms.Compose([transforms.Resize((<span class="number">32</span>, <span class="number">32</span>)),</span><br><span class="line">                                transforms.ToTensor()])</span><br><span class="line">image = transform(image)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;图片预处理后形状: <span class="subst">&#123;image.shape&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调整形状以匹配模型输入</span></span><br><span class="line"><span class="comment"># 模型需要一个4D张量: [batch_size, channels, height, width]</span></span><br><span class="line">image = torch.reshape(image, (<span class="number">1</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">32</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;调整后送入模型的形状: <span class="subst">&#123;image.shape&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-<h4 id="加载模型并进行预测">2. 加载模型并进行预测</h4>
-<p>接下来，我们加载已经训练好的模型文件，并进行预测。</p>
-<ul>
-<li><code>torch.load()</code>: 加载模型文件。</li>
-<li><code>map_location</code>: 这是一个非常重要的参数！如果你的模型是在 GPU 上训练保存的（<code>.pth</code> 文件中包含了 GPU 张量），而你现在想在只有 CPU 的机器上加载它，就必须指定 <code>map_location=torch.device('cpu')</code>，它会智能地将所有张量重新映射到 CPU 上。</li>
-<li><code>model.eval()</code>: 切换到评估模式，这和训练时的验证步骤一样重要。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 加载模型</span></span><br><span class="line"><span class="comment"># 假设模型是在 GPU 保存的，我们现在用 CPU 加载</span></span><br><span class="line"><span class="comment"># 注意：如果使用 torch.save(model)，加载时不需要 Tudui 类的定义</span></span><br><span class="line"><span class="comment"># 但如果使用 torch.save(model.state_dict())，则需要先 model=Tudui()</span></span><br><span class="line">model = torch.load(<span class="string">&quot;tudui_29_gpu.pth&quot;</span>, map_location=torch.device(<span class="string">&#x27;cpu&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(model)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型评估与预测</span></span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    output = model(image)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;模型输出 (logits): \n<span class="subst">&#123;output&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取预测结果</span></span><br><span class="line">predicted_class_index = output.argmax(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测结果的索引: <span class="subst">&#123;predicted_class_index.item()&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测的类别是: <span class="subst">&#123;classes[predicted_class_index.item()]&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>通过这个流程，你就可以用训练好的模型来处理任何新的输入数据了。</p>
-<hr />
-<h3 id="启动-tensorboard">📈 启动 TensorBoard</h3>
-<p>训练开始后，你可以在终端中运行以下命令来启动 TensorBoard 服务：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tensorboard --logdir=../logs_train</span><br></pre></td></tr></table></figure>
-<p>然后打开浏览器访问 <code>http://localhost:6006</code> 即可看到 <code>train_loss</code>, <code>test_loss</code> 和 <code>test_accuracy</code> 的变化曲线。</p>
-<h3 id="小结">📝 小结</h3>
-<p>这个模板展示了 PyTorch 训练一个模型的标准范式：</p>
-<ol type="1">
-<li><strong>数据加载</strong>：使用 <code>Dataset</code> 和 <code>DataLoader</code>。</li>
-<li><strong>模型构建</strong>：定义网络、损失函数和优化器。</li>
-<li><strong>循环迭代</strong>：通过 <code>for</code> 循环进行多轮 (epoch) 训练。</li>
-<li><strong>训练模式</strong>：在每轮 epoch 开始时调用 <code>model.train()</code>，进行前向传播、计算损失、反向传播和参数更新。</li>
-<li><strong>评估模式</strong>：调用 <code>model.eval()</code> 和 <code>with torch.no_grad()</code>，在测试集上评估模型性能。</li>
-<li><strong>可视化与保存</strong>：使用 <code>TensorBoard</code> 监控过程，使用 <code>torch.save</code> 保存模型。</li>
-</ol>
-<p>参考自 B站up 我是土堆，链接：<a href="https://www.bilibili.com/video/BV1hE411t7RN?spm_id_from=333.788.videopod.episodes&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">https://www.bilibili.com/video/BV1hE411t7RN?spm_id_from=333.788.videopod.episodes&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1</a></p>
-]]></content>
-      <categories>
-        <category>AI</category>
-        <category>PyTorch</category>
-      </categories>
-      <tags>
-        <tag>PyTorch</tag>
-        <tag>深度学习</tag>
-        <tag>训练模板</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>混合加密入门：集安全与效率于一身的艺术</title>
     <url>/posts/8c9a7e4f/</url>
     <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
@@ -7509,91 +7621,6 @@ graph TD
         <tag>加密</tag>
         <tag>密码学</tag>
         <tag>安全</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>前端浏览器缓存机制</title>
-    <url>/posts/50ac740b/</url>
-    <content><![CDATA[<h2 id="前端浏览器缓存机制">前端浏览器缓存机制</h2>
-<p>浏览器缓存机制通过强缓存和协商缓存两种方式，有效提升网页加载性能和用户体验。</p>
-<span id="more"></span>
-<p>浏览器的缓存机制是前端优化的重要手段之一，它通过减少对服务器的请求次数和数据传输量，提升网页加载速度和用户体验。浏览器的缓存机制主要包括两种类型：<strong>强缓存</strong>和<strong>协商缓存</strong>。此外，哈希（hash）也是一种与缓存相关的优化手段。</p>
-<h4 id="强缓存strong-caching">1. 强缓存（Strong Caching）</h4>
-<p><strong>强缓存</strong>是指在不向服务器发送请求的情况下，<strong>直接从浏览器缓存中读取资源</strong>。这种方式的优点是可以极大地减少请求数，提高页面加载速度。强缓存主要通过以下两种HTTP头来实现：</p>
-<ul>
-<li><p><strong>Expires</strong>: 一个绝对时间的GMT格式字符串，表示资源的到期时间。浏览器在这个时间之前都会直接使用缓存，不会发送请求。但由于客户端的时间可能不准，这种方式现在较少使用。</p></li>
-<li><strong>Cache-Control</strong>: 这是一个相对时间的设置方式，使用更广泛。<code>Cache-Control</code>通过指定一个时间长度（例如 <code>max-age=3600</code>，表示3600秒后过期）来控制资源的缓存时间。它可以使用多个指令组合，如：
-<ul>
-<li><code>public</code>: 资源可以被任何缓存（包括浏览器、CDN等）缓存。</li>
-<li><code>private</code>: 资源仅能被浏览器缓存，不能被共享缓存（如CDN）缓存。</li>
-<li><code>no-cache</code>: 资源会被缓存，但每次使用前必须先向服务器验证缓存是否有效（实际上会走协商缓存）。</li>
-<li><code>no-store</code>: 完全不缓存，资源每次都需要重新请求。</li>
-</ul></li>
-</ul>
-<p><strong>判断是否命中强缓存</strong>：如果命中了强缓存，浏览器不会与服务器通信，状态码为 <code>200 (from cache)</code>。</p>
-<h4 id="协商缓存negotiation-caching">2. 协商缓存（Negotiation Caching）</h4>
-<p><strong>协商缓存</strong>是指当强缓存失效或未命中时，浏览器会向服务器发送请求，询问资源是否有更新。如果资源未更新，则可以继续使用缓存的副本，若资源已更新，则下载新的资源并替换缓存。</p>
-<p>协商缓存的实现主要依赖以下两种HTTP头：</p>
-<ul>
-<li><strong>Last-Modified &amp; If-Modified-Since</strong>:
-<ul>
-<li><strong>Last-Modified</strong>: 服务器在响应头中返回资源的最后修改时间。</li>
-<li><strong>If-Modified-Since</strong>: 浏览器在请求头中带上上次缓存的 <code>Last-Modified</code> 时间。服务器比较这个时间和资源的最后修改时间，如果没有变化则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果资源已更新，则返回 <code>200</code> 和新资源。</li>
-</ul></li>
-<li><strong>ETag &amp; If-None-Match</strong>:
-<ul>
-<li><strong>ETag</strong>: 服务器为资源生成的唯一标识符（哈希值），资源改变时，ETag 也会改变。</li>
-<li><strong>If-None-Match</strong>: 浏览器在请求头中带上上次缓存的 ETag 值。服务器比较该值与当前资源的 ETag，如果匹配则返回 <code>304 Not Modified</code>，浏览器继续使用缓存；如果不匹配，则返回 <code>200</code> 和新资源。</li>
-</ul></li>
-</ul>
-<p><strong>判断是否命中协商缓存</strong>：如果命中协商缓存，浏览器会收到 <code>304 Not Modified</code> 状态码，表示可以继续使用缓存。</p>
-<h4 id="哈希与缓存hash">3. 哈希与缓存（Hash）</h4>
-<p><strong>哈希（Hash）</strong>与缓存机制紧密相关，尤其在前端资源文件（如 JavaScript、CSS、图片等）的缓存管理中非常有用。通过在文件名或路径中添加哈希值（通常是文件内容的哈希值），可以确保当文件内容发生变化时，浏览器会请求新资源而不是使用旧缓存。</p>
-<p><strong>典型用法</strong>：</p>
-<ul>
-<li>文件名中添加哈希值：<code>main.abc123.js</code>。每次文件内容变化时，哈希值都会改变，这样浏览器就会识别为一个新文件，避免使用旧缓存。</li>
-<li>结合 <code>Cache-Control</code> 的 <code>immutable</code> 标识符，确保不会重新验证文件（因为文件名唯一标识了内容，不会改变）。</li>
-</ul>
-<p><strong>总结</strong>：</p>
-<ul>
-<li><strong>强缓存</strong>可以直接避免请求，提升性能；</li>
-<li><strong>协商缓存</strong>在资源更新时能保证用户获取最新内容，同时避免不必要的下载；</li>
-<li><strong>哈希</strong>通过文件名标识内容变化，结合缓存机制有效管理前端资源的更新与缓存。</li>
-</ul>
-<p>通过合理配置这三者，前端开发可以显著优化网页加载速度和用户体验。</p>
-<h3 id="什么是cdn内容分发网络">什么是CDN（内容分发网络）</h3>
-<p><strong>CDN（Content Delivery Network，内容分发网络）</strong> 是一种通过地理位置分散的服务器集群来加速用户访问网站内容的技术。它的核心目的是将网站的静态资源（如图片、CSS、JavaScript 文件、视频等）分布到靠近用户的节点上，以提高访问速度和减少服务器的负载。</p>
-<h4 id="cdn的工作原理">CDN的工作原理</h4>
-<ol type="1">
-<li><p><strong>内容缓存</strong>：网站的静态资源会被缓存到CDN的多个节点服务器上。这些节点分布在全球各地，每个节点都称为一个“边缘服务器”。</p></li>
-<li><p><strong>用户请求</strong>：当用户访问一个使用CDN的网站时，用户的请求会被自动路由到离他们最近的CDN节点，而不是直接请求网站的源服务器。</p></li>
-<li><p><strong>缓存命中</strong>：如果该节点缓存中已有用户请求的资源，则直接返回给用户，从而减少延迟和负载。</p></li>
-<li><p><strong>缓存未命中</strong>：如果缓存中没有该资源，CDN节点会向源服务器请求该资源，之后将资源传递给用户，并缓存到本地以备后续用户请求。</p></li>
-</ol>
-<h4 id="cdn的主要优势">CDN的主要优势</h4>
-<ol type="1">
-<li><p><strong>加速内容传递</strong>：通过将内容放在离用户更近的服务器上，CDN能显著减少数据传输的时间，提升网页加载速度。</p></li>
-<li><p><strong>减轻服务器负载</strong>：由于大量的静态内容被分发到CDN节点，源服务器的负载减轻，能够更高效地处理动态请求。</p></li>
-<li><p><strong>高可用性和冗余</strong>：CDN通过多个节点提供内容，即使某个节点宕机，用户请求也能被路由到其他节点，提高了内容的可用性和网站的容错性。</p></li>
-<li><p><strong>带宽优化</strong>：通过分散用户请求，CDN可以有效减少单个服务器的带宽压力，降低带宽成本。</p></li>
-<li><p><strong>安全性增强</strong>：许多CDN服务提供安全功能，如DDoS防护、SSL加速和Web应用防火墙（WAF），从而增强网站的整体安全性。</p></li>
-</ol>
-<h4 id="cdn的使用场景">CDN的使用场景</h4>
-<ul>
-<li><strong>大型网站</strong>：如电商网站、视频流媒体服务、社交媒体平台等，需要为全球用户提供快速、稳定的访问体验。</li>
-<li><strong>高流量事件</strong>：如体育赛事直播、大型促销活动等，CDN能有效分散流量，避免服务器崩溃。</li>
-<li><strong>静态资源分发</strong>：如网站的图片、CSS、JavaScript 文件等，通过CDN可以提升资源加载速度。</li>
-</ul>
-<p>总之，CDN通过将内容分布到全球各地的边缘服务器上，加快了用户访问的速度，提升了网站的性能和可用性，是现代网络架构中不可或缺的一部分。</p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>前端</tag>
-        <tag>浏览器</tag>
-        <tag>缓存</tag>
       </tags>
   </entry>
   <entry>

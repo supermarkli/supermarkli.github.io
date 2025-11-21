@@ -29,7 +29,7 @@
 <meta property="og:description" content="想快速看懂“上电到操作系统启动”这段黑屏时间到底发生了什么？">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-11-19T09:09:15.000Z">
-<meta property="article:modified_time" content="2025-11-21T04:23:40.841Z">
+<meta property="article:modified_time" content="2025-11-21T04:28:49.017Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="note,coding,life">
 <meta name="twitter:card" content="summary">
@@ -268,7 +268,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-11-21 12:23:40" itemprop="dateModified" datetime="2025-11-21T12:23:40+08:00">2025-11-21</time>
+      <time title="修改时间：2025-11-21 12:28:49" itemprop="dateModified" datetime="2025-11-21T12:28:49+08:00">2025-11-21</time>
     </span>
 
   
@@ -285,14 +285,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>7.3k</span>
+      <span>7.5k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>13 分钟</span>
+      <span>14 分钟</span>
     </span>
 </div>
 
@@ -781,8 +781,17 @@
 <li>CPU 收到中断后，会用中断号（向量）作为索引，在 IVT 中查到处理函数的段地址和偏移地址，然后跳转执行。</li>
 </ul>
 <p><strong>中断的地址是物理地址还是虚拟地址？</strong></p>
-<p>在<strong>实模式下</strong>（BIOS 运行的环境）： - 中断向量表中的地址是<strong>物理地址</strong>（更准确说是<strong>实模式地址</strong>）。 - IVT 位于物理地址 <code>0x00000-0x003FF</code>，每个向量存储的是处理程序的<strong>段地址:偏移地址</strong>（实模式寻址方式）。 - CPU 通过 <code>段地址 × 16 + 偏移地址</code> 计算出物理地址，直接访问内存，无需虚拟地址转换。</p>
-<p>在<strong>保护模式下</strong>（操作系统运行的环境）： - 使用 <strong>IDT（Interrupt Descriptor Table）</strong> 替代 IVT。 - IDT 中的地址可以是<strong>虚拟地址</strong>（如果启用了分页），CPU 会通过页表转换为物理地址。</p>
+<p>在<strong>实模式下</strong>（BIOS 运行的环境）：</p>
+<ul>
+<li>中断向量表中的地址是<strong>物理地址</strong>（更准确说是<strong>实模式地址</strong>）。</li>
+<li>IVT 位于物理地址 <code>0x00000-0x003FF</code>，每个向量存储的是处理程序的<strong>段地址:偏移地址</strong>（实模式寻址方式）。</li>
+<li>CPU 通过 <code>段地址 × 16 + 偏移地址</code> 计算出物理地址，直接访问内存，无需虚拟地址转换。</li>
+</ul>
+<p>在<strong>保护模式下</strong>（操作系统运行的环境）：</p>
+<ul>
+<li>使用 <strong>IDT（Interrupt Descriptor Table）</strong> 替代 IVT。</li>
+<li>IDT 中的地址可以是<strong>虚拟地址</strong>（如果启用了分页），CPU 会通过页表转换为物理地址。</li>
+</ul>
 <p>BIOS 提供了一系列中断服务，让引导程序可以使用硬件：</p>
 <h4 id="深入理解中断向量表-ivt">💡 深入理解：中断向量表 (IVT)</h4>
 <p>在实模式下，BIOS 中断是通过中断向量表（Interrupt Vector Table, IVT）来实现的。</p>
@@ -858,8 +867,17 @@
 <p>当执行 <code>int 0x10</code> 时，CPU 自动执行以下步骤：</p>
 <ol type="1">
 <li><p><strong>将 FLAGS 寄存器压栈（保存状态）</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">push FLAGS</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>清除 IF 标志（禁止中断嵌套）</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cli</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>清除 TF 标志（禁止单步调试）</strong></p></li>
+<li><strong>CPU 自动清除 IF 标志（禁止中断嵌套）</strong>
+<ul>
+<li>CPU 自动将 IF 标志设为 0，屏蔽可屏蔽硬件中断。</li>
+<li>这相当于自动执行了 <code>cli</code>（Clear Interrupt Flag）指令的效果。</li>
+<li>注意：这是 CPU 的<strong>自动行为</strong>，不需要在代码中手动执行 <code>cli</code>。</li>
+</ul></li>
+<li><strong>CPU 自动清除 TF 标志（禁止单步调试）</strong>
+<ul>
+<li>CPU 自动将 TF（Trap Flag）标志设为 0，禁用单步调试模式。</li>
+<li>这也是 CPU 的<strong>自动行为</strong>，确保中断处理程序不会在调试模式下执行。</li>
+</ul></li>
 <li><p><strong>将返回地址压栈（CS 和 IP）</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">push CS</span><br><span class="line">push IP</span><br></pre></td></tr></table></figure></p></li>
 <li><strong>从 IVT 读取中断处理程序地址</strong>
 <ul>
@@ -988,7 +1006,12 @@
 </ul></li>
 </ol>
 <blockquote>
-<p><strong>IF 标志是什么？</strong> - IF（Interrupt Flag）位于 CPU 的 EFLAGS/FLAGS 寄存器中，用于控制<strong>可屏蔽硬件中断</strong>是否被响应。 - IF=1 表示允许 PIC 发送的硬件中断，IF=0 则屏蔽（也就是 <code>cli</code> 指令的效果）。 - 当执行 <code>int</code> 指令或进入中断处理程序时，CPU 会自动清除 IF=0，避免中断嵌套；处理完毕后通常用 <code>iret</code> 恢复原有 IF 状态，或通过 <code>sti</code> 手动重新开启。</p>
+<p><strong>IF 标志是什么？</strong></p>
+<ul>
+<li>IF（Interrupt Flag）位于 CPU 的 EFLAGS/FLAGS 寄存器中，用于控制<strong>可屏蔽硬件中断</strong>是否被响应。</li>
+<li>IF=1 表示允许 PIC 发送的硬件中断，IF=0 则屏蔽（也就是 <code>cli</code> 指令的效果）。</li>
+<li>当执行 <code>int</code> 指令或进入中断处理程序时，CPU 会自动清除 IF=0，避免中断嵌套；处理完毕后通常用 <code>iret</code> 恢复原有 IF 状态，或通过 <code>sti</code> 手动重新开启。</li>
+</ul>
 </blockquote>
 <h3 id="常用-bios-中断服务详解">📺 常用 BIOS 中断服务详解</h3>
 <h4 id="int-0x10---视频服务">INT 0x10 - 视频服务</h4>
@@ -1042,8 +1065,12 @@
 </tbody>
 </table>
 <blockquote>
-<p><strong>什么是 AH？</strong></p>
-<p>在 x86 架构中，CPU 提供了多组通用寄存器（如 AX、BX、CX、DX），每个寄存器 16 位。在实际应用中，这些寄存器还可以细分低 8 位（如 AL、BL）与高 8 位（如 AH、BH）： - <code>AX</code>：16 位寄存器，可以看作由高 8 位 <code>AH</code> 和低 8 位 <code>AL</code> 组成。 - <code>AH</code>（“A High”）：AX 的高 8 位，常用于传递功能号或状态（例如 BIOS 中断的功能号一般通过 <code>AH</code> 传递）。 - <code>AL</code>（“A Low”）：AX 的低 8 位，常用于传递附加参数或数据（如字符等）。</p>
+<p><strong>什么是 AH？</strong> 在 x86 架构中，CPU 提供了多组通用寄存器（如 AX、BX、CX、DX），每个寄存器 16 位。在实际应用中，这些寄存器还可以细分低 8 位（如 AL、BL）与高 8 位（如 AH、BH）：</p>
+<ul>
+<li><code>AX</code>：16 位寄存器，可以看作由高 8 位 <code>AH</code> 和低 8 位 <code>AL</code> 组成。</li>
+<li><code>AH</code>（“A High”）：AX 的高 8 位，常用于传递功能号或状态（例如 BIOS 中断的功能号一般通过 <code>AH</code> 传递）。</li>
+<li><code>AL</code>（“A Low”）：AX 的低 8 位，常用于传递附加参数或数据（如字符等）。</li>
+</ul>
 </blockquote>
 <p><strong>示例：输出 "Hello" 到屏幕</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mov ah, 0x0E    ; 功能号:Teletype输出</span><br><span class="line">mov al, &#x27;H&#x27;     ; 字符</span><br><span class="line">int 0x10        ; 调用BIOS</span><br><span class="line">;重复输出e, l, l, o</span><br></pre></td></tr></table></figure>
@@ -1213,7 +1240,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">5:48</span>
+    <span title="站点阅读时长">5:49</span>
   </span>
 </div>
 <div class="busuanzi-count">
