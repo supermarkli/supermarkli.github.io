@@ -29,7 +29,7 @@
 <meta property="og:description" content="想快速看懂“上电到操作系统启动”这段黑屏时间到底发生了什么？">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-11-19T09:09:15.000Z">
-<meta property="article:modified_time" content="2025-11-25T02:58:52.988Z">
+<meta property="article:modified_time" content="2025-11-25T02:59:38.420Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="note,coding,life">
 <meta name="twitter:card" content="summary">
@@ -268,7 +268,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2025-11-25 10:58:52" itemprop="dateModified" datetime="2025-11-25T10:58:52+08:00">2025-11-25</time>
+      <time title="修改时间：2025-11-25 10:59:38" itemprop="dateModified" datetime="2025-11-25T10:59:38+08:00">2025-11-25</time>
     </span>
 
   
@@ -1094,10 +1094,25 @@
 </ol>
 <blockquote>
 <p><strong>中断处理程序的栈管理：</strong></p>
-<p><strong>栈的使用：</strong> - 当 CPU 执行 <code>int</code> 指令时，会自动将 <strong>FLAGS、CS、IP</strong> 依次压栈（按此顺序）。 - 栈指针（SP）会<strong>自动减少</strong>（栈向下增长），为这些数据预留空间。 - 中断处理程序可以使用栈来保存其他寄存器（如 AX、BX 等），但<strong>必须在使用前保存，使用后恢复</strong>。</p>
+<p><strong>栈的使用：</strong></p>
+<ul>
+<li>当 CPU 执行 <code>int</code> 指令时，会自动将 <strong>FLAGS、CS、IP</strong> 依次压栈（按此顺序）。</li>
+<li>栈指针（SP）会<strong>自动减少</strong>（栈向下增长），为这些数据预留空间。</li>
+<li>中断处理程序可以使用栈来保存其他寄存器（如 AX、BX 等），但<strong>必须在使用前保存，使用后恢复</strong>。</li>
+</ul>
 <p><strong>栈布局（进入中断处理程序时）：</strong> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">高地址</span><br><span class="line">[原始 FLAGS]  ← SP（栈顶，最低地址）</span><br><span class="line">[原始 CS]</span><br><span class="line">[原始 IP]     ← 栈底（最高地址）</span><br><span class="line">低地址</span><br></pre></td></tr></table></figure></p>
-<p><strong>必须用 <code>iret</code> 返回的原因：</strong> - <code>iret</code> 指令会<strong>按相反顺序</strong>弹出 IP、CS、FLAGS，恢复 CPU 状态。 - 如果用普通的 <code>ret</code> 返回，只会弹出 IP 和 CS，<strong>不会恢复 FLAGS</strong>，导致中断标志（IF）等状态错误。 - <code>iret</code> 还会<strong>自动恢复 IF 标志</strong>（如果之前被清除），重新允许硬件中断。</p>
-<p><strong>寄存器保存约定：</strong> - <strong>必须保存</strong>：如果中断处理程序会修改的寄存器（如 AX、BX、CX、DX、SI、DI、BP、DS、ES 等）。 - <strong>不需要保存</strong>：FLAGS、CS、IP（CPU 自动保存）。 - <strong>示例</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">my_handler:</span><br><span class="line">    push ax      ; 保存寄存器</span><br><span class="line">    push bx</span><br><span class="line">    ; ... 处理逻辑 ...</span><br><span class="line">    pop bx       ; 恢复寄存器（注意顺序相反）</span><br><span class="line">    pop ax</span><br><span class="line">    iret         ; 必须用 iret 返回</span><br></pre></td></tr></table></figure></p>
+<p><strong>必须用 <code>iret</code> 返回的原因：</strong></p>
+<ul>
+<li><code>iret</code> 指令会<strong>按相反顺序</strong>弹出 IP、CS、FLAGS，恢复 CPU 状态。</li>
+<li>如果用普通的 <code>ret</code> 返回，只会弹出 IP 和 CS，<strong>不会恢复 FLAGS</strong>，导致中断标志（IF）等状态错误。</li>
+<li><code>iret</code> 还会<strong>自动恢复 IF 标志</strong>（如果之前被清除），重新允许硬件中断。</li>
+</ul>
+<p><strong>寄存器保存约定：</strong></p>
+<ul>
+<li><strong>必须保存</strong>：如果中断处理程序会修改的寄存器（如 AX、BX、CX、DX、SI、DI、BP、DS、ES 等）。</li>
+<li><strong>不需要保存</strong>：FLAGS、CS、IP（CPU 自动保存）。</li>
+<li><strong>示例</strong>： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">my_handler:</span><br><span class="line">    push ax      ; 保存寄存器</span><br><span class="line">    push bx</span><br><span class="line">    ; ... 处理逻辑 ...</span><br><span class="line">    pop bx       ; 恢复寄存器（注意顺序相反）</span><br><span class="line">    pop ax</span><br><span class="line">    iret         ; 必须用 iret 返回</span><br></pre></td></tr></table></figure></li>
+</ul>
 </blockquote>
 <p><strong>图示说明：</strong></p>
 <p>调用：<code>int 0x10</code></p>
