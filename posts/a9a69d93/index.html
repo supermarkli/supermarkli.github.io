@@ -21,15 +21,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。 本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现动态键位映射：既">
+    <meta name="description" content="最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="KeyMapping：win上使用mac键位">
 <meta property="og:url" content="https://supermarkli.github.io/posts/a9a69d93/index.html">
 <meta property="og:site_name" content="吃糠咽菜">
-<meta property="og:description" content="最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。 本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现动态键位映射：既">
+<meta property="og:description" content="最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-12-09T12:42:12.000Z">
-<meta property="article:modified_time" content="2025-12-09T15:03:08.384Z">
+<meta property="article:modified_time" content="2025-12-09T15:07:29.060Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="Windows">
 <meta property="article:tag" content="MacOS">
@@ -265,7 +265,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-12-09 20:42:12 / 修改时间：23:03:08" itemprop="dateCreated datePublished" datetime="2025-12-09T20:42:12+08:00">2025-12-09</time>
+      <time title="创建时间：2025-12-09 20:42:12 / 修改时间：23:07:29" itemprop="dateCreated datePublished" datetime="2025-12-09T20:42:12+08:00">2025-12-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -308,9 +308,8 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。</p>
+    <div class="post-body" itemprop="articleBody"><p>最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。 <span id="more"></span></p>
 <p>本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现<strong>动态键位映射</strong>：既能在本地完美复刻 Mac 体验，又能智能识别远程桌面来源，自动适配 RDP 客户端的键位逻辑。</p>
-<span id="more"></span>
 <h3 id="核心痛点本地与远程的精神分裂">💡 核心痛点：本地与远程的“精神分裂”</h3>
 <p>在 Windows 上复刻 Mac 键位，最直接的思路是将键盘左下角的 <code>Alt</code> 映射为 <code>Ctrl</code>（因为 Mac 的 Command 键就在这个位置）。</p>
 <p>然而，当你从一台 Mac 通过 Microsoft Remote Desktop 远程连接到这台 Windows 时，问题就出现了： 1. <strong>本地使用时</strong>：我们需要 <code>Alt</code> -&gt; <code>Ctrl</code>。 2. <strong>Mac 远程连接时</strong>：Mac 的 RDP 客户端通常会将 Command 键映射为 Windows 的 <code>Win</code> 键。此时，我们在 Mac 上按 <code>Cmd + C</code>，Windows 接收到的是 <code>Win + C</code>。</p>
