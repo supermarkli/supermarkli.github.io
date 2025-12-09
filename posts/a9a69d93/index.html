@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。 本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现动态键位映射：既">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KeyMapping：win上使用mac键位">
+<meta property="og:url" content="https://supermarkli.github.io/posts/a9a69d93/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。 本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现动态键位映射：既">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-12-09T12:42:12.000Z">
+<meta property="article:modified_time" content="2025-12-09T15:03:08.384Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="MacOS">
+<meta property="article:tag" content="AutoHotkey">
+<meta property="article:tag" content="效率工具">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/a9a69d93/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://supermarkli.github.io/posts/a9a69d93/","path":"posts/a9a69d93/","title":"KeyMapping：win上使用mac键位"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>KeyMapping：win上使用mac键位 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%97%9B%E7%82%B9%E6%9C%AC%E5%9C%B0%E4%B8%8E%E8%BF%9C%E7%A8%8B%E7%9A%84%E7%B2%BE%E7%A5%9E%E5%88%86%E8%A3%82"><span class="nav-number">1.</span> <span class="nav-text">💡 核心痛点：本地与远程的“精神分裂”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88wtsapi-%E5%8A%A8%E6%80%81%E8%AF%86%E5%88%AB"><span class="nav-number">2.</span> <span class="nav-text">🔍 解决方案：WTSAPI 动态识别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">🛠️ 脚本实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">🚀 如何使用</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/csnr.jpg">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">86</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/a9a69d93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/csnr.jpg">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="KeyMapping：win上使用mac键位 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          KeyMapping：win上使用mac键位
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-12-09 20:42:12 / 修改时间：23:03:08" itemprop="dateCreated datePublished" datetime="2025-12-09T20:42:12+08:00">2025-12-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%8A%80%E6%9C%AF%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">技术工具</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>9 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。</p>
+<p>本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现<strong>动态键位映射</strong>：既能在本地完美复刻 Mac 体验，又能智能识别远程桌面来源，自动适配 RDP 客户端的键位逻辑。</p>
+<span id="more"></span>
+<h3 id="核心痛点本地与远程的精神分裂">💡 核心痛点：本地与远程的“精神分裂”</h3>
+<p>在 Windows 上复刻 Mac 键位，最直接的思路是将键盘左下角的 <code>Alt</code> 映射为 <code>Ctrl</code>（因为 Mac 的 Command 键就在这个位置）。</p>
+<p>然而，当你从一台 Mac 通过 Microsoft Remote Desktop 远程连接到这台 Windows 时，问题就出现了： 1. <strong>本地使用时</strong>：我们需要 <code>Alt</code> -&gt; <code>Ctrl</code>。 2. <strong>Mac 远程连接时</strong>：Mac 的 RDP 客户端通常会将 Command 键映射为 Windows 的 <code>Win</code> 键。此时，我们在 Mac 上按 <code>Cmd + C</code>，Windows 接收到的是 <code>Win + C</code>。</p>
+<p>如果我们简单粗暴地全局重映射，就会导致远程连接时快捷键失效。我们需要一个“智能”的脚本，它能知道<strong>当前是谁在操作电脑</strong>。</p>
+<h3 id="解决方案wtsapi-动态识别">🔍 解决方案：WTSAPI 动态识别</h3>
+<p>Windows 提供了 WTSAPI (Windows Terminal Services API)，允许我们查询当前会话的信息。通过 <code>WTSQuerySessionInformation</code> 函数，我们可以获取连接到当前会话的客户端名称（Client Name）。</p>
+<ul>
+<li><strong>本地登录</strong>：客户端名称通常为空。</li>
+<li><strong>远程登录</strong>：客户端名称会显示发起连接的设备名）。</li>
+</ul>
+<p>利用这一点，我们可以编写一个 <code>IsRemoteMac()</code> 函数来动态判断当前的上下文。</p>
+<h3 id="脚本实现">🛠️ 脚本实现</h3>
+<p>以下是完整的 AutoHotkey v2 脚本。</p>
+<figure class="highlight ahk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#Requires AutoHotkey v2.0</span></span><br><span class="line"><span class="meta">#SingleInstance Force</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 核心逻辑：环境检测</span></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 判断当前是否是从特定的 Mac 设备远程连接</span></span><br><span class="line">IsRemoteMac() &#123;</span><br><span class="line">    <span class="comment">; 获取 RDP 客户端名称并去除首尾空格</span></span><br><span class="line">    clientName := Trim(GetRdpClientName())</span><br><span class="line">    if (clientName = <span class="string">&quot;&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">; 检查客户端名称是否包含特定标识（这里修改为你自己的设备名）</span></span><br><span class="line">    if InStr(clientName, <span class="string">&quot;zihao-macbook&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">; 调用 Windows API 获取 RDP 客户端名称</span></span><br><span class="line">GetRdpClientName() &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        pBuffer := <span class="number">0</span></span><br><span class="line">        bytes := <span class="number">0</span></span><br><span class="line">        <span class="comment">; 调用 Windows Terminal Services API 获取会话信息</span></span><br><span class="line">        <span class="comment">; WTSQuerySessionInformationW 检索指定会话的信息</span></span><br><span class="line">        <span class="comment">; WTS_CURRENT_SERVER_HANDLE (0) 表示当前服务器</span></span><br><span class="line">        <span class="comment">; WTS_CURRENT_SESSION (-1) 表示当前会话</span></span><br><span class="line">        <span class="comment">; WTSClientName (10) 请求客户端名称信息类</span></span><br><span class="line">        if !DllCall(<span class="string">&quot;wtsapi32\WTSQuerySessionInformationW&quot;</span></span><br><span class="line">            , <span class="string">&quot;Ptr&quot;</span>, <span class="number">0</span>              <span class="comment">; WTS_CURRENT_SERVER_HANDLE</span></span><br><span class="line">            , <span class="string">&quot;Int&quot;</span>, -<span class="number">1</span>             <span class="comment">; WTS_CURRENT_SESSION</span></span><br><span class="line">            , <span class="string">&quot;Int&quot;</span>, <span class="number">10</span>             <span class="comment">; WTSClientName</span></span><br><span class="line">            , <span class="string">&quot;Ptr*&quot;</span>, &amp;pBuffer</span><br><span class="line">            , <span class="string">&quot;UInt*&quot;</span>, &amp;bytes)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">; 从内存缓冲区读取 UTF-16 字符串</span></span><br><span class="line">        name := StrGet(pBuffer, <span class="string">&quot;UTF-16&quot;</span>)</span><br><span class="line">        <span class="comment">; 释放由 WTSQuerySessionInformation 分配的内存，防止内存泄漏</span></span><br><span class="line">        DllCall(<span class="string">&quot;wtsapi32\WTSFreeMemory&quot;</span>, <span class="string">&quot;Ptr&quot;</span>, pBuffer)</span><br><span class="line">        <span class="keyword">return</span> name</span><br><span class="line">    &#125; catch &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 场景一：从 Mac 远程连接时</span></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 当检测到是从 Mac 远程过来时，RDP 客户端通常将 Cmd 映射为 Win 键。</span></span><br><span class="line"><span class="comment">; 我们需要拦截这些 Win 组合键，将其转换为对应的 Ctrl 组合键。</span></span><br><span class="line"><span class="meta">#HotIf IsRemoteMac()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 修复 Alt+Tab 切换应用的行为</span></span><br><span class="line"><span class="title">$!Tab::</span></span><br><span class="line">&#123;</span><br><span class="line">    SendInput <span class="string">&quot;&#123;LAlt up&#125;&quot;</span></span><br><span class="line">    Sleep <span class="number">10</span> <span class="comment">; 极短缓冲，确保系统状态稳定</span></span><br><span class="line">    SendEvent <span class="string">&quot;#&#123;Tab&#125;&quot;</span> <span class="comment">; 发送 Win+Tab 打开任务视图，或者根据习惯改为 Alt+Tab</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">; 将 Win + key (Mac 端的 Cmd + key) 映射为 Ctrl + key (Windows 标准操作)</span></span><br><span class="line"><span class="title">$#/::</span>Send <span class="string">&quot;^/&quot;</span>          <span class="comment">; 注释 (Cmd + / -&gt; Win + / -&gt; Ctrl + /)</span></span><br><span class="line"><span class="title">$#b::</span>Send <span class="string">&quot;^b&quot;</span>          <span class="comment">; 加粗/侧边栏 (Cmd + B -&gt; Win + B -&gt; Ctrl + B)</span></span><br><span class="line"><span class="title">$#s::</span>Send <span class="string">&quot;^s&quot;</span>          <span class="comment">; 保存 (Cmd + S -&gt; Win + S -&gt; Ctrl + S)</span></span><br><span class="line"><span class="title">$#-::</span>Send <span class="string">&quot;^-&quot;</span>          <span class="comment">; 缩小 (Cmd + - -&gt; Win + - -&gt; Ctrl + -)</span></span><br><span class="line"><span class="title">$#=::</span>Send <span class="string">&quot;^=&quot;</span>          <span class="comment">; 放大 (Cmd + = -&gt; Win + = -&gt; Ctrl + =)</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#HotIf ; 结束 IsRemoteMac 上下文</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 场景二：本地使用 (模拟 Mac 键位)</span></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 当不在远程环境（或非特定 Mac 远程）时，将物理键盘的 Alt 键当作 Command 用。</span></span><br><span class="line"><span class="meta">#HotIf !IsRemoteMac()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 常用编辑快捷键 ---</span></span><br><span class="line"><span class="title">$!c::</span>Send <span class="string">&quot;^c&quot;</span>          <span class="comment">; 复制 (Alt + C -&gt; Ctrl + C) 实现 Cmd + C</span></span><br><span class="line"><span class="title">$!v::</span>Send <span class="string">&quot;^v&quot;</span>          <span class="comment">; 粘贴 (Alt + V -&gt; Ctrl + V) 实现 Cmd + V</span></span><br><span class="line"><span class="title">$!x::</span>Send <span class="string">&quot;^x&quot;</span>          <span class="comment">; 剪切 (Alt + X -&gt; Ctrl + X) 实现 Cmd + X</span></span><br><span class="line"><span class="title">$!z::</span>Send <span class="string">&quot;^z&quot;</span>          <span class="comment">; 撤销 (Alt + Z -&gt; Ctrl + Z) 实现 Cmd + Z</span></span><br><span class="line"><span class="title">$!+z::</span>Send <span class="string">&quot;^y&quot;</span>         <span class="comment">; 重做 (Alt + Shift + Z -&gt; Ctrl + Y) 实现 Cmd + Shift + Z</span></span><br><span class="line"><span class="title">$!a::</span>Send <span class="string">&quot;^a&quot;</span>          <span class="comment">; 全选 (Alt + A -&gt; Ctrl + A) 实现 Cmd + A</span></span><br><span class="line"><span class="title">$!s::</span>Send <span class="string">&quot;^s&quot;</span>          <span class="comment">; 保存 (Alt + S -&gt; Ctrl + S) 实现 Cmd + S</span></span><br><span class="line"><span class="title">$!/::</span>Send <span class="string">&quot;^/&quot;</span>          <span class="comment">; 注释 (Alt + / -&gt; Ctrl + /) 实现 Cmd + /</span></span><br><span class="line"><span class="title">$#z::</span>Send <span class="string">&quot;!z&quot;</span>          <span class="comment">; 自动换行 (Win + Z -&gt; Alt + Z) 修正部分软件的键位</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 功能快捷键 ---</span></span><br><span class="line"><span class="title">$!b::</span>Send <span class="string">&quot;^b&quot;</span>          <span class="comment">; 加粗</span></span><br><span class="line"><span class="title">$!n::</span>Send <span class="string">&quot;^n&quot;</span>          <span class="comment">; 新建</span></span><br><span class="line"><span class="title">$!e::</span>Send <span class="string">&quot;#e&quot;</span>          <span class="comment">; 打开资源管理器 (Alt + E -&gt; Win + E)</span></span><br><span class="line"><span class="title">$!f::</span>Send <span class="string">&quot;^f&quot;</span>          <span class="comment">; 查找</span></span><br><span class="line"><span class="title">$!h::</span>Send <span class="string">&quot;^h&quot;</span>          <span class="comment">; 替换</span></span><br><span class="line"><span class="title">$!t::</span>Send <span class="string">&quot;^t&quot;</span>          <span class="comment">; 新建标签页</span></span><br><span class="line"><span class="title">$!r::</span>Send <span class="string">&quot;^r&quot;</span>          <span class="comment">; 刷新</span></span><br><span class="line"><span class="title">$!=::</span>Send <span class="string">&quot;^&#123;=&#125;&quot;</span>        <span class="comment">; 放大</span></span><br><span class="line"><span class="title">$!-::</span>Send <span class="string">&quot;^&#123;-&#125;&quot;</span>        <span class="comment">; 缩小</span></span><br><span class="line"><span class="title">$!0::</span>Send <span class="string">&quot;^0&quot;</span>          <span class="comment">; 恢复大小</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 光标移动 (文本编辑神器) ---</span></span><br><span class="line"><span class="comment">; Mac 的 Cmd + 方向键在文本编辑中非常高效，这里用 Alt 模拟</span></span><br><span class="line"><span class="title">$!Left::</span>Send <span class="string">&quot;&#123;Home&#125;&quot;</span>   <span class="comment">; 光标移至行首</span></span><br><span class="line"><span class="title">$!Right::</span>Send <span class="string">&quot;&#123;End&#125;&quot;</span>   <span class="comment">; 光标移至行尾</span></span><br><span class="line"><span class="title">$!Up::</span>Send <span class="string">&quot;^&#123;Home&#125;&quot;</span>    <span class="comment">; 光标移至文档头</span></span><br><span class="line"><span class="title">$!Down::</span>Send <span class="string">&quot;^&#123;End&#125;&quot;</span>   <span class="comment">; 光标移至文档尾</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 文本选中 ---</span></span><br><span class="line"><span class="title">$!+Left::</span>Send <span class="string">&quot;+&#123;Home&#125;&quot;</span> <span class="comment">; 选中至行首</span></span><br><span class="line"><span class="title">$!+Right::</span>Send <span class="string">&quot;+&#123;End&#125;&quot;</span> <span class="comment">; 选中至行尾</span></span><br><span class="line"><span class="title">$!+Up::</span>Send <span class="string">&quot;^+&#123;Home&#125;&quot;</span>  <span class="comment">; 选中至文档头</span></span><br><span class="line"><span class="title">$!+Down::</span>Send <span class="string">&quot;^+&#123;End&#125;&quot;</span> <span class="comment">; 选中至文档尾</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 系统功能 ---</span></span><br><span class="line"><span class="title">$!Space::</span>Send <span class="string">&quot;#s&quot;</span>      <span class="comment">; 聚焦搜索/PowerToys Run (Alt + Space -&gt; Win + S)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 截图工具 (适配 pixpin 记得修改快捷键) ---</span></span><br><span class="line"><span class="title">$#1::</span>Send <span class="string">&quot;^!1&quot;</span>         <span class="comment">; 截图并复制</span></span><br><span class="line"><span class="title">$#2::</span>Send <span class="string">&quot;^!2&quot;</span>         <span class="comment">; 贴图</span></span><br><span class="line"><span class="title">$#3::</span>Send <span class="string">&quot;^!3&quot;</span>         <span class="comment">; 截图</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- Alt 键特殊处理 ---</span></span><br><span class="line"><span class="comment">; 屏蔽 Alt 单独按下激活菜单栏的默认行为，防止误触</span></span><br><span class="line"><span class="title">~LAlt::</span>Send <span class="string">&quot;&#123;Blind&#125;&#123;vkE8&#125;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 模拟 Mac 行为：单击 Alt (Command) 也可以呼出开始菜单</span></span><br><span class="line"><span class="comment">; 只有在没有按下其他键的情况下释放 Alt 才触发</span></span><br><span class="line"><span class="title">~LAlt Up::</span></span><br><span class="line">&#123;</span><br><span class="line">    if (<span class="built_in">A_PriorKey</span> = <span class="string">&quot;LAlt&quot;</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        Send <span class="string">&quot;&#123;LWin&#125;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#HotIf</span></span><br></pre></td></tr></table></figure>
+<h3 id="如何使用">🚀 如何使用</h3>
+<ol type="1">
+<li>安装 <a target="_blank" rel="noopener" href="https://www.autohotkey.com/">AutoHotkey v2</a>。</li>
+<li>创建一个新文件 <code>MacKeys.ahk</code>，将上述代码粘贴进去。</li>
+<li>双击运行即可。</li>
+<li>（可选）将其放入 Windows 的启动文件夹，实现开机自启。</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://github.com/supermarkli/MacKeysMapping.git">仓库地址</a>放到这里，希望这对你有帮助！</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+              <a href="/tags/MacOS/" rel="tag"># MacOS</a>
+              <a href="/tags/AutoHotkey/" rel="tag"># AutoHotkey</a>
+              <a href="/tags/%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7/" rel="tag"># 效率工具</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/104dbac2/" rel="prev" title="优化器详解：从SGD到Adam的原理与参数调优">
+                  <i class="fa fa-angle-left"></i> 优化器详解：从SGD到Adam的原理与参数调优
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">215k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">6:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

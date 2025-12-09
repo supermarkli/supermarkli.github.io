@@ -1527,142 +1527,6 @@ graph LR
       </tags>
   </entry>
   <entry>
-    <title>CUDA 软件栈</title>
-    <url>/posts/dc164fc3/</url>
-    <content><![CDATA[<p>本文尝试用一张图把 CUDA 从“硬件→内核→用户态驱动→工具包→深度学习框架”的完整链路讲清楚，并解释常见的版本不匹配问题与定位思路。即便没有 CUDA 基础，也可以按文中的检查顺序逐步排查。</p>
-<span id="more"></span>
-<h3 id="一全景图从硬件到框架的调用链">一、全景图（从硬件到框架的调用链）</h3>
-<pre>
-<code class="mermaid">
-
-graph TD;
-  HW[&quot;GPU 硬件 (SM &#x2F; CUDA Core, NVLink &#x2F; PCIe)&quot;] --&gt;|&quot;① 硬件接口 (PCIe, MMIO, DMA)&quot;| KMOD[&quot;内核空间: nvidia.ko, nvidia_uvm.ko, nvidia_drm.ko&lt;br&#x2F;&gt;(版本: 570.133.20)&quot;];
-  KMOD --&gt;|&quot;② 系统调用 (syscall &#x2F; ioctl)&quot;| UDRV[&quot;用户空间-驱动: libcuda.so, libnvidia-ml.so&lt;br&#x2F;&gt;(版本需与内核驱动完全一致)&quot;];
-  UDRV --&gt;|&quot;③ 动态链接&quot;| TOOL[&quot;用户空间-工具包: libcudart.so, libcublas.so, libcudnn.so&lt;br&#x2F;&gt;(版本可高于驱动)&quot;];
-  TOOL --&gt;|&quot;④ Python C++ 扩展 (dlopen)&quot;| FW[&quot;框架层: PyTorch, TensorFlow, Paddle&quot;];
-</code>
-</pre>
-<p>解析：</p>
-<ul>
-<li><p><strong>硬件层</strong>: GPU 上的 SM（Streaming Multiprocessor）里有很多 CUDA Core，负责并行数值运算；NVLink / PCIe 是与 CPU/主机交换数据的总线。</p></li>
-<li><p><strong>内核空间 (驱动层)</strong>: GPU 通过 PCIe 总线与系统连接。内核模块（<code>nvidia.ko</code>, <code>nvidia_uvm.ko</code>, <code>nvidia_drm.ko</code>）被加载后，作为驱动程序接管硬件。它们通过内存映射 I/O (MMIO) 读写 GPU 寄存器、通过中断 (Interrupts) 响应事件，并利用直接内存访问 (DMA) 高效传输数据。这组模块来自同一个驱动包，版本号必须统一（例如 <code>570.133.20</code>），其中 <code>nvidia.ko</code> 负责核心功能，<code>nvidia_uvm.ko</code> 管理统一内存，<code>nvidia_drm.ko</code> 关联显示。</p></li>
-<li><p><strong>用户空间 - 驱动</strong>: 用户态驱动库（如 <code>libcuda.so.*</code>, <code>libnvidia-ml.so.*</code>）位于系统或 Conda 的库目录。它们是用户程序与内核模块沟通的桥梁，通过 <code>ioctl</code> 系统调用发送指令。因此，其版本必须与内核模块完全匹配，以保证通信接口（ABI）的一致性。</p></li>
-</ul>
-<blockquote>
-<p><code>ioctl</code> (Input/Output Control) 是 Linux 提供的一种系统调用，允许用户态程序直接向设备驱动（内核模块）发送控制命令。这些命令通常是设备专属的，超出了标准 <code>read</code>/<code>write</code> 的范畴。NVIDIA 驱动就广泛使用 <code>ioctl</code> 来提交计算任务、查询设备状态等。</p>
-</blockquote>
-<ul>
-<li><p><strong>用户空间 - 工具包</strong>: CUDA Toolkit 是一系列面向开发者的库（如 <code>libcudart.so</code>, <code>libcublas.so</code>, <code>libcudnn.so</code>）。它依赖于用户态驱动，版本可以比驱动新，但不能低于驱动所要求的最低兼容版本。</p></li>
-<li><p><strong>框架层</strong>: PyTorch、TensorFlow 等深度学习框架通过 Python C++ 扩展，在运行时动态加载（<code>dlopen()</code>）上述驱动和工具包库。具体加载哪个库文件，会受到环境变量（如 <code>LD_LIBRARY_PATH</code>）和搜索路径优先级的影响。</p></li>
-</ul>
-<h3 id="二为什么内核驱动版本-用户态驱动版本">二、为什么“内核驱动版本 = 用户态驱动版本”？</h3>
-<p>NVML、<code>libcuda.so</code> 等用户态驱动库通过 ioctl 与内核模块交互，两端必须使用完全一致的结构体布局、ioctl 号与 ABI 协议。如果版本不匹配（例如 570.172 ↔ 570.133），典型现象是：</p>
-<ul>
-<li><code>nvmlInit_v2()</code> 返回 <code>NVML_ERROR_LIB_RM_VERSION_MISMATCH (18)</code>；</li>
-<li>CUDA Runtime 报 <code>cudaErrorUnknown</code>；</li>
-<li>PyTorch 内部会 <code>TORCH_CHECK</code> 失败并直接抛出断言错误。</li>
-</ul>
-<p>结论：</p>
-<ul>
-<li>必须保证“内核驱动模块”与“用户态驱动库（<code>libcuda.so</code> / <code>libnvidia-ml.so</code> 等）”版本严格一致；</li>
-<li>上层 “CUDA Toolkit（<code>libcudart.so</code>、<code>libcublas.so</code>、<code>libcudnn.so</code> …）” 可以更高，但需满足对当前驱动的最低兼容要求。</li>
-</ul>
-<h3 id="三pytorch-如何决定用哪份库">三、PyTorch 如何决定用哪份库？</h3>
-<ol type="1">
-<li><p>解释器路径：<code>which python</code> 决定用系统 Python 还是 Conda Python。</p></li>
-<li><p><code>LD_LIBRARY_PATH</code> 顺序：进程启动后会按路径顺序 <code>dlopen</code> 所需 <code>.so</code>；Conda 环境的 <code>…/envs/&lt;name&gt;/lib</code> 往往排在 <code>/usr/lib</code> 前面。</p></li>
-<li><p>结果：如果 Conda 自带完整 CUDA Toolkit（含 NVML），就会优先加载它；否则回落到系统 <code>/usr/lib</code>。只要首个被找到的 <code>libnvidia-ml.so.1</code> 与内核驱动版本不一致，就会出现 “Driver/library version mismatch”。</p></li>
-</ol>
-<h3 id="四概念补充">四、概念补充</h3>
-<ul>
-<li><p>SM / CUDA Core：SM 是 GPU 的并行计算引擎，内部包含若干 CUDA Core；可以把 CUDA Core 理解为做浮点/整数运算的“工位”。</p></li>
-<li><p>ioctl：用户态程序向内核模块发送带结构体参数的“命令”的方式，要求两端对 ABI（应用二进制接口）理解一致。</p></li>
-<li><p>驱动 vs. 工具包：<code>libcuda.so</code>/<code>libnvidia-ml.so</code> 属于“用户态驱动”，与内核模块一一对应；<code>libcudart.so</code>/<code>libcublas.so</code>/<code>libcudnn.so</code> 属于 CUDA Toolkit，用于开发与加速库调用。</p></li>
-<li><strong>SONAME 与共享库版本</strong>：<code>.so</code> 文件名后的数字是 Linux 管理库版本与 ABI (应用二进制接口) 兼容性的核心机制。它遵循“三级文件名”约定：
-<ul>
-<li><strong>真实名 (Real Name)</strong>：包含实际代码的文件，如 <code>libcuda.so.570.133.20</code>，版本号最全。</li>
-<li><strong>SONAME (Shared Object Name)</strong>：程序运行时查找的接口名，如 <code>libcuda.so.1</code>。主版本号 <code>1</code> 保证了 ABI 的向后兼容性。它通常是指向真实名的符号链接。</li>
-<li><strong>链接名 (Linker Name)</strong>：编译时使用的名字，如 <code>libcuda.so</code>。它不带版本号，通常指向 SONAME。 简而言之，编译时链接 <code>libcuda.so</code>，运行时系统通过 <code>libcuda.so.1</code> 这个 SONAME 找到具体的 <code>libcuda.so.570.133.20</code> 文件。</li>
-</ul></li>
-<li><strong>动态链接 (Dynamic Linking) vs. 静态链接 (Static Linking)</strong>：
-<ul>
-<li><strong>动态链接</strong>：程序在 <strong>运行时</strong> 才由系统加载器（如 <code>ld-linux.so.2</code>）去查找并链接共享库（<code>.so</code> 文件），这个过程受 <code>LD_LIBRARY_PATH</code> 环境变量影响。可执行文件只记录了依赖的库名，因此体积小、便于共享和独立更新库。CUDA 软件栈中的各层库（<code>libcuda.so</code>, <code>libcudart.so</code> 等）均通过此方式协同工作。</li>
-<li><strong>静态链接</strong>：程序在 <strong>编译时</strong> 就将库的完整代码复制进最终的可执行文件。文件体积大，但无需外部依赖即可运行。</li>
-</ul></li>
-</ul>
-<h3 id="五典型冲突与调试方法">五、典型冲突与调试方法</h3>
-<p>以下命令均为“查看/定位”之用，按需在你的 Shell 中执行。每条命令前后给出用途与参数含义，便于复制排查。</p>
-<ol type="1">
-<li>系统用户态包被自动升级（apt 升级到 570.172，但 DKMS 内核模块仍是 570.133）</li>
-</ol>
-<ul>
-<li><p>现象：<code>nvidia-smi</code> 报 “Failed to initialize NVML: Driver/library version mismatch”。</p></li>
-<li><p>查看内核模块版本：</p></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">modinfo -F version nvidia | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
-<p>含义：<code>modinfo</code> 读取已加载或可用的内核模块元数据，<code>-F version</code> 仅输出版本字段，<code>| cat</code> 避免分页器干扰。</p>
-<ul>
-<li>查看系统能找到的 NVML 动态库：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldconfig -p | grep -E <span class="string">&quot;nvidia-ml|libcuda&quot;</span></span><br></pre></td></tr></table></figure>
-<p>含义：<code>ldconfig -p</code> 输出动态链接器缓存中的库条目；通过 <code>grep</code> 过滤 NVML 与 CUDA Driver 库，便于核对路径与版本来源（系统或 Conda）。</p>
-<ol start="2" type="1">
-<li>Conda Toolkit 抢到更高优先级（Conda 带了一份 570.172 的 NVML）</li>
-</ol>
-<ul>
-<li>临时让系统库优先：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:<span class="variable">$LD_LIBRARY_PATH</span></span><br></pre></td></tr></table></figure>
-<p>含义：将系统库目录前置到 <code>LD_LIBRARY_PATH</code>，使运行时优先从系统位置加载 <code>libnvidia-ml.so.1</code> / <code>libcuda.so.1</code>。仅影响当前 Shell 及其子进程。</p>
-<ul>
-<li>检查 Python/Conda 路径：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">which</span> python &amp;&amp; python -c <span class="string">&quot;import sys; print(sys.executable)&quot;</span></span><br></pre></td></tr></table></figure>
-<p>含义：确认实际使用的解释器路径，避免“你以为在系统 Python，其实在 Conda 环境”的错觉。</p>
-<ol start="3" type="1">
-<li>只调整用户态库、不动系统驱动（实验/无管理员权限场景）</li>
-</ol>
-<ul>
-<li>解包与内核匹配版本的用户态库到家目录，并优先加载：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="string">&quot;<span class="variable">$HOME</span>/nvidia_570.133.20/lib:<span class="variable">$LD_LIBRARY_PATH</span>&quot;</span> &amp;&amp; python your_script.py</span><br></pre></td></tr></table></figure>
-<p>含义：在家目录放一份与内核版本一致的 <code>libcuda.so.*</code> / <code>libnvidia-ml.so.*</code>，通过前置 <code>LD_LIBRARY_PATH</code> 覆盖 Conda 或系统中不匹配的库。</p>
-<h3 id="六实用排查清单按顺序">六、实用排查清单（按顺序）</h3>
-<ol type="1">
-<li><p>核对内核模块版本：执行 <code>modinfo -F version nvidia</code>。</p></li>
-<li><p>核对首个被找到的 NVML/Driver 库来自哪里：执行 <code>ldconfig -p | grep -E "nvidia-ml|libcuda"</code>；如在 Conda 下，检查 <code>…/envs/&lt;name&gt;/lib</code> 是否排到最前。</p></li>
-<li><p>以系统库优先重试：临时设置 <code>export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH</code> 后再次运行程序。</p></li>
-<li><p>框架自检：</p></li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python - &lt;&lt; <span class="string">&#x27;PY&#x27;</span></span><br><span class="line">import sys, os</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;python:&#x27;</span>, sys.executable)</span><br><span class="line">try:</span><br><span class="line">    import torch</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;torch:&#x27;</span>, torch.__version__, <span class="string">&#x27;cuda:&#x27;</span>, getattr(torch.version, <span class="string">&#x27;cuda&#x27;</span>, None))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;is_available:&#x27;</span>, torch.cuda.is_available())</span><br><span class="line">except Exception as e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;torch import err:&#x27;</span>, e)</span><br><span class="line">try:</span><br><span class="line">    import pynvml</span><br><span class="line">    pynvml.nvmlInit()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;NVML ok&#x27;</span>)</span><br><span class="line">except Exception as e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;NVML err:&#x27;</span>, e)</span><br><span class="line">PY</span><br></pre></td></tr></table></figure>
-<p>含义：快速查看当前 Python、PyTorch CUDA 版本标记，以及 NVML 是否初始化成功。</p>
-<h3 id="小结">小结</h3>
-<ul>
-<li><p>驱动栈 = “内核模块” + “用户态驱动库” + “Toolkit 库” + “框架”。</p></li>
-<li><p>第一阶（内核 ↔ 用户态驱动）必须同版本；第二阶（Toolkit ↔ 驱动）只需满足最低兼容。</p></li>
-<li><p>大多数 PyTorch 断言本质是 NVML 初始化失败，根因常见于“路径优先级 + 版本不配套”。按清单逐步核对，通常即可定位并修复。</p></li>
-</ul>
-<h3 id="附录一个简化的驱动栈模型示例">附录：一个简化的驱动栈模型示例</h3>
-<p>为了将前述抽象概念具象化，这里提供一个高度简化的驱动栈模型。它包含了内核模块、用户态驱动库和应用程序三个核心层次，完整地展示了 <code>ioctl</code> 通信的全过程。</p>
-<h4 id="第零层通信契约-simple_gpu.h">第零层：通信契约 (<code>simple_gpu.h</code>)</h4>
-<p>该头文件定义了内核与用户态通信所用的 <code>ioctl</code> 命令号和数据结构，必须被双方共同包含。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> SIMPLE_GPU_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SIMPLE_GPU_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/ioctl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个用于数据交换的结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;</span><br><span class="line">    <span class="type">int</span> result;</span><br><span class="line">&#125; simple_gpu_op;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义 ioctl 命令</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IOCTL_COMPUTE_ADD _IOWR(<span class="string">&#x27;k&#x27;</span>, 1, simple_gpu_op)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-<h4 id="第一层内核模块-simple_gpu.c">第一层：内核模块 (<code>simple_gpu.c</code>)</h4>
-<p>此模块创建 <code>/dev/simple_gpu</code> 设备，并实现 <code>ioctl</code> 接口来模拟硬件计算（加法）。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;simple_gpu.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;lzh&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;A simple conceptual GPU driver.&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEVICE_NAME <span class="string">&quot;simple_gpu&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAJOR_NUM 100</span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">long</span> <span class="title function_">simple_gpu_ioctl</span><span class="params">(<span class="keyword">struct</span> file *file, <span class="type">unsigned</span> <span class="type">int</span> cmd, <span class="type">unsigned</span> <span class="type">long</span> arg)</span> &#123;</span><br><span class="line">    simple_gpu_op op;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (cmd) &#123;</span><br><span class="line">        <span class="keyword">case</span> IOCTL_COMPUTE_ADD:</span><br><span class="line">            <span class="keyword">if</span> (copy_from_user(&amp;op, (simple_gpu_op *)arg, <span class="keyword">sizeof</span>(op))) <span class="keyword">return</span> -EFAULT;</span><br><span class="line">            </span><br><span class="line">            pr_info(<span class="string">&quot;simple_gpu: Computing %d + %d\n&quot;</span>, op.a, op.b);</span><br><span class="line">            op.result = op.a + op.b; <span class="comment">// 模拟硬件计算</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (copy_to_user((simple_gpu_op *)arg, &amp;op, <span class="keyword">sizeof</span>(op))) <span class="keyword">return</span> -EFAULT;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> -ENOTTY;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">fops</span> =</span> &#123; .unlocked_ioctl = simple_gpu_ioctl &#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">simple_gpu_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (register_chrdev(MAJOR_NUM, DEVICE_NAME, &amp;fops) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        pr_alert(<span class="string">&quot;simple_gpu: failed to register a major number\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    pr_info(<span class="string">&quot;simple_gpu: driver loaded with major number %d\n&quot;</span>, MAJOR_NUM);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">simple_gpu_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    unregister_chrdev(MAJOR_NUM, DEVICE_NAME);</span><br><span class="line">    pr_info(<span class="string">&quot;simple_gpu: driver unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(simple_gpu_init);</span><br><span class="line">module_exit(simple_gpu_exit);</span><br></pre></td></tr></table></figure>
-<h4 id="第二层用户态驱动库-libsimple_cuda.so">第二层：用户态驱动库 (<code>libsimple_cuda.so</code>)</h4>
-<p>这个共享库封装了 <code>ioctl</code> 调用细节，为上层应用提供简洁的 API。</p>
-<p><strong><code>libsimple_cuda.h</code></strong> (API 头文件) <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> LIBSIMPLE_CUDA_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LIBSIMPLE_CUDA_H</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_init</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">simple_cuda_shutdown</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> *result)</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure></p>
-<p><strong><code>libsimple_cuda.c</code></strong> (库实现) <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ioctl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;simple_gpu.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;libsimple_cuda.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> dev_fd = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    dev_fd = open(<span class="string">&quot;/dev/simple_gpu&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (dev_fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;Failed to open /dev/simple_gpu&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">simple_cuda_shutdown</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (dev_fd != <span class="number">-1</span>) close(dev_fd);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> *result)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (dev_fd &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    simple_gpu_op op = &#123; .a = a, .b = b &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ioctl(dev_fd, IOCTL_COMPUTE_ADD, &amp;op) != <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;ioctl failed&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    *result = op.result;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h4 id="第三层应用程序-main.c">第三层：应用程序 (<code>main.c</code>)</h4>
-<p>最终的应用程序只依赖 <code>libsimple_cuda.h</code> 定义的 API。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;libsimple_cuda.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (simple_cuda_init() != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Failed to initialize simple CUDA driver.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>, b = <span class="number">32</span>, result;</span><br><span class="line">    <span class="keyword">if</span> (simple_cuda_add(a, b, &amp;result) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Result of %d + %d is %d\n&quot;</span>, a, b, result);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Computation failed.\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    simple_cuda_shutdown();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="构建与运行">构建与运行</h4>
-<p><strong><code>Makefile</code></strong> <figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 用于构建内核模块</span></span><br><span class="line">obj-m += simple_gpu.o</span><br><span class="line"></span><br><span class="line"><span class="section">all: app</span></span><br><span class="line"></span><br><span class="line"><span class="section">app: main.c libsimple_cuda.so</span></span><br><span class="line">	gcc main.c -o app -L. -lsimple_cuda</span><br><span class="line"></span><br><span class="line"><span class="section">libsimple_cuda.so: libsimple_cuda.c simple_gpu.h</span></span><br><span class="line">	gcc -shared -fPIC libsimple_cuda.c -o libsimple_cuda.so</span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br><span class="line">	rm -f app libsimple_cuda.so</span><br></pre></td></tr></table></figure></p>
-<p><strong>执行步骤</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 编译所有组件</span></span><br><span class="line">make modules</span><br><span class="line">make app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 加载内核模块并创建设备文件</span></span><br><span class="line"><span class="built_in">sudo</span> insmod simple_gpu.ko</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mknod</span> /dev/simple_gpu c 100 0</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 666 /dev/simple_gpu</span><br><span class="line"></span><br><span class="line">&gt; **命令解析**:</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> insmod simple_gpu.ko`: **加载内核模块**。`insmod` 命令将驱动代码 (`.ko`) 加载到内核。驱动内的 `init` 函数会执行，并向内核注册一个主设备号 (本例中为 100)。</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> <span class="built_in">mknod</span> /dev/simple_gpu c 100 0`: **创建设备文件**。`<span class="built_in">mknod</span>` 在 `/dev` 目录下创建一个特殊的文件节点，它通过主设备号 `100` 与我们的驱动关联起来，成为用户态程序与驱动通信的入口。</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> <span class="built_in">chmod</span> 666 /dev/simple_gpu`: **赋予权限**。`<span class="built_in">chmod</span>` 允许所有用户读写该设备文件，否则普通用户的应用程序会因权限不足而无法打开它。</span><br><span class="line">&gt;</span><br><span class="line">&gt; **关于主设备号 `100`**: 在本例中，`100` 是我们在驱动代码 (`simple_gpu.c`) 中硬编码的一个约定数字，`<span class="built_in">mknod</span>` 命令必须使用与之相同的值。在真实世界的驱动中，硬编码有冲突风险，因此通常采用 **动态分配**：驱动向内核申请一个 **任意** 可用的主设备号，内核分配后，由 `udev` 等现代化服务自动在 `/dev` 目录下创建对应的设备文件，无需手动执行 `<span class="built_in">mknod</span>`。</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 运行应用程序</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=.</span><br><span class="line">./app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 查看内核日志</span></span><br><span class="line">dmesg | <span class="built_in">tail</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 卸载模块并清理</span></span><br><span class="line"><span class="built_in">sudo</span> rmmod simple_gpu</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> /dev/simple_gpu</span><br></pre></td></tr></table></figure></p>
-]]></content>
-  </entry>
-  <entry>
     <title>H100 服务器 CUDA + PyTorch 环境速配指南</title>
     <url>/posts/e5b1c8d2/</url>
     <content><![CDATA[<p>想在全新的 Ubuntu-24.04 + H100 机器上“第一天就跑通 GPU 代码”？</p>
@@ -1883,6 +1747,142 @@ graph TD;
         <tag>H100</tag>
         <tag>GPU</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>CUDA 软件栈</title>
+    <url>/posts/dc164fc3/</url>
+    <content><![CDATA[<p>本文尝试用一张图把 CUDA 从“硬件→内核→用户态驱动→工具包→深度学习框架”的完整链路讲清楚，并解释常见的版本不匹配问题与定位思路。即便没有 CUDA 基础，也可以按文中的检查顺序逐步排查。</p>
+<span id="more"></span>
+<h3 id="一全景图从硬件到框架的调用链">一、全景图（从硬件到框架的调用链）</h3>
+<pre>
+<code class="mermaid">
+
+graph TD;
+  HW[&quot;GPU 硬件 (SM &#x2F; CUDA Core, NVLink &#x2F; PCIe)&quot;] --&gt;|&quot;① 硬件接口 (PCIe, MMIO, DMA)&quot;| KMOD[&quot;内核空间: nvidia.ko, nvidia_uvm.ko, nvidia_drm.ko&lt;br&#x2F;&gt;(版本: 570.133.20)&quot;];
+  KMOD --&gt;|&quot;② 系统调用 (syscall &#x2F; ioctl)&quot;| UDRV[&quot;用户空间-驱动: libcuda.so, libnvidia-ml.so&lt;br&#x2F;&gt;(版本需与内核驱动完全一致)&quot;];
+  UDRV --&gt;|&quot;③ 动态链接&quot;| TOOL[&quot;用户空间-工具包: libcudart.so, libcublas.so, libcudnn.so&lt;br&#x2F;&gt;(版本可高于驱动)&quot;];
+  TOOL --&gt;|&quot;④ Python C++ 扩展 (dlopen)&quot;| FW[&quot;框架层: PyTorch, TensorFlow, Paddle&quot;];
+</code>
+</pre>
+<p>解析：</p>
+<ul>
+<li><p><strong>硬件层</strong>: GPU 上的 SM（Streaming Multiprocessor）里有很多 CUDA Core，负责并行数值运算；NVLink / PCIe 是与 CPU/主机交换数据的总线。</p></li>
+<li><p><strong>内核空间 (驱动层)</strong>: GPU 通过 PCIe 总线与系统连接。内核模块（<code>nvidia.ko</code>, <code>nvidia_uvm.ko</code>, <code>nvidia_drm.ko</code>）被加载后，作为驱动程序接管硬件。它们通过内存映射 I/O (MMIO) 读写 GPU 寄存器、通过中断 (Interrupts) 响应事件，并利用直接内存访问 (DMA) 高效传输数据。这组模块来自同一个驱动包，版本号必须统一（例如 <code>570.133.20</code>），其中 <code>nvidia.ko</code> 负责核心功能，<code>nvidia_uvm.ko</code> 管理统一内存，<code>nvidia_drm.ko</code> 关联显示。</p></li>
+<li><p><strong>用户空间 - 驱动</strong>: 用户态驱动库（如 <code>libcuda.so.*</code>, <code>libnvidia-ml.so.*</code>）位于系统或 Conda 的库目录。它们是用户程序与内核模块沟通的桥梁，通过 <code>ioctl</code> 系统调用发送指令。因此，其版本必须与内核模块完全匹配，以保证通信接口（ABI）的一致性。</p></li>
+</ul>
+<blockquote>
+<p><code>ioctl</code> (Input/Output Control) 是 Linux 提供的一种系统调用，允许用户态程序直接向设备驱动（内核模块）发送控制命令。这些命令通常是设备专属的，超出了标准 <code>read</code>/<code>write</code> 的范畴。NVIDIA 驱动就广泛使用 <code>ioctl</code> 来提交计算任务、查询设备状态等。</p>
+</blockquote>
+<ul>
+<li><p><strong>用户空间 - 工具包</strong>: CUDA Toolkit 是一系列面向开发者的库（如 <code>libcudart.so</code>, <code>libcublas.so</code>, <code>libcudnn.so</code>）。它依赖于用户态驱动，版本可以比驱动新，但不能低于驱动所要求的最低兼容版本。</p></li>
+<li><p><strong>框架层</strong>: PyTorch、TensorFlow 等深度学习框架通过 Python C++ 扩展，在运行时动态加载（<code>dlopen()</code>）上述驱动和工具包库。具体加载哪个库文件，会受到环境变量（如 <code>LD_LIBRARY_PATH</code>）和搜索路径优先级的影响。</p></li>
+</ul>
+<h3 id="二为什么内核驱动版本-用户态驱动版本">二、为什么“内核驱动版本 = 用户态驱动版本”？</h3>
+<p>NVML、<code>libcuda.so</code> 等用户态驱动库通过 ioctl 与内核模块交互，两端必须使用完全一致的结构体布局、ioctl 号与 ABI 协议。如果版本不匹配（例如 570.172 ↔ 570.133），典型现象是：</p>
+<ul>
+<li><code>nvmlInit_v2()</code> 返回 <code>NVML_ERROR_LIB_RM_VERSION_MISMATCH (18)</code>；</li>
+<li>CUDA Runtime 报 <code>cudaErrorUnknown</code>；</li>
+<li>PyTorch 内部会 <code>TORCH_CHECK</code> 失败并直接抛出断言错误。</li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>必须保证“内核驱动模块”与“用户态驱动库（<code>libcuda.so</code> / <code>libnvidia-ml.so</code> 等）”版本严格一致；</li>
+<li>上层 “CUDA Toolkit（<code>libcudart.so</code>、<code>libcublas.so</code>、<code>libcudnn.so</code> …）” 可以更高，但需满足对当前驱动的最低兼容要求。</li>
+</ul>
+<h3 id="三pytorch-如何决定用哪份库">三、PyTorch 如何决定用哪份库？</h3>
+<ol type="1">
+<li><p>解释器路径：<code>which python</code> 决定用系统 Python 还是 Conda Python。</p></li>
+<li><p><code>LD_LIBRARY_PATH</code> 顺序：进程启动后会按路径顺序 <code>dlopen</code> 所需 <code>.so</code>；Conda 环境的 <code>…/envs/&lt;name&gt;/lib</code> 往往排在 <code>/usr/lib</code> 前面。</p></li>
+<li><p>结果：如果 Conda 自带完整 CUDA Toolkit（含 NVML），就会优先加载它；否则回落到系统 <code>/usr/lib</code>。只要首个被找到的 <code>libnvidia-ml.so.1</code> 与内核驱动版本不一致，就会出现 “Driver/library version mismatch”。</p></li>
+</ol>
+<h3 id="四概念补充">四、概念补充</h3>
+<ul>
+<li><p>SM / CUDA Core：SM 是 GPU 的并行计算引擎，内部包含若干 CUDA Core；可以把 CUDA Core 理解为做浮点/整数运算的“工位”。</p></li>
+<li><p>ioctl：用户态程序向内核模块发送带结构体参数的“命令”的方式，要求两端对 ABI（应用二进制接口）理解一致。</p></li>
+<li><p>驱动 vs. 工具包：<code>libcuda.so</code>/<code>libnvidia-ml.so</code> 属于“用户态驱动”，与内核模块一一对应；<code>libcudart.so</code>/<code>libcublas.so</code>/<code>libcudnn.so</code> 属于 CUDA Toolkit，用于开发与加速库调用。</p></li>
+<li><strong>SONAME 与共享库版本</strong>：<code>.so</code> 文件名后的数字是 Linux 管理库版本与 ABI (应用二进制接口) 兼容性的核心机制。它遵循“三级文件名”约定：
+<ul>
+<li><strong>真实名 (Real Name)</strong>：包含实际代码的文件，如 <code>libcuda.so.570.133.20</code>，版本号最全。</li>
+<li><strong>SONAME (Shared Object Name)</strong>：程序运行时查找的接口名，如 <code>libcuda.so.1</code>。主版本号 <code>1</code> 保证了 ABI 的向后兼容性。它通常是指向真实名的符号链接。</li>
+<li><strong>链接名 (Linker Name)</strong>：编译时使用的名字，如 <code>libcuda.so</code>。它不带版本号，通常指向 SONAME。 简而言之，编译时链接 <code>libcuda.so</code>，运行时系统通过 <code>libcuda.so.1</code> 这个 SONAME 找到具体的 <code>libcuda.so.570.133.20</code> 文件。</li>
+</ul></li>
+<li><strong>动态链接 (Dynamic Linking) vs. 静态链接 (Static Linking)</strong>：
+<ul>
+<li><strong>动态链接</strong>：程序在 <strong>运行时</strong> 才由系统加载器（如 <code>ld-linux.so.2</code>）去查找并链接共享库（<code>.so</code> 文件），这个过程受 <code>LD_LIBRARY_PATH</code> 环境变量影响。可执行文件只记录了依赖的库名，因此体积小、便于共享和独立更新库。CUDA 软件栈中的各层库（<code>libcuda.so</code>, <code>libcudart.so</code> 等）均通过此方式协同工作。</li>
+<li><strong>静态链接</strong>：程序在 <strong>编译时</strong> 就将库的完整代码复制进最终的可执行文件。文件体积大，但无需外部依赖即可运行。</li>
+</ul></li>
+</ul>
+<h3 id="五典型冲突与调试方法">五、典型冲突与调试方法</h3>
+<p>以下命令均为“查看/定位”之用，按需在你的 Shell 中执行。每条命令前后给出用途与参数含义，便于复制排查。</p>
+<ol type="1">
+<li>系统用户态包被自动升级（apt 升级到 570.172，但 DKMS 内核模块仍是 570.133）</li>
+</ol>
+<ul>
+<li><p>现象：<code>nvidia-smi</code> 报 “Failed to initialize NVML: Driver/library version mismatch”。</p></li>
+<li><p>查看内核模块版本：</p></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">modinfo -F version nvidia | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>含义：<code>modinfo</code> 读取已加载或可用的内核模块元数据，<code>-F version</code> 仅输出版本字段，<code>| cat</code> 避免分页器干扰。</p>
+<ul>
+<li>查看系统能找到的 NVML 动态库：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldconfig -p | grep -E <span class="string">&quot;nvidia-ml|libcuda&quot;</span></span><br></pre></td></tr></table></figure>
+<p>含义：<code>ldconfig -p</code> 输出动态链接器缓存中的库条目；通过 <code>grep</code> 过滤 NVML 与 CUDA Driver 库，便于核对路径与版本来源（系统或 Conda）。</p>
+<ol start="2" type="1">
+<li>Conda Toolkit 抢到更高优先级（Conda 带了一份 570.172 的 NVML）</li>
+</ol>
+<ul>
+<li>临时让系统库优先：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:<span class="variable">$LD_LIBRARY_PATH</span></span><br></pre></td></tr></table></figure>
+<p>含义：将系统库目录前置到 <code>LD_LIBRARY_PATH</code>，使运行时优先从系统位置加载 <code>libnvidia-ml.so.1</code> / <code>libcuda.so.1</code>。仅影响当前 Shell 及其子进程。</p>
+<ul>
+<li>检查 Python/Conda 路径：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">which</span> python &amp;&amp; python -c <span class="string">&quot;import sys; print(sys.executable)&quot;</span></span><br></pre></td></tr></table></figure>
+<p>含义：确认实际使用的解释器路径，避免“你以为在系统 Python，其实在 Conda 环境”的错觉。</p>
+<ol start="3" type="1">
+<li>只调整用户态库、不动系统驱动（实验/无管理员权限场景）</li>
+</ol>
+<ul>
+<li>解包与内核匹配版本的用户态库到家目录，并优先加载：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="string">&quot;<span class="variable">$HOME</span>/nvidia_570.133.20/lib:<span class="variable">$LD_LIBRARY_PATH</span>&quot;</span> &amp;&amp; python your_script.py</span><br></pre></td></tr></table></figure>
+<p>含义：在家目录放一份与内核版本一致的 <code>libcuda.so.*</code> / <code>libnvidia-ml.so.*</code>，通过前置 <code>LD_LIBRARY_PATH</code> 覆盖 Conda 或系统中不匹配的库。</p>
+<h3 id="六实用排查清单按顺序">六、实用排查清单（按顺序）</h3>
+<ol type="1">
+<li><p>核对内核模块版本：执行 <code>modinfo -F version nvidia</code>。</p></li>
+<li><p>核对首个被找到的 NVML/Driver 库来自哪里：执行 <code>ldconfig -p | grep -E "nvidia-ml|libcuda"</code>；如在 Conda 下，检查 <code>…/envs/&lt;name&gt;/lib</code> 是否排到最前。</p></li>
+<li><p>以系统库优先重试：临时设置 <code>export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH</code> 后再次运行程序。</p></li>
+<li><p>框架自检：</p></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python - &lt;&lt; <span class="string">&#x27;PY&#x27;</span></span><br><span class="line">import sys, os</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;python:&#x27;</span>, sys.executable)</span><br><span class="line">try:</span><br><span class="line">    import torch</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;torch:&#x27;</span>, torch.__version__, <span class="string">&#x27;cuda:&#x27;</span>, getattr(torch.version, <span class="string">&#x27;cuda&#x27;</span>, None))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;is_available:&#x27;</span>, torch.cuda.is_available())</span><br><span class="line">except Exception as e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;torch import err:&#x27;</span>, e)</span><br><span class="line">try:</span><br><span class="line">    import pynvml</span><br><span class="line">    pynvml.nvmlInit()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;NVML ok&#x27;</span>)</span><br><span class="line">except Exception as e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;NVML err:&#x27;</span>, e)</span><br><span class="line">PY</span><br></pre></td></tr></table></figure>
+<p>含义：快速查看当前 Python、PyTorch CUDA 版本标记，以及 NVML 是否初始化成功。</p>
+<h3 id="小结">小结</h3>
+<ul>
+<li><p>驱动栈 = “内核模块” + “用户态驱动库” + “Toolkit 库” + “框架”。</p></li>
+<li><p>第一阶（内核 ↔ 用户态驱动）必须同版本；第二阶（Toolkit ↔ 驱动）只需满足最低兼容。</p></li>
+<li><p>大多数 PyTorch 断言本质是 NVML 初始化失败，根因常见于“路径优先级 + 版本不配套”。按清单逐步核对，通常即可定位并修复。</p></li>
+</ul>
+<h3 id="附录一个简化的驱动栈模型示例">附录：一个简化的驱动栈模型示例</h3>
+<p>为了将前述抽象概念具象化，这里提供一个高度简化的驱动栈模型。它包含了内核模块、用户态驱动库和应用程序三个核心层次，完整地展示了 <code>ioctl</code> 通信的全过程。</p>
+<h4 id="第零层通信契约-simple_gpu.h">第零层：通信契约 (<code>simple_gpu.h</code>)</h4>
+<p>该头文件定义了内核与用户态通信所用的 <code>ioctl</code> 命令号和数据结构，必须被双方共同包含。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> SIMPLE_GPU_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SIMPLE_GPU_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/ioctl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个用于数据交换的结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;</span><br><span class="line">    <span class="type">int</span> result;</span><br><span class="line">&#125; simple_gpu_op;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义 ioctl 命令</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IOCTL_COMPUTE_ADD _IOWR(<span class="string">&#x27;k&#x27;</span>, 1, simple_gpu_op)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="第一层内核模块-simple_gpu.c">第一层：内核模块 (<code>simple_gpu.c</code>)</h4>
+<p>此模块创建 <code>/dev/simple_gpu</code> 设备，并实现 <code>ioctl</code> 接口来模拟硬件计算（加法）。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;simple_gpu.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;lzh&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;A simple conceptual GPU driver.&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEVICE_NAME <span class="string">&quot;simple_gpu&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAJOR_NUM 100</span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">long</span> <span class="title function_">simple_gpu_ioctl</span><span class="params">(<span class="keyword">struct</span> file *file, <span class="type">unsigned</span> <span class="type">int</span> cmd, <span class="type">unsigned</span> <span class="type">long</span> arg)</span> &#123;</span><br><span class="line">    simple_gpu_op op;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (cmd) &#123;</span><br><span class="line">        <span class="keyword">case</span> IOCTL_COMPUTE_ADD:</span><br><span class="line">            <span class="keyword">if</span> (copy_from_user(&amp;op, (simple_gpu_op *)arg, <span class="keyword">sizeof</span>(op))) <span class="keyword">return</span> -EFAULT;</span><br><span class="line">            </span><br><span class="line">            pr_info(<span class="string">&quot;simple_gpu: Computing %d + %d\n&quot;</span>, op.a, op.b);</span><br><span class="line">            op.result = op.a + op.b; <span class="comment">// 模拟硬件计算</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (copy_to_user((simple_gpu_op *)arg, &amp;op, <span class="keyword">sizeof</span>(op))) <span class="keyword">return</span> -EFAULT;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> -ENOTTY;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">fops</span> =</span> &#123; .unlocked_ioctl = simple_gpu_ioctl &#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">simple_gpu_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (register_chrdev(MAJOR_NUM, DEVICE_NAME, &amp;fops) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        pr_alert(<span class="string">&quot;simple_gpu: failed to register a major number\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    pr_info(<span class="string">&quot;simple_gpu: driver loaded with major number %d\n&quot;</span>, MAJOR_NUM);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">simple_gpu_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    unregister_chrdev(MAJOR_NUM, DEVICE_NAME);</span><br><span class="line">    pr_info(<span class="string">&quot;simple_gpu: driver unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(simple_gpu_init);</span><br><span class="line">module_exit(simple_gpu_exit);</span><br></pre></td></tr></table></figure>
+<h4 id="第二层用户态驱动库-libsimple_cuda.so">第二层：用户态驱动库 (<code>libsimple_cuda.so</code>)</h4>
+<p>这个共享库封装了 <code>ioctl</code> 调用细节，为上层应用提供简洁的 API。</p>
+<p><strong><code>libsimple_cuda.h</code></strong> (API 头文件) <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> LIBSIMPLE_CUDA_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LIBSIMPLE_CUDA_H</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_init</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">simple_cuda_shutdown</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> *result)</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure></p>
+<p><strong><code>libsimple_cuda.c</code></strong> (库实现) <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ioctl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;simple_gpu.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;libsimple_cuda.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> dev_fd = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    dev_fd = open(<span class="string">&quot;/dev/simple_gpu&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (dev_fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;Failed to open /dev/simple_gpu&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">simple_cuda_shutdown</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (dev_fd != <span class="number">-1</span>) close(dev_fd);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> *result)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (dev_fd &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    simple_gpu_op op = &#123; .a = a, .b = b &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ioctl(dev_fd, IOCTL_COMPUTE_ADD, &amp;op) != <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;ioctl failed&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    *result = op.result;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="第三层应用程序-main.c">第三层：应用程序 (<code>main.c</code>)</h4>
+<p>最终的应用程序只依赖 <code>libsimple_cuda.h</code> 定义的 API。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;libsimple_cuda.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (simple_cuda_init() != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Failed to initialize simple CUDA driver.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>, b = <span class="number">32</span>, result;</span><br><span class="line">    <span class="keyword">if</span> (simple_cuda_add(a, b, &amp;result) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Result of %d + %d is %d\n&quot;</span>, a, b, result);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Computation failed.\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    simple_cuda_shutdown();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="构建与运行">构建与运行</h4>
+<p><strong><code>Makefile</code></strong> <figure class="highlight makefile"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 用于构建内核模块</span></span><br><span class="line">obj-m += simple_gpu.o</span><br><span class="line"></span><br><span class="line"><span class="section">all: app</span></span><br><span class="line"></span><br><span class="line"><span class="section">app: main.c libsimple_cuda.so</span></span><br><span class="line">	gcc main.c -o app -L. -lsimple_cuda</span><br><span class="line"></span><br><span class="line"><span class="section">libsimple_cuda.so: libsimple_cuda.c simple_gpu.h</span></span><br><span class="line">	gcc -shared -fPIC libsimple_cuda.c -o libsimple_cuda.so</span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br><span class="line">	rm -f app libsimple_cuda.so</span><br></pre></td></tr></table></figure></p>
+<p><strong>执行步骤</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 编译所有组件</span></span><br><span class="line">make modules</span><br><span class="line">make app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 加载内核模块并创建设备文件</span></span><br><span class="line"><span class="built_in">sudo</span> insmod simple_gpu.ko</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mknod</span> /dev/simple_gpu c 100 0</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 666 /dev/simple_gpu</span><br><span class="line"></span><br><span class="line">&gt; **命令解析**:</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> insmod simple_gpu.ko`: **加载内核模块**。`insmod` 命令将驱动代码 (`.ko`) 加载到内核。驱动内的 `init` 函数会执行，并向内核注册一个主设备号 (本例中为 100)。</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> <span class="built_in">mknod</span> /dev/simple_gpu c 100 0`: **创建设备文件**。`<span class="built_in">mknod</span>` 在 `/dev` 目录下创建一个特殊的文件节点，它通过主设备号 `100` 与我们的驱动关联起来，成为用户态程序与驱动通信的入口。</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> <span class="built_in">chmod</span> 666 /dev/simple_gpu`: **赋予权限**。`<span class="built_in">chmod</span>` 允许所有用户读写该设备文件，否则普通用户的应用程序会因权限不足而无法打开它。</span><br><span class="line">&gt;</span><br><span class="line">&gt; **关于主设备号 `100`**: 在本例中，`100` 是我们在驱动代码 (`simple_gpu.c`) 中硬编码的一个约定数字，`<span class="built_in">mknod</span>` 命令必须使用与之相同的值。在真实世界的驱动中，硬编码有冲突风险，因此通常采用 **动态分配**：驱动向内核申请一个 **任意** 可用的主设备号，内核分配后，由 `udev` 等现代化服务自动在 `/dev` 目录下创建对应的设备文件，无需手动执行 `<span class="built_in">mknod</span>`。</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 运行应用程序</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=.</span><br><span class="line">./app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 查看内核日志</span></span><br><span class="line">dmesg | <span class="built_in">tail</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 卸载模块并清理</span></span><br><span class="line"><span class="built_in">sudo</span> rmmod simple_gpu</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> /dev/simple_gpu</span><br></pre></td></tr></table></figure></p>
+]]></content>
   </entry>
   <entry>
     <title>CUDA核心概念与内存层次</title>
@@ -3019,6 +3019,45 @@ flowchart TD
       </tags>
   </entry>
   <entry>
+    <title>KeyMapping：win上使用mac键位</title>
+    <url>/posts/a9a69d93/</url>
+    <content><![CDATA[<p>最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。</p>
+<p>本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现<strong>动态键位映射</strong>：既能在本地完美复刻 Mac 体验，又能智能识别远程桌面来源，自动适配 RDP 客户端的键位逻辑。</p>
+<span id="more"></span>
+<h3 id="核心痛点本地与远程的精神分裂">💡 核心痛点：本地与远程的“精神分裂”</h3>
+<p>在 Windows 上复刻 Mac 键位，最直接的思路是将键盘左下角的 <code>Alt</code> 映射为 <code>Ctrl</code>（因为 Mac 的 Command 键就在这个位置）。</p>
+<p>然而，当你从一台 Mac 通过 Microsoft Remote Desktop 远程连接到这台 Windows 时，问题就出现了： 1. <strong>本地使用时</strong>：我们需要 <code>Alt</code> -&gt; <code>Ctrl</code>。 2. <strong>Mac 远程连接时</strong>：Mac 的 RDP 客户端通常会将 Command 键映射为 Windows 的 <code>Win</code> 键。此时，我们在 Mac 上按 <code>Cmd + C</code>，Windows 接收到的是 <code>Win + C</code>。</p>
+<p>如果我们简单粗暴地全局重映射，就会导致远程连接时快捷键失效。我们需要一个“智能”的脚本，它能知道<strong>当前是谁在操作电脑</strong>。</p>
+<h3 id="解决方案wtsapi-动态识别">🔍 解决方案：WTSAPI 动态识别</h3>
+<p>Windows 提供了 WTSAPI (Windows Terminal Services API)，允许我们查询当前会话的信息。通过 <code>WTSQuerySessionInformation</code> 函数，我们可以获取连接到当前会话的客户端名称（Client Name）。</p>
+<ul>
+<li><strong>本地登录</strong>：客户端名称通常为空。</li>
+<li><strong>远程登录</strong>：客户端名称会显示发起连接的设备名）。</li>
+</ul>
+<p>利用这一点，我们可以编写一个 <code>IsRemoteMac()</code> 函数来动态判断当前的上下文。</p>
+<h3 id="脚本实现">🛠️ 脚本实现</h3>
+<p>以下是完整的 AutoHotkey v2 脚本。</p>
+<figure class="highlight ahk"><table><tr><td class="code"><pre><span class="line"><span class="meta">#Requires AutoHotkey v2.0</span></span><br><span class="line"><span class="meta">#SingleInstance Force</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 核心逻辑：环境检测</span></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 判断当前是否是从特定的 Mac 设备远程连接</span></span><br><span class="line">IsRemoteMac() &#123;</span><br><span class="line">    <span class="comment">; 获取 RDP 客户端名称并去除首尾空格</span></span><br><span class="line">    clientName := Trim(GetRdpClientName())</span><br><span class="line">    if (clientName = <span class="string">&quot;&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">; 检查客户端名称是否包含特定标识（这里修改为你自己的设备名）</span></span><br><span class="line">    if InStr(clientName, <span class="string">&quot;zihao-macbook&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">; 调用 Windows API 获取 RDP 客户端名称</span></span><br><span class="line">GetRdpClientName() &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        pBuffer := <span class="number">0</span></span><br><span class="line">        bytes := <span class="number">0</span></span><br><span class="line">        <span class="comment">; 调用 Windows Terminal Services API 获取会话信息</span></span><br><span class="line">        <span class="comment">; WTSQuerySessionInformationW 检索指定会话的信息</span></span><br><span class="line">        <span class="comment">; WTS_CURRENT_SERVER_HANDLE (0) 表示当前服务器</span></span><br><span class="line">        <span class="comment">; WTS_CURRENT_SESSION (-1) 表示当前会话</span></span><br><span class="line">        <span class="comment">; WTSClientName (10) 请求客户端名称信息类</span></span><br><span class="line">        if !DllCall(<span class="string">&quot;wtsapi32\WTSQuerySessionInformationW&quot;</span></span><br><span class="line">            , <span class="string">&quot;Ptr&quot;</span>, <span class="number">0</span>              <span class="comment">; WTS_CURRENT_SERVER_HANDLE</span></span><br><span class="line">            , <span class="string">&quot;Int&quot;</span>, -<span class="number">1</span>             <span class="comment">; WTS_CURRENT_SESSION</span></span><br><span class="line">            , <span class="string">&quot;Int&quot;</span>, <span class="number">10</span>             <span class="comment">; WTSClientName</span></span><br><span class="line">            , <span class="string">&quot;Ptr*&quot;</span>, &amp;pBuffer</span><br><span class="line">            , <span class="string">&quot;UInt*&quot;</span>, &amp;bytes)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">; 从内存缓冲区读取 UTF-16 字符串</span></span><br><span class="line">        name := StrGet(pBuffer, <span class="string">&quot;UTF-16&quot;</span>)</span><br><span class="line">        <span class="comment">; 释放由 WTSQuerySessionInformation 分配的内存，防止内存泄漏</span></span><br><span class="line">        DllCall(<span class="string">&quot;wtsapi32\WTSFreeMemory&quot;</span>, <span class="string">&quot;Ptr&quot;</span>, pBuffer)</span><br><span class="line">        <span class="keyword">return</span> name</span><br><span class="line">    &#125; catch &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 场景一：从 Mac 远程连接时</span></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 当检测到是从 Mac 远程过来时，RDP 客户端通常将 Cmd 映射为 Win 键。</span></span><br><span class="line"><span class="comment">; 我们需要拦截这些 Win 组合键，将其转换为对应的 Ctrl 组合键。</span></span><br><span class="line"><span class="meta">#HotIf IsRemoteMac()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 修复 Alt+Tab 切换应用的行为</span></span><br><span class="line"><span class="title">$!Tab::</span></span><br><span class="line">&#123;</span><br><span class="line">    SendInput <span class="string">&quot;&#123;LAlt up&#125;&quot;</span></span><br><span class="line">    Sleep <span class="number">10</span> <span class="comment">; 极短缓冲，确保系统状态稳定</span></span><br><span class="line">    SendEvent <span class="string">&quot;#&#123;Tab&#125;&quot;</span> <span class="comment">; 发送 Win+Tab 打开任务视图，或者根据习惯改为 Alt+Tab</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">; 将 Win + key (Mac 端的 Cmd + key) 映射为 Ctrl + key (Windows 标准操作)</span></span><br><span class="line"><span class="title">$#/::</span>Send <span class="string">&quot;^/&quot;</span>          <span class="comment">; 注释 (Cmd + / -&gt; Win + / -&gt; Ctrl + /)</span></span><br><span class="line"><span class="title">$#b::</span>Send <span class="string">&quot;^b&quot;</span>          <span class="comment">; 加粗/侧边栏 (Cmd + B -&gt; Win + B -&gt; Ctrl + B)</span></span><br><span class="line"><span class="title">$#s::</span>Send <span class="string">&quot;^s&quot;</span>          <span class="comment">; 保存 (Cmd + S -&gt; Win + S -&gt; Ctrl + S)</span></span><br><span class="line"><span class="title">$#-::</span>Send <span class="string">&quot;^-&quot;</span>          <span class="comment">; 缩小 (Cmd + - -&gt; Win + - -&gt; Ctrl + -)</span></span><br><span class="line"><span class="title">$#=::</span>Send <span class="string">&quot;^=&quot;</span>          <span class="comment">; 放大 (Cmd + = -&gt; Win + = -&gt; Ctrl + =)</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#HotIf ; 结束 IsRemoteMac 上下文</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 场景二：本地使用 (模拟 Mac 键位)</span></span><br><span class="line"><span class="comment">; ==============================================================================</span></span><br><span class="line"><span class="comment">; 当不在远程环境（或非特定 Mac 远程）时，将物理键盘的 Alt 键当作 Command 用。</span></span><br><span class="line"><span class="meta">#HotIf !IsRemoteMac()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 常用编辑快捷键 ---</span></span><br><span class="line"><span class="title">$!c::</span>Send <span class="string">&quot;^c&quot;</span>          <span class="comment">; 复制 (Alt + C -&gt; Ctrl + C) 实现 Cmd + C</span></span><br><span class="line"><span class="title">$!v::</span>Send <span class="string">&quot;^v&quot;</span>          <span class="comment">; 粘贴 (Alt + V -&gt; Ctrl + V) 实现 Cmd + V</span></span><br><span class="line"><span class="title">$!x::</span>Send <span class="string">&quot;^x&quot;</span>          <span class="comment">; 剪切 (Alt + X -&gt; Ctrl + X) 实现 Cmd + X</span></span><br><span class="line"><span class="title">$!z::</span>Send <span class="string">&quot;^z&quot;</span>          <span class="comment">; 撤销 (Alt + Z -&gt; Ctrl + Z) 实现 Cmd + Z</span></span><br><span class="line"><span class="title">$!+z::</span>Send <span class="string">&quot;^y&quot;</span>         <span class="comment">; 重做 (Alt + Shift + Z -&gt; Ctrl + Y) 实现 Cmd + Shift + Z</span></span><br><span class="line"><span class="title">$!a::</span>Send <span class="string">&quot;^a&quot;</span>          <span class="comment">; 全选 (Alt + A -&gt; Ctrl + A) 实现 Cmd + A</span></span><br><span class="line"><span class="title">$!s::</span>Send <span class="string">&quot;^s&quot;</span>          <span class="comment">; 保存 (Alt + S -&gt; Ctrl + S) 实现 Cmd + S</span></span><br><span class="line"><span class="title">$!/::</span>Send <span class="string">&quot;^/&quot;</span>          <span class="comment">; 注释 (Alt + / -&gt; Ctrl + /) 实现 Cmd + /</span></span><br><span class="line"><span class="title">$#z::</span>Send <span class="string">&quot;!z&quot;</span>          <span class="comment">; 自动换行 (Win + Z -&gt; Alt + Z) 修正部分软件的键位</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 功能快捷键 ---</span></span><br><span class="line"><span class="title">$!b::</span>Send <span class="string">&quot;^b&quot;</span>          <span class="comment">; 加粗</span></span><br><span class="line"><span class="title">$!n::</span>Send <span class="string">&quot;^n&quot;</span>          <span class="comment">; 新建</span></span><br><span class="line"><span class="title">$!e::</span>Send <span class="string">&quot;#e&quot;</span>          <span class="comment">; 打开资源管理器 (Alt + E -&gt; Win + E)</span></span><br><span class="line"><span class="title">$!f::</span>Send <span class="string">&quot;^f&quot;</span>          <span class="comment">; 查找</span></span><br><span class="line"><span class="title">$!h::</span>Send <span class="string">&quot;^h&quot;</span>          <span class="comment">; 替换</span></span><br><span class="line"><span class="title">$!t::</span>Send <span class="string">&quot;^t&quot;</span>          <span class="comment">; 新建标签页</span></span><br><span class="line"><span class="title">$!r::</span>Send <span class="string">&quot;^r&quot;</span>          <span class="comment">; 刷新</span></span><br><span class="line"><span class="title">$!=::</span>Send <span class="string">&quot;^&#123;=&#125;&quot;</span>        <span class="comment">; 放大</span></span><br><span class="line"><span class="title">$!-::</span>Send <span class="string">&quot;^&#123;-&#125;&quot;</span>        <span class="comment">; 缩小</span></span><br><span class="line"><span class="title">$!0::</span>Send <span class="string">&quot;^0&quot;</span>          <span class="comment">; 恢复大小</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 光标移动 (文本编辑神器) ---</span></span><br><span class="line"><span class="comment">; Mac 的 Cmd + 方向键在文本编辑中非常高效，这里用 Alt 模拟</span></span><br><span class="line"><span class="title">$!Left::</span>Send <span class="string">&quot;&#123;Home&#125;&quot;</span>   <span class="comment">; 光标移至行首</span></span><br><span class="line"><span class="title">$!Right::</span>Send <span class="string">&quot;&#123;End&#125;&quot;</span>   <span class="comment">; 光标移至行尾</span></span><br><span class="line"><span class="title">$!Up::</span>Send <span class="string">&quot;^&#123;Home&#125;&quot;</span>    <span class="comment">; 光标移至文档头</span></span><br><span class="line"><span class="title">$!Down::</span>Send <span class="string">&quot;^&#123;End&#125;&quot;</span>   <span class="comment">; 光标移至文档尾</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 文本选中 ---</span></span><br><span class="line"><span class="title">$!+Left::</span>Send <span class="string">&quot;+&#123;Home&#125;&quot;</span> <span class="comment">; 选中至行首</span></span><br><span class="line"><span class="title">$!+Right::</span>Send <span class="string">&quot;+&#123;End&#125;&quot;</span> <span class="comment">; 选中至行尾</span></span><br><span class="line"><span class="title">$!+Up::</span>Send <span class="string">&quot;^+&#123;Home&#125;&quot;</span>  <span class="comment">; 选中至文档头</span></span><br><span class="line"><span class="title">$!+Down::</span>Send <span class="string">&quot;^+&#123;End&#125;&quot;</span> <span class="comment">; 选中至文档尾</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 系统功能 ---</span></span><br><span class="line"><span class="title">$!Space::</span>Send <span class="string">&quot;#s&quot;</span>      <span class="comment">; 聚焦搜索/PowerToys Run (Alt + Space -&gt; Win + S)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- 截图工具 (适配 pixpin 记得修改快捷键) ---</span></span><br><span class="line"><span class="title">$#1::</span>Send <span class="string">&quot;^!1&quot;</span>         <span class="comment">; 截图并复制</span></span><br><span class="line"><span class="title">$#2::</span>Send <span class="string">&quot;^!2&quot;</span>         <span class="comment">; 贴图</span></span><br><span class="line"><span class="title">$#3::</span>Send <span class="string">&quot;^!3&quot;</span>         <span class="comment">; 截图</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; --- Alt 键特殊处理 ---</span></span><br><span class="line"><span class="comment">; 屏蔽 Alt 单独按下激活菜单栏的默认行为，防止误触</span></span><br><span class="line"><span class="title">~LAlt::</span>Send <span class="string">&quot;&#123;Blind&#125;&#123;vkE8&#125;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 模拟 Mac 行为：单击 Alt (Command) 也可以呼出开始菜单</span></span><br><span class="line"><span class="comment">; 只有在没有按下其他键的情况下释放 Alt 才触发</span></span><br><span class="line"><span class="title">~LAlt Up::</span></span><br><span class="line">&#123;</span><br><span class="line">    if (<span class="built_in">A_PriorKey</span> = <span class="string">&quot;LAlt&quot;</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        Send <span class="string">&quot;&#123;LWin&#125;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#HotIf</span></span><br></pre></td></tr></table></figure>
+<h3 id="如何使用">🚀 如何使用</h3>
+<ol type="1">
+<li>安装 <a href="https://www.autohotkey.com/">AutoHotkey v2</a>。</li>
+<li>创建一个新文件 <code>MacKeys.ahk</code>，将上述代码粘贴进去。</li>
+<li>双击运行即可。</li>
+<li>（可选）将其放入 Windows 的启动文件夹，实现开机自启。</li>
+</ol>
+<p><a href="https://github.com/supermarkli/MacKeysMapping.git">仓库地址</a>放到这里，希望这对你有帮助！</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+      </categories>
+      <tags>
+        <tag>Windows</tag>
+        <tag>MacOS</tag>
+        <tag>AutoHotkey</tag>
+        <tag>效率工具</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>开源许可证速查：MIT、Apache 2.0、GPL v3 怎么选？</title>
     <url>/posts/c3f2a1b9/</url>
     <content><![CDATA[<p>面对五花八门的开源许可证，最常被问到的无非三件事：能不能商用？能不能改了闭源？要不要写专利和修改声明？这篇文章用一张速查表和几条决策准则，帮你在 1 分钟内选对证。</p>
@@ -3167,6 +3206,133 @@ flowchart TD
         <tag>开源</tag>
         <tag>License</tag>
         <tag>许可证</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NFC Note</title>
+    <url>/posts/78289205/</url>
+    <content><![CDATA[<h2 id="什么是nfc">什么是NFC？</h2>
+<p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
+<span id="more"></span>
+<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
+<figure>
+<img src="/assets/NFC-image.png" alt="alt text" /><figcaption>alt text</figcaption>
+</figure>
+<h3 id="nfc是怎么工作的">NFC是怎么工作的？</h3>
+<p>想象一下，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
+<ol type="1">
+<li><strong>基本原理</strong>
+<ul>
+<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
+<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
+<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
+<li>数据传输速率可达424Kbps</li>
+</ul></li>
+<li><strong>为什么要靠得这么近？</strong>
+<ul>
+<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
+<li>近场通信使用感应耦合（而不是电磁波传播）</li>
+<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
+</ul></li>
+</ol>
+<blockquote>
+<p><strong>调制解调技术</strong></p>
+<p>想象用手电筒给远处的朋友发信号：</p>
+<ol type="1">
+<li><strong>什么是调制？</strong>
+<ul>
+<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
+<li>NFC中主要使用两种调制方式：
+<ul>
+<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
+<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
+</ul></li>
+</ul></li>
+<li><strong>为什么要调制？</strong>
+<ul>
+<li>原始数据（比如1和0）不能直接传输</li>
+<li>需要把数据"搭载"在13.56MHz的载波信号上</li>
+<li>就像把信息写在纸飞机上才能传递给别人</li>
+</ul></li>
+<li><strong>解调是什么？</strong>
+<ul>
+<li>接收方需要从收到的信号中"提取"出原始数据</li>
+<li>就像接收方要从纸飞机上读取信息</li>
+<li>或者从手电筒的闪烁中理解传递的含义</li>
+</ul></li>
+</ol>
+</blockquote>
+<h3 id="nfc能做什么">NFC能做什么？</h3>
+<p>NFC有三种常见的使用方式：</p>
+<ol type="1">
+<li><strong>读写模式</strong>
+<ul>
+<li>就像用手机碰一碰地铁站的时刻表海报</li>
+<li>或者用手机读取商品上的电子标签</li>
+</ul></li>
+<li><strong>手机支付模式</strong>
+<ul>
+<li>手机变身成公交卡、银行卡</li>
+<li>碰一碰就能付款</li>
+</ul></li>
+<li><strong>设备互联模式</strong>
+<ul>
+<li>两个手机之间传照片</li>
+<li>新耳机和手机快速配对</li>
+</ul></li>
+</ol>
+<h3 id="nfc的特点">NFC的特点</h3>
+<ol type="1">
+<li><strong>超级方便</strong>
+<ul>
+<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
+<li>支持双向通信，设备可以自动切换读写角色</li>
+</ul></li>
+<li><strong>很安全</strong>
+<ul>
+<li>物理层：通信距离限制</li>
+<li>协议层：支持AES-128等加密算法</li>
+<li>应用层：可集成安全单元（SE）存储敏感数据</li>
+</ul></li>
+<li><strong>省电</strong>
+<ul>
+<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
+<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
+<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
+</ul></li>
+</ol>
+<h3 id="生活中的nfc应用">生活中的NFC应用</h3>
+<ol type="1">
+<li><strong>支付场景</strong>
+<ul>
+<li>手机付款（Apple Pay、微信/支付宝碰一碰）</li>
+<li>刷公交地铁</li>
+<li>超市购物</li>
+</ul></li>
+<li><strong>智能家居</strong>
+<ul>
+<li>碰一碰开门</li>
+<li>碰一碰控制家电</li>
+<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
+</ul></li>
+<li><strong>便捷生活</strong>
+<ul>
+<li>门禁卡</li>
+<li>打卡签到</li>
+<li>快速连接蓝牙设备</li>
+</ul></li>
+</ol>
+<h2 id="总结">总结</h2>
+<p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>网络与通信</category>
+      </categories>
+      <tags>
+        <tag>无线通信</tag>
+        <tag>NFC</tag>
+        <tag>RFID</tag>
       </tags>
   </entry>
   <entry>
@@ -3364,133 +3530,6 @@ FileSystem --&gt; App[&quot;应用可用&quot;]
         <tag>Linux</tag>
         <tag>包管理</tag>
         <tag>Package</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NFC Note</title>
-    <url>/posts/78289205/</url>
-    <content><![CDATA[<h2 id="什么是nfc">什么是NFC？</h2>
-<p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
-<span id="more"></span>
-<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
-<figure>
-<img src="/assets/NFC-image.png" alt="alt text" /><figcaption>alt text</figcaption>
-</figure>
-<h3 id="nfc是怎么工作的">NFC是怎么工作的？</h3>
-<p>想象一下，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
-<ol type="1">
-<li><strong>基本原理</strong>
-<ul>
-<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
-<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
-<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
-<li>数据传输速率可达424Kbps</li>
-</ul></li>
-<li><strong>为什么要靠得这么近？</strong>
-<ul>
-<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
-<li>近场通信使用感应耦合（而不是电磁波传播）</li>
-<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
-</ul></li>
-</ol>
-<blockquote>
-<p><strong>调制解调技术</strong></p>
-<p>想象用手电筒给远处的朋友发信号：</p>
-<ol type="1">
-<li><strong>什么是调制？</strong>
-<ul>
-<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
-<li>NFC中主要使用两种调制方式：
-<ul>
-<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
-<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
-</ul></li>
-</ul></li>
-<li><strong>为什么要调制？</strong>
-<ul>
-<li>原始数据（比如1和0）不能直接传输</li>
-<li>需要把数据"搭载"在13.56MHz的载波信号上</li>
-<li>就像把信息写在纸飞机上才能传递给别人</li>
-</ul></li>
-<li><strong>解调是什么？</strong>
-<ul>
-<li>接收方需要从收到的信号中"提取"出原始数据</li>
-<li>就像接收方要从纸飞机上读取信息</li>
-<li>或者从手电筒的闪烁中理解传递的含义</li>
-</ul></li>
-</ol>
-</blockquote>
-<h3 id="nfc能做什么">NFC能做什么？</h3>
-<p>NFC有三种常见的使用方式：</p>
-<ol type="1">
-<li><strong>读写模式</strong>
-<ul>
-<li>就像用手机碰一碰地铁站的时刻表海报</li>
-<li>或者用手机读取商品上的电子标签</li>
-</ul></li>
-<li><strong>手机支付模式</strong>
-<ul>
-<li>手机变身成公交卡、银行卡</li>
-<li>碰一碰就能付款</li>
-</ul></li>
-<li><strong>设备互联模式</strong>
-<ul>
-<li>两个手机之间传照片</li>
-<li>新耳机和手机快速配对</li>
-</ul></li>
-</ol>
-<h3 id="nfc的特点">NFC的特点</h3>
-<ol type="1">
-<li><strong>超级方便</strong>
-<ul>
-<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
-<li>支持双向通信，设备可以自动切换读写角色</li>
-</ul></li>
-<li><strong>很安全</strong>
-<ul>
-<li>物理层：通信距离限制</li>
-<li>协议层：支持AES-128等加密算法</li>
-<li>应用层：可集成安全单元（SE）存储敏感数据</li>
-</ul></li>
-<li><strong>省电</strong>
-<ul>
-<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
-<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
-<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
-</ul></li>
-</ol>
-<h3 id="生活中的nfc应用">生活中的NFC应用</h3>
-<ol type="1">
-<li><strong>支付场景</strong>
-<ul>
-<li>手机付款（Apple Pay、微信/支付宝碰一碰）</li>
-<li>刷公交地铁</li>
-<li>超市购物</li>
-</ul></li>
-<li><strong>智能家居</strong>
-<ul>
-<li>碰一碰开门</li>
-<li>碰一碰控制家电</li>
-<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
-</ul></li>
-<li><strong>便捷生活</strong>
-<ul>
-<li>门禁卡</li>
-<li>打卡签到</li>
-<li>快速连接蓝牙设备</li>
-</ul></li>
-</ol>
-<h2 id="总结">总结</h2>
-<p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>网络与通信</category>
-      </categories>
-      <tags>
-        <tag>无线通信</tag>
-        <tag>NFC</tag>
-        <tag>RFID</tag>
       </tags>
   </entry>
   <entry>
@@ -4609,457 +4648,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
-    <title>Tensor 基础：布局、算子与形状推导</title>
-    <url>/posts/f1e2d3c4/</url>
-    <content><![CDATA[<p>想看懂卷积、池化公式却老被 <code>NCHW</code>、<code>stride</code> 搞糊涂？本文聚焦 <strong>张量布局 → 常见算子 → 形状计算公式</strong>，用一篇梳理基础概念。</p>
-<span id="more"></span>
-<h3 id="术语算子operator是什么">术语：算子（Operator）是什么？</h3>
-<ul>
-<li><strong>定义</strong>：在计算图中对张量进行某种变换的“最小计算单元”，如加法、卷积、矩阵乘。深度学习框架把算子拼成计算图并自动求导。</li>
-<li><strong>省流</strong>：算子=“对张量做事”的函数积木；模型=“很多算子按顺序和拓扑连起来”。</li>
-</ul>
-<h3 id="常见算子速览按功能分组">常见算子速览（按功能分组）</h3>
-<ul>
-<li><strong>形状与索引</strong>：<code>Reshape</code>/<code>View</code>、<code>Squeeze</code>/<code>Unsqueeze</code>、<code>Transpose</code>/<code>Permute</code>、<code>Concat</code>、<code>Split</code>/<code>Slice</code>、<code>Gather</code>/<code>Scatter</code>、<code>Repeat</code>/<code>Tile</code>、<code>Broadcast</code></li>
-<li><strong>逐元素与激活</strong>：<code>Add</code>/<code>Sub</code>/<code>Mul</code>/<code>Div</code>、<code>Pow</code>、<code>Clamp</code>、<code>Abs</code>、<code>Exp</code>/<code>Log</code>、<code>ReLU</code>/<code>LeakyReLU</code>/<code>GELU</code>/<code>Sigmoid</code>/<code>Tanh</code>/<code>Softplus</code>/<code>Swish</code></li>
-<li><strong>归约（Reduction）</strong>：<code>Sum</code>/<code>Mean</code>/<code>Max</code>/<code>Min</code>、<code>Argmax</code>/<code>Argmin</code>、<code>Prod</code>、<code>Norm</code>（<code>L1</code>/<code>L2</code>）</li>
-<li><strong>线性代数</strong>：<code>MatMul</code>/<code>GEMM</code>、<code>BatchMatMul</code>（<code>BMM</code>）、<code>Linear</code>（全连接）、<code>einsum</code></li>
-<li><strong>卷积族</strong>：<code>Conv1d/2d/3d</code>、<code>Depthwise</code>/<code>Grouped</code>、<code>Dilated</code>（空洞）、<code>Transposed Conv</code>（反卷积）、<code>Separable Conv</code></li>
-<li><strong>池化</strong>：<code>Max</code>/<code>Avg</code>/<code>Global</code>/<code>Adaptive Pool</code>（<code>1d</code>/<code>2d</code>/<code>3d</code>）</li>
-<li><strong>归一化与正则</strong>：<code>BatchNorm</code>/<code>LayerNorm</code>/<code>GroupNorm</code>/<code>InstanceNorm</code>、<code>Dropout</code></li>
-<li><strong>插值与采样</strong>：<code>Interpolate</code>/<code>Upsample</code>（<code>nearest</code>/<code>bilinear</code>）、<code>GridSample</code>、<code>Pad</code>（<code>Zero</code>/<code>Reflect</code>/<code>Replicate</code>）</li>
-<li><strong>概率与损失</strong>：<code>Softmax</code>/<code>LogSoftmax</code>、<code>CrossEntropy</code>、<code>MSE</code>/<code>MAE</code>、<code>NLL</code>、<code>KLDiv</code>、<code>Focal Loss</code></li>
-<li><strong>嵌入与稀疏</strong>：<code>Embedding</code>/<code>EmbeddingBag</code>、<code>Sparse MatMul</code></li>
-<li><strong>频域与信号</strong>：<code>FFT</code>/<code>iFFT</code>、<code>STFT</code>、<code>Conv1d</code> 信号处理</li>
-</ul>
-<hr />
-<h2 id="张量与布局从数字到多维数组">1️⃣ 张量与布局：从数字到多维数组</h2>
-<h3 id="什么是张量-tensor">什么是张量 (Tensor)？</h3>
-<p>想象一下：</p>
-<ul>
-<li><strong>0D 张量 (标量)</strong>：一个孤零零的数字，比如 <code>5</code>。</li>
-<li><p><strong>1D 张量 (向量)</strong>：一排数字，像 Python 列表 <code>[1, 2, 3, 4]</code>。</p>
-<blockquote>
-<p><strong>等等，Python 列表哪来的 <code>shape</code> 和 <code>dtype</code>？</strong><br />
-好问题！Python 列表本身没有。我们说的张量，其实是深度学习框架（如 PyTorch）里的一个特殊对象。框架会“接收”你的 Python 列表，然后把它“包装”成一个真正的张量。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 这是一个普通的 Python 列表</span></span><br><span class="line">data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. PyTorch 把它包装成一个 Tensor 对象</span></span><br><span class="line">tensor_1d = torch.tensor(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 现在，这个对象就有 shape 和 dtype 属性了</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.shape)  <span class="comment"># 输出: torch.Size([4])，表示这是一个长度为4的1D张量</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.dtype)  <span class="comment"># 输出: torch.int64，框架自动推断出是整数类型</span></span><br></pre></td></tr></table></figure>
-<p>✨ 所以，张量是“<strong>数据 + 描述信息（形状、类型）</strong>”的组合体。</p>
-</blockquote></li>
-<li><strong>2D 张量 (矩阵)</strong>：一个表格，有行有列，像 Excel 工作表。</li>
-<li><strong>3D 张量</strong>：一沓叠起来的表格，比如一张彩色图片（高 × 宽 × 3个颜色通道）。</li>
-<li><p><strong>4D 张量</strong>：一堆 3D 张量，比如 <strong>一批</strong> 彩色图片。</p></li>
-</ul>
-<blockquote>
-<p>✨ <strong>一句话：</strong> 张量就是“多维数组”，用来装深度学习模型处理的数据。每个张量都有两个核心属性：</p>
-<ul>
-<li><strong><code>shape</code> (形状)</strong>：一个元组，告诉你每个维度有多大。例如 <code>(64, 3, 224, 224)</code>。</li>
-<li><strong><code>dtype</code> (数据类型)</strong>：说明里面存的是什么类型的数，比如 <code>float32</code> (小数) 或 <code>int8</code> (整数)。</li>
-</ul>
-</blockquote>
-<h3 id="为何需要-nchw-这种布局">为何需要 NCHW 这种布局？</h3>
-<p>处理图片时，我们需要用一种标准方式来组织数据。<code>NCHW</code> 就是最流行的一种“打包格式”。</p>
-<table>
-<thead>
-<tr class="header">
-<th>字母</th>
-<th>含义</th>
-<th>🌰 举例：一张 <code>(3, 224, 224)</code> 的 RGB 图片</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>N</strong></td>
-<td><strong>Number / Batch</strong> (数量)</td>
-<td>一次处理 64 张图片，<code>N=64</code></td>
-</tr>
-<tr class="even">
-<td><strong>C</strong></td>
-<td><strong>Channel</strong> (通道)</td>
-<td>红/绿/蓝 3 个通道, <code>C=3</code></td>
-</tr>
-<tr class="odd">
-<td><strong>H</strong></td>
-<td><strong>Height</strong> (高度)</td>
-<td>图片高 224 像素, <code>H=224</code></td>
-</tr>
-<tr class="even">
-<td><strong>W</strong></td>
-<td><strong>Width</strong> (宽度)</td>
-<td>图片宽 224 像素, <code>W=224</code></td>
-</tr>
-</tbody>
-</table>
-<p>所以，一个 <code>(64, 3, 224, 224)</code> 的张量，意思就是“<strong>64 张、3 通道、224×224 大小的图片</strong>”。</p>
-<h3 id="nchw-vs-nhwc有啥区别">NCHW vs NHWC：有啥区别？</h3>
-<ul>
-<li><strong><code>NCHW</code> (channels_first)</strong>：<code>(N, C, H, W)</code>
-<ul>
-<li><strong>GPU 友好</strong>：CUDA/cuDNN 库针对这种布局做了优化，相邻通道的数据在内存里更连续，访问快。</li>
-<li>PyTorch/Paddle 默认。</li>
-</ul></li>
-<li><strong><code>NHWC</code> (channels_last)</strong>：<code>(N, H, W, C)</code>
-<ul>
-<li><strong>CPU/TPU 友好</strong>：某些硬件访存模式更适合通道在最后。</li>
-<li>TensorFlow 默认。</li>
-</ul></li>
-</ul>
-<blockquote>
-<p>省流：搞不清就用 <code>NCHW</code>，它是 GPU 上的“高速公路”。代码里看到 <code>permute(0, 2, 3, 1)</code> 就是在做 <code>NCHW</code> → <code>NHWC</code> 的切换。</p>
-</blockquote>
-<hr />
-<h2 id="卷积-convolution像用滤镜提取特征">2️⃣ 卷积 (Convolution)：像用“滤镜”提取特征</h2>
-<p>想象一下你给照片加滤镜（比如“锐化”或“模糊”），卷积做的就是类似的事情。它用一个小的“<strong>滤镜</strong>”（称为 <strong>Kernel</strong> 或卷积核），在输入图片上一点点地滑动，计算出每个区域的特征值，最后汇集成一张新的“特征图”。</p>
-<h3 id="卷积的五个关键参数">卷积的五个关键参数</h3>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">参数</th>
-<th style="text-align: left;">符号</th>
-<th style="text-align: left;">作用</th>
-<th style="text-align: left;">🌰 生活化比喻</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">输入尺寸</td>
-<td style="text-align: left;"><code>I</code></td>
-<td style="text-align: left;">图片的宽或高</td>
-<td style="text-align: left;">一块 10x10 的大巧克力</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Kernel</td>
-<td style="text-align: left;"><code>K</code></td>
-<td style="text-align: left;">滤镜/卷积核的大小</td>
-<td style="text-align: left;">一个 3x3 的饼干模具</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Padding</td>
-<td style="text-align: left;"><code>P</code></td>
-<td style="text-align: left;">在图片边缘填充几圈0</td>
-<td style="text-align: left;">在巧克力周围加一圈奶油，防止模具出界</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Stride</td>
-<td style="text-align: left;"><code>S</code></td>
-<td style="text-align: left;">滤镜每次滑动的步长</td>
-<td style="text-align: left;">模具每次向右/下移动几格</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Dilation</td>
-<td style="text-align: left;"><code>D</code></td>
-<td style="text-align: left;">Kernel内部元素的间距</td>
-<td style="text-align: left;">模具上的图案本身有多稀疏</td>
-</tr>
-</tbody>
-</table>
-<h3 id="正向卷积-forward-conv">正向卷积 (Forward Conv)</h3>
-<p>这是最常见的卷积，用来<strong>缩小</strong>特征图，<strong>提取</strong>特征。</p>
-<blockquote>
-<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - D·(K-1) - 1) / S⌋ + 1</code></p>
-</blockquote>
-<p><strong>公式拆解：</strong></p>
-<ol type="1">
-<li><code>D·(K-1) + 1</code>：这是考虑了空洞（Dilation）之后，卷积核覆盖的实际范围。如果 <code>D=1</code>，它就等于 <code>K</code>。</li>
-<li><code>I + 2P</code>：这是输入图片在两边都加上了 <code>P</code> 圈“奶油”之后的总宽度。</li>
-<li><code>(I + 2P) - (D·(K-1) + 1)</code>：这是模具可以在奶油巧克力上滑动的“总距离”。</li>
-<li>除以 <code>S</code> 再 <code>+1</code>：计算在这个总距离上，以 <code>S</code> 为步长，总共能挪动几步（结果向下取整）。</li>
-</ol>
-<blockquote>
-<p>🌰 <strong>示例：</strong> 输入 <code>I=5</code>, Kernel <code>K=3</code>, Padding <code>P=1</code>, Stride <code>S=2</code>, Dilation <code>D=1</code>。 - 加上 padding 后的总宽度是 <code>5 + 2*1 = 7</code>。 - Kernel 覆盖范围是 <code>1*(3-1)+1 = 3</code>。 - 滑动总距离是 <code>7 - 3 = 4</code>。 - 能滑几步？<code>4 / 2 = 2</code> 步。 - 总共能摆放几次？<code>2 + 1 = 3</code> 次。所以输出 <code>OUT=3</code>。</p>
-</blockquote>
-<h3 id="转置卷积-transposed-conv">转置卷积 (Transposed Conv)</h3>
-<p>也叫“反卷积”，但这个名字不准确。它的作用和正向卷积相反，常用来<strong>放大</strong>特征图（上采样）。</p>
-<blockquote>
-<p><strong>公式</strong>：<code>OUT = (I - 1)·S - 2P + D·(K-1) + 1</code></p>
-<p>把它想象成“从特征图反推原图尺寸”的过程，或者“用一个画笔（Kernel）在小画布上画，画出一个大图”。公式的每一项都是正向卷积的“逆运算”。</p>
-</blockquote>
-<hr />
-<h2 id="池化-pooling给特征图瘦身减负">3️⃣ 池化 (Pooling)：给特征图“瘦身减负”</h2>
-<p>如果说卷积是“精加工提取特征”，那么池化就是“<strong>粗加工，信息压缩</strong>”。它同样用一个小窗口在图上滑动，但计算规则更简单：只取窗口内的最大值（Max Pooling）或平均值（Average Pooling）。</p>
-<p><strong>为什么需要池化？</strong></p>
-<ol type="1">
-<li><strong>降低计算量</strong>：特征图变小了，后续计算更快。</li>
-<li><strong>防止过拟合</strong>：保留最主要的特征，丢掉一些不重要的细节。</li>
-<li><strong>增加感受野</strong>：让后面的卷积能看到更大范围的原始信息。</li>
-</ol>
-<h3 id="max-avg-pooling">Max / Avg Pooling</h3>
-<blockquote>
-<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - K) / S⌋ + 1</code></p>
-<p>（和卷积公式一样，只是没有 Dilation）</p>
-</blockquote>
-<blockquote>
-<p>🌰 <strong>示例：Max Pooling</strong> 假设有一个 4x4 的输入，用一个 2x2 的窗口、步长为 2 来做最大池化： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入:             窗口1: [[1, 2],    窗口2: [[3, 4],</span><br><span class="line">[[1, 2, 3, 4],     [5, 6]] → max=6        [7, 8]] → max=8</span><br><span class="line"> [5, 6, 7, 8],</span><br><span class="line"> [9, 1, 2, 3],    窗口3: [[9, 1],    窗口4: [[2, 3],</span><br><span class="line"> [4, 5, 6, 7]]     [4, 5]] → max=9        [6, 7]] → max=7</span><br><span class="line"></span><br><span class="line">输出 (2x2):</span><br><span class="line">[[6, 8],</span><br><span class="line"> [9, 7]]</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<h3 id="自适应池化-adaptive-pooling">自适应池化 (Adaptive Pooling)</h3>
-<p>这是个“懒人”池化。你<strong>不需要关心 K、P、S 是多少</strong>，直接告诉它你想要多大的输出就行了。</p>
-<blockquote>
-<p><strong>用法</strong>：<code>AdaptiveMaxPool2d(output_size=7)</code></p>
-<p>框架会自动计算出合适的 K 和 S，把任意大小的输入都变成 <code>7x7</code>。这在连接卷积层和全连接层时特别有用。</p>
-</blockquote>
-<hr />
-<h2 id="二元-矩阵算子形状规则">4️⃣ 二元 / 矩阵算子形状规则</h2>
-<h3 id="逐元素-element-wise-运算加减乘除">1. 逐元素 (Element-wise) 运算：加减乘除</h3>
-<p>这是最简单的运算，就像小学数学题，把两个形状完全一样的表格，对应位置的数字做加减法。</p>
-<blockquote>
-<p><strong>规则</strong>：两个张量的形状必须完全一样。</p>
-<p>🌰 <strong>示例：</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2],    B = [[5, 6],    A + B = [[1+5, 2+6],</span><br><span class="line">     [3, 4]]         [7, 8]]             [3+7, 4+8]]</span><br><span class="line"></span><br><span class="line"># 结果: [[6, 8], [10, 12]]</span><br></pre></td></tr></table></figure></p>
-</blockquote>
-<p><strong>✨ 进阶：广播 (Broadcasting)</strong></p>
-<p>如果两个张量形状<strong>不完全一样</strong>，但又“兼容”，框架会自动“扩展”那个小一点的张量，让它们能够运算。这个过程就叫广播。</p>
-<blockquote>
-<p>🌰 <strong>示例：给矩阵的每一行都加上一个向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2, 3],    B = [10, 20, 30]</span><br><span class="line">     [4, 5, 6]]</span><br><span class="line"></span><br><span class="line"># 框架会自动把 B “复制”成两行，变成 [[10, 20, 30], [10, 20, 30]]</span><br><span class="line"># 然后再和 A 做逐元素相加。</span><br><span class="line">A + B = [[11, 22, 33],</span><br><span class="line">         [14, 25, 36]]</span><br></pre></td></tr></table></figure> 广播非常强大，能省去很多手动的 <code>for</code> 循环。</p>
-</blockquote>
-<h3 id="矩阵乘法-matmul-bmm">2. 矩阵乘法 (MatMul / BMM)</h3>
-<p>矩阵乘法不是对应位置相乘，规则要特殊一些。</p>
-<blockquote>
-<p><strong>规则</strong>：对于 <code>A @ B</code> (在 Python 里 <code>@</code> 是矩阵乘法的运算符)，A 的 <strong>列数</strong> 必须等于 B 的 <strong>行数</strong>。 - <code>A (n, m)</code> @ <code>B (m, p)</code> → <code>C (n, p)</code></p>
-<p>把它想象成“配对消除”：中间的 <code>m</code> 维配对后消失，剩下两头的 <code>n</code> 和 <code>p</code> 组成新形状。</p>
-</blockquote>
-<blockquote>
-<p>🌰 <strong>示例：</strong> 一个 <code>(2, 3)</code> 矩阵乘以一个 <code>(3, 4)</code> 矩阵：</p>
-<ul>
-<li><code>A</code> 有 2 行 3 列</li>
-<li><code>B</code> 有 3 行 4 列</li>
-<li>A 的列数 (3) == B 的行数 (3)，可以相乘！</li>
-<li>结果 <code>C</code> 的形状是 <code>(2, 4)</code>。</li>
-</ul>
-</blockquote>
-<p><strong>✨ 进阶：批量矩阵乘法 (BMM - Batched Matrix Multiplication)</strong></p>
-<p>如果想一次性做好几组独立的矩阵乘法，就可以用 BMM。</p>
-<blockquote>
-<p><strong>规则</strong>：<code>A (b, n, m)</code> @ <code>B (b, m, p)</code> → <code>C (b, n, p)</code></p>
-<p><code>b</code> 是 <code>batch_size</code>，代表有多少组。除了 <code>b</code> 必须相等，每一组内的 <code>n, m, p</code> 规则和普通矩阵乘法一样。</p>
-</blockquote>
-<h3 id="拼接-concatenation">3. 拼接 (Concatenation)</h3>
-<p>拼接就是把几个张量“粘”在一起，变成一个更大的张量。</p>
-<blockquote>
-<p><strong>规则</strong>：除了你要拼接的那个维度（<code>axis</code> 或 <code>dim</code>），其他所有维度的大小都必须完全一致。</p>
-</blockquote>
-<blockquote>
-<p>🌰 <strong>示例：</strong> 两个形状为 <code>(2, 3)</code> 的张量 <code>A</code> 和 <code>B</code>。</p>
-<ul>
-<li><p><strong>沿 <code>axis=0</code> (行) 拼接</strong>：像叠罗汉一样上下拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 1, 1],    B = [[2, 2, 2],</span><br><span class="line">     [1, 1, 1]]         [2, 2, 2]]</span><br><span class="line"># 结果形状 (4, 3)</span><br><span class="line">[[1, 1, 1],</span><br><span class="line"> [1, 1, 1],</span><br><span class="line"> [2, 2, 2],</span><br><span class="line"> [2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
-<li><p><strong>沿 <code>axis=1</code> (列) 拼接</strong>：像火车车厢一样左右拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 结果形状 (2, 6)</span><br><span class="line">[[1, 1, 1, 2, 2, 2],</span><br><span class="line"> [1, 1, 1, 2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
-</ul>
-</blockquote>
-<hr />
-<h2 id="python-取整与-z3-约束细节">5️⃣ Python 取整与 Z3 约束细节</h2>
-<h3 id="为何需要-向下取整">为何需要 <code>//</code> (向下取整)？</h3>
-<p>在计算卷积或池化输出尺寸时，公式 <code>(I + 2P - K) / S + 1</code> 很容易算出小数，比如 <code>(10 - 3) / 2 = 3.5</code>。但像素数不可能是小数，我们必须把它变成整数。</p>
-<ul>
-<li><strong><code>/</code> (普通除法)</strong>：<code>7 / 2 = 3.5</code></li>
-<li><strong><code>//</code> (地板除法)</strong>：<code>7 // 2 = 3</code> (直接扔掉小数部分，往小了取)</li>
-</ul>
-<blockquote>
-<p>✨ <strong>核心：</strong> 深度学习里的形状计算，用的都是<strong>向下取整</strong>。所以你在代码里会看到 <code>//</code> 而不是 <code>/</code>。</p>
-</blockquote>
-<h3 id="z3-如何理解取整">Z3 如何理解取整？</h3>
-<p>Z3 的整数除法 <code>/</code> 在处理正数时，行为和 Python 的 <code>//</code> 一模一样。这就是为什么在给 Z3 添加规则时，我们总是先加一条：</p>
-<p><code>solver.add(H_in &gt; 0, K &gt; 0, S &gt; 0, ...)</code></p>
-<blockquote>
-<p>这条规则相当于告诉 Z3：“别去想那些负数或者零的情况，咱们只在正数范围内玩耍。” 这样就保证了 Z3 的数学模型和框架的实际计算结果能对得上。</p>
-</blockquote>
-<h3 id="为何要限制大小-231">为何要限制大小 (<code>&lt; 2**31</code>)？</h3>
-<p>在 <code>ops.py</code> 里，我们还常会加一条 <code>dim &lt; 2**31</code> 的约束。</p>
-<blockquote>
-<p><strong>生活化比喻：</strong> 这就像你让朋友猜一个数字，但你先告诉他：“这个数在 1 到 100 之间”。这会让他猜得更快，而不是天马行空地去想。</p>
-</blockquote>
-<p><strong>主要原因有两个：</strong></p>
-<ol type="1">
-<li><strong>现实限制</strong>：GPU 内存有限，不可能创建一个几百亿维度的张量。<code>2**31-1</code> 是很多框架内部表示维度大小的上限。</li>
-<li><strong>求解效率</strong>：给 Z3 一个明确的范围，可以极大地缩小它的“搜索空间”，让它在几秒钟内就找到答案，而不是花几个小时去尝试那些不切实际的超大数字。</li>
-</ol>
-<hr />
-<h2 id="z3用数学公式反推合法参数">6️⃣ Z3：用数学公式反推合法参数</h2>
-<p><strong>什么是 fuzzing？</strong></p>
-<ul>
-<li>Fuzzing：自动生成大量输入，触达边界与异常路径，用于找 Bug/崩溃/未定义行为。</li>
-<li><p>本项目属于“约束引导 fuzzing”：</p>
-<ul>
-<li>先用 Z3 约束“形状与参数必须合法”；</li>
-<li>再通过多次采样（哈希不等式）获取“多样但合规”的极端组合；</li>
-<li>用这些组合去驱动 Deep Learning/CUDA 路径，观察异常行为与性能拐点。</li>
-</ul></li>
-</ul>
-<p><strong>Z3 是什么？</strong></p>
-<ul>
-<li>Z3 是微软研究院开源的 SMT（Satisfiability Modulo Theories）求解器，能在“命题可满足性”的基础上，处理整数/布尔/数组/位向量等“理论”的联合约束。</li>
-<li>你给出变量与约束（= 公式），它判断是否可满足，并返回一个“模型”（具体赋值）。</li>
-</ul>
-<p>Z3 是一个“约束求解器”。你可以把它想象成一个<strong>超级聪明的数独程序</strong>。</p>
-<blockquote>
-<p><strong>工作流程：</strong></p>
-<ol type="1">
-<li><strong>你提供规则</strong>：比如“这一行数字不能重复”、“这一格必须是 5”。</li>
-<li><strong>它负责寻找答案</strong>：Z3 会自动尝试所有可能性，找出一个或多个满足你所有规则的数字组合。</li>
-</ol>
-</blockquote>
-<p>在我们的场景里，规则就是算子的“形状计算公式”，答案就是一组“合法的张量形状和参数”。</p>
-<h3 id="z3-的基本积木">1. Z3 的基本积木</h3>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> Int, Solver, And, sat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 声明变量：告诉 Z3，这些是我要你帮忙找的未知数</span></span><br><span class="line">H_in = Int(<span class="string">&#x27;H_in&#x27;</span>)  <span class="comment"># 输入高度</span></span><br><span class="line">K = Int(<span class="string">&#x27;K&#x27;</span>)        <span class="comment"># Kernel 大小</span></span><br><span class="line">P = Int(<span class="string">&#x27;P&#x27;</span>)        <span class="comment"># Padding</span></span><br><span class="line">S = Int(<span class="string">&#x27;S&#x27;</span>)        <span class="comment"># Stride</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建一个求解器实例</span></span><br><span class="line">solver = Solver()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加规则 (Constraints)</span></span><br><span class="line">solver.add(H_in &gt; <span class="number">0</span>, K &gt; <span class="number">0</span>, P &gt;= <span class="number">0</span>, S &gt; <span class="number">0</span>)  <span class="comment"># 所有参数必须是正数（Padding可以为0）</span></span><br><span class="line">solver.add(K &lt; H_in)  <span class="comment"># Kernel 不能比输入还大</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 求解并读取结果</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:  <span class="comment"># sat 的意思是 &quot;satisfiable&quot;，即“有解”</span></span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;找到一组解: H_in=<span class="subst">&#123;model[H_in]&#125;</span>, K=<span class="subst">&#123;model[K]&#125;</span>, ...&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;无解！&quot;</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="用公式当规则反推卷积参数">2. 用公式当规则：反推卷积参数</h3>
-<p>现在，我们把卷积的输出公式也加进去当规则：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ...接上文...</span></span><br><span class="line">H_out = Int(<span class="string">&#x27;H_out&#x27;</span>)</span><br><span class="line"><span class="comment"># 已知输出必须是 7</span></span><br><span class="line">solver.add(H_out == <span class="number">7</span>)</span><br><span class="line"><span class="comment"># 把公式加进去</span></span><br><span class="line">solver.add(H_out == (H_in + <span class="number">2</span>*P - K)//S + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次求解</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:</span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="comment"># Z3 会给出一组能让 H_out 等于 7 的 H_in, K, P, S</span></span><br><span class="line">    <span class="built_in">print</span>(model) <span class="comment"># 例如: [K = 3, S = 2, P = 1, H_in = 13, H_out = 7]</span></span><br></pre></td></tr></table></figure>
-<h3 id="如何找到不同的解">3. 如何找到“不同的”解？</h3>
-<p>为了测试更多情况，我们需要 Z3 给出和上次不一样的答案。</p>
-<blockquote>
-<p><strong>方法</strong>：在找到一组解（比如 <code>H_in = 13</code>）之后，往求解器里追加一条新规则：<code>solver.add(H_in != 13)</code>，然后再 <code>solver.check()</code>，它就会去找下一组解了。</p>
-</blockquote>
-<p><strong><code>universal_hash</code> 是做什么的？</strong> 它是一种更高级的“制造不同”的方法。有时只排除一个变量 (<code>H_in != 13</code>)，Z3 给出的新解可能只是其他变量稍微变了一下，不够“多样”。<code>universal_hash</code> 会把所有变量的值都“搅乱”一下，再添加不等约束，这样更容易驱动 Z3 去探索一个全新的、差异更大的解空间。</p>
-<p>在 <code>ops.py</code> 里： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">universal_hash</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">if</span> z3.is_int(x):</span><br><span class="line">        bv = z3.Int2BV(x, <span class="number">32</span>)</span><br><span class="line">        bv = (bv &amp; <span class="number">0xaaaaaaaa</span>) ^ (bv &amp; <span class="number">0x55555555</span>)</span><br><span class="line">        <span class="keyword">return</span> z3.BV2Int(bv, <span class="number">32</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(x, <span class="built_in">int</span>):</span><br><span class="line">        <span class="keyword">return</span> (x &amp; <span class="number">0xaaaaaaaa</span>) ^ (x &amp; <span class="number">0x55555555</span>)</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>对 z3 的 Int 先转 32 位位向量，分别与 <code>0xaaaaaaaa</code>（1010…）和 <code>0x55555555</code>（0101…）做按位与，再异或，最后转回 Int。</li>
-<li>作用：把“具体值”在比特层面打散，得到“哈希指纹”。配合不等式使用： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">solver.add(universal_hash(sym) != universal_hash(interp.as_long()))</span><br><span class="line">solver.add(sym != interp.as_long())</span><br></pre></td></tr></table></figure> 这样比只写 <code>sym != old_value</code> 更容易跳出“局部变化”，采到“差异更大”的新解。</li>
-</ul>
-<h3 id="高级规则-forall处理-concat">4. 高级规则 <code>ForAll</code>：处理 Concat</h3>
-<p>对于 Concat 算子，规则是“除了拼接的那个维度，其他维度的大小都必须一样”。用 <code>ForAll</code> 就能优雅地表达这个规则。</p>
-<blockquote>
-<p><code>ForAll([i], Implies(i != concat_dim, shape_A[i] == shape_B[i]))</code></p>
-<p><strong>翻译成人话就是：</strong> “对于<strong>所有的</strong>维度 <code>i</code>，<strong>如果</strong> <code>i</code> 不是我们正在拼接的那个维度，<strong>那么</strong> <code>shape_A</code> 在 <code>i</code> 上的大小必须等于 <code>shape_B</code> 在 <code>i</code> 上的大小。”</p>
-</blockquote>
-<p><strong>ops.py 中 Z3 的具体应用</strong></p>
-<ul>
-<li><p>抽象层次：</p>
-<ul>
-<li><code>AbsCommonNN</code> 为卷积/池化等建立符号：<code>insize/outsize/kernelsize/stride/padding/dilation</code>；</li>
-<li>依算子写出尺寸公式并 <code>solver.add(...)</code>。</li>
-</ul></li>
-<li><p>典型公式：</p>
-<ul>
-<li>卷积：<code>OUT == (IN + 2*P - D*(K-1) - 1) / S + 1</code>；</li>
-<li>池化（Avg/Max）：<code>OUT == (IN + 2*P - K) / S + 1</code>；</li>
-<li>Concat：用 <code>ForAll(i, Implies(i!=dim, A[i]==B[i]))</code> 表达“除拼接维外全等”。</li>
-</ul></li>
-<li><p>多解采样：</p>
-<ul>
-<li>在 <code>materialize()</code> 内循环 <code>check → model → yield</code>；</li>
-<li>用 <code>_sol_sample()</code> 给随机选取的符号追加： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">solver.add(universal_hash(sym) != universal_hash(interp.as_long()))</span><br><span class="line">solver.add(sym != interp.as_long())</span><br></pre></td></tr></table></figure></li>
-<li>从而持续产出“不同解”（生成器 <code>yield</code> 多轮）。</li>
-</ul></li>
-<li><p>工程护栏：</p>
-<ul>
-<li>约束 <code>&gt;0</code>、<code>&lt;2**31</code>、可按需启用显存元素上限（<code>ELEM_LIMIT</code>）以控规模；</li>
-<li><code>Solver().set(timeout=...)</code> 防卡死；</li>
-<li>求解后将 z3 模型映射到各框架参数，动态构造 <code>Conv/Pool/...</code> 层进行实测。</li>
-</ul></li>
-</ul>
-<hr />
-<h2 id="三大框架参数映射同一功能不同叫法">7️⃣ 三大框架参数映射：同一功能，不同叫法</h2>
-<p>PyTorch, PaddlePaddle, TensorFlow (Keras) 是三个最主流的深度学习框架。它们都有卷积、池化这些功能，但就像不同地方的方言，它们给这些功能的参数起了不同的名字。</p>
-<h3 id="核心参数方言对照表">核心参数“方言”对照表</h3>
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">通用概念</th>
-<th style="text-align: left;">PyTorch</th>
-<th style="text-align: left;">PaddlePaddle</th>
-<th style="text-align: left;">TensorFlow (Keras)</th>
-<th style="text-align: left;">🗣️ 备注</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">输入通道数</td>
-<td style="text-align: left;"><code>in_channels</code></td>
-<td style="text-align: left;"><code>in_channels</code></td>
-<td style="text-align: left;">(自动推断)</td>
-<td style="text-align: left;">Keras 根据输入形状自动识别</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">输出通道数</td>
-<td style="text-align: left;"><code>out_channels</code></td>
-<td style="text-align: left;"><code>out_channels</code></td>
-<td style="text-align: left;"><code>filters</code></td>
-<td style="text-align: left;">TF 叫“滤波器数量”</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">卷积核大小</td>
-<td style="text-align: left;"><code>kernel_size</code></td>
-<td style="text-align: left;"><code>kernel_size</code></td>
-<td style="text-align: left;"><code>kernel_size</code></td>
-<td style="text-align: left;">这个大家都一样</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">步长</td>
-<td style="text-align: left;"><code>stride</code></td>
-<td style="text-align: left;"><code>stride</code></td>
-<td style="text-align: left;"><code>strides</code></td>
-<td style="text-align: left;">TF 喜欢用复数形式</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">填充</td>
-<td style="text-align: left;"><code>padding</code> (int)</td>
-<td style="text-align: left;"><code>padding</code> (int/str)</td>
-<td style="text-align: left;"><code>padding</code> (str)</td>
-<td style="text-align: left;"><strong>这个坑最多！</strong> (见下文)</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">空洞卷积</td>
-<td style="text-align: left;"><code>dilation</code></td>
-<td style="text-align: left;"><code>dilation</code></td>
-<td style="text-align: left;"><code>dilation_rate</code></td>
-<td style="text-align: left;">TF 叫“空洞率”</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">分组卷积</td>
-<td style="text-align: left;"><code>groups</code></td>
-<td style="text-align: left;"><code>groups</code></td>
-<td style="text-align: left;"><code>groups</code></td>
-<td style="text-align: left;">基本一致</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">数据格式</td>
-<td style="text-align: left;">(默认 NCHW)</td>
-<td style="text-align: left;">(默认 NCHW)</td>
-<td style="text-align: left;">(默认 NHWC)</td>
-<td style="text-align: left;"><strong>TF/Keras 默认通道在后！</strong></td>
-</tr>
-</tbody>
-</table>
-<h3 id="关键差异与代码示例">关键差异与代码示例</h3>
-<h4 id="padding-的大坑">1. Padding 的大坑</h4>
-<ul>
-<li><strong>PyTorch/Paddle</strong>：<code>padding=1</code> 表示在图片四周都填充 1 圈 0。</li>
-<li><strong>TensorFlow/Keras</strong>：<code>padding</code> 只能是字符串 <code>'valid'</code> (不填充) 或 <code>'same'</code> (自动计算填充，让输出和输入尺寸差不多)。如果你想精确控制填充几圈，必须<strong>单独用一个 <code>ZeroPadding2D</code> 层</strong>。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># PyTorch: 一步到位</span></span><br><span class="line">conv_torch = torch.nn.Conv2d(in_channels=<span class="number">3</span>, out_channels=<span class="number">16</span>, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># TensorFlow/Keras: 两步走</span></span><br><span class="line">model_tf = tf.keras.Sequential([</span><br><span class="line">    tf.keras.layers.ZeroPadding2D(padding=<span class="number">1</span>),</span><br><span class="line">    tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>)</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
-<h4 id="数据格式-data_format">2. 数据格式 <code>data_format</code></h4>
-<p>因为 PyTorch/Paddle 默认 <code>NCHW</code> (channels-first)，而 Keras 默认 <code>NHWC</code> (channels-last)，跨框架复现代码时，一定要在 Keras 层里加上 <code>data_format='channels_first'</code> 来保持统一！</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Keras 里保持和 PyTorch 一样的 NCHW 格式</span></span><br><span class="line">conv_keras = tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>, data_format=<span class="string">&#x27;channels_first&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="特殊算子支持情况">特殊算子支持情况</h3>
-<ul>
-<li><strong>转置卷积</strong>：TF/Keras 的 <code>Conv2DTranspose</code> 不支持 <code>groups</code> 参数。</li>
-<li><strong>某些算子</strong>：有些高级或不常用的算子，可能只有一个或两个框架支持。</li>
-</ul>
-<blockquote>
-<p>省流：写代码前，先查一下目标框架的官方文档，看好参数名叫什么、支持哪些功能。尤其是 <strong>Padding 和 data_format</strong>，是新手最容易踩的两个坑。</p>
-</blockquote>
-<hr />
-<h2 id="小结">📝 小结</h2>
-<ul>
-<li>布局先行：牢记 <code>NCHW</code> / <code>NCDHW</code> 与各维意义。<br />
-</li>
-<li>掌握卷积/池化公式，<strong>一眼能推形状</strong>。<br />
-</li>
-<li><code>//</code> 取整配合 “&gt;0” 约束，确保 SMT 结果一致。<br />
-</li>
-<li>参数映射时注意三框架差异，踩坑前先看文档。</li>
-</ul>
-<blockquote>
-<p>省流：<strong>布局→公式→约束→映射</strong> 四步打通，你的 Tensor 基础就算扎牢啦 📐✨</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>深度学习</category>
-        <category>计算机基础</category>
-      </categories>
-      <tags>
-        <tag>深度学习</tag>
-        <tag>张量</tag>
-        <tag>形状推导</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>终端与Shell：从入门到看懂，一篇就够</title>
     <url>/posts/82543a5f/</url>
     <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
@@ -5273,222 +4861,10 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </categories>
       <tags>
         <tag>Linux</tag>
+        <tag>Windows</tag>
         <tag>Terminal</tag>
         <tag>Shell</tag>
-        <tag>Windows</tag>
         <tag>macOS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Clash 与网络代理详解</title>
-    <url>/posts/755f751e/</url>
-    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
-<span id="more"></span>
-<h3 id="基本概念速读">📚 基本概念速读</h3>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>定义</th>
-<th>省流</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>VPN</strong></td>
-<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
-<td>秘密隧道</td>
-</tr>
-<tr class="even">
-<td><strong>Proxy</strong></td>
-<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
-<td>传话筒</td>
-</tr>
-<tr class="odd">
-<td><strong>Clash</strong></td>
-<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
-<td>智能调度员</td>
-</tr>
-<tr class="even">
-<td><strong>Rule</strong></td>
-<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
-<td>分流路牌</td>
-</tr>
-<tr class="odd">
-<td><strong>TUN</strong></td>
-<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
-<td>虚拟网卡</td>
-</tr>
-<tr class="even">
-<td><strong>Mixin</strong></td>
-<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
-<td>补丁包</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th>特性</th>
-<th>VPN</th>
-<th>代理 (Proxy)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>工作层级</strong></td>
-<td>操作系统层 (OSI L3 网络层)</td>
-<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
-</tr>
-<tr class="even">
-<td><strong>接管范围</strong></td>
-<td>全局接管（通常），所有软件流量都走隧道</td>
-<td>仅接管支持代理设置的软件 (如浏览器)</td>
-</tr>
-<tr class="odd">
-<td><strong>加密程度</strong></td>
-<td>全程加密，强调安全性</td>
-<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
-</tr>
-<tr class="even">
-<td><strong>灵活性</strong></td>
-<td>较差，通常“全走”或“全不走”</td>
-<td>极高，可按域名/进程分流</td>
-</tr>
-<tr class="odd">
-<td><strong>典型协议</strong></td>
-<td>WireGuard, OpenVPN, IPSec</td>
-<td>HTTP, Socks5, Shadowsocks, VMess</td>
-</tr>
-</tbody>
-</table>
-</blockquote>
-<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
-<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
-<h4 id="global-全局模式">1. Global 全局模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
-<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
-<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
-</ul>
-<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
-<ul>
-<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
-<li><strong>流程</strong>：
-<ol type="1">
-<li>拦截请求。</li>
-<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
-<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
-</ol></li>
-<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
-</ul>
-<h4 id="direct-直连模式">3. Direct 直连模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
-<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
-</ul>
-<h4 id="script-脚本模式">4. Script 脚本模式</h4>
-<ul>
-<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
-<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
-</ul>
-<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
-<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
-<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
-<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
-<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
-<pre>
-<code class="mermaid">
-
-graph TD;
-    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
-    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
-    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
-    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
-    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
-</code>
-</pre>
-<ol type="1">
-<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
-<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
-<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
-<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
-</ol>
-<blockquote>
-<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
-</blockquote>
-<blockquote>
-<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
-<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
-<ul>
-<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
-<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
-</ul>
-<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
-</blockquote>
-<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
-<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
-<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
-<ul>
-<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
-<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
-<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
-<li><strong>主要作用</strong>：
-<ol type="1">
-<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
-<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
-<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
-</ol></li>
-</ul>
-<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
-<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
-<h4 id="核心结构">核心结构</h4>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
-<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
-<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
-<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
-<ul>
-<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
-<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
-<li><strong>用途</strong>：
-<ul>
-<li>强制开启 TUN 模式。</li>
-<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
-<li>添加个人的局域网 IP 直连规则。</li>
-</ul></li>
-</ul>
-<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
-</blockquote>
-<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
-<ol type="1">
-<li><strong>“开了全局模式就是最安全的”</strong>
-<ul>
-<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
-</ul></li>
-<li><strong>“Ping 值低网速就快”</strong>
-<ul>
-<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
-</ul></li>
-<li><strong>“TUN 模式会影响打游戏吗？”</strong>
-<ul>
-<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
-</ul></li>
-<li><strong>Clash 是 VPN 吗？</strong>
-<ul>
-<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
-<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
-</ul></li>
-</ol>
-]]></content>
-      <tags>
-        <tag>Clash</tag>
-        <tag>Network</tag>
-        <tag>VPN</tag>
       </tags>
   </entry>
   <entry>
@@ -6178,6 +5554,669 @@ graph TD;
         <tag>Linux</tag>
         <tag>操作系统</tag>
         <tag>内核</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Tensor 基础：布局、算子与形状推导</title>
+    <url>/posts/f1e2d3c4/</url>
+    <content><![CDATA[<p>想看懂卷积、池化公式却老被 <code>NCHW</code>、<code>stride</code> 搞糊涂？本文聚焦 <strong>张量布局 → 常见算子 → 形状计算公式</strong>，用一篇梳理基础概念。</p>
+<span id="more"></span>
+<h3 id="术语算子operator是什么">术语：算子（Operator）是什么？</h3>
+<ul>
+<li><strong>定义</strong>：在计算图中对张量进行某种变换的“最小计算单元”，如加法、卷积、矩阵乘。深度学习框架把算子拼成计算图并自动求导。</li>
+<li><strong>省流</strong>：算子=“对张量做事”的函数积木；模型=“很多算子按顺序和拓扑连起来”。</li>
+</ul>
+<h3 id="常见算子速览按功能分组">常见算子速览（按功能分组）</h3>
+<ul>
+<li><strong>形状与索引</strong>：<code>Reshape</code>/<code>View</code>、<code>Squeeze</code>/<code>Unsqueeze</code>、<code>Transpose</code>/<code>Permute</code>、<code>Concat</code>、<code>Split</code>/<code>Slice</code>、<code>Gather</code>/<code>Scatter</code>、<code>Repeat</code>/<code>Tile</code>、<code>Broadcast</code></li>
+<li><strong>逐元素与激活</strong>：<code>Add</code>/<code>Sub</code>/<code>Mul</code>/<code>Div</code>、<code>Pow</code>、<code>Clamp</code>、<code>Abs</code>、<code>Exp</code>/<code>Log</code>、<code>ReLU</code>/<code>LeakyReLU</code>/<code>GELU</code>/<code>Sigmoid</code>/<code>Tanh</code>/<code>Softplus</code>/<code>Swish</code></li>
+<li><strong>归约（Reduction）</strong>：<code>Sum</code>/<code>Mean</code>/<code>Max</code>/<code>Min</code>、<code>Argmax</code>/<code>Argmin</code>、<code>Prod</code>、<code>Norm</code>（<code>L1</code>/<code>L2</code>）</li>
+<li><strong>线性代数</strong>：<code>MatMul</code>/<code>GEMM</code>、<code>BatchMatMul</code>（<code>BMM</code>）、<code>Linear</code>（全连接）、<code>einsum</code></li>
+<li><strong>卷积族</strong>：<code>Conv1d/2d/3d</code>、<code>Depthwise</code>/<code>Grouped</code>、<code>Dilated</code>（空洞）、<code>Transposed Conv</code>（反卷积）、<code>Separable Conv</code></li>
+<li><strong>池化</strong>：<code>Max</code>/<code>Avg</code>/<code>Global</code>/<code>Adaptive Pool</code>（<code>1d</code>/<code>2d</code>/<code>3d</code>）</li>
+<li><strong>归一化与正则</strong>：<code>BatchNorm</code>/<code>LayerNorm</code>/<code>GroupNorm</code>/<code>InstanceNorm</code>、<code>Dropout</code></li>
+<li><strong>插值与采样</strong>：<code>Interpolate</code>/<code>Upsample</code>（<code>nearest</code>/<code>bilinear</code>）、<code>GridSample</code>、<code>Pad</code>（<code>Zero</code>/<code>Reflect</code>/<code>Replicate</code>）</li>
+<li><strong>概率与损失</strong>：<code>Softmax</code>/<code>LogSoftmax</code>、<code>CrossEntropy</code>、<code>MSE</code>/<code>MAE</code>、<code>NLL</code>、<code>KLDiv</code>、<code>Focal Loss</code></li>
+<li><strong>嵌入与稀疏</strong>：<code>Embedding</code>/<code>EmbeddingBag</code>、<code>Sparse MatMul</code></li>
+<li><strong>频域与信号</strong>：<code>FFT</code>/<code>iFFT</code>、<code>STFT</code>、<code>Conv1d</code> 信号处理</li>
+</ul>
+<hr />
+<h2 id="张量与布局从数字到多维数组">1️⃣ 张量与布局：从数字到多维数组</h2>
+<h3 id="什么是张量-tensor">什么是张量 (Tensor)？</h3>
+<p>想象一下：</p>
+<ul>
+<li><strong>0D 张量 (标量)</strong>：一个孤零零的数字，比如 <code>5</code>。</li>
+<li><p><strong>1D 张量 (向量)</strong>：一排数字，像 Python 列表 <code>[1, 2, 3, 4]</code>。</p>
+<blockquote>
+<p><strong>等等，Python 列表哪来的 <code>shape</code> 和 <code>dtype</code>？</strong><br />
+好问题！Python 列表本身没有。我们说的张量，其实是深度学习框架（如 PyTorch）里的一个特殊对象。框架会“接收”你的 Python 列表，然后把它“包装”成一个真正的张量。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 这是一个普通的 Python 列表</span></span><br><span class="line">data = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. PyTorch 把它包装成一个 Tensor 对象</span></span><br><span class="line">tensor_1d = torch.tensor(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 现在，这个对象就有 shape 和 dtype 属性了</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.shape)  <span class="comment"># 输出: torch.Size([4])，表示这是一个长度为4的1D张量</span></span><br><span class="line"><span class="built_in">print</span>(tensor_1d.dtype)  <span class="comment"># 输出: torch.int64，框架自动推断出是整数类型</span></span><br></pre></td></tr></table></figure>
+<p>✨ 所以，张量是“<strong>数据 + 描述信息（形状、类型）</strong>”的组合体。</p>
+</blockquote></li>
+<li><strong>2D 张量 (矩阵)</strong>：一个表格，有行有列，像 Excel 工作表。</li>
+<li><strong>3D 张量</strong>：一沓叠起来的表格，比如一张彩色图片（高 × 宽 × 3个颜色通道）。</li>
+<li><p><strong>4D 张量</strong>：一堆 3D 张量，比如 <strong>一批</strong> 彩色图片。</p></li>
+</ul>
+<blockquote>
+<p>✨ <strong>一句话：</strong> 张量就是“多维数组”，用来装深度学习模型处理的数据。每个张量都有两个核心属性：</p>
+<ul>
+<li><strong><code>shape</code> (形状)</strong>：一个元组，告诉你每个维度有多大。例如 <code>(64, 3, 224, 224)</code>。</li>
+<li><strong><code>dtype</code> (数据类型)</strong>：说明里面存的是什么类型的数，比如 <code>float32</code> (小数) 或 <code>int8</code> (整数)。</li>
+</ul>
+</blockquote>
+<h3 id="为何需要-nchw-这种布局">为何需要 NCHW 这种布局？</h3>
+<p>处理图片时，我们需要用一种标准方式来组织数据。<code>NCHW</code> 就是最流行的一种“打包格式”。</p>
+<table>
+<thead>
+<tr class="header">
+<th>字母</th>
+<th>含义</th>
+<th>🌰 举例：一张 <code>(3, 224, 224)</code> 的 RGB 图片</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>N</strong></td>
+<td><strong>Number / Batch</strong> (数量)</td>
+<td>一次处理 64 张图片，<code>N=64</code></td>
+</tr>
+<tr class="even">
+<td><strong>C</strong></td>
+<td><strong>Channel</strong> (通道)</td>
+<td>红/绿/蓝 3 个通道, <code>C=3</code></td>
+</tr>
+<tr class="odd">
+<td><strong>H</strong></td>
+<td><strong>Height</strong> (高度)</td>
+<td>图片高 224 像素, <code>H=224</code></td>
+</tr>
+<tr class="even">
+<td><strong>W</strong></td>
+<td><strong>Width</strong> (宽度)</td>
+<td>图片宽 224 像素, <code>W=224</code></td>
+</tr>
+</tbody>
+</table>
+<p>所以，一个 <code>(64, 3, 224, 224)</code> 的张量，意思就是“<strong>64 张、3 通道、224×224 大小的图片</strong>”。</p>
+<h3 id="nchw-vs-nhwc有啥区别">NCHW vs NHWC：有啥区别？</h3>
+<ul>
+<li><strong><code>NCHW</code> (channels_first)</strong>：<code>(N, C, H, W)</code>
+<ul>
+<li><strong>GPU 友好</strong>：CUDA/cuDNN 库针对这种布局做了优化，相邻通道的数据在内存里更连续，访问快。</li>
+<li>PyTorch/Paddle 默认。</li>
+</ul></li>
+<li><strong><code>NHWC</code> (channels_last)</strong>：<code>(N, H, W, C)</code>
+<ul>
+<li><strong>CPU/TPU 友好</strong>：某些硬件访存模式更适合通道在最后。</li>
+<li>TensorFlow 默认。</li>
+</ul></li>
+</ul>
+<blockquote>
+<p>省流：搞不清就用 <code>NCHW</code>，它是 GPU 上的“高速公路”。代码里看到 <code>permute(0, 2, 3, 1)</code> 就是在做 <code>NCHW</code> → <code>NHWC</code> 的切换。</p>
+</blockquote>
+<hr />
+<h2 id="卷积-convolution像用滤镜提取特征">2️⃣ 卷积 (Convolution)：像用“滤镜”提取特征</h2>
+<p>想象一下你给照片加滤镜（比如“锐化”或“模糊”），卷积做的就是类似的事情。它用一个小的“<strong>滤镜</strong>”（称为 <strong>Kernel</strong> 或卷积核），在输入图片上一点点地滑动，计算出每个区域的特征值，最后汇集成一张新的“特征图”。</p>
+<h3 id="卷积的五个关键参数">卷积的五个关键参数</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">符号</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">🌰 生活化比喻</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">输入尺寸</td>
+<td style="text-align: left;"><code>I</code></td>
+<td style="text-align: left;">图片的宽或高</td>
+<td style="text-align: left;">一块 10x10 的大巧克力</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Kernel</td>
+<td style="text-align: left;"><code>K</code></td>
+<td style="text-align: left;">滤镜/卷积核的大小</td>
+<td style="text-align: left;">一个 3x3 的饼干模具</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Padding</td>
+<td style="text-align: left;"><code>P</code></td>
+<td style="text-align: left;">在图片边缘填充几圈0</td>
+<td style="text-align: left;">在巧克力周围加一圈奶油，防止模具出界</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Stride</td>
+<td style="text-align: left;"><code>S</code></td>
+<td style="text-align: left;">滤镜每次滑动的步长</td>
+<td style="text-align: left;">模具每次向右/下移动几格</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dilation</td>
+<td style="text-align: left;"><code>D</code></td>
+<td style="text-align: left;">Kernel内部元素的间距</td>
+<td style="text-align: left;">模具上的图案本身有多稀疏</td>
+</tr>
+</tbody>
+</table>
+<h3 id="正向卷积-forward-conv">正向卷积 (Forward Conv)</h3>
+<p>这是最常见的卷积，用来<strong>缩小</strong>特征图，<strong>提取</strong>特征。</p>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - D·(K-1) - 1) / S⌋ + 1</code></p>
+</blockquote>
+<p><strong>公式拆解：</strong></p>
+<ol type="1">
+<li><code>D·(K-1) + 1</code>：这是考虑了空洞（Dilation）之后，卷积核覆盖的实际范围。如果 <code>D=1</code>，它就等于 <code>K</code>。</li>
+<li><code>I + 2P</code>：这是输入图片在两边都加上了 <code>P</code> 圈“奶油”之后的总宽度。</li>
+<li><code>(I + 2P) - (D·(K-1) + 1)</code>：这是模具可以在奶油巧克力上滑动的“总距离”。</li>
+<li>除以 <code>S</code> 再 <code>+1</code>：计算在这个总距离上，以 <code>S</code> 为步长，总共能挪动几步（结果向下取整）。</li>
+</ol>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 输入 <code>I=5</code>, Kernel <code>K=3</code>, Padding <code>P=1</code>, Stride <code>S=2</code>, Dilation <code>D=1</code>。 - 加上 padding 后的总宽度是 <code>5 + 2*1 = 7</code>。 - Kernel 覆盖范围是 <code>1*(3-1)+1 = 3</code>。 - 滑动总距离是 <code>7 - 3 = 4</code>。 - 能滑几步？<code>4 / 2 = 2</code> 步。 - 总共能摆放几次？<code>2 + 1 = 3</code> 次。所以输出 <code>OUT=3</code>。</p>
+</blockquote>
+<h3 id="转置卷积-transposed-conv">转置卷积 (Transposed Conv)</h3>
+<p>也叫“反卷积”，但这个名字不准确。它的作用和正向卷积相反，常用来<strong>放大</strong>特征图（上采样）。</p>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = (I - 1)·S - 2P + D·(K-1) + 1</code></p>
+<p>把它想象成“从特征图反推原图尺寸”的过程，或者“用一个画笔（Kernel）在小画布上画，画出一个大图”。公式的每一项都是正向卷积的“逆运算”。</p>
+</blockquote>
+<hr />
+<h2 id="池化-pooling给特征图瘦身减负">3️⃣ 池化 (Pooling)：给特征图“瘦身减负”</h2>
+<p>如果说卷积是“精加工提取特征”，那么池化就是“<strong>粗加工，信息压缩</strong>”。它同样用一个小窗口在图上滑动，但计算规则更简单：只取窗口内的最大值（Max Pooling）或平均值（Average Pooling）。</p>
+<p><strong>为什么需要池化？</strong></p>
+<ol type="1">
+<li><strong>降低计算量</strong>：特征图变小了，后续计算更快。</li>
+<li><strong>防止过拟合</strong>：保留最主要的特征，丢掉一些不重要的细节。</li>
+<li><strong>增加感受野</strong>：让后面的卷积能看到更大范围的原始信息。</li>
+</ol>
+<h3 id="max-avg-pooling">Max / Avg Pooling</h3>
+<blockquote>
+<p><strong>公式</strong>：<code>OUT = ⌊(I + 2P - K) / S⌋ + 1</code></p>
+<p>（和卷积公式一样，只是没有 Dilation）</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：Max Pooling</strong> 假设有一个 4x4 的输入，用一个 2x2 的窗口、步长为 2 来做最大池化： <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">输入:             窗口1: [[1, 2],    窗口2: [[3, 4],</span><br><span class="line">[[1, 2, 3, 4],     [5, 6]] → max=6        [7, 8]] → max=8</span><br><span class="line"> [5, 6, 7, 8],</span><br><span class="line"> [9, 1, 2, 3],    窗口3: [[9, 1],    窗口4: [[2, 3],</span><br><span class="line"> [4, 5, 6, 7]]     [4, 5]] → max=9        [6, 7]] → max=7</span><br><span class="line"></span><br><span class="line">输出 (2x2):</span><br><span class="line">[[6, 8],</span><br><span class="line"> [9, 7]]</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="自适应池化-adaptive-pooling">自适应池化 (Adaptive Pooling)</h3>
+<p>这是个“懒人”池化。你<strong>不需要关心 K、P、S 是多少</strong>，直接告诉它你想要多大的输出就行了。</p>
+<blockquote>
+<p><strong>用法</strong>：<code>AdaptiveMaxPool2d(output_size=7)</code></p>
+<p>框架会自动计算出合适的 K 和 S，把任意大小的输入都变成 <code>7x7</code>。这在连接卷积层和全连接层时特别有用。</p>
+</blockquote>
+<hr />
+<h2 id="二元-矩阵算子形状规则">4️⃣ 二元 / 矩阵算子形状规则</h2>
+<h3 id="逐元素-element-wise-运算加减乘除">1. 逐元素 (Element-wise) 运算：加减乘除</h3>
+<p>这是最简单的运算，就像小学数学题，把两个形状完全一样的表格，对应位置的数字做加减法。</p>
+<blockquote>
+<p><strong>规则</strong>：两个张量的形状必须完全一样。</p>
+<p>🌰 <strong>示例：</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2],    B = [[5, 6],    A + B = [[1+5, 2+6],</span><br><span class="line">     [3, 4]]         [7, 8]]             [3+7, 4+8]]</span><br><span class="line"></span><br><span class="line"># 结果: [[6, 8], [10, 12]]</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p><strong>✨ 进阶：广播 (Broadcasting)</strong></p>
+<p>如果两个张量形状<strong>不完全一样</strong>，但又“兼容”，框架会自动“扩展”那个小一点的张量，让它们能够运算。这个过程就叫广播。</p>
+<blockquote>
+<p>🌰 <strong>示例：给矩阵的每一行都加上一个向量</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 2, 3],    B = [10, 20, 30]</span><br><span class="line">     [4, 5, 6]]</span><br><span class="line"></span><br><span class="line"># 框架会自动把 B “复制”成两行，变成 [[10, 20, 30], [10, 20, 30]]</span><br><span class="line"># 然后再和 A 做逐元素相加。</span><br><span class="line">A + B = [[11, 22, 33],</span><br><span class="line">         [14, 25, 36]]</span><br></pre></td></tr></table></figure> 广播非常强大，能省去很多手动的 <code>for</code> 循环。</p>
+</blockquote>
+<h3 id="矩阵乘法-matmul-bmm">2. 矩阵乘法 (MatMul / BMM)</h3>
+<p>矩阵乘法不是对应位置相乘，规则要特殊一些。</p>
+<blockquote>
+<p><strong>规则</strong>：对于 <code>A @ B</code> (在 Python 里 <code>@</code> 是矩阵乘法的运算符)，A 的 <strong>列数</strong> 必须等于 B 的 <strong>行数</strong>。 - <code>A (n, m)</code> @ <code>B (m, p)</code> → <code>C (n, p)</code></p>
+<p>把它想象成“配对消除”：中间的 <code>m</code> 维配对后消失，剩下两头的 <code>n</code> 和 <code>p</code> 组成新形状。</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 一个 <code>(2, 3)</code> 矩阵乘以一个 <code>(3, 4)</code> 矩阵：</p>
+<ul>
+<li><code>A</code> 有 2 行 3 列</li>
+<li><code>B</code> 有 3 行 4 列</li>
+<li>A 的列数 (3) == B 的行数 (3)，可以相乘！</li>
+<li>结果 <code>C</code> 的形状是 <code>(2, 4)</code>。</li>
+</ul>
+</blockquote>
+<p><strong>✨ 进阶：批量矩阵乘法 (BMM - Batched Matrix Multiplication)</strong></p>
+<p>如果想一次性做好几组独立的矩阵乘法，就可以用 BMM。</p>
+<blockquote>
+<p><strong>规则</strong>：<code>A (b, n, m)</code> @ <code>B (b, m, p)</code> → <code>C (b, n, p)</code></p>
+<p><code>b</code> 是 <code>batch_size</code>，代表有多少组。除了 <code>b</code> 必须相等，每一组内的 <code>n, m, p</code> 规则和普通矩阵乘法一样。</p>
+</blockquote>
+<h3 id="拼接-concatenation">3. 拼接 (Concatenation)</h3>
+<p>拼接就是把几个张量“粘”在一起，变成一个更大的张量。</p>
+<blockquote>
+<p><strong>规则</strong>：除了你要拼接的那个维度（<code>axis</code> 或 <code>dim</code>），其他所有维度的大小都必须完全一致。</p>
+</blockquote>
+<blockquote>
+<p>🌰 <strong>示例：</strong> 两个形状为 <code>(2, 3)</code> 的张量 <code>A</code> 和 <code>B</code>。</p>
+<ul>
+<li><p><strong>沿 <code>axis=0</code> (行) 拼接</strong>：像叠罗汉一样上下拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">A = [[1, 1, 1],    B = [[2, 2, 2],</span><br><span class="line">     [1, 1, 1]]         [2, 2, 2]]</span><br><span class="line"># 结果形状 (4, 3)</span><br><span class="line">[[1, 1, 1],</span><br><span class="line"> [1, 1, 1],</span><br><span class="line"> [2, 2, 2],</span><br><span class="line"> [2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
+<li><p><strong>沿 <code>axis=1</code> (列) 拼接</strong>：像火车车厢一样左右拼接。 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 结果形状 (2, 6)</span><br><span class="line">[[1, 1, 1, 2, 2, 2],</span><br><span class="line"> [1, 1, 1, 2, 2, 2]]</span><br></pre></td></tr></table></figure></p></li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="python-取整与-z3-约束细节">5️⃣ Python 取整与 Z3 约束细节</h2>
+<h3 id="为何需要-向下取整">为何需要 <code>//</code> (向下取整)？</h3>
+<p>在计算卷积或池化输出尺寸时，公式 <code>(I + 2P - K) / S + 1</code> 很容易算出小数，比如 <code>(10 - 3) / 2 = 3.5</code>。但像素数不可能是小数，我们必须把它变成整数。</p>
+<ul>
+<li><strong><code>/</code> (普通除法)</strong>：<code>7 / 2 = 3.5</code></li>
+<li><strong><code>//</code> (地板除法)</strong>：<code>7 // 2 = 3</code> (直接扔掉小数部分，往小了取)</li>
+</ul>
+<blockquote>
+<p>✨ <strong>核心：</strong> 深度学习里的形状计算，用的都是<strong>向下取整</strong>。所以你在代码里会看到 <code>//</code> 而不是 <code>/</code>。</p>
+</blockquote>
+<h3 id="z3-如何理解取整">Z3 如何理解取整？</h3>
+<p>Z3 的整数除法 <code>/</code> 在处理正数时，行为和 Python 的 <code>//</code> 一模一样。这就是为什么在给 Z3 添加规则时，我们总是先加一条：</p>
+<p><code>solver.add(H_in &gt; 0, K &gt; 0, S &gt; 0, ...)</code></p>
+<blockquote>
+<p>这条规则相当于告诉 Z3：“别去想那些负数或者零的情况，咱们只在正数范围内玩耍。” 这样就保证了 Z3 的数学模型和框架的实际计算结果能对得上。</p>
+</blockquote>
+<h3 id="为何要限制大小-231">为何要限制大小 (<code>&lt; 2**31</code>)？</h3>
+<p>在 <code>ops.py</code> 里，我们还常会加一条 <code>dim &lt; 2**31</code> 的约束。</p>
+<blockquote>
+<p><strong>生活化比喻：</strong> 这就像你让朋友猜一个数字，但你先告诉他：“这个数在 1 到 100 之间”。这会让他猜得更快，而不是天马行空地去想。</p>
+</blockquote>
+<p><strong>主要原因有两个：</strong></p>
+<ol type="1">
+<li><strong>现实限制</strong>：GPU 内存有限，不可能创建一个几百亿维度的张量。<code>2**31-1</code> 是很多框架内部表示维度大小的上限。</li>
+<li><strong>求解效率</strong>：给 Z3 一个明确的范围，可以极大地缩小它的“搜索空间”，让它在几秒钟内就找到答案，而不是花几个小时去尝试那些不切实际的超大数字。</li>
+</ol>
+<hr />
+<h2 id="z3用数学公式反推合法参数">6️⃣ Z3：用数学公式反推合法参数</h2>
+<p><strong>什么是 fuzzing？</strong></p>
+<ul>
+<li>Fuzzing：自动生成大量输入，触达边界与异常路径，用于找 Bug/崩溃/未定义行为。</li>
+<li><p>本项目属于“约束引导 fuzzing”：</p>
+<ul>
+<li>先用 Z3 约束“形状与参数必须合法”；</li>
+<li>再通过多次采样（哈希不等式）获取“多样但合规”的极端组合；</li>
+<li>用这些组合去驱动 Deep Learning/CUDA 路径，观察异常行为与性能拐点。</li>
+</ul></li>
+</ul>
+<p><strong>Z3 是什么？</strong></p>
+<ul>
+<li>Z3 是微软研究院开源的 SMT（Satisfiability Modulo Theories）求解器，能在“命题可满足性”的基础上，处理整数/布尔/数组/位向量等“理论”的联合约束。</li>
+<li>你给出变量与约束（= 公式），它判断是否可满足，并返回一个“模型”（具体赋值）。</li>
+</ul>
+<p>Z3 是一个“约束求解器”。你可以把它想象成一个<strong>超级聪明的数独程序</strong>。</p>
+<blockquote>
+<p><strong>工作流程：</strong></p>
+<ol type="1">
+<li><strong>你提供规则</strong>：比如“这一行数字不能重复”、“这一格必须是 5”。</li>
+<li><strong>它负责寻找答案</strong>：Z3 会自动尝试所有可能性，找出一个或多个满足你所有规则的数字组合。</li>
+</ol>
+</blockquote>
+<p>在我们的场景里，规则就是算子的“形状计算公式”，答案就是一组“合法的张量形状和参数”。</p>
+<h3 id="z3-的基本积木">1. Z3 的基本积木</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> z3 <span class="keyword">import</span> Int, Solver, And, sat</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 声明变量：告诉 Z3，这些是我要你帮忙找的未知数</span></span><br><span class="line">H_in = Int(<span class="string">&#x27;H_in&#x27;</span>)  <span class="comment"># 输入高度</span></span><br><span class="line">K = Int(<span class="string">&#x27;K&#x27;</span>)        <span class="comment"># Kernel 大小</span></span><br><span class="line">P = Int(<span class="string">&#x27;P&#x27;</span>)        <span class="comment"># Padding</span></span><br><span class="line">S = Int(<span class="string">&#x27;S&#x27;</span>)        <span class="comment"># Stride</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建一个求解器实例</span></span><br><span class="line">solver = Solver()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 添加规则 (Constraints)</span></span><br><span class="line">solver.add(H_in &gt; <span class="number">0</span>, K &gt; <span class="number">0</span>, P &gt;= <span class="number">0</span>, S &gt; <span class="number">0</span>)  <span class="comment"># 所有参数必须是正数（Padding可以为0）</span></span><br><span class="line">solver.add(K &lt; H_in)  <span class="comment"># Kernel 不能比输入还大</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 求解并读取结果</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:  <span class="comment"># sat 的意思是 &quot;satisfiable&quot;，即“有解”</span></span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;找到一组解: H_in=<span class="subst">&#123;model[H_in]&#125;</span>, K=<span class="subst">&#123;model[K]&#125;</span>, ...&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;无解！&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="用公式当规则反推卷积参数">2. 用公式当规则：反推卷积参数</h3>
+<p>现在，我们把卷积的输出公式也加进去当规则：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ...接上文...</span></span><br><span class="line">H_out = Int(<span class="string">&#x27;H_out&#x27;</span>)</span><br><span class="line"><span class="comment"># 已知输出必须是 7</span></span><br><span class="line">solver.add(H_out == <span class="number">7</span>)</span><br><span class="line"><span class="comment"># 把公式加进去</span></span><br><span class="line">solver.add(H_out == (H_in + <span class="number">2</span>*P - K)//S + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 再次求解</span></span><br><span class="line"><span class="keyword">if</span> solver.check() == sat:</span><br><span class="line">    model = solver.model()</span><br><span class="line">    <span class="comment"># Z3 会给出一组能让 H_out 等于 7 的 H_in, K, P, S</span></span><br><span class="line">    <span class="built_in">print</span>(model) <span class="comment"># 例如: [K = 3, S = 2, P = 1, H_in = 13, H_out = 7]</span></span><br></pre></td></tr></table></figure>
+<h3 id="如何找到不同的解">3. 如何找到“不同的”解？</h3>
+<p>为了测试更多情况，我们需要 Z3 给出和上次不一样的答案。</p>
+<blockquote>
+<p><strong>方法</strong>：在找到一组解（比如 <code>H_in = 13</code>）之后，往求解器里追加一条新规则：<code>solver.add(H_in != 13)</code>，然后再 <code>solver.check()</code>，它就会去找下一组解了。</p>
+</blockquote>
+<p><strong><code>universal_hash</code> 是做什么的？</strong> 它是一种更高级的“制造不同”的方法。有时只排除一个变量 (<code>H_in != 13</code>)，Z3 给出的新解可能只是其他变量稍微变了一下，不够“多样”。<code>universal_hash</code> 会把所有变量的值都“搅乱”一下，再添加不等约束，这样更容易驱动 Z3 去探索一个全新的、差异更大的解空间。</p>
+<p>在 <code>ops.py</code> 里： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">universal_hash</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">if</span> z3.is_int(x):</span><br><span class="line">        bv = z3.Int2BV(x, <span class="number">32</span>)</span><br><span class="line">        bv = (bv &amp; <span class="number">0xaaaaaaaa</span>) ^ (bv &amp; <span class="number">0x55555555</span>)</span><br><span class="line">        <span class="keyword">return</span> z3.BV2Int(bv, <span class="number">32</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(x, <span class="built_in">int</span>):</span><br><span class="line">        <span class="keyword">return</span> (x &amp; <span class="number">0xaaaaaaaa</span>) ^ (x &amp; <span class="number">0x55555555</span>)</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>对 z3 的 Int 先转 32 位位向量，分别与 <code>0xaaaaaaaa</code>（1010…）和 <code>0x55555555</code>（0101…）做按位与，再异或，最后转回 Int。</li>
+<li>作用：把“具体值”在比特层面打散，得到“哈希指纹”。配合不等式使用： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">solver.add(universal_hash(sym) != universal_hash(interp.as_long()))</span><br><span class="line">solver.add(sym != interp.as_long())</span><br></pre></td></tr></table></figure> 这样比只写 <code>sym != old_value</code> 更容易跳出“局部变化”，采到“差异更大”的新解。</li>
+</ul>
+<h3 id="高级规则-forall处理-concat">4. 高级规则 <code>ForAll</code>：处理 Concat</h3>
+<p>对于 Concat 算子，规则是“除了拼接的那个维度，其他维度的大小都必须一样”。用 <code>ForAll</code> 就能优雅地表达这个规则。</p>
+<blockquote>
+<p><code>ForAll([i], Implies(i != concat_dim, shape_A[i] == shape_B[i]))</code></p>
+<p><strong>翻译成人话就是：</strong> “对于<strong>所有的</strong>维度 <code>i</code>，<strong>如果</strong> <code>i</code> 不是我们正在拼接的那个维度，<strong>那么</strong> <code>shape_A</code> 在 <code>i</code> 上的大小必须等于 <code>shape_B</code> 在 <code>i</code> 上的大小。”</p>
+</blockquote>
+<p><strong>ops.py 中 Z3 的具体应用</strong></p>
+<ul>
+<li><p>抽象层次：</p>
+<ul>
+<li><code>AbsCommonNN</code> 为卷积/池化等建立符号：<code>insize/outsize/kernelsize/stride/padding/dilation</code>；</li>
+<li>依算子写出尺寸公式并 <code>solver.add(...)</code>。</li>
+</ul></li>
+<li><p>典型公式：</p>
+<ul>
+<li>卷积：<code>OUT == (IN + 2*P - D*(K-1) - 1) / S + 1</code>；</li>
+<li>池化（Avg/Max）：<code>OUT == (IN + 2*P - K) / S + 1</code>；</li>
+<li>Concat：用 <code>ForAll(i, Implies(i!=dim, A[i]==B[i]))</code> 表达“除拼接维外全等”。</li>
+</ul></li>
+<li><p>多解采样：</p>
+<ul>
+<li>在 <code>materialize()</code> 内循环 <code>check → model → yield</code>；</li>
+<li>用 <code>_sol_sample()</code> 给随机选取的符号追加： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">solver.add(universal_hash(sym) != universal_hash(interp.as_long()))</span><br><span class="line">solver.add(sym != interp.as_long())</span><br></pre></td></tr></table></figure></li>
+<li>从而持续产出“不同解”（生成器 <code>yield</code> 多轮）。</li>
+</ul></li>
+<li><p>工程护栏：</p>
+<ul>
+<li>约束 <code>&gt;0</code>、<code>&lt;2**31</code>、可按需启用显存元素上限（<code>ELEM_LIMIT</code>）以控规模；</li>
+<li><code>Solver().set(timeout=...)</code> 防卡死；</li>
+<li>求解后将 z3 模型映射到各框架参数，动态构造 <code>Conv/Pool/...</code> 层进行实测。</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="三大框架参数映射同一功能不同叫法">7️⃣ 三大框架参数映射：同一功能，不同叫法</h2>
+<p>PyTorch, PaddlePaddle, TensorFlow (Keras) 是三个最主流的深度学习框架。它们都有卷积、池化这些功能，但就像不同地方的方言，它们给这些功能的参数起了不同的名字。</p>
+<h3 id="核心参数方言对照表">核心参数“方言”对照表</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">通用概念</th>
+<th style="text-align: left;">PyTorch</th>
+<th style="text-align: left;">PaddlePaddle</th>
+<th style="text-align: left;">TensorFlow (Keras)</th>
+<th style="text-align: left;">🗣️ 备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">输入通道数</td>
+<td style="text-align: left;"><code>in_channels</code></td>
+<td style="text-align: left;"><code>in_channels</code></td>
+<td style="text-align: left;">(自动推断)</td>
+<td style="text-align: left;">Keras 根据输入形状自动识别</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">输出通道数</td>
+<td style="text-align: left;"><code>out_channels</code></td>
+<td style="text-align: left;"><code>out_channels</code></td>
+<td style="text-align: left;"><code>filters</code></td>
+<td style="text-align: left;">TF 叫“滤波器数量”</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">卷积核大小</td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;"><code>kernel_size</code></td>
+<td style="text-align: left;">这个大家都一样</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">步长</td>
+<td style="text-align: left;"><code>stride</code></td>
+<td style="text-align: left;"><code>stride</code></td>
+<td style="text-align: left;"><code>strides</code></td>
+<td style="text-align: left;">TF 喜欢用复数形式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">填充</td>
+<td style="text-align: left;"><code>padding</code> (int)</td>
+<td style="text-align: left;"><code>padding</code> (int/str)</td>
+<td style="text-align: left;"><code>padding</code> (str)</td>
+<td style="text-align: left;"><strong>这个坑最多！</strong> (见下文)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">空洞卷积</td>
+<td style="text-align: left;"><code>dilation</code></td>
+<td style="text-align: left;"><code>dilation</code></td>
+<td style="text-align: left;"><code>dilation_rate</code></td>
+<td style="text-align: left;">TF 叫“空洞率”</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">分组卷积</td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;"><code>groups</code></td>
+<td style="text-align: left;">基本一致</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">数据格式</td>
+<td style="text-align: left;">(默认 NCHW)</td>
+<td style="text-align: left;">(默认 NCHW)</td>
+<td style="text-align: left;">(默认 NHWC)</td>
+<td style="text-align: left;"><strong>TF/Keras 默认通道在后！</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="关键差异与代码示例">关键差异与代码示例</h3>
+<h4 id="padding-的大坑">1. Padding 的大坑</h4>
+<ul>
+<li><strong>PyTorch/Paddle</strong>：<code>padding=1</code> 表示在图片四周都填充 1 圈 0。</li>
+<li><strong>TensorFlow/Keras</strong>：<code>padding</code> 只能是字符串 <code>'valid'</code> (不填充) 或 <code>'same'</code> (自动计算填充，让输出和输入尺寸差不多)。如果你想精确控制填充几圈，必须<strong>单独用一个 <code>ZeroPadding2D</code> 层</strong>。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># PyTorch: 一步到位</span></span><br><span class="line">conv_torch = torch.nn.Conv2d(in_channels=<span class="number">3</span>, out_channels=<span class="number">16</span>, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># TensorFlow/Keras: 两步走</span></span><br><span class="line">model_tf = tf.keras.Sequential([</span><br><span class="line">    tf.keras.layers.ZeroPadding2D(padding=<span class="number">1</span>),</span><br><span class="line">    tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>)</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
+<h4 id="数据格式-data_format">2. 数据格式 <code>data_format</code></h4>
+<p>因为 PyTorch/Paddle 默认 <code>NCHW</code> (channels-first)，而 Keras 默认 <code>NHWC</code> (channels-last)，跨框架复现代码时，一定要在 Keras 层里加上 <code>data_format='channels_first'</code> 来保持统一！</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Keras 里保持和 PyTorch 一样的 NCHW 格式</span></span><br><span class="line">conv_keras = tf.keras.layers.Conv2D(filters=<span class="number">16</span>, kernel_size=<span class="number">3</span>, data_format=<span class="string">&#x27;channels_first&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="特殊算子支持情况">特殊算子支持情况</h3>
+<ul>
+<li><strong>转置卷积</strong>：TF/Keras 的 <code>Conv2DTranspose</code> 不支持 <code>groups</code> 参数。</li>
+<li><strong>某些算子</strong>：有些高级或不常用的算子，可能只有一个或两个框架支持。</li>
+</ul>
+<blockquote>
+<p>省流：写代码前，先查一下目标框架的官方文档，看好参数名叫什么、支持哪些功能。尤其是 <strong>Padding 和 data_format</strong>，是新手最容易踩的两个坑。</p>
+</blockquote>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ul>
+<li>布局先行：牢记 <code>NCHW</code> / <code>NCDHW</code> 与各维意义。<br />
+</li>
+<li>掌握卷积/池化公式，<strong>一眼能推形状</strong>。<br />
+</li>
+<li><code>//</code> 取整配合 “&gt;0” 约束，确保 SMT 结果一致。<br />
+</li>
+<li>参数映射时注意三框架差异，踩坑前先看文档。</li>
+</ul>
+<blockquote>
+<p>省流：<strong>布局→公式→约束→映射</strong> 四步打通，你的 Tensor 基础就算扎牢啦 📐✨</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>深度学习</category>
+        <category>计算机基础</category>
+      </categories>
+      <tags>
+        <tag>深度学习</tag>
+        <tag>张量</tag>
+        <tag>形状推导</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Clash 与网络代理详解</title>
+    <url>/posts/755f751e/</url>
+    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>VPN</strong></td>
+<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
+<td>秘密隧道</td>
+</tr>
+<tr class="even">
+<td><strong>Proxy</strong></td>
+<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
+<td>传话筒</td>
+</tr>
+<tr class="odd">
+<td><strong>Clash</strong></td>
+<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
+<td>智能调度员</td>
+</tr>
+<tr class="even">
+<td><strong>Rule</strong></td>
+<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
+<td>分流路牌</td>
+</tr>
+<tr class="odd">
+<td><strong>TUN</strong></td>
+<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
+<td>虚拟网卡</td>
+</tr>
+<tr class="even">
+<td><strong>Mixin</strong></td>
+<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
+<td>补丁包</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>VPN</th>
+<th>代理 (Proxy)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>工作层级</strong></td>
+<td>操作系统层 (OSI L3 网络层)</td>
+<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
+</tr>
+<tr class="even">
+<td><strong>接管范围</strong></td>
+<td>全局接管（通常），所有软件流量都走隧道</td>
+<td>仅接管支持代理设置的软件 (如浏览器)</td>
+</tr>
+<tr class="odd">
+<td><strong>加密程度</strong></td>
+<td>全程加密，强调安全性</td>
+<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
+</tr>
+<tr class="even">
+<td><strong>灵活性</strong></td>
+<td>较差，通常“全走”或“全不走”</td>
+<td>极高，可按域名/进程分流</td>
+</tr>
+<tr class="odd">
+<td><strong>典型协议</strong></td>
+<td>WireGuard, OpenVPN, IPSec</td>
+<td>HTTP, Socks5, Shadowsocks, VMess</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
+<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
+<h4 id="global-全局模式">1. Global 全局模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
+<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
+<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
+</ul>
+<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
+<ul>
+<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
+<li><strong>流程</strong>：
+<ol type="1">
+<li>拦截请求。</li>
+<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
+<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
+</ol></li>
+<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
+</ul>
+<h4 id="direct-直连模式">3. Direct 直连模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
+<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
+</ul>
+<h4 id="script-脚本模式">4. Script 脚本模式</h4>
+<ul>
+<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
+<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
+</ul>
+<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
+<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
+<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
+<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
+<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
+<pre>
+<code class="mermaid">
+
+graph TD;
+    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
+    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
+    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
+    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
+    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
+</code>
+</pre>
+<ol type="1">
+<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
+<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
+<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
+<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
+</ol>
+<blockquote>
+<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
+</blockquote>
+<blockquote>
+<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
+<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
+<ul>
+<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
+<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
+</ul>
+<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
+</blockquote>
+<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
+<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
+<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
+<ul>
+<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
+<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
+<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
+<li><strong>主要作用</strong>：
+<ol type="1">
+<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
+<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
+<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
+</ol></li>
+</ul>
+<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
+<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
+<h4 id="核心结构">核心结构</h4>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
+<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
+<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
+<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
+<ul>
+<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
+<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
+<li><strong>用途</strong>：
+<ul>
+<li>强制开启 TUN 模式。</li>
+<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
+<li>添加个人的局域网 IP 直连规则。</li>
+</ul></li>
+</ul>
+<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
+</blockquote>
+<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
+<ol type="1">
+<li><strong>“开了全局模式就是最安全的”</strong>
+<ul>
+<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
+</ul></li>
+<li><strong>“Ping 值低网速就快”</strong>
+<ul>
+<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
+</ul></li>
+<li><strong>“TUN 模式会影响打游戏吗？”</strong>
+<ul>
+<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
+</ul></li>
+<li><strong>Clash 是 VPN 吗？</strong>
+<ul>
+<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
+<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
+</ul></li>
+</ol>
+]]></content>
+      <tags>
+        <tag>Clash</tag>
+        <tag>Network</tag>
+        <tag>VPN</tag>
       </tags>
   </entry>
   <entry>
@@ -8664,6 +8703,144 @@ graph LR
 ]]></content>
   </entry>
   <entry>
+    <title>混合加密入门：集安全与效率于一身的艺术</title>
+    <url>/posts/8c9a7e4f/</url>
+    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
+<ul>
+<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
+<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
+</ul>
+<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
+<span id="more"></span>
+<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
+<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
+<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
+<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
+<ul>
+<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
+<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
+<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
+<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
+</ul>
+<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
+<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
+<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
+<ul>
+<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
+<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
+</ul>
+<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
+<ul>
+<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
+<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
+<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
+</ul>
+<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
+<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
+<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
+<p>它的执行流程如同一场精心编排的双人舞：</p>
+<ol type="1">
+<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
+<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
+<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
+<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
+<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
+<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
+</ol>
+<p>至此，一次安全又高效的通信便完成了。</p>
+我们可以用下面这个流程图来清晰地展示这个过程：
+<pre class="mermaid">sequenceDiagram
+    participant Sender as 发送方
+    participant Receiver as 接收方
+
+    Note over Sender, Receiver: 混合加密流程
+
+    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
+    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
+    
+    rect rgba(255, 220, 220, 0.4)
+        note right of Sender: 获取接收方的公钥
+        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
+    end
+    
+    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
+    
+    rect rgba(220, 255, 220, 0.4)
+        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
+        note right of Receiver: 获得对称密钥
+        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
+    end
+    
+    Receiver->>Sender: 通信已安全建立</pre>
+<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
+<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
+<ul>
+<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
+<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
+<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
+<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
+</ul>
+<h3 id="四总结">✨ 四、总结</h3>
+<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
+<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>加密</tag>
+        <tag>密码学</tag>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机中的P = NP? 问题</title>
+    <url>/posts/181d0004/</url>
+    <content><![CDATA[<p>在计算机科学领域，有一个悬赏一百万美元的世纪难题，它就是“P=NP?”问题。这个问题非常重要，它关系到计算机的算力极限，也和我们生活中的很多问题（如密码学、物流规划、人工智能等）息息相关。</p>
+<span id="more"></span>
+<h2 id="时间复杂度">时间复杂度</h2>
+<p>在讨论P与NP问题之前，我们需要先简单了解一下<strong>时间复杂度</strong>，它是衡量一个算法运行效率的标尺。我们通常用大O符号来表示，比如 O(n), O(n²), O(2ⁿ) 等。</p>
+<p>常见的算法时间复杂度增长趋势如下： <code>O(1) &lt; O(log n) &lt; O(n) &lt; O(n log n) &lt; O(n²) &lt; O(n³) &lt; O(2ⁿ) &lt; O(n!) &lt; O(nⁿ)</code></p>
+<ul>
+<li><strong>多项式时间复杂度</strong>：如 O(1), O(log n), O(n), O(n log n), O(n²), O(n³) 等。它们的特点是，随着问题规模 n 的增长，计算时间的增长速度是可控的。</li>
+<li><strong>指数时间复杂度</strong>：如 O(2ⁿ), O(n!) 等。这类算法的计算时间会随着问题规模 n 的增长而急剧增加，当 n 稍大时，计算就会变得不切实际。</li>
+</ul>
+<h2 id="p-问题">P 问题</h2>
+<p><strong>P 问题</strong> (Polynomial time) 指的是那些<strong>可以在多项式时间内被解决的问题</strong>。</p>
+<p>简单来说，如果一个问题能找到一个高效的算法，在有限且可接受的时间内计算出结果，那么它就是一个P问题。我们日常遇到的大部分问题，比如排序、查找等，都属于P问题。</p>
+<h2 id="np-问题">NP 问题</h2>
+<p><strong>NP 问题</strong> (Nondeterministic Polynomial time) 指的是那些<strong>可以在多-项式时间内验证一个解是否正确的问题</strong>。</p>
+<p>注意这里的关键词是“验证”而不是“解决”。NP问题不保证能被快速解决，但如果你给我一个解，我能很快地判断出它是不是正确的解。</p>
+<p>一个很经典的例子是“旅行商问题（TSP）”：给定一系列城市和每对城市之间的距离，求解访问每一座城市一次并返回起点的最短路径。</p>
+<ul>
+<li>解决这个问题非常困难，需要尝试大量的可能性。</li>
+<li>但如果有人给了你一条具体的路径，你可以很容易地计算出总长度，并验证它是否满足某个条件（比如，是否小于1000公里）。</li>
+</ul>
+<p>所有的P问题都是NP问题，因为如果一个问题能被快速解决，那么它的解也一定能被快速验证。</p>
+<h2 id="np-hard-和-np-complete">NP-Hard 和 NP-Complete</h2>
+<p>在NP问题中，有一类最难的问题，它们被称为 <strong>NP-Complete</strong> 和 <strong>NP-Hard</strong>。</p>
+<ul>
+<li><p><strong>NP-Hard</strong>：如果<strong>所有</strong>的NP问题都能在多项式时间内“归约”到问题 X，那么 X 就是一个 NP-Hard 问题。“归约”可以通俗地理解为“转化”。这意味着 X 问题的难度大于等于任何一个NP问题。它就像是NP世界里的“万恶之源”。</p></li>
+<li><p><strong>NP-Complete</strong>：一个问题既是 NP-Hard 的，同时它本身又是一个 NP 问题，那么它就被称为 <strong>NP-Complete</strong> 问题。NP-Complete 问题是 NP 问题中最难的一类。</p></li>
+</ul>
+<p>常见的 NP-Complete 问题包括： - <strong>逻辑电路问题 (SAT)</strong>：给定一个逻辑电路，是否存在一种输入，使其输出为 True。 - <strong>哈密顿回路问题</strong>：在一个图中，是否存在一条经过每个顶点一次且仅一次的回路。 - <strong>旅行商问题 (TSP)</strong>：给定一系列城市和每对城市之间的距离，求解访问每一座城市一次并返回起点的最短路径。</p>
+<h2 id="pnp-世纪难题">P=NP? 世纪难题</h2>
+<p>理解了以上概念后，“P=NP?”问题的核心就浮出水面了：</p>
+<blockquote>
+<p><strong>所有能被快速验证解的问题（NP），是否也都存在快速解决它们的算法（P）？</strong></p>
+</blockquote>
+<p>如果 <code>P=NP</code>，意味着所有NP问题（包括所有NP-Complete问题）都能在多项式时间内被解决。这将给科学技术带来革命性的变化：密码学可能被轻易破解，物流和规划问题能找到完美的最优解，人工智能的发展也会迈出一大步。</p>
+<p>反之，如果 <code>P≠NP</code>，则意味着存在一类问题，我们能快速验证其解，却无法快速求解。这也符合我们目前的普遍认知。</p>
+<p>这个问题在2000年被美国克雷数学研究所列为七个“千年大奖问题”之一，悬赏一百万美元求解。</p>
+<h3 id="p与np的关系图">P与NP的关系图</h3>
+<p><img src="/assets/image-1.png" /></p>
+<blockquote>
+<p>本文内容部分参考了周扬荣老师的PPT。</p>
+</blockquote>
+]]></content>
+  </entry>
+  <entry>
     <title>编码</title>
     <url>/posts/6f8a188e/</url>
     <content><![CDATA[<h2 id="编码">编码</h2>
@@ -8867,144 +9044,6 @@ graph LR
         <tag>计算机基础</tag>
         <tag>编码</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>混合加密入门：集安全与效率于一身的艺术</title>
-    <url>/posts/8c9a7e4f/</url>
-    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
-<ul>
-<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
-<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
-</ul>
-<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
-<span id="more"></span>
-<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
-<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
-<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
-<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
-<ul>
-<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
-<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
-<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
-<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
-</ul>
-<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
-<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
-<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
-<ul>
-<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
-<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
-</ul>
-<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
-<ul>
-<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
-<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
-<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
-</ul>
-<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
-<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
-<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
-<p>它的执行流程如同一场精心编排的双人舞：</p>
-<ol type="1">
-<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
-<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
-<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
-<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
-<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
-<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
-</ol>
-<p>至此，一次安全又高效的通信便完成了。</p>
-我们可以用下面这个流程图来清晰地展示这个过程：
-<pre class="mermaid">sequenceDiagram
-    participant Sender as 发送方
-    participant Receiver as 接收方
-
-    Note over Sender, Receiver: 混合加密流程
-
-    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
-    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
-    
-    rect rgba(255, 220, 220, 0.4)
-        note right of Sender: 获取接收方的公钥
-        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
-    end
-    
-    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
-    
-    rect rgba(220, 255, 220, 0.4)
-        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
-        note right of Receiver: 获得对称密钥
-        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
-    end
-    
-    Receiver->>Sender: 通信已安全建立</pre>
-<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
-<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
-<ul>
-<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
-<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
-<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
-<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
-</ul>
-<h3 id="四总结">✨ 四、总结</h3>
-<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
-<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>加密</tag>
-        <tag>密码学</tag>
-        <tag>安全</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>计算机中的P = NP? 问题</title>
-    <url>/posts/181d0004/</url>
-    <content><![CDATA[<p>在计算机科学领域，有一个悬赏一百万美元的世纪难题，它就是“P=NP?”问题。这个问题非常重要，它关系到计算机的算力极限，也和我们生活中的很多问题（如密码学、物流规划、人工智能等）息息相关。</p>
-<span id="more"></span>
-<h2 id="时间复杂度">时间复杂度</h2>
-<p>在讨论P与NP问题之前，我们需要先简单了解一下<strong>时间复杂度</strong>，它是衡量一个算法运行效率的标尺。我们通常用大O符号来表示，比如 O(n), O(n²), O(2ⁿ) 等。</p>
-<p>常见的算法时间复杂度增长趋势如下： <code>O(1) &lt; O(log n) &lt; O(n) &lt; O(n log n) &lt; O(n²) &lt; O(n³) &lt; O(2ⁿ) &lt; O(n!) &lt; O(nⁿ)</code></p>
-<ul>
-<li><strong>多项式时间复杂度</strong>：如 O(1), O(log n), O(n), O(n log n), O(n²), O(n³) 等。它们的特点是，随着问题规模 n 的增长，计算时间的增长速度是可控的。</li>
-<li><strong>指数时间复杂度</strong>：如 O(2ⁿ), O(n!) 等。这类算法的计算时间会随着问题规模 n 的增长而急剧增加，当 n 稍大时，计算就会变得不切实际。</li>
-</ul>
-<h2 id="p-问题">P 问题</h2>
-<p><strong>P 问题</strong> (Polynomial time) 指的是那些<strong>可以在多项式时间内被解决的问题</strong>。</p>
-<p>简单来说，如果一个问题能找到一个高效的算法，在有限且可接受的时间内计算出结果，那么它就是一个P问题。我们日常遇到的大部分问题，比如排序、查找等，都属于P问题。</p>
-<h2 id="np-问题">NP 问题</h2>
-<p><strong>NP 问题</strong> (Nondeterministic Polynomial time) 指的是那些<strong>可以在多-项式时间内验证一个解是否正确的问题</strong>。</p>
-<p>注意这里的关键词是“验证”而不是“解决”。NP问题不保证能被快速解决，但如果你给我一个解，我能很快地判断出它是不是正确的解。</p>
-<p>一个很经典的例子是“旅行商问题（TSP）”：给定一系列城市和每对城市之间的距离，求解访问每一座城市一次并返回起点的最短路径。</p>
-<ul>
-<li>解决这个问题非常困难，需要尝试大量的可能性。</li>
-<li>但如果有人给了你一条具体的路径，你可以很容易地计算出总长度，并验证它是否满足某个条件（比如，是否小于1000公里）。</li>
-</ul>
-<p>所有的P问题都是NP问题，因为如果一个问题能被快速解决，那么它的解也一定能被快速验证。</p>
-<h2 id="np-hard-和-np-complete">NP-Hard 和 NP-Complete</h2>
-<p>在NP问题中，有一类最难的问题，它们被称为 <strong>NP-Complete</strong> 和 <strong>NP-Hard</strong>。</p>
-<ul>
-<li><p><strong>NP-Hard</strong>：如果<strong>所有</strong>的NP问题都能在多项式时间内“归约”到问题 X，那么 X 就是一个 NP-Hard 问题。“归约”可以通俗地理解为“转化”。这意味着 X 问题的难度大于等于任何一个NP问题。它就像是NP世界里的“万恶之源”。</p></li>
-<li><p><strong>NP-Complete</strong>：一个问题既是 NP-Hard 的，同时它本身又是一个 NP 问题，那么它就被称为 <strong>NP-Complete</strong> 问题。NP-Complete 问题是 NP 问题中最难的一类。</p></li>
-</ul>
-<p>常见的 NP-Complete 问题包括： - <strong>逻辑电路问题 (SAT)</strong>：给定一个逻辑电路，是否存在一种输入，使其输出为 True。 - <strong>哈密顿回路问题</strong>：在一个图中，是否存在一条经过每个顶点一次且仅一次的回路。 - <strong>旅行商问题 (TSP)</strong>：给定一系列城市和每对城市之间的距离，求解访问每一座城市一次并返回起点的最短路径。</p>
-<h2 id="pnp-世纪难题">P=NP? 世纪难题</h2>
-<p>理解了以上概念后，“P=NP?”问题的核心就浮出水面了：</p>
-<blockquote>
-<p><strong>所有能被快速验证解的问题（NP），是否也都存在快速解决它们的算法（P）？</strong></p>
-</blockquote>
-<p>如果 <code>P=NP</code>，意味着所有NP问题（包括所有NP-Complete问题）都能在多项式时间内被解决。这将给科学技术带来革命性的变化：密码学可能被轻易破解，物流和规划问题能找到完美的最优解，人工智能的发展也会迈出一大步。</p>
-<p>反之，如果 <code>P≠NP</code>，则意味着存在一类问题，我们能快速验证其解，却无法快速求解。这也符合我们目前的普遍认知。</p>
-<p>这个问题在2000年被美国克雷数学研究所列为七个“千年大奖问题”之一，悬赏一百万美元求解。</p>
-<h3 id="p与np的关系图">P与NP的关系图</h3>
-<p><img src="/assets/image-1.png" /></p>
-<blockquote>
-<p>本文内容部分参考了周扬荣老师的PPT。</p>
-</blockquote>
-]]></content>
   </entry>
   <entry>
     <title>计算机网络通信漫谈 - 从TCP/IP到gRPC</title>
