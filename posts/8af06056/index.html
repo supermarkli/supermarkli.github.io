@@ -29,7 +29,7 @@
 <meta property="og:description" content="写 LaTeX 和用 Word 最大的区别在于：它更像是在写代码。既然是代码，就少不了编译环节。从一个 .tex 文本文件到一个精美的 PDF，中间到底发生了什么？为什么有那么多不同的编译命令（pdflatex, xelatex, lualatex）？ 这篇笔记带你快速厘清 LaTeX 的编译流程，从此告别盲试编译器的痛苦。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-12-12T06:42:23.000Z">
-<meta property="article:modified_time" content="2025-12-12T08:43:05.572Z">
+<meta property="article:modified_time" content="2025-12-12T08:45:13.640Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="工具">
 <meta property="article:tag" content="LaTeX">
@@ -173,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-latex-%E9%9C%80%E8%A6%81%E7%BC%96%E8%AF%91"><span class="nav-number">1.</span> <span class="nav-text">为什么 LaTeX 需要编译？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E5%9B%BE%E9%80%9F%E6%87%82%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">一图速懂：编译流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BC%96%E8%AF%91%E8%BF%99%E4%B9%88%E5%A4%9A%E6%AC%A1"><span class="nav-number">3.</span> <span class="nav-text">为什么需要编译这么多次？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%BC%96%E8%AF%91%E5%99%A8engine%E5%AF%B9%E6%AF%94"><span class="nav-number">4.</span> <span class="nav-text">常见编译器（Engine）对比</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#pdflatex"><span class="nav-number">4.1.</span> <span class="nav-text">1. pdflatex</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#xelatex-%E6%8E%A8%E8%8D%90"><span class="nav-number">4.2.</span> <span class="nav-text">2. xelatex (推荐)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lualatex"><span class="nav-number">4.3.</span> <span class="nav-text">3. lualatex</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#latexmk-%E8%87%AA%E5%8A%A8%E5%8C%96%E7%A5%9E%E5%99%A8"><span class="nav-number">4.4.</span> <span class="nav-text">4. latexmk (自动化神器)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%8E%E4%B9%88%E9%80%89%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E5%86%B3%E7%AD%96%E6%A0%91"><span class="nav-number">5.</span> <span class="nav-text">怎么选？一个简单的决策树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%BE%85%E5%8A%A9%E6%8C%87%E4%BB%A4"><span class="nav-number">6.</span> <span class="nav-text">常见辅助指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%9C%89%E6%97%B6%E5%80%99%E8%A6%81%E7%BC%96%E8%AF%91%E5%A5%BD%E5%87%A0%E6%AC%A1"><span class="nav-number">7.</span> <span class="nav-text">为什么有时候要编译好几次？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%87%92%E4%BA%BA%E7%A5%9E%E5%99%A8latexmk"><span class="nav-number">8.</span> <span class="nav-text">懒人神器：latexmk</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">8.1.</span> <span class="nav-text">常用命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-latex-%E9%9C%80%E8%A6%81%E7%BC%96%E8%AF%91"><span class="nav-number">1.</span> <span class="nav-text">为什么 LaTeX 需要编译？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E5%9B%BE%E9%80%9F%E6%87%82%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">一图速懂：编译流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E7%BC%96%E8%AF%91%E8%BF%99%E4%B9%88%E5%A4%9A%E6%AC%A1"><span class="nav-number">3.</span> <span class="nav-text">为什么需要编译这么多次？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%BC%96%E8%AF%91%E5%99%A8engine%E5%AF%B9%E6%AF%94"><span class="nav-number">4.</span> <span class="nav-text">常见编译器（Engine）对比</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#pdflatex"><span class="nav-number">4.1.</span> <span class="nav-text">1. pdflatex</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#xelatex-%E6%8E%A8%E8%8D%90"><span class="nav-number">4.2.</span> <span class="nav-text">2. xelatex (推荐)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lualatex"><span class="nav-number">4.3.</span> <span class="nav-text">3. lualatex</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#latexmk-%E8%87%AA%E5%8A%A8%E5%8C%96%E7%A5%9E%E5%99%A8"><span class="nav-number">4.4.</span> <span class="nav-text">4. latexmk (自动化神器)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%BE%85%E5%8A%A9%E6%8C%87%E4%BB%A4"><span class="nav-number">5.</span> <span class="nav-text">常见辅助指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%87%92%E4%BA%BA%E7%A5%9E%E5%99%A8latexmk"><span class="nav-number">6.</span> <span class="nav-text">懒人神器：latexmk</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">6.1.</span> <span class="nav-text">常用命令</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -264,7 +264,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-12-12 14:42:23 / 修改时间：16:43:05" itemprop="dateCreated datePublished" datetime="2025-12-12T14:42:23+08:00">2025-12-12</time>
+      <time title="创建时间：2025-12-12 14:42:23 / 修改时间：16:45:13" itemprop="dateCreated datePublished" datetime="2025-12-12T14:42:23+08:00">2025-12-12</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -290,14 +290,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>3.7k</span>
+      <span>3k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>7 分钟</span>
+      <span>5 分钟</span>
     </span>
 </div>
 
@@ -397,19 +397,6 @@ graph TD;
 <li>其他参数直接透传给底层引擎（如 xelatex）。</li>
 </ul></li>
 </ul>
-<h3 id="怎么选一个简单的决策树">怎么选？一个简单的决策树</h3>
-<pre>
-<code class="mermaid">
-
-graph TD;
-  Start(&quot;开始&quot;) --&gt; Q1{&quot;是否包含中文？&quot;};
-  Q1 -- &quot;是&quot; --&gt; Q2{&quot;是否追求极致速度？&quot;};
-  Q1 -- &quot;否 (纯英文)&quot; --&gt; End1[&quot;pdflatex&quot;];
-  Q2 -- &quot;否 (默认推荐)&quot; --&gt; End2[&quot;xelatex&quot;];
-  Q2 -- &quot;是 (且懂配置)&quot; --&gt; End3[&quot;uplatex (较冷门)&quot;];
-  End2 -.-&gt; End4[&quot;lualatex (高级玩家)&quot;];
-</code>
-</pre>
 <h3 id="常见辅助指令">常见辅助指令</h3>
 <p>除了主编译器，你可能还会用到这些：</p>
 <ul>
@@ -419,23 +406,11 @@ graph TD;
 </ul></li>
 <li><strong>makeindex</strong>: 用于生成索引（Index）。</li>
 </ul>
-<h3 id="为什么有时候要编译好几次">为什么有时候要编译好几次？</h3>
-<p>你会发现写了 <code>\label&#123;sec:intro&#125;</code> 和 <code>\ref&#123;sec:intro&#125;</code> 后，第一次编译 PDF 里显示的是 <code>??</code>。</p>
-<p>这是因为： 1. <strong>第一遍编译</strong>: 编译器读到 <code>\label</code>，将其页码和编号写入 <code>.aux</code> 文件。读到 <code>\ref</code> 时，因为 <code>.aux</code> 还没写完，所以它不知道对应的值，显示 <code>??</code>。 2. <strong>第二遍编译</strong>: 编译器读取已经生成的 <code>.aux</code> 文件，填入正确的引用编号。</p>
-<p>这也是为什么很多 IDE（如 VS Code 的 LaTeX Workshop）会自动执行 "Build Chain"，帮你连续运行多次命令。</p>
 <h3 id="懒人神器latexmk">懒人神器：latexmk</h3>
 <p>手动敲 <code>xelatex -&gt; bibtex -&gt; xelatex -&gt; xelatex</code> 这一套连招实在太累了。这时候你就需要 <strong>latexmk</strong>。</p>
 <p>它是一个 Perl 脚本，能自动分析依赖关系。它知道什么时候该运行 bibtex，什么时候该重新编译以修正交叉引用，直到文件完全稳定。</p>
 <h4 id="常用命令">常用命令</h4>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自动探测并编译（默认生成 pdf）</span></span><br><span class="line">latexmk -pdf main.tex</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定使用 xelatex 引擎（推荐中文使用）</span></span><br><span class="line">latexmk -xelatex main.tex</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实时预览模式（修改保存后自动编译，类似前端的 hot reload）</span></span><br><span class="line">latexmk -pvc -xelatex main.tex</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译完清理垃圾文件 (.aux, .log 等)</span></span><br><span class="line">latexmk -c</span><br></pre></td></tr></table></figure>
-<p>如果你不想每次都输参数，可以在项目根目录创建一个 <code>.latexmkrc</code> 配置文件：</p>
-<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$pdf_mode</span> = <span class="number">1</span>; <span class="comment"># 生成 pdf</span></span><br><span class="line"><span class="variable">$pdflatex</span> = <span class="string">&#x27;xelatex %O %S&#x27;</span>; <span class="comment"># 指定默认引擎为 xelatex</span></span><br></pre></td></tr></table></figure>
-<h3 id="总结">总结</h3>
-<ul>
-<li><strong>写中文</strong>：无脑选 <code>xelatex</code>。</li>
-<li><strong>写英文 Paper</strong>：看模板要求，通常 <code>pdflatex</code> 够用且快。</li>
-<li><strong>报错了</strong>：先看 <code>.log</code> 文件，如果提示字体缺失（<code>font not found</code>），检查是否误用了 <code>pdflatex</code> 编译中文，或者系统缺字体。</li>
-</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 自动探测并编译（默认生成 pdf）</span></span><br><span class="line">latexmk -pdf main.tex</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定使用 xelatex 引擎（推荐中文使用）</span></span><br><span class="line">latexmk -xelatex main.tex</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实时预览模式（修改保存后自动编译，类似前端的 hot reload）</span></span><br><span class="line">latexmk -pvc -xelatex main.tex</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译完清理垃圾文件 (.aux, .log 等)</span></span><br><span class="line">latexmk -c</span><br><span class="line"></span><br><span class="line"><span class="comment"># 推荐使用</span></span><br><span class="line">latexmk -xelatex -synctex=1 -interaction=nonstopmode -file-line-error -outdir=build main.tex</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -489,13 +464,13 @@ graph TD;
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">218k</span>
+    <span title="站点总字数">217k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">6:36</span>
+    <span title="站点阅读时长">6:35</span>
   </span>
 </div>
 <div class="busuanzi-count">
