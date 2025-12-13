@@ -2661,6 +2661,44 @@ LBD --&gt; DLQ[&quot;死信队列&lt;br&#x2F;&gt;(可选)&quot;]
       </tags>
   </entry>
   <entry>
+    <title>KeyMapping：win上使用mac键位</title>
+    <url>/posts/a9a69d93/</url>
+    <content><![CDATA[<p>最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。 <span id="more"></span></p>
+<p>本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现<strong>动态键位映射</strong>：既能在本地完美复刻 Mac 体验，又能智能识别远程桌面来源，自动适配 RDP 客户端的键位逻辑。</p>
+<h3 id="核心痛点本地与远程的精神分裂">💡 核心痛点：本地与远程的“精神分裂”</h3>
+<p>在 Windows 上复刻 Mac 键位，最直接的思路是将键盘左下角的 <code>Alt</code> 映射为 <code>Ctrl</code>（因为 Mac 的 Command 键就在这个位置）。</p>
+<p>然而，当你从一台 Mac 通过 Microsoft Remote Desktop 远程连接到这台 Windows 时，问题就出现了： 1. <strong>本地使用时</strong>：我们需要 <code>Alt</code> -&gt; <code>Ctrl</code>。 2. <strong>Mac 远程连接时</strong>：Mac 的 RDP 客户端通常会将 Command 键映射为 Windows 的 <code>Win</code> 键。此时，我们在 Mac 上按 <code>Cmd + C</code>，Windows 接收到的是 <code>Win + C</code>。</p>
+<p>如果我们简单粗暴地全局重映射，就会导致远程连接时快捷键失效。我们需要一个“智能”的脚本，它能知道<strong>当前是谁在操作电脑</strong>。</p>
+<h3 id="解决方案wtsapi-动态识别">🔍 解决方案：WTSAPI 动态识别</h3>
+<p>Windows 提供了 WTSAPI (Windows Terminal Services API)，允许我们查询当前会话的信息。通过 <code>WTSQuerySessionInformation</code> 函数，我们可以获取连接到当前会话的客户端名称（Client Name）。</p>
+<ul>
+<li><strong>本地登录</strong>：客户端名称通常为空。</li>
+<li><strong>远程登录</strong>：客户端名称会显示发起连接的设备名）。</li>
+</ul>
+<p>利用这一点，我们可以编写一个 <code>IsRemoteMac()</code> 函数来动态判断当前的上下文。</p>
+<h3 id="脚本实现">🛠️ 脚本实现</h3>
+<p>以下是完整的 AutoHotkey v2 脚本。</p>
+<figure class="highlight ahk"><table><tr><td class="code"><pre><span class="line"><span class="meta">#Requires AutoHotkey v2.0</span></span><br><span class="line"><span class="meta">#SingleInstance Force</span></span><br><span class="line"></span><br><span class="line">IsRemoteMac() &#123;</span><br><span class="line">    clientName := Trim(GetRdpClientName())</span><br><span class="line">    if (clientName = <span class="string">&quot;&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    if InStr(clientName, <span class="string">&quot;zihao-macbook&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line">GetRdpClientName() &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        pBuffer := <span class="number">0</span></span><br><span class="line">        bytes := <span class="number">0</span></span><br><span class="line">        if !DllCall(<span class="string">&quot;wtsapi32\WTSQuerySessionInformationW&quot;</span></span><br><span class="line">            , <span class="string">&quot;Ptr&quot;</span>, <span class="number">0</span>              <span class="comment">; WTS_CURRENT_SERVER_HANDLE</span></span><br><span class="line">            , <span class="string">&quot;Int&quot;</span>, -<span class="number">1</span>             <span class="comment">; WTS_CURRENT_SESSION</span></span><br><span class="line">            , <span class="string">&quot;Int&quot;</span>, <span class="number">10</span>             <span class="comment">; WTSClientName</span></span><br><span class="line">            , <span class="string">&quot;Ptr*&quot;</span>, &amp;pBuffer</span><br><span class="line">            , <span class="string">&quot;UInt*&quot;</span>, &amp;bytes)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">        </span><br><span class="line">        name := StrGet(pBuffer, <span class="string">&quot;UTF-16&quot;</span>)</span><br><span class="line">        DllCall(<span class="string">&quot;wtsapi32\WTSFreeMemory&quot;</span>, <span class="string">&quot;Ptr&quot;</span>, pBuffer)</span><br><span class="line">        <span class="keyword">return</span> name</span><br><span class="line">    &#125; catch &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#HotIf IsRemoteMac()</span></span><br><span class="line"><span class="title">$!Tab::</span></span><br><span class="line">&#123;</span><br><span class="line">    SendInput <span class="string">&quot;&#123;LAlt up&#125;&quot;</span></span><br><span class="line">    Sleep <span class="number">10</span> <span class="comment">; 极短缓冲</span></span><br><span class="line">    SendEvent <span class="string">&quot;#&#123;Tab&#125;&quot;</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="title">$#/::</span>Send <span class="string">&quot;^/&quot;</span></span><br><span class="line"><span class="title">$#b::</span>Send <span class="string">&quot;^b&quot;</span></span><br><span class="line"><span class="title">$#s::</span>Send <span class="string">&quot;^s&quot;</span></span><br><span class="line"><span class="title">$#-::</span>Send <span class="string">&quot;^-&quot;</span></span><br><span class="line"><span class="title">$#=::</span>Send <span class="string">&quot;^=&quot;</span></span><br><span class="line"><span class="title">$#p::</span>Send <span class="string">&quot;^p&quot;</span></span><br><span class="line"><span class="title">$#[::</span>Send <span class="string">&quot;^[&quot;</span></span><br><span class="line"><span class="title">$#t::</span>Send <span class="string">&quot;^t&quot;</span>          <span class="comment">; 制表/新建标签页 (Win + T -&gt; Ctrl + T)</span></span><br><span class="line"><span class="title">$#+k::</span>Send <span class="string">&quot;^+k&quot;</span>        <span class="comment">; 插入代码块 (Win + Shift + K -&gt; Ctrl + Shift + K)</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#HotIf</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#HotIf !IsRemoteMac()</span></span><br><span class="line"><span class="title">$!c::</span>Send <span class="string">&quot;^c&quot;</span>          <span class="comment">; 复制 (Alt + C -&gt; Ctrl + C) 实现 Cmd + C</span></span><br><span class="line"><span class="title">$!v::</span>Send <span class="string">&quot;^v&quot;</span>          <span class="comment">; 粘贴 (Alt + V -&gt; Ctrl + V) 实现 Cmd + V</span></span><br><span class="line"><span class="title">$!x::</span>Send <span class="string">&quot;^x&quot;</span>          <span class="comment">; 剪切 (Alt + X -&gt; Ctrl + X) 实现 Cmd + X</span></span><br><span class="line"><span class="title">$!z::</span>Send <span class="string">&quot;^z&quot;</span>          <span class="comment">; 撤销 (Alt + Z -&gt; Ctrl + Z) 实现 Cmd + Z</span></span><br><span class="line"><span class="title">$!+z::</span>Send <span class="string">&quot;^y&quot;</span>         <span class="comment">; 重做 (Alt + Shift + Z -&gt; Ctrl + Y) 实现 Cmd + Shift + Z</span></span><br><span class="line"><span class="title">$!a::</span>Send <span class="string">&quot;^a&quot;</span>          <span class="comment">; 全选 (Alt + A -&gt; Ctrl + A) 实现 Cmd + A</span></span><br><span class="line"><span class="title">$!s::</span>Send <span class="string">&quot;^s&quot;</span>          <span class="comment">; 保存 (Alt + S -&gt; Ctrl + S) 实现 Cmd + S</span></span><br><span class="line"><span class="title">$!/::</span>Send <span class="string">&quot;^/&quot;</span>          <span class="comment">; 注释 (Alt + / -&gt; Ctrl + /) 实现 Cmd + /</span></span><br><span class="line"><span class="title">$!p::</span>Send <span class="string">&quot;^p&quot;</span>          <span class="comment">; 搜素 (Alt + P -&gt; Ctrl + P) 实现 Cmd + P</span></span><br><span class="line"><span class="title">$!w::</span>Send <span class="string">&quot;^w&quot;</span>          <span class="comment">; 关闭 (Alt + W -&gt; Ctrl + W) 实现 Cmd + W</span></span><br><span class="line"><span class="title">$![::</span>Send <span class="string">&quot;^[&quot;</span>          <span class="comment">; 反缩进 (Alt + [ -&gt; Ctrl + [) 实现 Cmd + [</span></span><br><span class="line"><span class="title">$#z::</span>Send <span class="string">&quot;!z&quot;</span>          <span class="comment">; 自动换行 (Win + Z -&gt; Alt + Z) 实现 Cmd + Z</span></span><br><span class="line"><span class="comment">;$!t::Send &quot;^t&quot;         ; 制表/新建标签页 (Alt + T -&gt; Ctrl + T)</span></span><br><span class="line"><span class="title">$!+k::</span>Send <span class="string">&quot;^+k&quot;</span>        <span class="comment">; 插入代码块 (Alt + Shift + K -&gt; Ctrl + Shift + K)</span></span><br><span class="line"><span class="title">$!,::</span>Send <span class="string">&quot;^,&quot;</span>          <span class="comment">; 菜单 (Alt + , -&gt; Ctrl + ,)</span></span><br><span class="line"></span><br><span class="line"><span class="title">$!b::</span>Send <span class="string">&quot;^b&quot;</span>          <span class="comment">; 加粗 (Alt + B -&gt; Ctrl + B) 实现 Cmd + B</span></span><br><span class="line"><span class="title">$!n::</span>Send <span class="string">&quot;^n&quot;</span>          <span class="comment">; 新建 (Alt + N -&gt; Ctrl + N) 实现 Cmd + N</span></span><br><span class="line"><span class="title">$!e::</span>Send <span class="string">&quot;#e&quot;</span>          <span class="comment">; 打开资源管理器 (Alt + E -&gt; Win + E) 实现 Cmd + E</span></span><br><span class="line"><span class="title">$!f::</span>Send <span class="string">&quot;^f&quot;</span>          <span class="comment">; 查找 (Alt + F -&gt; Ctrl + F) 实现 Cmd + F</span></span><br><span class="line"><span class="title">$!h::</span>Send <span class="string">&quot;^h&quot;</span>          <span class="comment">; 替换 (Alt + H -&gt; Ctrl + H) 实现 Cmd + H</span></span><br><span class="line"><span class="title">$!t::</span>Send <span class="string">&quot;^t&quot;</span>          <span class="comment">; 新建标签页 (Alt + T -&gt; Ctrl + T) 实现 Cmd + T</span></span><br><span class="line"><span class="title">$!r::</span>Send <span class="string">&quot;^r&quot;</span>          <span class="comment">; 刷新 (Alt + R -&gt; Ctrl + R) 实现 Cmd + R</span></span><br><span class="line"><span class="title">$!=::</span>Send <span class="string">&quot;^&#123;=&#125;&quot;</span>        <span class="comment">; 放大 (Alt + = -&gt; Ctrl + =) 实现 Cmd + =</span></span><br><span class="line"><span class="title">$!-::</span>Send <span class="string">&quot;^&#123;-&#125;&quot;</span>        <span class="comment">; 缩小 (Alt + - -&gt; Ctrl + -) 实现 Cmd + -</span></span><br><span class="line"><span class="title">$!0::</span>Send <span class="string">&quot;^0&quot;</span>          <span class="comment">; 恢复大小 (Alt + 0 -&gt; Ctrl + 0) 实现 Cmd + 0</span></span><br><span class="line"></span><br><span class="line"><span class="title">$!Left::</span>Send <span class="string">&quot;&#123;Home&#125;&quot;</span>   <span class="comment">; 光标移至行首 (Alt + Left -&gt; Home) 实现 Cmd + Left</span></span><br><span class="line"><span class="title">$!Right::</span>Send <span class="string">&quot;&#123;End&#125;&quot;</span>   <span class="comment">; 光标移至行尾 (Alt + Right -&gt; End) 实现 Cmd + Right</span></span><br><span class="line"><span class="title">$!Up::</span>Send <span class="string">&quot;^&#123;Home&#125;&quot;</span>    <span class="comment">; 光标移至文档头 (Alt + Up -&gt; Ctrl + Home) 实现 Cmd + Up</span></span><br><span class="line"><span class="title">$!Down::</span>Send <span class="string">&quot;^&#123;End&#125;&quot;</span>   <span class="comment">; 光标移至文档尾 (Alt + Down -&gt; Ctrl + End) 实现 Cmd + Down</span></span><br><span class="line"><span class="title">$!+Left::</span>Send <span class="string">&quot;+&#123;Home&#125;&quot;</span> <span class="comment">; 选中至行首 (Alt + Shift + Left -&gt; Shift + Home) 实现 Cmd + Shift + Left</span></span><br><span class="line"><span class="title">$!+Right::</span>Send <span class="string">&quot;+&#123;End&#125;&quot;</span> <span class="comment">; 选中至行尾 (Alt + Shift + Right -&gt; Shift + End) 实现 Cmd + Shift + Right</span></span><br><span class="line"><span class="title">$!+Up::</span>Send <span class="string">&quot;^+&#123;Home&#125;&quot;</span>  <span class="comment">; 选中至文档头 (Alt + Shift + Up -&gt; Ctrl + Shift + Home) 实现 Cmd + Shift + Up</span></span><br><span class="line"><span class="title">$!+Down::</span>Send <span class="string">&quot;^+&#123;End&#125;&quot;</span> <span class="comment">; 选中至文档尾 (Alt + Shift + Down -&gt; Ctrl + End) 实现 Cmd + Shift + Down</span></span><br><span class="line"><span class="title">$!Space::</span>Send <span class="string">&quot;#s&quot;</span>               <span class="comment">; 聚焦搜索 (Alt + Space -&gt; Win + S) 实现 Cmd + Space</span></span><br><span class="line"></span><br><span class="line"><span class="title">$#1::</span>Send <span class="string">&quot;^!1&quot;</span>  <span class="comment">; 截图并复制 (Win + 1 -&gt; Ctrl + Alt + 1) 实现 Cmd + 1</span></span><br><span class="line"><span class="title">$#2::</span>Send <span class="string">&quot;^!2&quot;</span>  <span class="comment">; 贴图 (Win + 2 -&gt; Ctrl + Alt + 2) 实现 Cmd + 2</span></span><br><span class="line"><span class="title">$#3::</span>Send <span class="string">&quot;^!3&quot;</span>  <span class="comment">; 截图 (Win + 3 -&gt; Ctrl + Alt + 3) 实现 Cmd + 3</span></span><br><span class="line"></span><br><span class="line"><span class="title">~LAlt::</span>Send <span class="string">&quot;&#123;Blind&#125;&#123;vkE8&#125;&quot;</span></span><br><span class="line"><span class="title">~LAlt Up::</span></span><br><span class="line">&#123;</span><br><span class="line">    if (<span class="built_in">A_PriorKey</span> = <span class="string">&quot;LAlt&quot;</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        Send <span class="string">&quot;&#123;LWin&#125;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#HotIf</span></span><br></pre></td></tr></table></figure>
+<h3 id="如何使用">🚀 如何使用</h3>
+<ol type="1">
+<li>安装 <a href="https://www.autohotkey.com/">AutoHotkey v2</a>。</li>
+<li>创建一个新文件 <code>MacKeys.ahk</code>，将上述代码粘贴进去。</li>
+<li>双击运行即可。</li>
+<li>（可选）将其放入 Windows 的启动文件夹，实现开机自启。</li>
+</ol>
+<p><a href="https://github.com/supermarkli/MacKeysMapping.git">仓库地址</a>放到这里，希望这对你有帮助！</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+      </categories>
+      <tags>
+        <tag>Windows</tag>
+        <tag>MacOS</tag>
+        <tag>AutoHotkey</tag>
+        <tag>效率工具</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>GPU 工作原理：和 CPU 有何不同？</title>
     <url>/posts/d1a2c3b4/</url>
     <content><![CDATA[<p>如果把 CPU 比作“多才多艺的总管”，GPU 更像“高效的流水线工厂”：CPU 擅长复杂分支与少量任务的低延迟处理，GPU 擅长大量相同/相似任务的高吞吐处理。本文先给出关键概念，再用 CPU 对比串起 GPU 的架构、执行模型、内存层次与性能要点。</p>
@@ -3016,44 +3054,6 @@ flowchart TD
         <tag>CPU</tag>
         <tag>并行计算</tag>
         <tag>计算机基础</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>KeyMapping：win上使用mac键位</title>
-    <url>/posts/a9a69d93/</url>
-    <content><![CDATA[<p>最近购入了台17年12寸的 macbook，想着体验一下mac生态，但是熟悉之后感觉确实不错。尤其是 Command 键的位置和用法，但是切换回 Windows 的时候就不太顺畅了。于是就想写一个脚本，实现键位映射。但是用mac RDP win的时候发现这些映射又容易出问题，于是想办法搞成动态映射来解决这个问题。 <span id="more"></span></p>
-<p>本文介绍如何使用 AutoHotkey (v2.0) 编写脚本，实现<strong>动态键位映射</strong>：既能在本地完美复刻 Mac 体验，又能智能识别远程桌面来源，自动适配 RDP 客户端的键位逻辑。</p>
-<h3 id="核心痛点本地与远程的精神分裂">💡 核心痛点：本地与远程的“精神分裂”</h3>
-<p>在 Windows 上复刻 Mac 键位，最直接的思路是将键盘左下角的 <code>Alt</code> 映射为 <code>Ctrl</code>（因为 Mac 的 Command 键就在这个位置）。</p>
-<p>然而，当你从一台 Mac 通过 Microsoft Remote Desktop 远程连接到这台 Windows 时，问题就出现了： 1. <strong>本地使用时</strong>：我们需要 <code>Alt</code> -&gt; <code>Ctrl</code>。 2. <strong>Mac 远程连接时</strong>：Mac 的 RDP 客户端通常会将 Command 键映射为 Windows 的 <code>Win</code> 键。此时，我们在 Mac 上按 <code>Cmd + C</code>，Windows 接收到的是 <code>Win + C</code>。</p>
-<p>如果我们简单粗暴地全局重映射，就会导致远程连接时快捷键失效。我们需要一个“智能”的脚本，它能知道<strong>当前是谁在操作电脑</strong>。</p>
-<h3 id="解决方案wtsapi-动态识别">🔍 解决方案：WTSAPI 动态识别</h3>
-<p>Windows 提供了 WTSAPI (Windows Terminal Services API)，允许我们查询当前会话的信息。通过 <code>WTSQuerySessionInformation</code> 函数，我们可以获取连接到当前会话的客户端名称（Client Name）。</p>
-<ul>
-<li><strong>本地登录</strong>：客户端名称通常为空。</li>
-<li><strong>远程登录</strong>：客户端名称会显示发起连接的设备名）。</li>
-</ul>
-<p>利用这一点，我们可以编写一个 <code>IsRemoteMac()</code> 函数来动态判断当前的上下文。</p>
-<h3 id="脚本实现">🛠️ 脚本实现</h3>
-<p>以下是完整的 AutoHotkey v2 脚本。</p>
-<figure class="highlight ahk"><table><tr><td class="code"><pre><span class="line"><span class="meta">#Requires AutoHotkey v2.0</span></span><br><span class="line"><span class="meta">#SingleInstance Force</span></span><br><span class="line"></span><br><span class="line">IsRemoteMac() &#123;</span><br><span class="line">    clientName := Trim(GetRdpClientName())</span><br><span class="line">    if (clientName = <span class="string">&quot;&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">    if InStr(clientName, <span class="string">&quot;zihao-macbook&quot;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line">GetRdpClientName() &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        pBuffer := <span class="number">0</span></span><br><span class="line">        bytes := <span class="number">0</span></span><br><span class="line">        if !DllCall(<span class="string">&quot;wtsapi32\WTSQuerySessionInformationW&quot;</span></span><br><span class="line">            , <span class="string">&quot;Ptr&quot;</span>, <span class="number">0</span>              <span class="comment">; WTS_CURRENT_SERVER_HANDLE</span></span><br><span class="line">            , <span class="string">&quot;Int&quot;</span>, -<span class="number">1</span>             <span class="comment">; WTS_CURRENT_SESSION</span></span><br><span class="line">            , <span class="string">&quot;Int&quot;</span>, <span class="number">10</span>             <span class="comment">; WTSClientName</span></span><br><span class="line">            , <span class="string">&quot;Ptr*&quot;</span>, &amp;pBuffer</span><br><span class="line">            , <span class="string">&quot;UInt*&quot;</span>, &amp;bytes)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">        </span><br><span class="line">        name := StrGet(pBuffer, <span class="string">&quot;UTF-16&quot;</span>)</span><br><span class="line">        DllCall(<span class="string">&quot;wtsapi32\WTSFreeMemory&quot;</span>, <span class="string">&quot;Ptr&quot;</span>, pBuffer)</span><br><span class="line">        <span class="keyword">return</span> name</span><br><span class="line">    &#125; catch &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#HotIf IsRemoteMac()</span></span><br><span class="line"><span class="title">$!Tab::</span></span><br><span class="line">&#123;</span><br><span class="line">    SendInput <span class="string">&quot;&#123;LAlt up&#125;&quot;</span></span><br><span class="line">    Sleep <span class="number">10</span> <span class="comment">; 极短缓冲</span></span><br><span class="line">    SendEvent <span class="string">&quot;#&#123;Tab&#125;&quot;</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="title">$#/::</span>Send <span class="string">&quot;^/&quot;</span></span><br><span class="line"><span class="title">$#b::</span>Send <span class="string">&quot;^b&quot;</span></span><br><span class="line"><span class="title">$#s::</span>Send <span class="string">&quot;^s&quot;</span></span><br><span class="line"><span class="title">$#-::</span>Send <span class="string">&quot;^-&quot;</span></span><br><span class="line"><span class="title">$#=::</span>Send <span class="string">&quot;^=&quot;</span></span><br><span class="line"><span class="title">$#p::</span>Send <span class="string">&quot;^p&quot;</span></span><br><span class="line"><span class="title">$#[::</span>Send <span class="string">&quot;^[&quot;</span></span><br><span class="line"><span class="title">$#t::</span>Send <span class="string">&quot;^t&quot;</span>          <span class="comment">; 制表/新建标签页 (Win + T -&gt; Ctrl + T)</span></span><br><span class="line"><span class="title">$#+k::</span>Send <span class="string">&quot;^+k&quot;</span>        <span class="comment">; 插入代码块 (Win + Shift + K -&gt; Ctrl + Shift + K)</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#HotIf</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#HotIf !IsRemoteMac()</span></span><br><span class="line"><span class="title">$!c::</span>Send <span class="string">&quot;^c&quot;</span>          <span class="comment">; 复制 (Alt + C -&gt; Ctrl + C) 实现 Cmd + C</span></span><br><span class="line"><span class="title">$!v::</span>Send <span class="string">&quot;^v&quot;</span>          <span class="comment">; 粘贴 (Alt + V -&gt; Ctrl + V) 实现 Cmd + V</span></span><br><span class="line"><span class="title">$!x::</span>Send <span class="string">&quot;^x&quot;</span>          <span class="comment">; 剪切 (Alt + X -&gt; Ctrl + X) 实现 Cmd + X</span></span><br><span class="line"><span class="title">$!z::</span>Send <span class="string">&quot;^z&quot;</span>          <span class="comment">; 撤销 (Alt + Z -&gt; Ctrl + Z) 实现 Cmd + Z</span></span><br><span class="line"><span class="title">$!+z::</span>Send <span class="string">&quot;^y&quot;</span>         <span class="comment">; 重做 (Alt + Shift + Z -&gt; Ctrl + Y) 实现 Cmd + Shift + Z</span></span><br><span class="line"><span class="title">$!a::</span>Send <span class="string">&quot;^a&quot;</span>          <span class="comment">; 全选 (Alt + A -&gt; Ctrl + A) 实现 Cmd + A</span></span><br><span class="line"><span class="title">$!s::</span>Send <span class="string">&quot;^s&quot;</span>          <span class="comment">; 保存 (Alt + S -&gt; Ctrl + S) 实现 Cmd + S</span></span><br><span class="line"><span class="title">$!/::</span>Send <span class="string">&quot;^/&quot;</span>          <span class="comment">; 注释 (Alt + / -&gt; Ctrl + /) 实现 Cmd + /</span></span><br><span class="line"><span class="title">$!p::</span>Send <span class="string">&quot;^p&quot;</span>          <span class="comment">; 搜素 (Alt + P -&gt; Ctrl + P) 实现 Cmd + P</span></span><br><span class="line"><span class="title">$!w::</span>Send <span class="string">&quot;^w&quot;</span>          <span class="comment">; 关闭 (Alt + W -&gt; Ctrl + W) 实现 Cmd + W</span></span><br><span class="line"><span class="title">$![::</span>Send <span class="string">&quot;^[&quot;</span>          <span class="comment">; 反缩进 (Alt + [ -&gt; Ctrl + [) 实现 Cmd + [</span></span><br><span class="line"><span class="title">$#z::</span>Send <span class="string">&quot;!z&quot;</span>          <span class="comment">; 自动换行 (Win + Z -&gt; Alt + Z) 实现 Cmd + Z</span></span><br><span class="line"><span class="comment">;$!t::Send &quot;^t&quot;         ; 制表/新建标签页 (Alt + T -&gt; Ctrl + T)</span></span><br><span class="line"><span class="title">$!+k::</span>Send <span class="string">&quot;^+k&quot;</span>        <span class="comment">; 插入代码块 (Alt + Shift + K -&gt; Ctrl + Shift + K)</span></span><br><span class="line"><span class="title">$!,::</span>Send <span class="string">&quot;^,&quot;</span>          <span class="comment">; 菜单 (Alt + , -&gt; Ctrl + ,)</span></span><br><span class="line"></span><br><span class="line"><span class="title">$!b::</span>Send <span class="string">&quot;^b&quot;</span>          <span class="comment">; 加粗 (Alt + B -&gt; Ctrl + B) 实现 Cmd + B</span></span><br><span class="line"><span class="title">$!n::</span>Send <span class="string">&quot;^n&quot;</span>          <span class="comment">; 新建 (Alt + N -&gt; Ctrl + N) 实现 Cmd + N</span></span><br><span class="line"><span class="title">$!e::</span>Send <span class="string">&quot;#e&quot;</span>          <span class="comment">; 打开资源管理器 (Alt + E -&gt; Win + E) 实现 Cmd + E</span></span><br><span class="line"><span class="title">$!f::</span>Send <span class="string">&quot;^f&quot;</span>          <span class="comment">; 查找 (Alt + F -&gt; Ctrl + F) 实现 Cmd + F</span></span><br><span class="line"><span class="title">$!h::</span>Send <span class="string">&quot;^h&quot;</span>          <span class="comment">; 替换 (Alt + H -&gt; Ctrl + H) 实现 Cmd + H</span></span><br><span class="line"><span class="title">$!t::</span>Send <span class="string">&quot;^t&quot;</span>          <span class="comment">; 新建标签页 (Alt + T -&gt; Ctrl + T) 实现 Cmd + T</span></span><br><span class="line"><span class="title">$!r::</span>Send <span class="string">&quot;^r&quot;</span>          <span class="comment">; 刷新 (Alt + R -&gt; Ctrl + R) 实现 Cmd + R</span></span><br><span class="line"><span class="title">$!=::</span>Send <span class="string">&quot;^&#123;=&#125;&quot;</span>        <span class="comment">; 放大 (Alt + = -&gt; Ctrl + =) 实现 Cmd + =</span></span><br><span class="line"><span class="title">$!-::</span>Send <span class="string">&quot;^&#123;-&#125;&quot;</span>        <span class="comment">; 缩小 (Alt + - -&gt; Ctrl + -) 实现 Cmd + -</span></span><br><span class="line"><span class="title">$!0::</span>Send <span class="string">&quot;^0&quot;</span>          <span class="comment">; 恢复大小 (Alt + 0 -&gt; Ctrl + 0) 实现 Cmd + 0</span></span><br><span class="line"></span><br><span class="line"><span class="title">$!Left::</span>Send <span class="string">&quot;&#123;Home&#125;&quot;</span>   <span class="comment">; 光标移至行首 (Alt + Left -&gt; Home) 实现 Cmd + Left</span></span><br><span class="line"><span class="title">$!Right::</span>Send <span class="string">&quot;&#123;End&#125;&quot;</span>   <span class="comment">; 光标移至行尾 (Alt + Right -&gt; End) 实现 Cmd + Right</span></span><br><span class="line"><span class="title">$!Up::</span>Send <span class="string">&quot;^&#123;Home&#125;&quot;</span>    <span class="comment">; 光标移至文档头 (Alt + Up -&gt; Ctrl + Home) 实现 Cmd + Up</span></span><br><span class="line"><span class="title">$!Down::</span>Send <span class="string">&quot;^&#123;End&#125;&quot;</span>   <span class="comment">; 光标移至文档尾 (Alt + Down -&gt; Ctrl + End) 实现 Cmd + Down</span></span><br><span class="line"><span class="title">$!+Left::</span>Send <span class="string">&quot;+&#123;Home&#125;&quot;</span> <span class="comment">; 选中至行首 (Alt + Shift + Left -&gt; Shift + Home) 实现 Cmd + Shift + Left</span></span><br><span class="line"><span class="title">$!+Right::</span>Send <span class="string">&quot;+&#123;End&#125;&quot;</span> <span class="comment">; 选中至行尾 (Alt + Shift + Right -&gt; Shift + End) 实现 Cmd + Shift + Right</span></span><br><span class="line"><span class="title">$!+Up::</span>Send <span class="string">&quot;^+&#123;Home&#125;&quot;</span>  <span class="comment">; 选中至文档头 (Alt + Shift + Up -&gt; Ctrl + Shift + Home) 实现 Cmd + Shift + Up</span></span><br><span class="line"><span class="title">$!+Down::</span>Send <span class="string">&quot;^+&#123;End&#125;&quot;</span> <span class="comment">; 选中至文档尾 (Alt + Shift + Down -&gt; Ctrl + End) 实现 Cmd + Shift + Down</span></span><br><span class="line"><span class="title">$!Space::</span>Send <span class="string">&quot;#s&quot;</span>               <span class="comment">; 聚焦搜索 (Alt + Space -&gt; Win + S) 实现 Cmd + Space</span></span><br><span class="line"></span><br><span class="line"><span class="title">$#1::</span>Send <span class="string">&quot;^!1&quot;</span>  <span class="comment">; 截图并复制 (Win + 1 -&gt; Ctrl + Alt + 1) 实现 Cmd + 1</span></span><br><span class="line"><span class="title">$#2::</span>Send <span class="string">&quot;^!2&quot;</span>  <span class="comment">; 贴图 (Win + 2 -&gt; Ctrl + Alt + 2) 实现 Cmd + 2</span></span><br><span class="line"><span class="title">$#3::</span>Send <span class="string">&quot;^!3&quot;</span>  <span class="comment">; 截图 (Win + 3 -&gt; Ctrl + Alt + 3) 实现 Cmd + 3</span></span><br><span class="line"></span><br><span class="line"><span class="title">~LAlt::</span>Send <span class="string">&quot;&#123;Blind&#125;&#123;vkE8&#125;&quot;</span></span><br><span class="line"><span class="title">~LAlt Up::</span></span><br><span class="line">&#123;</span><br><span class="line">    if (<span class="built_in">A_PriorKey</span> = <span class="string">&quot;LAlt&quot;</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        Send <span class="string">&quot;&#123;LWin&#125;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#HotIf</span></span><br></pre></td></tr></table></figure>
-<h3 id="如何使用">🚀 如何使用</h3>
-<ol type="1">
-<li>安装 <a href="https://www.autohotkey.com/">AutoHotkey v2</a>。</li>
-<li>创建一个新文件 <code>MacKeys.ahk</code>，将上述代码粘贴进去。</li>
-<li>双击运行即可。</li>
-<li>（可选）将其放入 Windows 的启动文件夹，实现开机自启。</li>
-</ol>
-<p><a href="https://github.com/supermarkli/MacKeysMapping.git">仓库地址</a>放到这里，希望这对你有帮助！</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-      </categories>
-      <tags>
-        <tag>Windows</tag>
-        <tag>MacOS</tag>
-        <tag>AutoHotkey</tag>
-        <tag>效率工具</tag>
       </tags>
   </entry>
   <entry>
@@ -4016,282 +4016,6 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>关于Intel TDX的深度思考与技术剖析</title>
-    <url>/posts/b63e909c/</url>
-    <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
-<span id="more"></span>
-<h3 id="引言云时代的信任难题">引言：云时代的信任难题</h3>
-<p>在当前的云计算和联邦学习场景下，数据隐私和计算过程的保密性至关重要。我们常常面临一个核心的信任悖论：我们希望利用云服务商强大的计算能力处理敏感数据，却又不能完全信任服务所在的平台，包括云厂商、甚至是拥有最高权限的租户管理员。如何确保我们的代码和数据在“别人”的服务器上，能够不被窥探、不被篡改地安全运行？可信执行环境（TEE）技术，特别是Intel TDX，为我们提供了破解这一难题的钥匙。</p>
-<h3 id="第一章tee与intel-tdx核心概念">第一章：TEE与Intel TDX核心概念</h3>
-<p>您可以将TEE想象成CPU内部一个被硬件强制隔离的“安全保险库”或“黑盒”。它主要提供以下四种核心保障：</p>
-<ul>
-<li><strong>隔离性 (Isolation)</strong>: 在TEE（Intel TDX中称为Trust Domain）内部运行的代码和数据，与服务器上运行的其他所有软件（包括操作系统、Hypervisor/虚拟机管理器，甚至是拥有物理访问权限的管理员）都是<strong>完全隔离的</strong>。</li>
-<li><strong>机密性 (Confidentiality)</strong>: TEE内的数据在CPU外部（例如在内存条DRAM上）始终是加密的。即使有人用逻辑分析仪去嗅探内存总线，也拿不到明文。</li>
-<li><strong>完整性 (Integrity)</strong>: TEE会确保加载到其内部的代码没有被篡改。</li>
-<li><strong>远程证明 (Remote Attestation)</strong>: 这是TEE的“杀手级特性”。客户端可以在与服务器通信之前，通过一个密码学协议，要求服务器上的TEE 证明自己的身份。这个证明可以告诉客户端：“我是一个货真价实的、由Intel制造的CPU中的TEE，我正在运行的代码就是你期望的那个版本（通过代码哈希值验证），并且我没有被篡改过。”</li>
-</ul>
-<h3 id="第二章信任模型的演进从完全信任到零信任">第二章：信任模型的演进：从完全信任到零信任</h3>
-<p>TEE的出现并非一蹴而就，它的价值体现在计算信任模型的不断演进中。</p>
-<h4 id="传统虚拟化-传统vm">传统虚拟化 (传统VM)</h4>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件 -&gt; Hypervisor -&gt; 虚拟机(VM)</code>。Hypervisor运行在最高权限，完全控制硬件。</li>
-<li><strong>信任模型</strong>: Hypervisor是全能的上帝。它可以随时暂停VM，检查其完整的内存状态，看到所有明文。租户必须<strong>完全信任</strong>云服务商。</li>
-</ul>
-<h4 id="sgx时代-enclave模型">SGX时代 (Enclave模型)</h4>
-<p>为了解决对Hypervisor的信任问题，Intel推出了SGX。</p>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件 -&gt; OS/Hypervisor -&gt; 应用程序 -&gt; Enclave</code>。Enclave是从应用程序的地址空间中“挖”出来的一块受硬件保护的内存区域。</li>
-<li><strong>信任模型</strong>: 信任边界缩小到Enclave内部。Hypervisor/OS无法窥探Enclave，但它仍然管理着整个应用程序和操作系统。这种模型对应用改造要求高，且与外部世界交互繁琐。</li>
-</ul>
-<h4 id="tdx时代-机密虚拟机模型">TDX时代 (机密虚拟机模型)</h4>
-<p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
-<ul>
-<li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
-<li><strong>信任模型的革命性变化</strong>:
-<ul>
-<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
-<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
-</ul></li>
-</ul>
-<h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
-<p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
-<ul>
-<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
-<ul>
-<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
-<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
-<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
-</ul></li>
-<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
-<ul>
-<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
-<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
-<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
-</ul></li>
-<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
-<ul>
-<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
-<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
-<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
-</ul></li>
-</ul>
-<h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
-<p>仅仅将应用放入TEE环境是不足以保证安全的，开发者必须遵循特定的安全编程模式来管理所有进出TEE的数据流。</p>
-<h4 id="数据处理如何避免明文泄露">4.1 数据处理：如何避免明文泄露</h4>
-<p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
-<ul>
-<li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
-<li><strong>正确（安全）的设计模式</strong>:
-<ul>
-<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
-<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
-</ul></li>
-</ul>
-<h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>
-<p>既然TEE是黑盒，那作为最关键秘密的<strong>密钥，最初是如何安全地进入这个黑盒的？</strong> 这需要通过远程证明和密钥提供（Secret Provisioning）的协同过程来完成。</p>
-<h5 id="密钥的提供-secret-provisioning">密钥的提供 (Secret Provisioning)</h5>
-<p>这个过程就像一次高度安全的、经过身份验证的“隔空投送”。</p>
-<ol type="1">
-<li><strong>TEE发起证明</strong>: TEE应用启动后，请求CPU硬件生成一份包含其代码身份指纹（MRENCLAVE）、开发者身份（MRSIGNER）和临时公钥的<strong>证明报告（Quote）</strong>，并由CPU内嵌的硬件私钥签名。</li>
-<li><strong>密钥所有者验证证明</strong>: 密钥所有者收到Quote后，会进行双重验证：
-<ul>
-<li><strong>硬件验证</strong>: 请求Intel的证明服务器，验证Quote的硬件签名，确保它来自真实的Intel CPU。</li>
-<li><strong>软件验证</strong>: 比对自己手中经过审计的代码哈希值与Quote中的MRENCLAVE，确保TEE中运行的是未经篡改的、正确的代码版本。</li>
-</ul></li>
-<li><strong>安全“投送”密钥</strong>: 验证通过后，密钥所有者完全信任了远端的TEE。它会从Quote中提取出TEE的临时公钥，用它加密真正的私钥，然后将这个加密的“密钥包裹”发回给TEE。</li>
-<li><strong>TEE内部拆解</strong>: TEE应用收到“密钥包裹”后，用自己对应的临时私钥在受保护的内存中解密，安全地获得真实私钥。</li>
-</ol>
-<h5 id="密钥的持久化-sealing">密钥的持久化 (Sealing)</h5>
-<p>为了避免每次重启都重复上述复杂的提供流程，TEE应用在首次获取密钥后，可以利用前述的<strong>Sealing机制</strong>，将其用硬件绑定的密钥加密后，安全地保存在外部磁盘上。重启后，只有在同一台机器上、运行着同样代码的TEE应用，才能成功解封（unseal），将密钥重新加载到内存中。</p>
-<h4 id="io安全警惕自我泄露">4.3 I/O安全：警惕“自我泄露”</h4>
-<p>TEE保护的是计算过程，但它不会自动保护应用的I/O。如果开发者在代码里写了<code>print(private_key)</code>，TEE会忠实地执行，并将这个秘密通过标准输出（stdout）泄露给不受信的Guest OS，最终被租户看到。</p>
-<p>这揭示了TEE安全编程的关键原则：<strong>开发者必须有意识地管理所有进出TEE的信道，视之为潜在的泄露风险。</strong></p>
-<ul>
-<li><p><strong>防御措施1：代码审计（最重要）</strong>: 任何敏感数据变量，绝不能传递给任何执行I/O操作的函数（如<code>print()</code>, <code>log.info()</code>, <code>file.write()</code>）。客户端信任的，正是那个经过审计、确认没有此类行为的代码版本。</p></li>
-<li><p><strong>防御措施2：安全日志系统</strong>: 对日志进行过滤或加密，或在生产环境中完全禁用高风险的日志级别。</p></li>
-<li><p><strong>防御措施3：运行时配置</strong>: 将应用的stdout和stderr重定向到<code>/dev/null</code>，作为一种兜底措施。</p></li>
-</ul>
-<h3 id="第五章tee安全模型的动态性与挑战">第五章：TEE安全模型的动态性与挑战</h3>
-<h4 id="代码篡改不可能完成的任务">5.1 代码篡改：不可能完成的任务</h4>
-<p>从系统管理员的角度看，修改磁盘上的一个脚本文件非常简单。但对于TEE来说，要在不被发现的情况下恶意修改代码，却几乎不可能。</p>
-<p>这里的关键在于区分两个概念：</p>
-<ul>
-<li><p><strong>修改文件内容的能力</strong>: 租户拥有。</p></li>
-<li><p><strong>伪造程序身份的能力</strong>: 租户没有。</p></li>
-</ul>
-<p>TEE安全模型的核心基石是：<strong>代码的任何一丝一毫的改变，都会导致其身份指纹(MRENCLAVE)发生雪崩式的、不可预测的变化。</strong> 当客户端进行远程证明时，它会立刻发现代码指纹与预期的不匹配，从而拒绝信任、中止连接。同样，被修改后的代码也无法解封（unseal）由旧版本代码封存（seal）的秘密。</p>
-<p>因此，租户可以“作恶”，但他无法“隐藏作恶的意图”。在他试图运行恶意代码的那一刻，他就在远程证明的照妖镜下原形毕露了。</p>
-<h4 id="证明的瞬时性与对策">5.2 证明的“瞬时性”与对策</h4>
-<p>远程证明本质上是一个“瞬时快照”，它只证明TEE在生成报告那一刻的身份和状态，本身无法记录历史变化。这带来了潜在的“作恶后改回”的攻击窗口。</p>
-<p>在实践中，必须将远程证明与持续的、有状态的安全协议结合起来，弥补“瞬时性”带来的缺口：</p>
-<ul>
-<li><strong>方案1：会话绑定 (Session Binding)</strong>: 将瞬时证明与当前会话（如TLS会话）的关键信息（如临时公key）绑定。对“瞬时”TEE的信任，被安全地传递给了对“当前整个会话”的信任。任何导致TEE重启或代码变更的行为都会破坏会话，客户端会立刻发现。这足以防止“先证明后作恶”的攻击。</li>
-<li><strong>方案2：可信日志/区块链</strong>: 对于需要更强审计性的场景，可以将TEE每次执行的关键操作（如模型聚合）生成日志条目，并用其身份密钥签名，发布到只能追加、无法修改的存储系统（如区块链）上。这为TEE的瞬时行为提供了不可篡改的历史记录和持久化信任。</li>
-</ul>
-<h3 id="结论">结论</h3>
-<p>Intel TDX等TEE技术通过提供硬件层面的隔离性、机密性、完整性和远程证明能力，从根本上重塑了云环境下的信任模型。它将信任的根基从对“人”或“软件供应商”的主观信任，转移到了对“开源审计过的代码”和“CPU硬件设计”的客观、可验证的信任。</p>
-<p>然而，TEE并非一个能让不安全的代码自动变得安全的“魔法棒”。它提供的是一个<strong>可信的执行环境</strong>，而非一个<strong>可信的应用</strong>。要真正发挥TEE的威力，开发者必须承担起<strong>编写安全代码的责任</strong>，遵循严格的安全编程范式，谨慎管理所有的数据I/O、密钥生命周期和会话状态。</p>
-<p>通过将强大的硬件保障与严谨的软件开发实践相结合，我们才能真正构建出端到端的、能抵御来自特权软件甚至物理攻击的机密计算解决方案。</p>
-<p>以上为个人理解，敬请批评指正。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>TDX</tag>
-        <tag>TEE</tag>
-        <tag>Intel</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>TLS Note</title>
-    <url>/posts/32f5e233/</url>
-    <content><![CDATA[<h2 id="什么是tls">1. 什么是TLS</h2>
-<p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
-<span id="more"></span>
-<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
-<h2 id="tls的主要功能">2. TLS的主要功能</h2>
-<p>TLS提供以下三个主要的安全服务：</p>
-<h3 id="身份认证">2.1 身份认证</h3>
-<p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
-<h3 id="数据加密">2.2 数据加密</h3>
-<p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
-<h3 id="完整性校验">2.3 完整性校验</h3>
-<p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
-<h2 id="tls的版本演进">3. TLS的版本演进</h2>
-<p>TLS协议经历了多个版本的演进：</p>
-<ul>
-<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
-<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
-<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
-<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
-<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
-<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
-</ul>
-<h2 id="tls的密码学原理">4. TLS的密码学原理</h2>
-<h3 id="对称加密">4.1 对称加密</h3>
-<ul>
-<li>使用相同的密钥进行加密和解密</li>
-<li>常用算法：AES、ChaCha20</li>
-<li>用于加密传输的数据</li>
-</ul>
-<h3 id="非对称加密">4.2 非对称加密</h3>
-<ul>
-<li>使用公钥加密，私钥解密</li>
-<li>常用算法：RSA、ECDSA</li>
-<li>用于密钥交换和身份认证</li>
-</ul>
-<h3 id="数字证书">4.3 数字证书</h3>
-<ul>
-<li>X.509格式证书</li>
-<li>包含服务器的公钥和身份信息</li>
-<li>由CA机构签名认证</li>
-</ul>
-<h3 id="消息认证码">4.4 消息认证码</h3>
-<ul>
-<li>HMAC算法</li>
-<li>确保消息完整性</li>
-<li>防止数据被篡改</li>
-</ul>
-<h2 id="tls握手过程">5. TLS握手过程</h2>
-<p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
-<h3 id="client-hello">5.1 Client Hello</h3>
-<ul>
-<li>客户端发送支持的TLS版本</li>
-<li>支持的加密套件列表</li>
-<li>随机数（Client Random）</li>
-<li>会话ID（如果是恢复会话）</li>
-</ul>
-<h3 id="server-hello">5.2 Server Hello</h3>
-<ul>
-<li>服务器选择TLS版本</li>
-<li>选择加密套件</li>
-<li>随机数（Server Random）</li>
-<li>服务器证书</li>
-</ul>
-<h3 id="密钥交换">5.3 密钥交换</h3>
-<ul>
-<li>客户端验证服务器证书</li>
-<li>生成预主密钥（Pre-master Secret）</li>
-<li>使用服务器公钥加密预主密钥</li>
-<li>计算主密钥（Master Secret）</li>
-</ul>
-<h3 id="完成握手">5.4 完成握手</h3>
-<ul>
-<li>切换到加密通信</li>
-<li>验证握手消息的完整性</li>
-<li>开始安全数据传输</li>
-</ul>
-<h2 id="tls的应用场景">6. TLS的应用场景</h2>
-<h3 id="https">6.1 HTTPS</h3>
-<ul>
-<li>最常见的TLS应用</li>
-<li>为HTTP提供安全传输</li>
-<li>网站必备的安全保障</li>
-</ul>
-<h3 id="安全邮件">6.2 安全邮件</h3>
-<ul>
-<li>SMTPS</li>
-<li>IMAPS</li>
-<li>POP3S</li>
-</ul>
-<h3 id="vpn">6.3 VPN</h3>
-<ul>
-<li>OpenVPN</li>
-<li>其他基于TLS的VPN协议</li>
-</ul>
-<h2 id="常见攻击与防范">7. 常见攻击与防范</h2>
-<h3 id="中间人攻击">7.1 中间人攻击</h3>
-<ul>
-<li>攻击者冒充服务器</li>
-<li>通过证书验证防范</li>
-<li>使用可信CA签发的证书</li>
-</ul>
-<h3 id="降级攻击">7.2 降级攻击</h3>
-<ul>
-<li>强制使用低版本协议</li>
-<li>禁用不安全的协议版本</li>
-<li>启用降级保护机制</li>
-</ul>
-<h3 id="重放攻击">7.3 重放攻击</h3>
-<ul>
-<li>重放已捕获的数据包</li>
-<li>使用随机数和时间戳</li>
-<li>会话标识符唯一性</li>
-</ul>
-<h2 id="最佳实践">8. 最佳实践</h2>
-<h3 id="协议配置">8.1 协议配置</h3>
-<ul>
-<li>仅启用TLS 1.2及以上版本</li>
-<li>使用强加密套件</li>
-<li>启用前向保密</li>
-</ul>
-<h3 id="证书管理">8.2 证书管理</h3>
-<ul>
-<li>及时更新证书</li>
-<li>使用适当的密钥长度</li>
-<li>正确配置证书链</li>
-</ul>
-<h3 id="安全监控">8.3 安全监控</h3>
-<ul>
-<li>记录TLS错误日志</li>
-<li>监控证书有效期</li>
-<li>定期安全评估</li>
-</ul>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>网络与通信</category>
-      </categories>
-      <tags>
-        <tag>TLS</tag>
-        <tag>网络安全</tag>
-        <tag>加密</tag>
-        <tag>HTTPS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>TDX Note</title>
     <url>/posts/cbeff3a9/</url>
     <content><![CDATA[<h2 id="intel-tdx-demystified-a-top-down-approach">Intel TDX Demystified: A Top-Down Approach</h2>
@@ -4635,6 +4359,282 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
 <p><strong>11. 总结</strong></p>
 <p>Intel TDX 是一个为虚拟化环境设计的保密计算技术，它提供了加密隔离、内存保护和远程认证等安全功能。通过引入 TDX，云服务提供商可以将特权软件和管理员从可信计算基（TCB）中排除，从而减少潜在的攻击面。本文采用自上而下的方法，对 TDX 的体系结构、内存保护机制、I/O 模型和认证过程进行了详细分析，并与其他保密计算技术进行了比较。</p>
 <p>我们的实验评估表明，TDX 在提供高级安全保护的同时，仅引入了较小的性能开销。未来，随着 TDX 实现实时迁移和可信 I/O 等功能，它在云计算和安全数据托管中的应用前景将更加广阔。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>TDX</tag>
+        <tag>TEE</tag>
+        <tag>Intel</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>TLS Note</title>
+    <url>/posts/32f5e233/</url>
+    <content><![CDATA[<h2 id="什么是tls">1. 什么是TLS</h2>
+<p>TLS（Transport Layer Security），即传输层安全协议，用于在两个通信应用程序之间提供保密性和数据完整性。它是一种加密协议，工作在传输层之上，为应用层协议提供安全性保障。</p>
+<span id="more"></span>
+<p>TLS的前身是SSL（Secure Sockets Layer），由网景公司于1994年提出，主要用于解决HTTP协议在传输过程中的安全性问题。</p>
+<h2 id="tls的主要功能">2. TLS的主要功能</h2>
+<p>TLS提供以下三个主要的安全服务：</p>
+<h3 id="身份认证">2.1 身份认证</h3>
+<p>通过数字证书确保通信双方的身份，防止身份伪装和中间人攻击。服务器必须提供证书，客户端可选择性提供。</p>
+<h3 id="数据加密">2.2 数据加密</h3>
+<p>使用对称加密算法对传输的数据进行加密，确保数据的机密性。即使数据被截获，没有密钥也无法解密。</p>
+<h3 id="完整性校验">2.3 完整性校验</h3>
+<p>使用消息认证码（MAC）确保数据在传输过程中没有被篡改，保证数据的完整性。</p>
+<h2 id="tls的版本演进">3. TLS的版本演进</h2>
+<p>TLS协议经历了多个版本的演进：</p>
+<ul>
+<li>SSL 2.0 (1995): 首个公开发布的SSL版本，现已弃用</li>
+<li>SSL 3.0 (1996): 对SSL 2.0进行了重大改进，但现已弃用</li>
+<li>TLS 1.0 (1999): 基于SSL 3.0开发，做了一些安全改进</li>
+<li>TLS 1.1 (2006): 增加了对CBC模式的保护</li>
+<li>TLS 1.2 (2008): 支持更多的加密算法，提高了安全性</li>
+<li>TLS 1.3 (2018): 简化握手过程，移除了不安全的加密算法</li>
+</ul>
+<h2 id="tls的密码学原理">4. TLS的密码学原理</h2>
+<h3 id="对称加密">4.1 对称加密</h3>
+<ul>
+<li>使用相同的密钥进行加密和解密</li>
+<li>常用算法：AES、ChaCha20</li>
+<li>用于加密传输的数据</li>
+</ul>
+<h3 id="非对称加密">4.2 非对称加密</h3>
+<ul>
+<li>使用公钥加密，私钥解密</li>
+<li>常用算法：RSA、ECDSA</li>
+<li>用于密钥交换和身份认证</li>
+</ul>
+<h3 id="数字证书">4.3 数字证书</h3>
+<ul>
+<li>X.509格式证书</li>
+<li>包含服务器的公钥和身份信息</li>
+<li>由CA机构签名认证</li>
+</ul>
+<h3 id="消息认证码">4.4 消息认证码</h3>
+<ul>
+<li>HMAC算法</li>
+<li>确保消息完整性</li>
+<li>防止数据被篡改</li>
+</ul>
+<h2 id="tls握手过程">5. TLS握手过程</h2>
+<p>TLS握手是建立安全连接的关键过程，主要步骤如下：</p>
+<h3 id="client-hello">5.1 Client Hello</h3>
+<ul>
+<li>客户端发送支持的TLS版本</li>
+<li>支持的加密套件列表</li>
+<li>随机数（Client Random）</li>
+<li>会话ID（如果是恢复会话）</li>
+</ul>
+<h3 id="server-hello">5.2 Server Hello</h3>
+<ul>
+<li>服务器选择TLS版本</li>
+<li>选择加密套件</li>
+<li>随机数（Server Random）</li>
+<li>服务器证书</li>
+</ul>
+<h3 id="密钥交换">5.3 密钥交换</h3>
+<ul>
+<li>客户端验证服务器证书</li>
+<li>生成预主密钥（Pre-master Secret）</li>
+<li>使用服务器公钥加密预主密钥</li>
+<li>计算主密钥（Master Secret）</li>
+</ul>
+<h3 id="完成握手">5.4 完成握手</h3>
+<ul>
+<li>切换到加密通信</li>
+<li>验证握手消息的完整性</li>
+<li>开始安全数据传输</li>
+</ul>
+<h2 id="tls的应用场景">6. TLS的应用场景</h2>
+<h3 id="https">6.1 HTTPS</h3>
+<ul>
+<li>最常见的TLS应用</li>
+<li>为HTTP提供安全传输</li>
+<li>网站必备的安全保障</li>
+</ul>
+<h3 id="安全邮件">6.2 安全邮件</h3>
+<ul>
+<li>SMTPS</li>
+<li>IMAPS</li>
+<li>POP3S</li>
+</ul>
+<h3 id="vpn">6.3 VPN</h3>
+<ul>
+<li>OpenVPN</li>
+<li>其他基于TLS的VPN协议</li>
+</ul>
+<h2 id="常见攻击与防范">7. 常见攻击与防范</h2>
+<h3 id="中间人攻击">7.1 中间人攻击</h3>
+<ul>
+<li>攻击者冒充服务器</li>
+<li>通过证书验证防范</li>
+<li>使用可信CA签发的证书</li>
+</ul>
+<h3 id="降级攻击">7.2 降级攻击</h3>
+<ul>
+<li>强制使用低版本协议</li>
+<li>禁用不安全的协议版本</li>
+<li>启用降级保护机制</li>
+</ul>
+<h3 id="重放攻击">7.3 重放攻击</h3>
+<ul>
+<li>重放已捕获的数据包</li>
+<li>使用随机数和时间戳</li>
+<li>会话标识符唯一性</li>
+</ul>
+<h2 id="最佳实践">8. 最佳实践</h2>
+<h3 id="协议配置">8.1 协议配置</h3>
+<ul>
+<li>仅启用TLS 1.2及以上版本</li>
+<li>使用强加密套件</li>
+<li>启用前向保密</li>
+</ul>
+<h3 id="证书管理">8.2 证书管理</h3>
+<ul>
+<li>及时更新证书</li>
+<li>使用适当的密钥长度</li>
+<li>正确配置证书链</li>
+</ul>
+<h3 id="安全监控">8.3 安全监控</h3>
+<ul>
+<li>记录TLS错误日志</li>
+<li>监控证书有效期</li>
+<li>定期安全评估</li>
+</ul>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>网络与通信</category>
+      </categories>
+      <tags>
+        <tag>TLS</tag>
+        <tag>网络安全</tag>
+        <tag>加密</tag>
+        <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>关于Intel TDX的深度思考与技术剖析</title>
+    <url>/posts/b63e909c/</url>
+    <content><![CDATA[<p>本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思辨，本文旨在为理解和应用TEE/TDX技术解决实际信任问题，提供一个完整而深入的框架。</p>
+<span id="more"></span>
+<h3 id="引言云时代的信任难题">引言：云时代的信任难题</h3>
+<p>在当前的云计算和联邦学习场景下，数据隐私和计算过程的保密性至关重要。我们常常面临一个核心的信任悖论：我们希望利用云服务商强大的计算能力处理敏感数据，却又不能完全信任服务所在的平台，包括云厂商、甚至是拥有最高权限的租户管理员。如何确保我们的代码和数据在“别人”的服务器上，能够不被窥探、不被篡改地安全运行？可信执行环境（TEE）技术，特别是Intel TDX，为我们提供了破解这一难题的钥匙。</p>
+<h3 id="第一章tee与intel-tdx核心概念">第一章：TEE与Intel TDX核心概念</h3>
+<p>您可以将TEE想象成CPU内部一个被硬件强制隔离的“安全保险库”或“黑盒”。它主要提供以下四种核心保障：</p>
+<ul>
+<li><strong>隔离性 (Isolation)</strong>: 在TEE（Intel TDX中称为Trust Domain）内部运行的代码和数据，与服务器上运行的其他所有软件（包括操作系统、Hypervisor/虚拟机管理器，甚至是拥有物理访问权限的管理员）都是<strong>完全隔离的</strong>。</li>
+<li><strong>机密性 (Confidentiality)</strong>: TEE内的数据在CPU外部（例如在内存条DRAM上）始终是加密的。即使有人用逻辑分析仪去嗅探内存总线，也拿不到明文。</li>
+<li><strong>完整性 (Integrity)</strong>: TEE会确保加载到其内部的代码没有被篡改。</li>
+<li><strong>远程证明 (Remote Attestation)</strong>: 这是TEE的“杀手级特性”。客户端可以在与服务器通信之前，通过一个密码学协议，要求服务器上的TEE 证明自己的身份。这个证明可以告诉客户端：“我是一个货真价实的、由Intel制造的CPU中的TEE，我正在运行的代码就是你期望的那个版本（通过代码哈希值验证），并且我没有被篡改过。”</li>
+</ul>
+<h3 id="第二章信任模型的演进从完全信任到零信任">第二章：信任模型的演进：从完全信任到零信任</h3>
+<p>TEE的出现并非一蹴而就，它的价值体现在计算信任模型的不断演进中。</p>
+<h4 id="传统虚拟化-传统vm">传统虚拟化 (传统VM)</h4>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件 -&gt; Hypervisor -&gt; 虚拟机(VM)</code>。Hypervisor运行在最高权限，完全控制硬件。</li>
+<li><strong>信任模型</strong>: Hypervisor是全能的上帝。它可以随时暂停VM，检查其完整的内存状态，看到所有明文。租户必须<strong>完全信任</strong>云服务商。</li>
+</ul>
+<h4 id="sgx时代-enclave模型">SGX时代 (Enclave模型)</h4>
+<p>为了解决对Hypervisor的信任问题，Intel推出了SGX。</p>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件 -&gt; OS/Hypervisor -&gt; 应用程序 -&gt; Enclave</code>。Enclave是从应用程序的地址空间中“挖”出来的一块受硬件保护的内存区域。</li>
+<li><strong>信任模型</strong>: 信任边界缩小到Enclave内部。Hypervisor/OS无法窥探Enclave，但它仍然管理着整个应用程序和操作系统。这种模型对应用改造要求高，且与外部世界交互繁琐。</li>
+</ul>
+<h4 id="tdx时代-机密虚拟机模型">TDX时代 (机密虚拟机模型)</h4>
+<p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
+<ul>
+<li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
+<li><strong>信任模型的革命性变化</strong>:
+<ul>
+<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
+<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
+</ul></li>
+</ul>
+<h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
+<p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
+<ul>
+<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
+<ul>
+<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
+<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
+<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
+</ul></li>
+<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
+<ul>
+<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
+<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
+<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
+</ul></li>
+<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
+<ul>
+<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
+<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
+<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
+</ul></li>
+</ul>
+<h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
+<p>仅仅将应用放入TEE环境是不足以保证安全的，开发者必须遵循特定的安全编程模式来管理所有进出TEE的数据流。</p>
+<h4 id="数据处理如何避免明文泄露">4.1 数据处理：如何避免明文泄露</h4>
+<p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
+<ul>
+<li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
+<li><strong>正确（安全）的设计模式</strong>:
+<ul>
+<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
+<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
+</ul></li>
+</ul>
+<h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>
+<p>既然TEE是黑盒，那作为最关键秘密的<strong>密钥，最初是如何安全地进入这个黑盒的？</strong> 这需要通过远程证明和密钥提供（Secret Provisioning）的协同过程来完成。</p>
+<h5 id="密钥的提供-secret-provisioning">密钥的提供 (Secret Provisioning)</h5>
+<p>这个过程就像一次高度安全的、经过身份验证的“隔空投送”。</p>
+<ol type="1">
+<li><strong>TEE发起证明</strong>: TEE应用启动后，请求CPU硬件生成一份包含其代码身份指纹（MRENCLAVE）、开发者身份（MRSIGNER）和临时公钥的<strong>证明报告（Quote）</strong>，并由CPU内嵌的硬件私钥签名。</li>
+<li><strong>密钥所有者验证证明</strong>: 密钥所有者收到Quote后，会进行双重验证：
+<ul>
+<li><strong>硬件验证</strong>: 请求Intel的证明服务器，验证Quote的硬件签名，确保它来自真实的Intel CPU。</li>
+<li><strong>软件验证</strong>: 比对自己手中经过审计的代码哈希值与Quote中的MRENCLAVE，确保TEE中运行的是未经篡改的、正确的代码版本。</li>
+</ul></li>
+<li><strong>安全“投送”密钥</strong>: 验证通过后，密钥所有者完全信任了远端的TEE。它会从Quote中提取出TEE的临时公钥，用它加密真正的私钥，然后将这个加密的“密钥包裹”发回给TEE。</li>
+<li><strong>TEE内部拆解</strong>: TEE应用收到“密钥包裹”后，用自己对应的临时私钥在受保护的内存中解密，安全地获得真实私钥。</li>
+</ol>
+<h5 id="密钥的持久化-sealing">密钥的持久化 (Sealing)</h5>
+<p>为了避免每次重启都重复上述复杂的提供流程，TEE应用在首次获取密钥后，可以利用前述的<strong>Sealing机制</strong>，将其用硬件绑定的密钥加密后，安全地保存在外部磁盘上。重启后，只有在同一台机器上、运行着同样代码的TEE应用，才能成功解封（unseal），将密钥重新加载到内存中。</p>
+<h4 id="io安全警惕自我泄露">4.3 I/O安全：警惕“自我泄露”</h4>
+<p>TEE保护的是计算过程，但它不会自动保护应用的I/O。如果开发者在代码里写了<code>print(private_key)</code>，TEE会忠实地执行，并将这个秘密通过标准输出（stdout）泄露给不受信的Guest OS，最终被租户看到。</p>
+<p>这揭示了TEE安全编程的关键原则：<strong>开发者必须有意识地管理所有进出TEE的信道，视之为潜在的泄露风险。</strong></p>
+<ul>
+<li><p><strong>防御措施1：代码审计（最重要）</strong>: 任何敏感数据变量，绝不能传递给任何执行I/O操作的函数（如<code>print()</code>, <code>log.info()</code>, <code>file.write()</code>）。客户端信任的，正是那个经过审计、确认没有此类行为的代码版本。</p></li>
+<li><p><strong>防御措施2：安全日志系统</strong>: 对日志进行过滤或加密，或在生产环境中完全禁用高风险的日志级别。</p></li>
+<li><p><strong>防御措施3：运行时配置</strong>: 将应用的stdout和stderr重定向到<code>/dev/null</code>，作为一种兜底措施。</p></li>
+</ul>
+<h3 id="第五章tee安全模型的动态性与挑战">第五章：TEE安全模型的动态性与挑战</h3>
+<h4 id="代码篡改不可能完成的任务">5.1 代码篡改：不可能完成的任务</h4>
+<p>从系统管理员的角度看，修改磁盘上的一个脚本文件非常简单。但对于TEE来说，要在不被发现的情况下恶意修改代码，却几乎不可能。</p>
+<p>这里的关键在于区分两个概念：</p>
+<ul>
+<li><p><strong>修改文件内容的能力</strong>: 租户拥有。</p></li>
+<li><p><strong>伪造程序身份的能力</strong>: 租户没有。</p></li>
+</ul>
+<p>TEE安全模型的核心基石是：<strong>代码的任何一丝一毫的改变，都会导致其身份指纹(MRENCLAVE)发生雪崩式的、不可预测的变化。</strong> 当客户端进行远程证明时，它会立刻发现代码指纹与预期的不匹配，从而拒绝信任、中止连接。同样，被修改后的代码也无法解封（unseal）由旧版本代码封存（seal）的秘密。</p>
+<p>因此，租户可以“作恶”，但他无法“隐藏作恶的意图”。在他试图运行恶意代码的那一刻，他就在远程证明的照妖镜下原形毕露了。</p>
+<h4 id="证明的瞬时性与对策">5.2 证明的“瞬时性”与对策</h4>
+<p>远程证明本质上是一个“瞬时快照”，它只证明TEE在生成报告那一刻的身份和状态，本身无法记录历史变化。这带来了潜在的“作恶后改回”的攻击窗口。</p>
+<p>在实践中，必须将远程证明与持续的、有状态的安全协议结合起来，弥补“瞬时性”带来的缺口：</p>
+<ul>
+<li><strong>方案1：会话绑定 (Session Binding)</strong>: 将瞬时证明与当前会话（如TLS会话）的关键信息（如临时公key）绑定。对“瞬时”TEE的信任，被安全地传递给了对“当前整个会话”的信任。任何导致TEE重启或代码变更的行为都会破坏会话，客户端会立刻发现。这足以防止“先证明后作恶”的攻击。</li>
+<li><strong>方案2：可信日志/区块链</strong>: 对于需要更强审计性的场景，可以将TEE每次执行的关键操作（如模型聚合）生成日志条目，并用其身份密钥签名，发布到只能追加、无法修改的存储系统（如区块链）上。这为TEE的瞬时行为提供了不可篡改的历史记录和持久化信任。</li>
+</ul>
+<h3 id="结论">结论</h3>
+<p>Intel TDX等TEE技术通过提供硬件层面的隔离性、机密性、完整性和远程证明能力，从根本上重塑了云环境下的信任模型。它将信任的根基从对“人”或“软件供应商”的主观信任，转移到了对“开源审计过的代码”和“CPU硬件设计”的客观、可验证的信任。</p>
+<p>然而，TEE并非一个能让不安全的代码自动变得安全的“魔法棒”。它提供的是一个<strong>可信的执行环境</strong>，而非一个<strong>可信的应用</strong>。要真正发挥TEE的威力，开发者必须承担起<strong>编写安全代码的责任</strong>，遵循严格的安全编程范式，谨慎管理所有的数据I/O、密钥生命周期和会话状态。</p>
+<p>通过将强大的硬件保障与严谨的软件开发实践相结合，我们才能真正构建出端到端的、能抵御来自特权软件甚至物理攻击的机密计算解决方案。</p>
+<p>以上为个人理解，敬请批评指正。</p>
 ]]></content>
       <categories>
         <category>计算机基础</category>
@@ -5315,601 +5315,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
         <tag>Terminal</tag>
         <tag>Shell</tag>
         <tag>macOS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Clash 与网络代理详解</title>
-    <url>/posts/755f751e/</url>
-    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
-<span id="more"></span>
-<h3 id="基本概念速读">📚 基本概念速读</h3>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>定义</th>
-<th>省流</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>VPN</strong></td>
-<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
-<td>秘密隧道</td>
-</tr>
-<tr class="even">
-<td><strong>Proxy</strong></td>
-<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
-<td>传话筒</td>
-</tr>
-<tr class="odd">
-<td><strong>Clash</strong></td>
-<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
-<td>智能调度员</td>
-</tr>
-<tr class="even">
-<td><strong>Rule</strong></td>
-<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
-<td>分流路牌</td>
-</tr>
-<tr class="odd">
-<td><strong>TUN</strong></td>
-<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
-<td>虚拟网卡</td>
-</tr>
-<tr class="even">
-<td><strong>Mixin</strong></td>
-<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
-<td>补丁包</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th>特性</th>
-<th>VPN</th>
-<th>代理 (Proxy)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>工作层级</strong></td>
-<td>操作系统层 (OSI L3 网络层)</td>
-<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
-</tr>
-<tr class="even">
-<td><strong>接管范围</strong></td>
-<td>全局接管（通常），所有软件流量都走隧道</td>
-<td>仅接管支持代理设置的软件 (如浏览器)</td>
-</tr>
-<tr class="odd">
-<td><strong>加密程度</strong></td>
-<td>全程加密，强调安全性</td>
-<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
-</tr>
-<tr class="even">
-<td><strong>灵活性</strong></td>
-<td>较差，通常“全走”或“全不走”</td>
-<td>极高，可按域名/进程分流</td>
-</tr>
-<tr class="odd">
-<td><strong>典型协议</strong></td>
-<td>WireGuard, OpenVPN, IPSec</td>
-<td>HTTP, Socks5, Shadowsocks, VMess</td>
-</tr>
-</tbody>
-</table>
-</blockquote>
-<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
-<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
-<h4 id="global-全局模式">1. Global 全局模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
-<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
-<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
-</ul>
-<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
-<ul>
-<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
-<li><strong>流程</strong>：
-<ol type="1">
-<li>拦截请求。</li>
-<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
-<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
-</ol></li>
-<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
-</ul>
-<h4 id="direct-直连模式">3. Direct 直连模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
-<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
-</ul>
-<h4 id="script-脚本模式">4. Script 脚本模式</h4>
-<ul>
-<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
-<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
-</ul>
-<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
-<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
-<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
-<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
-<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
-<pre>
-<code class="mermaid">
-
-graph TD;
-    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
-    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
-    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
-    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
-    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
-</code>
-</pre>
-<ol type="1">
-<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
-<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
-<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
-<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
-</ol>
-<blockquote>
-<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
-</blockquote>
-<blockquote>
-<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
-<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
-<ul>
-<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
-<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
-</ul>
-<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
-</blockquote>
-<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
-<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
-<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
-<ul>
-<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
-<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
-<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
-<li><strong>主要作用</strong>：
-<ol type="1">
-<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
-<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
-<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
-</ol></li>
-</ul>
-<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
-<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
-<h4 id="核心结构">核心结构</h4>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
-<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
-<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
-<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
-<ul>
-<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
-<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
-<li><strong>用途</strong>：
-<ul>
-<li>强制开启 TUN 模式。</li>
-<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
-<li>添加个人的局域网 IP 直连规则。</li>
-</ul></li>
-</ul>
-<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
-</blockquote>
-<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
-<ol type="1">
-<li><strong>“开了全局模式就是最安全的”</strong>
-<ul>
-<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
-</ul></li>
-<li><strong>“Ping 值低网速就快”</strong>
-<ul>
-<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
-</ul></li>
-<li><strong>“TUN 模式会影响打游戏吗？”</strong>
-<ul>
-<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
-</ul></li>
-<li><strong>Clash 是 VPN 吗？</strong>
-<ul>
-<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
-<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
-</ul></li>
-</ol>
-]]></content>
-      <tags>
-        <tag>Clash</tag>
-        <tag>Network</tag>
-        <tag>VPN</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CMake 入门</title>
-    <url>/posts/233853f2/</url>
-    <content><![CDATA[<p>不论你是写 C/C++、CUDA，还是要同时照顾 Linux/Windows/macOS，当项目走出“玩具”阶段，构建就会成为最大的摩擦源：不同编译器、不同 IDE、不同参数、不同依赖的发现与链接。如果还靠手写 <code>Makefile</code> 或分别维护 VS/Xcode 工程，成本会直线上升。</p>
-<p>这正是 CMake 出现的原因：用一份跨平台的构建脚本，生成各平台各 IDE 需要的工程与命令。 <span id="more"></span></p>
-<h3 id="cmake-解决了哪些痛点精简版">CMake 解决了哪些痛点（精简版）</h3>
-<ul>
-<li><p><strong>跨平台</strong>：一份 <code>CMakeLists.txt</code>，到处生成工程（Ninja/Makefiles、Visual Studio、Xcode）。</p></li>
-<li><p><strong>少折腾</strong>：自动管理头文件目录、编译选项、链接依赖，不用手拼长命令。</p></li>
-<li><p><strong>更清爽</strong>：源代码与构建产物分离，目录不再被临时文件污染。</p></li>
-</ul>
-<h3 id="一图速懂它到底做了什么">一图速懂：它到底做了什么</h3>
-<pre>
-<code class="mermaid">
-
-graph TD;
-  A[&quot;写 CMakeLists.txt&quot;] --&gt; B[&quot;cmake -S 源码 -B 构建&quot;];
-  B --&gt; C[&quot;构建：cmake --build 构建目录&quot;];
-  C --&gt; D[&quot;运行：.&#x2F;build&#x2F;hello（或 IDE 里运行）&quot;];
-  B --&gt; E[&quot;按平台生成合适的工程&#x2F;构建文件&quot;];
-</code>
-</pre>
-<h4 id="为什么在-b-分叉">为什么在 B 分叉</h4>
-<ul>
-<li>B 是“配置/生成”阶段，产生两种后续选择：</li>
-<li>走 C：继续用 <code>cmake --build</code> 统一构建（CMake 调用本机构建器编译/链接）。</li>
-<li>走 E：直接使用已生成的本机构建文件（Makefile、Ninja、Visual Studio、Xcode 工程）在命令行或 IDE 中构建。</li>
-<li>二者本质等价，通常二选一即可；团队混用也没问题。</li>
-</ul>
-<h4 id="配置阶段b的产物">配置阶段（B）的产物</h4>
-<ul>
-<li>本机构建文件：<code>Makefile</code>、<code>build.ninja</code>、VS <code>.sln/.vcxproj</code>、Xcode <code>.xcodeproj</code>（由生成器决定）。</li>
-<li>CMake 缓存与元数据：<code>CMakeCache.txt</code>、<code>CMakeFiles/</code>、平台/编译器/特性探测结果。</li>
-<li>可选辅助：<code>compile_commands.json</code>（<code>-DCMAKE_EXPORT_COMPILE_COMMANDS=ON</code>）、通过 <code>configure_file()</code> 生成的配置头/源文件。</li>
-<li>位置：全部写入 <code>-B</code> 指定的构建目录。</li>
-</ul>
-<h4 id="构建阶段c的产物">构建阶段（C）的产物</h4>
-<ul>
-<li>可执行文件：如 <code>build/hello</code>（Windows 为 <code>build/hello.exe</code>）。</li>
-<li>库文件：静态库（<code>.a</code>/<code>.lib</code>）、共享库（<code>.so</code>/<code>.dll</code>/<code>.dylib</code>）。</li>
-<li>中间文件：目标文件（<code>*.o</code>/<code>*.obj</code>）、依赖/缓存等，位于构建目录。</li>
-<li>自定义输出：可用 <code>CMAKE_RUNTIME_OUTPUT_DIRECTORY</code>、<code>CMAKE_LIBRARY_OUTPUT_DIRECTORY</code>、<code>CMAKE_ARCHIVE_OUTPUT_DIRECTORY</code> 调整位置。</li>
-</ul>
-<h3 id="分钟上手">5 分钟上手</h3>
-<p>目录结构：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">your_project/</span><br><span class="line">  CMakeLists.txt</span><br><span class="line">  src/main.cpp</span><br></pre></td></tr></table></figure>
-<p><code>CMakeLists.txt</code>：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(hello LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(hello src/main.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(hello PRIVATE cxx_std_17)</span><br></pre></td></tr></table></figure>
-<p><code>src/main.cpp</code>：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Hello, CMake!&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>构建与运行：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br><span class="line">./build/hello</span><br></pre></td></tr></table></figure>
-<h3 id="cmake-改变了什么一个对比例子">CMake 改变了什么：一个对比例子</h3>
-<p>场景：两个源文件 <code>src/main.cpp</code>、<code>src/util.cpp</code>，需要 C++17，并在 Linux 与 Windows 上都能构建。</p>
-<ul>
-<li><p>没有 CMake（每个平台都要记不同命令）</p></li>
-<li><p>Linux（GCC/Clang）：</p></li>
-</ul>
-<pre><code><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure></code></pre>
-<ul>
-<li>Windows（MSVC）：</li>
-</ul>
-<pre><code><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cl /std:c++17 /O2 src\main.cpp src\util.cpp /I include /Fe:app.exe</span><br></pre></td></tr></table></figure></code></pre>
-<ul>
-<li><p>维护代价：命令不通用，IDE 工程（VS/Xcode）还要各自维护一份。</p></li>
-<li><p>有 CMake（一份脚本到处用）</p></li>
-</ul>
-<p><code>CMakeLists.txt</code>：</p>
-<p><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure></p>
-<p>构建命令（所有平台一致）：</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br></pre></td></tr></table></figure></p>
-<p>效果：不用关心底层是 Make 还是 Ninja、GCC 还是 MSVC，也不用为 VS/Xcode 手工维护工程；需要 IDE 时让 CMake 直接生成即可。诸如 <code>-lm</code>、异常/运行时等平台差异，交给生成器与工具链处理。</p>
-<h4 id="g-命令解析在没有-cmake-时">g++ 命令解析（在没有 CMake 时）</h4>
-<p>以 Linux 的命令为例：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>g++</strong>：调用 GNU C++ 编译器。</p></li>
-<li><p><strong>-std=c++17</strong>：启用 C++17 标准（在 MSVC 下等价为 <code>/std:c++17</code>）。</p></li>
-<li><p><strong>-O2</strong>：开启二级优化（体积与速度的折中）。</p></li>
-<li><p><strong>src/main.cpp src/util.cpp</strong>：要编译并参与链接的源文件。</p></li>
-<li><p><strong>-Iinclude</strong>：增加头文件搜索目录 <code>include</code>。</p></li>
-<li><p><strong>-o app</strong>：输出可执行文件名为 <code>app</code>。</p></li>
-</ul>
-<p>在实际项目中，这条命令会迅速膨胀：再加多目录、宏定义、库搜索路径（<code>-L</code>）、链接库（<code>-lxxx</code>）、平台差异参数，就会变得又长又难复用。这正是 CMake 希望你“声明语义、自动映射细节”的原因。</p>
-<h3 id="工作原理">工作原理</h3>
-<pre>
-<code class="mermaid">
-
-graph TD;
-  A[&quot;CMakeLists.txt：声明要什么&quot;] --&gt; B[&quot;配置阶段：检测平台&#x2F;编译器&#x2F;特性&quot;];
-  B --&gt; C[&quot;选择生成器：Ninja&#x2F;Makefiles&#x2F;VS&#x2F;Xcode&quot;];
-  C --&gt; D[&quot;生成本机构建文件（规则&#x2F;工程）&quot;];
-  D --&gt; E[&quot;cmake --build：调用本机构建器编译&#x2F;链接&quot;];
-</code>
-</pre>
-<p>一句话：你只写“意图”，CMake 按“环境”翻译成正确做法。</p>
-<h3 id="这几行背后发生了什么">这几行背后发生了什么</h3>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>cmake_minimum_required(VERSION 3.20)</strong>：锁定最低版本，启用对应语法与行为，避免旧版差异。</p></li>
-<li><p><strong>project(app LANGUAGES CXX)</strong>：确定工程名与语言；CMake 会探测可用的 C++ 编译器与平台特性。</p></li>
-<li><p><strong>add_executable(app …)</strong>：声明目标 <code>app</code>；CMake 为它建立依赖图，并在生成阶段把它翻译成本机的规则/工程项。</p></li>
-<li><p><strong>target_compile_features(app PRIVATE cxx_std_17)</strong>：声明“需要 C++17”，CMake 按编译器映射成正确开关：</p>
-<ul>
-<li><p>GCC/Clang：<code>-std=c++17</code></p></li>
-<li><p>MSVC：<code>/std:c++17</code></p></li>
-</ul></li>
-<li><p><strong>target_include_directories(app PRIVATE include)</strong>：声明头文件目录，按平台生成参数：</p>
-<ul>
-<li><p>GCC/Clang：<code>-I include</code></p></li>
-<li><p>MSVC：<code>/I include</code></p></li>
-</ul></li>
-</ul>
-<p>这就是“一份脚本到处用”的核心：写语义，不写平台细节；由生成器与工具链适配差异。</p>
-<h3 id="cmake-支持哪些语言">CMake 支持哪些语言？</h3>
-<p>首要用户群是 <strong>C/C++</strong>，但并不止于此。常见支持包括：</p>
-<ul>
-<li><p><strong>C、C++</strong>：最成熟、生态最广。</p></li>
-<li><p><strong>CUDA、HIP</strong>：GPU 相关项目常用。</p></li>
-<li><p><strong>Fortran</strong>：在科学计算/数值领域仍然重要。</p></li>
-<li><p><strong>Objective-C/Swift（通过外部集成）</strong>：在 Apple 平台工程生成方面配合 Xcode。</p></li>
-<li><p><strong>ASM、ISPC 等</strong>：低层或专用场景。</p></li>
-</ul>
-<p>此外，CMake 也常被当作“元构建工具”，去驱动其他语言/工具链（如生成外部工具命令、打包脚本）。原则是：若目标/命令能被描述成“配置+构建”的过程，CMake 往往能充当胶水把它们组织起来，但其强项仍然是 C/C++ 及其周边。</p>
-<h3 id="就这么记住">就这么记住</h3>
-<ul>
-<li><p><strong>写清“要什么”</strong>：目标、源文件、需要的标准或库。</p></li>
-<li><p><strong>总在源码外构建</strong>：<code>-S</code> 指源码，<code>-B</code> 指构建目录。</p></li>
-<li><p><strong>统一的构建命令</strong>：<code>cmake --build</code>，不用关心底层是 Make 还是 Ninja。</p></li>
-</ul>
-<h3 id="结语">结语</h3>
-<p>先用这套最小流程把程序跑起来，再根据需要逐步增加依赖与选项；当你不想再重复为不同平台维护多套工程时，CMake 就是省心的那一个。</p>
-]]></content>
-      <categories>
-        <category>开发工具</category>
-      </categories>
-      <tags>
-        <tag>CMake</tag>
-        <tag>构建系统</tag>
-        <tag>C/C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>eBPF 入门：原理、程序类型与上手实践</title>
-    <url>/posts/a9c3e7b1/</url>
-    <content><![CDATA[<p>为什么近几年大家都在谈 eBPF？一句话：在不改内核源码的前提下，把“小而安全”的代码段挂到内核关键路径里运行，从而获得接近内核旁路的性能，同时保留 Linux 内核栈的安全与可维护性。</p>
-<span id="more"></span>
-<h3 id="ebpf-是什么">eBPF 是什么？</h3>
-<ul>
-<li><strong>定义</strong>：eBPF（extended Berkeley Packet Filter）是一种在 Linux 内核中安全运行的通用字节码与运行环境。</li>
-<li><strong>工作方式</strong>：用户态加载 eBPF 字节码 → 内核验证器（Verifier）进行安全检查 → 通过后 JIT 编译并附着在特定钩子（hook）上执行。</li>
-<li><strong>核心优势</strong>：
-<ul>
-<li><strong>性能</strong>：在内核态早路径执行，减少用户/内核切换与协议栈开销。</li>
-<li><strong>安全</strong>：Verifier 强校验（边界、类型、调用、上界循环等）避免内核崩溃。</li>
-<li><strong>可编程</strong>：通过不同 hook 点覆盖网络、跟踪、系统调用、调度等多场景。</li>
-</ul></li>
-<li><p><strong>原理</strong>：把一小段经过严格安全检查的“字节码程序”挂在内核关键路径的钩子上，事件一来就执行；程序只做受限且安全的操作，状态放在可共享的 Map 里，必要时由 JIT 变成本机机器码以提升性能。</p></li>
-<li><strong>它是怎么跑起来的</strong>：
-<ol type="1">
-<li>写 C/Rust 小程序并编译为 eBPF 字节码；</li>
-<li>用户态通过 <code>bpf()</code> 系统调用加载；</li>
-<li>Verifier 逐条检查安全与终止性；</li>
-<li>通过后将程序附着到某个 hook（XDP/TC/Kprobe/Tracepoint/LSM 等）；</li>
-<li>事件触发时内核调用你的 eBPF 程序；</li>
-<li>程序通过内核 helper 做受控操作，并用 Map 读写共享状态；</li>
-<li>为提速可由 JIT 将字节码编译为本机机器码。</li>
-</ol></li>
-<li><strong>关键组件</strong>：
-<ul>
-<li>字节码与运行时：跨版本、可验证；</li>
-<li>Verifier：安全门卫；</li>
-<li>Hook：把程序接到正确时机与位置；</li>
-<li>Helper：白名单式内核能力（解析包头、重定向、时间等）；</li>
-<li>Map：共享状态与内核/用户态通信；</li>
-<li>JIT：将字节码转为机器码以提速。</li>
-</ul></li>
-<li><strong>为何又快又安全</strong>：
-<ul>
-<li>快：处于内核早路径，少用户/内核切换；JIT 后是本机机器码；</li>
-<li>安全：受限指令集 + 强验证 + 只能通过 helper 间接触达敏感资源。</li>
-</ul></li>
-<li><strong>对比内核模块（LKM）</strong>：
-<ul>
-<li>eBPF：热插拔、受限且强校验，出错不易拖垮内核；</li>
-<li>LKM：能力无限但易带来稳定性风险，开发调试成本更高。</li>
-</ul></li>
-</ul>
-<h3 id="能挂到哪里常见-hook-一览">能挂到哪里？常见 Hook 一览</h3>
-<ul>
-<li><strong>XDP（eXpress Data Path）</strong>：网卡驱动最前面的收包路径，极低延迟，典型用于丢弃、重定向、负载均衡等。</li>
-<li><strong>TC（Traffic Control）</strong>：在 <code>ingress/egress</code> 对 <code>skb</code> 处理，能访问更丰富的协议栈信息。</li>
-<li><strong>Socket/CGroups</strong>：基于 socket/cgroup 的细粒度策略，如重定向、QoS、准入控制。</li>
-<li><strong>Kprobe/Kretprobe/Tracepoint/USDT</strong>：内核/用户态可观测性与性能分析。</li>
-<li><strong>LSM（Linux Security Module）</strong>：基于 eBPF 的细粒度安全策略（需要内核支持）。</li>
-</ul>
-<h3 id="ebpf-程序类型与典型用途">eBPF 程序类型与典型用途</h3>
-<ul>
-<li><strong>XDP 程序</strong>：包过滤、负载均衡、DoS 缓解、快速 ACK。</li>
-<li><strong>TC BPF</strong>：深度包处理、QoS/整形、服务网格加速。</li>
-<li><strong>Tracing BPF</strong>：火焰图、系统调用/调度/文件 IO 观测。</li>
-<li><strong>LSM BPF</strong>：进程/文件访问控制、细粒度安全策略。</li>
-</ul>
-<h3 id="ebpf-maps状态与通信的基石">eBPF Maps：状态与通信的基石</h3>
-<ul>
-<li><strong>作用</strong>：在内核 eBPF 与用户态之间共享数据，也用于多个 eBPF 程序之间共享状态。</li>
-<li><strong>常见类型</strong>：<code>HASH</code>、<code>LRU_HASH</code>、<code>ARRAY</code>、<code>PERCPU_ARRAY</code>、<code>RINGBUF</code>、<code>PROG_ARRAY</code>、<code>SOCKHASH</code>/<code>SOCKMAP</code> 等。</li>
-<li><strong>实践要点</strong>：
-<ul>
-<li>小对象热数据放 <code>ARRAY/PERCPU_ARRAY</code>，高并发键值对用 <code>LRU_HASH</code>。</li>
-<li>大量事件传输用 <code>RINGBUF</code>，低开销批量消费。</li>
-<li>使用 <code>pinning</code> 将 map 固定到 bpffs，支持热更新与进程重启后的复用。</li>
-</ul></li>
-</ul>
-<h3 id="一图看懂网络路径中的-ebpf-挂载点">一图看懂网络路径中的 eBPF 挂载点</h3>
-<pre>
-<code class="mermaid">
-
-flowchart LR
-    NIC[&quot;网卡（RX 队列）&quot;] --&gt; XDP[&quot;XDP 钩子（驱动早路径）&quot;]
-    XDP --&gt; TC_ING[&quot;TC Ingress（进入协议栈前）&quot;]
-    TC_ING --&gt; IPSTACK[&quot;内核网络栈（路由&#x2F;防火墙&#x2F;套接字）&quot;]
-    IPSTACK --&gt; TC_EGR[&quot;TC Egress（离开协议栈）&quot;]
-    TC_EGR --&gt; NIC_TX[&quot;网卡（TX 队列）&quot;]
-    IPSTACK --&gt; SOCK[&quot;Socket&#x2F;CGroups eBPF&quot;]
-</code>
-</pre>
-<h3 id="最小-xdp-示例丢弃非期望包并计数">最小 XDP 示例：丢弃非期望包，并计数</h3>
-<blockquote>
-<p>目标：在 XDP 处直接丢弃不需要的流量，并通过 <code>MAP</code> 暴露计数供用户态读取（示例为入门直觉，不含全部错误处理）。</p>
-</blockquote>
-<ul>
-<li><strong>内核端（eBPF C）核心思路</strong>：
-<ul>
-<li>定义 <code>BPF_MAP_TYPE_ARRAY</code> 计数器。</li>
-<li>在 XDP 回调里匹配条件（如以太类型/UDP 端口等），命中则递增计数并 <code>XDP_DROP</code>，否则 <code>XDP_PASS</code>。</li>
-</ul></li>
-<li><strong>用户态（libbpf/BCC 或者 bpf2go 等）</strong>：
-<ul>
-<li>加载/验证/附着程序到指定网卡。</li>
-<li>周期性读取 <code>map</code> 中的计数。</li>
-</ul></li>
-</ul>
-<h4 id="代码xdp_drop.c">代码（xdp_drop.c）</h4>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// minimal XDP: 丢弃所有包并做计数</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/bpf.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    __uint(type, BPF_MAP_TYPE_ARRAY);</span><br><span class="line">    __uint(max_entries, <span class="number">1</span>);</span><br><span class="line">    __type(key, __u32);</span><br><span class="line">    __type(value, __u64);</span><br><span class="line">&#125; drop_cnt <span class="title function_">SEC</span><span class="params">(<span class="string">&quot;.maps&quot;</span>)</span>;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;xdp&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">xdp_drop_all</span><span class="params">(<span class="keyword">struct</span> xdp_md *ctx)</span> &#123;</span><br><span class="line">    __u32 key = <span class="number">0</span>;</span><br><span class="line">    __u64 *val = bpf_map_lookup_elem(&amp;drop_cnt, &amp;key);</span><br><span class="line">    <span class="keyword">if</span> (val) __sync_fetch_and_add(val, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> XDP_DROP; <span class="comment">// 示例：全部丢弃；按需替换为条件判定</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;GPL&quot;</span>;</span><br></pre></td></tr></table></figure>
-<h4 id="逐行讲解">逐行讲解</h4>
-<ul>
-<li>引入头文件：<code>&lt;linux/bpf.h&gt;</code> 与 <code>&lt;bpf/bpf_helpers.h&gt;</code> 提供 eBPF 所需类型与辅助宏。</li>
-<li>定义 <code>drop_cnt</code> map：<code>BPF_MAP_TYPE_ARRAY</code> 且 <code>max_entries=1</code>，只用索引 <code>0</code> 存一个 64 位计数；<code>SEC(".maps")</code> 表示把它放在 maps 段，便于内核识别与加载。</li>
-<li><code>SEC("xdp")</code>：把后面的函数标记为 XDP 程序入口，会被附着到 XDP 钩子。</li>
-<li><code>int xdp_drop_all(struct xdp_md *ctx)</code>：XDP 回调；每个到来的包都会调用一次；<code>ctx</code> 是该包上下文。</li>
-<li><code>__u32 key = 0;</code>：仅使用数组 map 的第 0 项作为计数槽位。</li>
-<li><code>bpf_map_lookup_elem(&amp;drop_cnt, &amp;key)</code>：取出计数槽位的地址。</li>
-<li><code>__sync_fetch_and_add(val, 1)</code>：原子加 1，避免多核并发更新丢计数。</li>
-<li><code>return XDP_DROP;</code>：丢弃当前包（不再进入协议栈）。若只想“统计不丢包”，可改为 <code>XDP_PASS</code>。</li>
-<li><code>LICENSE = "GPL";</code>：声明 GPL 许可，部分 helper 需要 GPL 才可用。</li>
-</ul>
-<h4 id="编译生成-ebpf-对象文件">编译（生成 eBPF 对象文件）</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">clang -O2 -g -target bpf -c xdp_drop.c -o build/xdp_drop.o</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>参数说明</strong>：
-<ul>
-<li><code>-O2</code>：优化等级 2，生成更高质量字节码（更易通过 Verifier，运行更快）。</li>
-<li><code>-g</code>：带调试信息，便于排查与 <code>bpftool prog dump jited/llvm</code> 对照。</li>
-<li><code>-target bpf</code>：指定编译到 eBPF 目标架构。</li>
-<li><code>-c xdp_drop.c</code>：只编译不链接，生成目标文件。</li>
-<li><code>-o build/xdp_drop.o</code>：输出到目标路径（需先 <code>mkdir -p build</code>）。</li>
-</ul></li>
-</ul>
-<h4 id="加载与附着使用-bpftool并同时固定-map">加载与附着（使用 bpftool，并同时固定 map）</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t bpf bpf /sys/fs/bpf || <span class="literal">true</span></span><br><span class="line"><span class="built_in">sudo</span> bpftool prog load build/xdp_drop.o /sys/fs/bpf/xdp_drop <span class="built_in">type</span> xdp \</span><br><span class="line">  map name drop_cnt pinned /sys/fs/bpf/drop_cnt</span><br><span class="line"><span class="built_in">sudo</span> bpftool net attach xdp pinned /sys/fs/bpf/xdp_drop dev &lt;iface&gt;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>参数说明</strong>：
-<ul>
-<li><code>mount -t bpf bpf /sys/fs/bpf</code>：挂载 bpffs（BPF 虚拟文件系统），用于固定程序/Map。</li>
-<li><code>bpftool prog load … type xdp</code>：把对象文件加载为 XDP 类型程序，并指定固定路径 <code>/sys/fs/bpf/xdp_drop</code>。</li>
-<li><code>map name drop_cnt pinned …</code>：在加载时将名为 <code>drop_cnt</code> 的 map 固定到给定路径，便于后续读取与热更新。</li>
-<li><code>bpftool net attach xdp pinned … dev &lt;iface&gt;</code>：把已固定的程序附着到指定网卡 <code>&lt;iface&gt;</code>（如 <code>eth0</code>）。</li>
-</ul></li>
-</ul>
-<h4 id="验证查看计数并制造流量">验证（查看计数并制造流量）</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool map dump pinned /sys/fs/bpf/drop_cnt | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>参数说明</strong>：
-<ul>
-<li><code>map dump pinned &lt;path&gt;</code>：读取固定在 <code>&lt;path&gt;</code> 的 map 内容；<code>| cat</code> 防止分页器拦截，完整输出到终端。</li>
-<li>预期看到 <code>key: 0 value: &lt;N&gt;</code>，随着入站流量增长而递增。</li>
-</ul></li>
-</ul>
-<h4 id="卸载与清理">卸载与清理</h4>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool net detach xdp dev &lt;iface&gt;</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /sys/fs/bpf/xdp_drop /sys/fs/bpf/drop_cnt</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>参数说明</strong>：
-<ul>
-<li><code>net detach xdp dev &lt;iface&gt;</code>：从网卡卸载 XDP 程序。</li>
-<li><code>rm -f …</code>：删除固定的程序与 map 对象，释放 bpffs 资源。</li>
-</ul></li>
-</ul>
-<h3 id="工具链与开发路线">工具链与开发路线</h3>
-<ul>
-<li><strong>核心工具</strong>：
-<ul>
-<li><code>clang/llvm</code>：将 C 编译为 eBPF 字节码。</li>
-<li><code>bpftool</code>：检查/加载/查看 map 与 prog，配合 <code>bpffs</code> 管理对象。</li>
-<li><code>libbpf</code>/<code>libbpf-rs</code>/<code>bcc</code>：三种常见开发栈；前两者偏生产可部署，<code>bcc</code> 上手快但运行时依赖较重。</li>
-</ul></li>
-<li><strong>建议路径</strong>：
-<ol type="1">
-<li>本机或 VM 安装较新内核与 <code>bpftool/clang</code>；</li>
-<li>用 <code>xdp-tutorial</code> 或 <code>libbpf-bootstrap</code> 起步；</li>
-<li>先做可观测性（风险低），再做网络路径改写（逐步放行/灰度）；</li>
-<li>为 map 启用 <code>pinning</code>，为服务编写最小的“控制面”管理进程；</li>
-<li>加上可观测性（统计、延迟、错误码）与回滚开关。</li>
-</ol></li>
-</ul>
-<h3 id="什么是-jitjust-in-time">什么是 JIT（Just-In-Time）</h3>
-<ul>
-<li><p><strong>定义</strong>：JIT（即时编译）在运行时把中间表示/字节码编译成本机机器码执行，相比纯解释更快，相比 AOT（预编译全部）启动更灵活。</p></li>
-<li><strong>对比直觉</strong>：
-<ul>
-<li>解释执行：逐条解析，启动快，运行慢。</li>
-<li>AOT：运行前全部编译，运行快，首次构建/启动稍慢。</li>
-<li>JIT：运行中按需编译，折中并可做运行时优化。</li>
-</ul></li>
-<li><strong>在 eBPF 中的工作流</strong>：
-<ul>
-<li>用户态加载 BPF 字节码 → Verifier 安全/终止性检查 → 通过后 JIT 为当前架构机器码（x86-64/ARM64） → 挂载到对应 hook 执行。</li>
-<li>若 JIT 被禁用或不支持，则回退为解释器执行；若 Verifier 未通过，直接拒绝加载。</li>
-</ul></li>
-<li><strong>与 JVM/JS 的 JIT 差异</strong>：
-<ul>
-<li>eBPF 的 JIT 通常是“一次性编译”，不做热点探测/去优化；优化更偏向架构相关的轻量指令选择（peephole、寄存器分配）。</li>
-</ul></li>
-</ul>
-<h3 id="与内核旁路的比较dpdkrdma">与内核旁路的比较（DPDK/RDMA）</h3>
-<ul>
-<li><strong>eBPF</strong>：保留内核网络栈生态与安全边界，延迟/吞吐优异（非极限），工程可运维性强。</li>
-<li><strong>DPDK/RDMA</strong>：极致性能与控制，但需要专用驱动/巨页/轮询，系统集成成本更高。</li>
-<li><strong>折中理念</strong>：将“高频快路径”放 eBPF，“复杂慢路径”留在用户态或完整协议栈。</li>
-</ul>
-<h3 id="常见坑与排查">常见坑与排查</h3>
-<ul>
-<li><strong>Verifier 不通过</strong>：缩短函数/循环，给出边界检查与上界，使用 <code>__always_inline</code>；善用 <code>bpftool prog load</code> 的日志。</li>
-<li><strong>性能不达标</strong>：
-<ul>
-<li>XDP 程序中避免复杂解析与多次访问内存；</li>
-<li>合理使用 <code>XDP_REDIRECT</code> 到目标队列或 <code>AF_XDP</code>；</li>
-<li>批量读取 ringbuf，减少用户态唤醒开销。</li>
-</ul></li>
-<li><strong>热更新中断</strong>：确保对象 <code>pin</code> 到 bpffs，并采用“双程序切换”减少流量抖动。</li>
-</ul>
-<h3 id="运行与验证示例流程">运行与验证（示例流程）</h3>
-<ul>
-<li><strong>编译与加载</strong>（以 libbpf 为例）：
-<ol type="1">
-<li>编译 eBPF 程序为 <code>*.o</code>；</li>
-<li><code>bpftool prog load</code> 加载，<code>bpftool net attach xdp dev &lt;iface&gt; pinned &lt;path&gt;</code> 附着；</li>
-<li><code>bpftool map dump pinned &lt;path&gt;</code> 查看计数；</li>
-<li>用 <code>ping/iperf/wrk</code> 压测并对比 <code>XDP_PASS/XDP_DROP</code> 行为。</li>
-</ol></li>
-<li><strong>回滚</strong>：
-<ul>
-<li>临时卸载：<code>bpftool net detach xdp dev &lt;iface&gt;</code>；</li>
-<li>恢复策略：保留旧版本对象于 bpffs，切换符号链接并原子替换。</li>
-</ul></li>
-</ul>
-<h3 id="小结">📝 小结</h3>
-<ul>
-<li><strong>一句话</strong>：eBPF 让我们在不改内核的前提下，将小而高效的逻辑“内联”到内核关键路径，既快又安全。</li>
-<li><strong>入门三步</strong>：选 hook → 写最小程序 + map → 用 bpftool 验证与观测。</li>
-<li><strong>进阶方向</strong>：编排与热更新、fast-path/slow-path 分层、复杂状态一致性与可观测性。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>系统内核</category>
-        <category>计算机网络</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>eBPF</tag>
-        <tag>网络</tag>
       </tags>
   </entry>
   <entry>
@@ -6602,48 +6007,357 @@ flowchart LR
       </tags>
   </entry>
   <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
-<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
-<h3 id="token401问题">token401问题</h3>
-<h4 id="登录401">登录401</h4>
-<p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
-</figure>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<figure>
-<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
-</figure>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<p>发现可以正常读取了</p>
-<h4 id="过期401">过期401</h4>
-<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-<h3 id="数据读取问题">数据读取问题</h3>
-<p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-<h3 id="其他问题">其他问题</h3>
-<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
+    <title>Clash 与网络代理详解</title>
+    <url>/posts/755f751e/</url>
+    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>VPN</strong></td>
+<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
+<td>秘密隧道</td>
+</tr>
+<tr class="even">
+<td><strong>Proxy</strong></td>
+<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
+<td>传话筒</td>
+</tr>
+<tr class="odd">
+<td><strong>Clash</strong></td>
+<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
+<td>智能调度员</td>
+</tr>
+<tr class="even">
+<td><strong>Rule</strong></td>
+<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
+<td>分流路牌</td>
+</tr>
+<tr class="odd">
+<td><strong>TUN</strong></td>
+<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
+<td>虚拟网卡</td>
+</tr>
+<tr class="even">
+<td><strong>Mixin</strong></td>
+<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
+<td>补丁包</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>VPN</th>
+<th>代理 (Proxy)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>工作层级</strong></td>
+<td>操作系统层 (OSI L3 网络层)</td>
+<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
+</tr>
+<tr class="even">
+<td><strong>接管范围</strong></td>
+<td>全局接管（通常），所有软件流量都走隧道</td>
+<td>仅接管支持代理设置的软件 (如浏览器)</td>
+</tr>
+<tr class="odd">
+<td><strong>加密程度</strong></td>
+<td>全程加密，强调安全性</td>
+<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
+</tr>
+<tr class="even">
+<td><strong>灵活性</strong></td>
+<td>较差，通常“全走”或“全不走”</td>
+<td>极高，可按域名/进程分流</td>
+</tr>
+<tr class="odd">
+<td><strong>典型协议</strong></td>
+<td>WireGuard, OpenVPN, IPSec</td>
+<td>HTTP, Socks5, Shadowsocks, VMess</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
+<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
+<h4 id="global-全局模式">1. Global 全局模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
+<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
+<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
+</ul>
+<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
+<ul>
+<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
+<li><strong>流程</strong>：
+<ol type="1">
+<li>拦截请求。</li>
+<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
+<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
+</ol></li>
+<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
+</ul>
+<h4 id="direct-直连模式">3. Direct 直连模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
+<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
+</ul>
+<h4 id="script-脚本模式">4. Script 脚本模式</h4>
+<ul>
+<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
+<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
+</ul>
+<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
+<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
+<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
+<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
+<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
+<pre>
+<code class="mermaid">
+
+graph TD;
+    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
+    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
+    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
+    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
+    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
+</code>
+</pre>
+<ol type="1">
+<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
+<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
+<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
+<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
+</ol>
+<blockquote>
+<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
+</blockquote>
+<blockquote>
+<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
+<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
+<ul>
+<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
+<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
+</ul>
+<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
+</blockquote>
+<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
+<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
+<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
+<ul>
+<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
+<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
+<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
+<li><strong>主要作用</strong>：
+<ol type="1">
+<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
+<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
+<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
+</ol></li>
+</ul>
+<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
+<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
+<h4 id="核心结构">核心结构</h4>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
+<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
+<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
+<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
+<ul>
+<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
+<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
+<li><strong>用途</strong>：
+<ul>
+<li>强制开启 TUN 模式。</li>
+<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
+<li>添加个人的局域网 IP 直连规则。</li>
+</ul></li>
+</ul>
+<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
+</blockquote>
+<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
+<ol type="1">
+<li><strong>“开了全局模式就是最安全的”</strong>
+<ul>
+<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
+</ul></li>
+<li><strong>“Ping 值低网速就快”</strong>
+<ul>
+<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
+</ul></li>
+<li><strong>“TUN 模式会影响打游戏吗？”</strong>
+<ul>
+<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
+</ul></li>
+<li><strong>Clash 是 VPN 吗？</strong>
+<ul>
+<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
+<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
+</ul></li>
+</ol>
+]]></content>
+      <tags>
+        <tag>Clash</tag>
+        <tag>Network</tag>
+        <tag>VPN</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CMake 入门</title>
+    <url>/posts/233853f2/</url>
+    <content><![CDATA[<p>不论你是写 C/C++、CUDA，还是要同时照顾 Linux/Windows/macOS，当项目走出“玩具”阶段，构建就会成为最大的摩擦源：不同编译器、不同 IDE、不同参数、不同依赖的发现与链接。如果还靠手写 <code>Makefile</code> 或分别维护 VS/Xcode 工程，成本会直线上升。</p>
+<p>这正是 CMake 出现的原因：用一份跨平台的构建脚本，生成各平台各 IDE 需要的工程与命令。 <span id="more"></span></p>
+<h3 id="cmake-解决了哪些痛点精简版">CMake 解决了哪些痛点（精简版）</h3>
+<ul>
+<li><p><strong>跨平台</strong>：一份 <code>CMakeLists.txt</code>，到处生成工程（Ninja/Makefiles、Visual Studio、Xcode）。</p></li>
+<li><p><strong>少折腾</strong>：自动管理头文件目录、编译选项、链接依赖，不用手拼长命令。</p></li>
+<li><p><strong>更清爽</strong>：源代码与构建产物分离，目录不再被临时文件污染。</p></li>
+</ul>
+<h3 id="一图速懂它到底做了什么">一图速懂：它到底做了什么</h3>
+<pre>
+<code class="mermaid">
+
+graph TD;
+  A[&quot;写 CMakeLists.txt&quot;] --&gt; B[&quot;cmake -S 源码 -B 构建&quot;];
+  B --&gt; C[&quot;构建：cmake --build 构建目录&quot;];
+  C --&gt; D[&quot;运行：.&#x2F;build&#x2F;hello（或 IDE 里运行）&quot;];
+  B --&gt; E[&quot;按平台生成合适的工程&#x2F;构建文件&quot;];
+</code>
+</pre>
+<h4 id="为什么在-b-分叉">为什么在 B 分叉</h4>
+<ul>
+<li>B 是“配置/生成”阶段，产生两种后续选择：</li>
+<li>走 C：继续用 <code>cmake --build</code> 统一构建（CMake 调用本机构建器编译/链接）。</li>
+<li>走 E：直接使用已生成的本机构建文件（Makefile、Ninja、Visual Studio、Xcode 工程）在命令行或 IDE 中构建。</li>
+<li>二者本质等价，通常二选一即可；团队混用也没问题。</li>
+</ul>
+<h4 id="配置阶段b的产物">配置阶段（B）的产物</h4>
+<ul>
+<li>本机构建文件：<code>Makefile</code>、<code>build.ninja</code>、VS <code>.sln/.vcxproj</code>、Xcode <code>.xcodeproj</code>（由生成器决定）。</li>
+<li>CMake 缓存与元数据：<code>CMakeCache.txt</code>、<code>CMakeFiles/</code>、平台/编译器/特性探测结果。</li>
+<li>可选辅助：<code>compile_commands.json</code>（<code>-DCMAKE_EXPORT_COMPILE_COMMANDS=ON</code>）、通过 <code>configure_file()</code> 生成的配置头/源文件。</li>
+<li>位置：全部写入 <code>-B</code> 指定的构建目录。</li>
+</ul>
+<h4 id="构建阶段c的产物">构建阶段（C）的产物</h4>
+<ul>
+<li>可执行文件：如 <code>build/hello</code>（Windows 为 <code>build/hello.exe</code>）。</li>
+<li>库文件：静态库（<code>.a</code>/<code>.lib</code>）、共享库（<code>.so</code>/<code>.dll</code>/<code>.dylib</code>）。</li>
+<li>中间文件：目标文件（<code>*.o</code>/<code>*.obj</code>）、依赖/缓存等，位于构建目录。</li>
+<li>自定义输出：可用 <code>CMAKE_RUNTIME_OUTPUT_DIRECTORY</code>、<code>CMAKE_LIBRARY_OUTPUT_DIRECTORY</code>、<code>CMAKE_ARCHIVE_OUTPUT_DIRECTORY</code> 调整位置。</li>
+</ul>
+<h3 id="分钟上手">5 分钟上手</h3>
+<p>目录结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">your_project/</span><br><span class="line">  CMakeLists.txt</span><br><span class="line">  src/main.cpp</span><br></pre></td></tr></table></figure>
+<p><code>CMakeLists.txt</code>：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(hello LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(hello src/main.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(hello PRIVATE cxx_std_17)</span><br></pre></td></tr></table></figure>
+<p><code>src/main.cpp</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Hello, CMake!&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>构建与运行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br><span class="line">./build/hello</span><br></pre></td></tr></table></figure>
+<h3 id="cmake-改变了什么一个对比例子">CMake 改变了什么：一个对比例子</h3>
+<p>场景：两个源文件 <code>src/main.cpp</code>、<code>src/util.cpp</code>，需要 C++17，并在 Linux 与 Windows 上都能构建。</p>
+<ul>
+<li><p>没有 CMake（每个平台都要记不同命令）</p></li>
+<li><p>Linux（GCC/Clang）：</p></li>
+</ul>
+<pre><code><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure></code></pre>
+<ul>
+<li>Windows（MSVC）：</li>
+</ul>
+<pre><code><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cl /std:c++17 /O2 src\main.cpp src\util.cpp /I include /Fe:app.exe</span><br></pre></td></tr></table></figure></code></pre>
+<ul>
+<li><p>维护代价：命令不通用，IDE 工程（VS/Xcode）还要各自维护一份。</p></li>
+<li><p>有 CMake（一份脚本到处用）</p></li>
+</ul>
+<p><code>CMakeLists.txt</code>：</p>
+<p><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure></p>
+<p>构建命令（所有平台一致）：</p>
+<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br></pre></td></tr></table></figure></p>
+<p>效果：不用关心底层是 Make 还是 Ninja、GCC 还是 MSVC，也不用为 VS/Xcode 手工维护工程；需要 IDE 时让 CMake 直接生成即可。诸如 <code>-lm</code>、异常/运行时等平台差异，交给生成器与工具链处理。</p>
+<h4 id="g-命令解析在没有-cmake-时">g++ 命令解析（在没有 CMake 时）</h4>
+<p>以 Linux 的命令为例：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>g++</strong>：调用 GNU C++ 编译器。</p></li>
+<li><p><strong>-std=c++17</strong>：启用 C++17 标准（在 MSVC 下等价为 <code>/std:c++17</code>）。</p></li>
+<li><p><strong>-O2</strong>：开启二级优化（体积与速度的折中）。</p></li>
+<li><p><strong>src/main.cpp src/util.cpp</strong>：要编译并参与链接的源文件。</p></li>
+<li><p><strong>-Iinclude</strong>：增加头文件搜索目录 <code>include</code>。</p></li>
+<li><p><strong>-o app</strong>：输出可执行文件名为 <code>app</code>。</p></li>
+</ul>
+<p>在实际项目中，这条命令会迅速膨胀：再加多目录、宏定义、库搜索路径（<code>-L</code>）、链接库（<code>-lxxx</code>）、平台差异参数，就会变得又长又难复用。这正是 CMake 希望你“声明语义、自动映射细节”的原因。</p>
+<h3 id="工作原理">工作原理</h3>
+<pre>
+<code class="mermaid">
+
+graph TD;
+  A[&quot;CMakeLists.txt：声明要什么&quot;] --&gt; B[&quot;配置阶段：检测平台&#x2F;编译器&#x2F;特性&quot;];
+  B --&gt; C[&quot;选择生成器：Ninja&#x2F;Makefiles&#x2F;VS&#x2F;Xcode&quot;];
+  C --&gt; D[&quot;生成本机构建文件（规则&#x2F;工程）&quot;];
+  D --&gt; E[&quot;cmake --build：调用本机构建器编译&#x2F;链接&quot;];
+</code>
+</pre>
+<p>一句话：你只写“意图”，CMake 按“环境”翻译成正确做法。</p>
+<h3 id="这几行背后发生了什么">这几行背后发生了什么</h3>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>cmake_minimum_required(VERSION 3.20)</strong>：锁定最低版本，启用对应语法与行为，避免旧版差异。</p></li>
+<li><p><strong>project(app LANGUAGES CXX)</strong>：确定工程名与语言；CMake 会探测可用的 C++ 编译器与平台特性。</p></li>
+<li><p><strong>add_executable(app …)</strong>：声明目标 <code>app</code>；CMake 为它建立依赖图，并在生成阶段把它翻译成本机的规则/工程项。</p></li>
+<li><p><strong>target_compile_features(app PRIVATE cxx_std_17)</strong>：声明“需要 C++17”，CMake 按编译器映射成正确开关：</p>
+<ul>
+<li><p>GCC/Clang：<code>-std=c++17</code></p></li>
+<li><p>MSVC：<code>/std:c++17</code></p></li>
+</ul></li>
+<li><p><strong>target_include_directories(app PRIVATE include)</strong>：声明头文件目录，按平台生成参数：</p>
+<ul>
+<li><p>GCC/Clang：<code>-I include</code></p></li>
+<li><p>MSVC：<code>/I include</code></p></li>
+</ul></li>
+</ul>
+<p>这就是“一份脚本到处用”的核心：写语义，不写平台细节；由生成器与工具链适配差异。</p>
+<h3 id="cmake-支持哪些语言">CMake 支持哪些语言？</h3>
+<p>首要用户群是 <strong>C/C++</strong>，但并不止于此。常见支持包括：</p>
+<ul>
+<li><p><strong>C、C++</strong>：最成熟、生态最广。</p></li>
+<li><p><strong>CUDA、HIP</strong>：GPU 相关项目常用。</p></li>
+<li><p><strong>Fortran</strong>：在科学计算/数值领域仍然重要。</p></li>
+<li><p><strong>Objective-C/Swift（通过外部集成）</strong>：在 Apple 平台工程生成方面配合 Xcode。</p></li>
+<li><p><strong>ASM、ISPC 等</strong>：低层或专用场景。</p></li>
+</ul>
+<p>此外，CMake 也常被当作“元构建工具”，去驱动其他语言/工具链（如生成外部工具命令、打包脚本）。原则是：若目标/命令能被描述成“配置+构建”的过程，CMake 往往能充当胶水把它们组织起来，但其强项仍然是 C/C++ 及其周边。</p>
+<h3 id="就这么记住">就这么记住</h3>
+<ul>
+<li><p><strong>写清“要什么”</strong>：目标、源文件、需要的标准或库。</p></li>
+<li><p><strong>总在源码外构建</strong>：<code>-S</code> 指源码，<code>-B</code> 指构建目录。</p></li>
+<li><p><strong>统一的构建命令</strong>：<code>cmake --build</code>，不用关心底层是 Make 还是 Ninja。</p></li>
+</ul>
+<h3 id="结语">结语</h3>
+<p>先用这套最小流程把程序跑起来，再根据需要逐步增加依赖与选项；当你不想再重复为不同平台维护多套工程时，CMake 就是省心的那一个。</p>
 ]]></content>
       <categories>
-        <category>软件开发</category>
-        <category>数据库</category>
+        <category>开发工具</category>
       </categories>
       <tags>
-        <tag>InfluxDB</tag>
-        <tag>数据库</tag>
+        <tag>CMake</tag>
+        <tag>构建系统</tag>
+        <tag>C/C++</tag>
       </tags>
   </entry>
   <entry>
@@ -6824,6 +6538,292 @@ flowchart TD
         <tag>Git</tag>
         <tag>Rebase</tag>
         <tag>Cherry-pick</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>eBPF 入门：原理、程序类型与上手实践</title>
+    <url>/posts/a9c3e7b1/</url>
+    <content><![CDATA[<p>为什么近几年大家都在谈 eBPF？一句话：在不改内核源码的前提下，把“小而安全”的代码段挂到内核关键路径里运行，从而获得接近内核旁路的性能，同时保留 Linux 内核栈的安全与可维护性。</p>
+<span id="more"></span>
+<h3 id="ebpf-是什么">eBPF 是什么？</h3>
+<ul>
+<li><strong>定义</strong>：eBPF（extended Berkeley Packet Filter）是一种在 Linux 内核中安全运行的通用字节码与运行环境。</li>
+<li><strong>工作方式</strong>：用户态加载 eBPF 字节码 → 内核验证器（Verifier）进行安全检查 → 通过后 JIT 编译并附着在特定钩子（hook）上执行。</li>
+<li><strong>核心优势</strong>：
+<ul>
+<li><strong>性能</strong>：在内核态早路径执行，减少用户/内核切换与协议栈开销。</li>
+<li><strong>安全</strong>：Verifier 强校验（边界、类型、调用、上界循环等）避免内核崩溃。</li>
+<li><strong>可编程</strong>：通过不同 hook 点覆盖网络、跟踪、系统调用、调度等多场景。</li>
+</ul></li>
+<li><p><strong>原理</strong>：把一小段经过严格安全检查的“字节码程序”挂在内核关键路径的钩子上，事件一来就执行；程序只做受限且安全的操作，状态放在可共享的 Map 里，必要时由 JIT 变成本机机器码以提升性能。</p></li>
+<li><strong>它是怎么跑起来的</strong>：
+<ol type="1">
+<li>写 C/Rust 小程序并编译为 eBPF 字节码；</li>
+<li>用户态通过 <code>bpf()</code> 系统调用加载；</li>
+<li>Verifier 逐条检查安全与终止性；</li>
+<li>通过后将程序附着到某个 hook（XDP/TC/Kprobe/Tracepoint/LSM 等）；</li>
+<li>事件触发时内核调用你的 eBPF 程序；</li>
+<li>程序通过内核 helper 做受控操作，并用 Map 读写共享状态；</li>
+<li>为提速可由 JIT 将字节码编译为本机机器码。</li>
+</ol></li>
+<li><strong>关键组件</strong>：
+<ul>
+<li>字节码与运行时：跨版本、可验证；</li>
+<li>Verifier：安全门卫；</li>
+<li>Hook：把程序接到正确时机与位置；</li>
+<li>Helper：白名单式内核能力（解析包头、重定向、时间等）；</li>
+<li>Map：共享状态与内核/用户态通信；</li>
+<li>JIT：将字节码转为机器码以提速。</li>
+</ul></li>
+<li><strong>为何又快又安全</strong>：
+<ul>
+<li>快：处于内核早路径，少用户/内核切换；JIT 后是本机机器码；</li>
+<li>安全：受限指令集 + 强验证 + 只能通过 helper 间接触达敏感资源。</li>
+</ul></li>
+<li><strong>对比内核模块（LKM）</strong>：
+<ul>
+<li>eBPF：热插拔、受限且强校验，出错不易拖垮内核；</li>
+<li>LKM：能力无限但易带来稳定性风险，开发调试成本更高。</li>
+</ul></li>
+</ul>
+<h3 id="能挂到哪里常见-hook-一览">能挂到哪里？常见 Hook 一览</h3>
+<ul>
+<li><strong>XDP（eXpress Data Path）</strong>：网卡驱动最前面的收包路径，极低延迟，典型用于丢弃、重定向、负载均衡等。</li>
+<li><strong>TC（Traffic Control）</strong>：在 <code>ingress/egress</code> 对 <code>skb</code> 处理，能访问更丰富的协议栈信息。</li>
+<li><strong>Socket/CGroups</strong>：基于 socket/cgroup 的细粒度策略，如重定向、QoS、准入控制。</li>
+<li><strong>Kprobe/Kretprobe/Tracepoint/USDT</strong>：内核/用户态可观测性与性能分析。</li>
+<li><strong>LSM（Linux Security Module）</strong>：基于 eBPF 的细粒度安全策略（需要内核支持）。</li>
+</ul>
+<h3 id="ebpf-程序类型与典型用途">eBPF 程序类型与典型用途</h3>
+<ul>
+<li><strong>XDP 程序</strong>：包过滤、负载均衡、DoS 缓解、快速 ACK。</li>
+<li><strong>TC BPF</strong>：深度包处理、QoS/整形、服务网格加速。</li>
+<li><strong>Tracing BPF</strong>：火焰图、系统调用/调度/文件 IO 观测。</li>
+<li><strong>LSM BPF</strong>：进程/文件访问控制、细粒度安全策略。</li>
+</ul>
+<h3 id="ebpf-maps状态与通信的基石">eBPF Maps：状态与通信的基石</h3>
+<ul>
+<li><strong>作用</strong>：在内核 eBPF 与用户态之间共享数据，也用于多个 eBPF 程序之间共享状态。</li>
+<li><strong>常见类型</strong>：<code>HASH</code>、<code>LRU_HASH</code>、<code>ARRAY</code>、<code>PERCPU_ARRAY</code>、<code>RINGBUF</code>、<code>PROG_ARRAY</code>、<code>SOCKHASH</code>/<code>SOCKMAP</code> 等。</li>
+<li><strong>实践要点</strong>：
+<ul>
+<li>小对象热数据放 <code>ARRAY/PERCPU_ARRAY</code>，高并发键值对用 <code>LRU_HASH</code>。</li>
+<li>大量事件传输用 <code>RINGBUF</code>，低开销批量消费。</li>
+<li>使用 <code>pinning</code> 将 map 固定到 bpffs，支持热更新与进程重启后的复用。</li>
+</ul></li>
+</ul>
+<h3 id="一图看懂网络路径中的-ebpf-挂载点">一图看懂网络路径中的 eBPF 挂载点</h3>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    NIC[&quot;网卡（RX 队列）&quot;] --&gt; XDP[&quot;XDP 钩子（驱动早路径）&quot;]
+    XDP --&gt; TC_ING[&quot;TC Ingress（进入协议栈前）&quot;]
+    TC_ING --&gt; IPSTACK[&quot;内核网络栈（路由&#x2F;防火墙&#x2F;套接字）&quot;]
+    IPSTACK --&gt; TC_EGR[&quot;TC Egress（离开协议栈）&quot;]
+    TC_EGR --&gt; NIC_TX[&quot;网卡（TX 队列）&quot;]
+    IPSTACK --&gt; SOCK[&quot;Socket&#x2F;CGroups eBPF&quot;]
+</code>
+</pre>
+<h3 id="最小-xdp-示例丢弃非期望包并计数">最小 XDP 示例：丢弃非期望包，并计数</h3>
+<blockquote>
+<p>目标：在 XDP 处直接丢弃不需要的流量，并通过 <code>MAP</code> 暴露计数供用户态读取（示例为入门直觉，不含全部错误处理）。</p>
+</blockquote>
+<ul>
+<li><strong>内核端（eBPF C）核心思路</strong>：
+<ul>
+<li>定义 <code>BPF_MAP_TYPE_ARRAY</code> 计数器。</li>
+<li>在 XDP 回调里匹配条件（如以太类型/UDP 端口等），命中则递增计数并 <code>XDP_DROP</code>，否则 <code>XDP_PASS</code>。</li>
+</ul></li>
+<li><strong>用户态（libbpf/BCC 或者 bpf2go 等）</strong>：
+<ul>
+<li>加载/验证/附着程序到指定网卡。</li>
+<li>周期性读取 <code>map</code> 中的计数。</li>
+</ul></li>
+</ul>
+<h4 id="代码xdp_drop.c">代码（xdp_drop.c）</h4>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// minimal XDP: 丢弃所有包并做计数</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/bpf.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;bpf/bpf_helpers.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    __uint(type, BPF_MAP_TYPE_ARRAY);</span><br><span class="line">    __uint(max_entries, <span class="number">1</span>);</span><br><span class="line">    __type(key, __u32);</span><br><span class="line">    __type(value, __u64);</span><br><span class="line">&#125; drop_cnt <span class="title function_">SEC</span><span class="params">(<span class="string">&quot;.maps&quot;</span>)</span>;</span><br><span class="line"></span><br><span class="line">SEC(<span class="string">&quot;xdp&quot;</span>)</span><br><span class="line"><span class="type">int</span> <span class="title function_">xdp_drop_all</span><span class="params">(<span class="keyword">struct</span> xdp_md *ctx)</span> &#123;</span><br><span class="line">    __u32 key = <span class="number">0</span>;</span><br><span class="line">    __u64 *val = bpf_map_lookup_elem(&amp;drop_cnt, &amp;key);</span><br><span class="line">    <span class="keyword">if</span> (val) __sync_fetch_and_add(val, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> XDP_DROP; <span class="comment">// 示例：全部丢弃；按需替换为条件判定</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">char</span> LICENSE[] SEC(<span class="string">&quot;license&quot;</span>) = <span class="string">&quot;GPL&quot;</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="逐行讲解">逐行讲解</h4>
+<ul>
+<li>引入头文件：<code>&lt;linux/bpf.h&gt;</code> 与 <code>&lt;bpf/bpf_helpers.h&gt;</code> 提供 eBPF 所需类型与辅助宏。</li>
+<li>定义 <code>drop_cnt</code> map：<code>BPF_MAP_TYPE_ARRAY</code> 且 <code>max_entries=1</code>，只用索引 <code>0</code> 存一个 64 位计数；<code>SEC(".maps")</code> 表示把它放在 maps 段，便于内核识别与加载。</li>
+<li><code>SEC("xdp")</code>：把后面的函数标记为 XDP 程序入口，会被附着到 XDP 钩子。</li>
+<li><code>int xdp_drop_all(struct xdp_md *ctx)</code>：XDP 回调；每个到来的包都会调用一次；<code>ctx</code> 是该包上下文。</li>
+<li><code>__u32 key = 0;</code>：仅使用数组 map 的第 0 项作为计数槽位。</li>
+<li><code>bpf_map_lookup_elem(&amp;drop_cnt, &amp;key)</code>：取出计数槽位的地址。</li>
+<li><code>__sync_fetch_and_add(val, 1)</code>：原子加 1，避免多核并发更新丢计数。</li>
+<li><code>return XDP_DROP;</code>：丢弃当前包（不再进入协议栈）。若只想“统计不丢包”，可改为 <code>XDP_PASS</code>。</li>
+<li><code>LICENSE = "GPL";</code>：声明 GPL 许可，部分 helper 需要 GPL 才可用。</li>
+</ul>
+<h4 id="编译生成-ebpf-对象文件">编译（生成 eBPF 对象文件）</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">clang -O2 -g -target bpf -c xdp_drop.c -o build/xdp_drop.o</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>-O2</code>：优化等级 2，生成更高质量字节码（更易通过 Verifier，运行更快）。</li>
+<li><code>-g</code>：带调试信息，便于排查与 <code>bpftool prog dump jited/llvm</code> 对照。</li>
+<li><code>-target bpf</code>：指定编译到 eBPF 目标架构。</li>
+<li><code>-c xdp_drop.c</code>：只编译不链接，生成目标文件。</li>
+<li><code>-o build/xdp_drop.o</code>：输出到目标路径（需先 <code>mkdir -p build</code>）。</li>
+</ul></li>
+</ul>
+<h4 id="加载与附着使用-bpftool并同时固定-map">加载与附着（使用 bpftool，并同时固定 map）</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> mount -t bpf bpf /sys/fs/bpf || <span class="literal">true</span></span><br><span class="line"><span class="built_in">sudo</span> bpftool prog load build/xdp_drop.o /sys/fs/bpf/xdp_drop <span class="built_in">type</span> xdp \</span><br><span class="line">  map name drop_cnt pinned /sys/fs/bpf/drop_cnt</span><br><span class="line"><span class="built_in">sudo</span> bpftool net attach xdp pinned /sys/fs/bpf/xdp_drop dev &lt;iface&gt;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>mount -t bpf bpf /sys/fs/bpf</code>：挂载 bpffs（BPF 虚拟文件系统），用于固定程序/Map。</li>
+<li><code>bpftool prog load … type xdp</code>：把对象文件加载为 XDP 类型程序，并指定固定路径 <code>/sys/fs/bpf/xdp_drop</code>。</li>
+<li><code>map name drop_cnt pinned …</code>：在加载时将名为 <code>drop_cnt</code> 的 map 固定到给定路径，便于后续读取与热更新。</li>
+<li><code>bpftool net attach xdp pinned … dev &lt;iface&gt;</code>：把已固定的程序附着到指定网卡 <code>&lt;iface&gt;</code>（如 <code>eth0</code>）。</li>
+</ul></li>
+</ul>
+<h4 id="验证查看计数并制造流量">验证（查看计数并制造流量）</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool map dump pinned /sys/fs/bpf/drop_cnt | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>map dump pinned &lt;path&gt;</code>：读取固定在 <code>&lt;path&gt;</code> 的 map 内容；<code>| cat</code> 防止分页器拦截，完整输出到终端。</li>
+<li>预期看到 <code>key: 0 value: &lt;N&gt;</code>，随着入站流量增长而递增。</li>
+</ul></li>
+</ul>
+<h4 id="卸载与清理">卸载与清理</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> bpftool net detach xdp dev &lt;iface&gt;</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> -f /sys/fs/bpf/xdp_drop /sys/fs/bpf/drop_cnt</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>参数说明</strong>：
+<ul>
+<li><code>net detach xdp dev &lt;iface&gt;</code>：从网卡卸载 XDP 程序。</li>
+<li><code>rm -f …</code>：删除固定的程序与 map 对象，释放 bpffs 资源。</li>
+</ul></li>
+</ul>
+<h3 id="工具链与开发路线">工具链与开发路线</h3>
+<ul>
+<li><strong>核心工具</strong>：
+<ul>
+<li><code>clang/llvm</code>：将 C 编译为 eBPF 字节码。</li>
+<li><code>bpftool</code>：检查/加载/查看 map 与 prog，配合 <code>bpffs</code> 管理对象。</li>
+<li><code>libbpf</code>/<code>libbpf-rs</code>/<code>bcc</code>：三种常见开发栈；前两者偏生产可部署，<code>bcc</code> 上手快但运行时依赖较重。</li>
+</ul></li>
+<li><strong>建议路径</strong>：
+<ol type="1">
+<li>本机或 VM 安装较新内核与 <code>bpftool/clang</code>；</li>
+<li>用 <code>xdp-tutorial</code> 或 <code>libbpf-bootstrap</code> 起步；</li>
+<li>先做可观测性（风险低），再做网络路径改写（逐步放行/灰度）；</li>
+<li>为 map 启用 <code>pinning</code>，为服务编写最小的“控制面”管理进程；</li>
+<li>加上可观测性（统计、延迟、错误码）与回滚开关。</li>
+</ol></li>
+</ul>
+<h3 id="什么是-jitjust-in-time">什么是 JIT（Just-In-Time）</h3>
+<ul>
+<li><p><strong>定义</strong>：JIT（即时编译）在运行时把中间表示/字节码编译成本机机器码执行，相比纯解释更快，相比 AOT（预编译全部）启动更灵活。</p></li>
+<li><strong>对比直觉</strong>：
+<ul>
+<li>解释执行：逐条解析，启动快，运行慢。</li>
+<li>AOT：运行前全部编译，运行快，首次构建/启动稍慢。</li>
+<li>JIT：运行中按需编译，折中并可做运行时优化。</li>
+</ul></li>
+<li><strong>在 eBPF 中的工作流</strong>：
+<ul>
+<li>用户态加载 BPF 字节码 → Verifier 安全/终止性检查 → 通过后 JIT 为当前架构机器码（x86-64/ARM64） → 挂载到对应 hook 执行。</li>
+<li>若 JIT 被禁用或不支持，则回退为解释器执行；若 Verifier 未通过，直接拒绝加载。</li>
+</ul></li>
+<li><strong>与 JVM/JS 的 JIT 差异</strong>：
+<ul>
+<li>eBPF 的 JIT 通常是“一次性编译”，不做热点探测/去优化；优化更偏向架构相关的轻量指令选择（peephole、寄存器分配）。</li>
+</ul></li>
+</ul>
+<h3 id="与内核旁路的比较dpdkrdma">与内核旁路的比较（DPDK/RDMA）</h3>
+<ul>
+<li><strong>eBPF</strong>：保留内核网络栈生态与安全边界，延迟/吞吐优异（非极限），工程可运维性强。</li>
+<li><strong>DPDK/RDMA</strong>：极致性能与控制，但需要专用驱动/巨页/轮询，系统集成成本更高。</li>
+<li><strong>折中理念</strong>：将“高频快路径”放 eBPF，“复杂慢路径”留在用户态或完整协议栈。</li>
+</ul>
+<h3 id="常见坑与排查">常见坑与排查</h3>
+<ul>
+<li><strong>Verifier 不通过</strong>：缩短函数/循环，给出边界检查与上界，使用 <code>__always_inline</code>；善用 <code>bpftool prog load</code> 的日志。</li>
+<li><strong>性能不达标</strong>：
+<ul>
+<li>XDP 程序中避免复杂解析与多次访问内存；</li>
+<li>合理使用 <code>XDP_REDIRECT</code> 到目标队列或 <code>AF_XDP</code>；</li>
+<li>批量读取 ringbuf，减少用户态唤醒开销。</li>
+</ul></li>
+<li><strong>热更新中断</strong>：确保对象 <code>pin</code> 到 bpffs，并采用“双程序切换”减少流量抖动。</li>
+</ul>
+<h3 id="运行与验证示例流程">运行与验证（示例流程）</h3>
+<ul>
+<li><strong>编译与加载</strong>（以 libbpf 为例）：
+<ol type="1">
+<li>编译 eBPF 程序为 <code>*.o</code>；</li>
+<li><code>bpftool prog load</code> 加载，<code>bpftool net attach xdp dev &lt;iface&gt; pinned &lt;path&gt;</code> 附着；</li>
+<li><code>bpftool map dump pinned &lt;path&gt;</code> 查看计数；</li>
+<li>用 <code>ping/iperf/wrk</code> 压测并对比 <code>XDP_PASS/XDP_DROP</code> 行为。</li>
+</ol></li>
+<li><strong>回滚</strong>：
+<ul>
+<li>临时卸载：<code>bpftool net detach xdp dev &lt;iface&gt;</code>；</li>
+<li>恢复策略：保留旧版本对象于 bpffs，切换符号链接并原子替换。</li>
+</ul></li>
+</ul>
+<h3 id="小结">📝 小结</h3>
+<ul>
+<li><strong>一句话</strong>：eBPF 让我们在不改内核的前提下，将小而高效的逻辑“内联”到内核关键路径，既快又安全。</li>
+<li><strong>入门三步</strong>：选 hook → 写最小程序 + map → 用 bpftool 验证与观测。</li>
+<li><strong>进阶方向</strong>：编排与热更新、fast-path/slow-path 分层、复杂状态一致性与可观测性。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>系统内核</category>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>eBPF</tag>
+        <tag>网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
+<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
+<h3 id="token401问题">token401问题</h3>
+<h4 id="登录401">登录401</h4>
+<p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
+</figure>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<figure>
+<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
+</figure>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<p>发现可以正常读取了</p>
+<h4 id="过期401">过期401</h4>
+<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据读取问题">数据读取问题</h3>
+<p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<h3 id="其他问题">其他问题</h3>
+<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>InfluxDB</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -7287,7 +7287,13 @@ graph TD;
 </ul></li>
 </ol>
 <blockquote>
-<p><strong>比喻总结</strong>： * <strong>Device</strong> = <strong>整个工地</strong>。 * <strong>Grid</strong> = <strong>一个工程项目</strong>（如建一栋楼）。工地够大时，可以同时开工好几个项目（并发 Kernel）。 * <strong>Block</strong> = <strong>施工队</strong>。一个项目被分包给 100 个施工队，大家领了任务单（BlockID）各自去找空闲的车间（SM）干活。 * <strong>Thread</strong> = <strong>工人</strong>。每个施工队里固定有 128 或 256 个工人，他们必须同进同退。</p>
+<p><strong>比喻总结</strong>：</p>
+<ul>
+<li><strong>Device</strong> = <strong>整个工地</strong>。</li>
+<li><strong>Grid</strong> = <strong>一个工程项目</strong>（如建一栋楼）。工地够大时，可以同时开工好几个项目（并发 Kernel）。</li>
+<li><strong>Block</strong> = <strong>施工队</strong>。一个项目被分包给 100 个施工队，大家领了任务单（BlockID）各自去找空闲的车间（SM）干活。</li>
+<li><strong>Thread</strong> = <strong>工人</strong>。每个施工队里固定有 128 或 256 个工人，他们必须同进同退。</li>
+</ul>
 </blockquote>
 <h3 id="存储层级物理硬件-vs-逻辑空间">2. 存储层级：物理硬件 vs 逻辑空间</h3>
 <p>要理解 <code>ld</code>，必须把 <strong>“物理硬件存储（Physical Hardware）”</strong> 和 <strong>“逻辑内存空间（Logical Memory Space / State Space）”</strong> 分开看：前者决定延迟/带宽/缓存路径，后者决定你在 PTX 里写什么后缀（<code>.global/.shared/.local/...</code>）。</p>
