@@ -29,7 +29,7 @@
 <meta property="og:description" content="最近一直在用 Cursor，后来也体验了 Copilot（因为有免费额度），但一直还没真正体验过 Claude Code。听说最近 GLM 4.7 非常火，就打算来体验一下 CC + GLM 4.7 的效果。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2025-12-25T06:49:32.000Z">
-<meta property="article:modified_time" content="2025-12-25T07:02:33.246Z">
+<meta property="article:modified_time" content="2025-12-25T08:49:53.350Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="AI">
 <meta property="article:tag" content="Coding">
@@ -173,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-vibecoding"><span class="nav-number">1.</span> <span class="nav-text">🌊 什么是 VibeCoding</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E6%B5%81-vibecoding-%E5%B7%A5%E5%85%B7%E5%AF%B9%E6%AF%94"><span class="nav-number"></span> <span class="nav-text">🛠️ 主流 VibeCoding 工具对比</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-mcp"><span class="nav-number">0.1.</span> <span class="nav-text">什么是 MCP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-agent"><span class="nav-number">0.2.</span> <span class="nav-text">什么是 Agent</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mcp-%E7%94%9F%E6%80%81"><span class="nav-number">0.3.</span> <span class="nav-text">MCP 生态</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-glm-%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">使用 GLM 模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B-claude-code"><span class="nav-number"></span> <span class="nav-text">🚀 快速上手 Claude Code</span></a></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-vibecoding"><span class="nav-number">1.</span> <span class="nav-text">🌊 什么是 VibeCoding</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E6%B5%81-vibecoding-%E5%B7%A5%E5%85%B7%E5%AF%B9%E6%AF%94"><span class="nav-number">1.1.</span> <span class="nav-text">🛠️ 主流 VibeCoding 工具对比</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#claude-code-%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">Claude Code 的安装与配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-mcp"><span class="nav-number">2.1.</span> <span class="nav-text">什么是 MCP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-agent"><span class="nav-number">2.2.</span> <span class="nav-text">什么是 Agent</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mcp-%E7%94%9F%E6%80%81"><span class="nav-number">2.3.</span> <span class="nav-text">MCP 生态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85-mcp"><span class="nav-number">2.4.</span> <span class="nav-text">如何安装 MCP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B7%B2%E9%85%8D%E7%BD%AE%E7%9A%84-mcp-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.5.</span> <span class="nav-text">已配置的 MCP 服务器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-glm-%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">使用 GLM 模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#claude.md"><span class="nav-number">3.1.</span> <span class="nav-text">CLAUDE.md</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -264,7 +264,7 @@
       <span class="post-meta-item-text">发表于</span>
       
 
-      <time title="创建时间：2025-12-25 14:49:32 / 修改时间：15:02:33" itemprop="dateCreated datePublished" datetime="2025-12-25T14:49:32+08:00">2025-12-25</time>
+      <time title="创建时间：2025-12-25 14:49:32 / 修改时间：16:49:53" itemprop="dateCreated datePublished" datetime="2025-12-25T14:49:32+08:00">2025-12-25</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -294,14 +294,14 @@
         <i class="far fa-file-word"></i>
       </span>
       <span class="post-meta-item-text">本文字数：</span>
-      <span>1.1k</span>
+      <span>3.6k</span>
     </span>
     <span class="post-meta-item" title="阅读时长">
       <span class="post-meta-item-icon">
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">阅读时长 &asymp;</span>
-      <span>2 分钟</span>
+      <span>7 分钟</span>
     </span>
 </div>
 
@@ -319,7 +319,7 @@
 <blockquote>
 <p>传统编程：IDE + 手写代码 → VibeCoding：AI Agent + 自然语言指令</p>
 </blockquote>
-<h2 id="主流-vibecoding-工具对比">🛠️ 主流 VibeCoding 工具对比</h2>
+<h4 id="主流-vibecoding-工具对比">🛠️ 主流 VibeCoding 工具对比</h4>
 <table>
 <thead>
 <tr class="header">
@@ -356,6 +356,10 @@
 </tr>
 </tbody>
 </table>
+<h3 id="claude-code-的安装与配置">Claude Code 的安装与配置</h3>
+<p>我是先在 WSL 里安装的 Claude Code，中间遇到代理的问题，WSL 不支持 WIN 本地的代理，于是用的虚拟网卡设置代理，要打开 clash 的局域网选项才可以。</p>
+<p>在zshrc中添加了一下配置就ok了</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> ALL_PROXY=<span class="string">&quot;http://host.docker.internal:7897&quot;</span></span><br><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&quot;http://host.docker.internal:7897&quot;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&quot;http://host.docker.internal:7897&quot;</span></span><br></pre></td></tr></table></figure>
 <h4 id="什么是-mcp">什么是 MCP</h4>
 <p><strong>MCP</strong> = <strong>Model Context Protocol</strong>（模型上下文协议）</p>
 <p>一个开放标准协议，让 AI 模型能够<strong>安全、统一地访问外部数据源和工具</strong>。</p>
@@ -403,8 +407,138 @@
 </tr>
 </tbody>
 </table>
+<h4 id="如何安装-mcp">如何安装 MCP</h4>
+<p><strong>是的，MCP 服务器需要自己安装</strong>。MCP 采用"客户端-服务器"架构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────┐     配置     ┌─────────────────┐</span><br><span class="line">│  Claude Code    │ ←────────→  │  MCP Servers    │</span><br><span class="line">│  (Client)       │             │  (你自己安装)    │</span><br><span class="line">└─────────────────┘             └─────────────────┘</span><br></pre></td></tr></table></figure>
+<p><strong>安装步骤</strong>（以 npx 方式为例）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方法1：使用 claude mcp 命令</span></span><br><span class="line">claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem /home/algernon</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2：手动编辑 ~/.claude.json 或项目下的 .claude.json</span></span><br><span class="line"><span class="comment"># 添加 MCP 服务器配置：</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;mcpServers&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;filesystem&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;command&quot;</span>: <span class="string">&quot;npx&quot;</span>,</span><br><span class="line">      <span class="string">&quot;args&quot;</span>: [<span class="string">&quot;-y&quot;</span>, <span class="string">&quot;@modelcontextprotocol/server-filesystem&quot;</span>, <span class="string">&quot;/allowed/path&quot;</span>]</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;git&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;command&quot;</span>: <span class="string">&quot;npx&quot;</span>,</span><br><span class="line">      <span class="string">&quot;args&quot;</span>: [<span class="string">&quot;-y&quot;</span>, <span class="string">&quot;@modelcontextprotocol/server-git&quot;</span>, <span class="string">&quot;--repository&quot;</span>, <span class="string">&quot;/path/to/repo&quot;</span>]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="已配置的-mcp-服务器">已配置的 MCP 服务器</h4>
+<table>
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 23%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>MCP 服务器</th>
+<th>包名</th>
+<th>功能说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>zai-mcp-server</strong></td>
+<td><code>@z_ai/mcp-server</code></td>
+<td>UI 分析、OCR 文字提取、错误诊断、数据可视化分析、视频内容理解</td>
+</tr>
+<tr class="even">
+<td><strong>memory</strong></td>
+<td><code>@modelcontextprotocol/server-memory</code></td>
+<td>持久化记忆存储，可创建实体和关系，跨会话保存信息</td>
+</tr>
+<tr class="odd">
+<td><strong>filesystem</strong></td>
+<td><code>@modelcontextprotocol/server-filesystem</code></td>
+<td>安全的文件系统访问，支持读写、搜索、目录树等操作</td>
+</tr>
+<tr class="even">
+<td><strong>fetch</strong></td>
+<td><code>@kazuph/mcp-fetch</code></td>
+<td>HTTP 请求工具，可获取网页内容、调用 API</td>
+</tr>
+</tbody>
+</table>
 <h3 id="使用-glm-模型">使用 GLM 模型</h3>
-<h2 id="快速上手-claude-code">🚀 快速上手 Claude Code</h2>
+<p>Claude Code 支持自定义 API，可以接入 GLM 等国产大模型。</p>
+<p><strong>配置方式</strong>：在 <code>~/.claude/settings.json</code> 中添加环境变量：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;env&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;ANTHROPIC_AUTH_TOKEN&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your-api-key&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ANTHROPIC_BASE_URL&quot;</span><span class="punctuation">:</span> <span class="string">&quot;https://open.bigmodel.cn/api/anthropic&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ANTHROPIC_DEFAULT_SONNET_MODEL&quot;</span><span class="punctuation">:</span> <span class="string">&quot;glm-4.6&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ANTHROPIC_DEFAULT_OPUS_MODEL&quot;</span><span class="punctuation">:</span> <span class="string">&quot;glm-4.6&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ANTHROPIC_DEFAULT_HAIKU_MODEL&quot;</span><span class="punctuation">:</span> <span class="string">&quot;glm-4.5-air&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr class="header">
+<th>环境变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ANTHROPIC_AUTH_TOKEN</code></td>
+<td>API Key</td>
+</tr>
+<tr class="even">
+<td><code>ANTHROPIC_BASE_URL</code></td>
+<td>API 地址</td>
+</tr>
+<tr class="odd">
+<td><code>ANTHROPIC_DEFAULT_*_MODEL</code></td>
+<td>默认模型映射</td>
+</tr>
+</tbody>
+</table>
+<h4 id="claude.md">CLAUDE.md</h4>
+<p><strong><code>CLAUDE.md</code></strong> 是项目根目录的特殊文件，用于向 Claude 提供项目上下文。每次新会话开始时，Claude 会自动读取它。</p>
+<p><strong>典型用途</strong>： <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section"># 项目说明</span></span><br><span class="line"></span><br><span class="line">这是一个基于 Next.js 的博客系统。</span><br><span class="line"></span><br><span class="line"><span class="section">## 项目结构</span></span><br><span class="line"><span class="bullet">-</span> <span class="code">`/source`</span> - 博客文章源码</span><br><span class="line"><span class="bullet">-</span> <span class="code">`/themes`</span> - 主题文件</span><br><span class="line"><span class="bullet">-</span> <span class="code">`package.json`</span> 中的 <span class="code">`build`</span> 命令用于生成静态站点</span><br><span class="line"></span><br><span class="line"><span class="section">## 开发规范</span></span><br><span class="line"><span class="bullet">-</span> 使用 TypeScript</span><br><span class="line"><span class="bullet">-</span> 组件放在 <span class="code">`/components`</span> 目录</span><br><span class="line"><span class="bullet">-</span> 样式使用 CSS Modules</span><br><span class="line"></span><br><span class="line"><span class="section">## 注意事项</span></span><br><span class="line"><span class="bullet">-</span> 构建前先运行 <span class="code">`npm run lint`</span></span><br><span class="line"><span class="bullet">-</span> 部署使用 <span class="code">`npm run deploy`</span></span><br></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr class="header">
+<th>技巧</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>文件引用</strong></td>
+<td>用 <code>[filename.js](src/filename.js)</code> 格式引用文件，生成可点击链接</td>
+<td>代码定位更快</td>
+</tr>
+<tr class="even">
+<td><strong>明确意图</strong></td>
+<td>一次性说完整需求，避免来回确认</td>
+<td>"添加一个深色切换按钮，点击时切换主题，状态存 localStorage"</td>
+</tr>
+<tr class="odd">
+<td><strong>分步任务</strong></td>
+<td>复杂任务直接说"帮我规划"</td>
+<td>"帮我规划一下如何重构登录流程"</td>
+</tr>
+<tr class="even">
+<td><strong>选中代码</strong></td>
+<td>IDE 中选中代码后提问，Claude 知道上下文</td>
+<td>选中函数后问"优化这段代码"</td>
+</tr>
+<tr class="odd">
+<td><strong>/commit</strong></td>
+<td>自动生成 commit message</td>
+<td><code>/commit</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="适用场景">适用场景</h3>
+<table>
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>推荐工具</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>日常开发、代码补全</td>
+<td>Cursor</td>
+</tr>
+<tr class="even">
+<td>项目重构、脚本自动化</td>
+<td>Claude Code</td>
+</tr>
+<tr class="odd">
+<td>快速补全、GitHub 深度集成</td>
+<td>Copilot</td>
+</tr>
+</tbody>
+</table>
+<h3 id="总结">总结</h3>
+<p>如果你已经在用 Cursor 或 Copilot，不妨试试 Claude Code，它可能会给你带来不一样的体验。</p>
 
     </div>
 
@@ -458,13 +592,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">230k</span>
+    <span title="站点总字数">233k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">6:58</span>
+    <span title="站点阅读时长">7:03</span>
   </span>
 </div>
 <div class="busuanzi-count">
