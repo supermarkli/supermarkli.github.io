@@ -2457,43 +2457,6 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>DeepSeek本地部署</title>
-    <url>/posts/4f6ed32b/</url>
-    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
-<span id="more"></span>
-<h2 id="下载ollama">下载Ollama</h2>
-<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
-<p>下载地址：https://ollama.com/download/windows</p>
-<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
-<p>如下图所示</p>
-<p><img src="/assets/deepseek部署01.png" /></p>
-<blockquote>
-<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
-</blockquote>
-<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
-<p><img src="/assets/deepseek部署02.png" /></p>
-<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
-<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
-<h2 id="下载deepseek">下载DeepSeek</h2>
-<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
-<p><img src="/assets/deepseek部署03.png" /></p>
-<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
-<p>如下图所示：</p>
-<p><img src="/assets/deepseek部署04.png" /></p>
-<p>最终效果如下图所示：</p>
-<p><img src="/assets/deepseek部署05.png" /></p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>人工智能</category>
-      </categories>
-      <tags>
-        <tag>大语言模型</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Compute Sanitizer 实用指南：从 0 到熟练</title>
     <url>/posts/a1b2c3d4/</url>
     <content><![CDATA[<p>想把 CUDA 程序里的“越界读写、未初始化、数据竞争、Barrier 不匹配”这类顽固 Bug 一网打尽？Compute Sanitizer（前身 <code>cuda-memcheck</code>）就是你的第一生产力工具。本文以“能上手能排错”为目标，按难度循序渐进，从最小示例、常见报错，到命令参数与协同工具给出一份“即插即用”的参考。</p>
@@ -2704,6 +2667,43 @@ flowchart TD
         <tag>GPU</tag>
         <tag>调试</tag>
         <tag>工具</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DeepSeek本地部署</title>
+    <url>/posts/4f6ed32b/</url>
+    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
+<span id="more"></span>
+<h2 id="下载ollama">下载Ollama</h2>
+<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
+<p>下载地址：https://ollama.com/download/windows</p>
+<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
+<p>如下图所示</p>
+<p><img src="/assets/deepseek部署01.png" /></p>
+<blockquote>
+<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
+</blockquote>
+<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
+<p><img src="/assets/deepseek部署02.png" /></p>
+<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
+<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
+<h2 id="下载deepseek">下载DeepSeek</h2>
+<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
+<p><img src="/assets/deepseek部署03.png" /></p>
+<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
+<p>如下图所示：</p>
+<p><img src="/assets/deepseek部署04.png" /></p>
+<p>最终效果如下图所示：</p>
+<p><img src="/assets/deepseek部署05.png" /></p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>人工智能</category>
+      </categories>
+      <tags>
+        <tag>大语言模型</tag>
       </tags>
   </entry>
   <entry>
@@ -5588,222 +5588,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
-    <title>Clash 与网络代理详解</title>
-    <url>/posts/755f751e/</url>
-    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
-<span id="more"></span>
-<h3 id="基本概念速读">📚 基本概念速读</h3>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>定义</th>
-<th>省流</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>VPN</strong></td>
-<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
-<td>秘密隧道</td>
-</tr>
-<tr class="even">
-<td><strong>Proxy</strong></td>
-<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
-<td>传话筒</td>
-</tr>
-<tr class="odd">
-<td><strong>Clash</strong></td>
-<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
-<td>智能调度员</td>
-</tr>
-<tr class="even">
-<td><strong>Rule</strong></td>
-<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
-<td>分流路牌</td>
-</tr>
-<tr class="odd">
-<td><strong>TUN</strong></td>
-<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
-<td>虚拟网卡</td>
-</tr>
-<tr class="even">
-<td><strong>Mixin</strong></td>
-<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
-<td>补丁包</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th>特性</th>
-<th>VPN</th>
-<th>代理 (Proxy)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>工作层级</strong></td>
-<td>操作系统层 (OSI L3 网络层)</td>
-<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
-</tr>
-<tr class="even">
-<td><strong>接管范围</strong></td>
-<td>全局接管（通常），所有软件流量都走隧道</td>
-<td>仅接管支持代理设置的软件 (如浏览器)</td>
-</tr>
-<tr class="odd">
-<td><strong>加密程度</strong></td>
-<td>全程加密，强调安全性</td>
-<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
-</tr>
-<tr class="even">
-<td><strong>灵活性</strong></td>
-<td>较差，通常“全走”或“全不走”</td>
-<td>极高，可按域名/进程分流</td>
-</tr>
-<tr class="odd">
-<td><strong>典型协议</strong></td>
-<td>WireGuard, OpenVPN, IPSec</td>
-<td>HTTP, Socks5, Shadowsocks, VMess</td>
-</tr>
-</tbody>
-</table>
-</blockquote>
-<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
-<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
-<h4 id="global-全局模式">1. Global 全局模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
-<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
-<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
-</ul>
-<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
-<ul>
-<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
-<li><strong>流程</strong>：
-<ol type="1">
-<li>拦截请求。</li>
-<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
-<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
-</ol></li>
-<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
-</ul>
-<h4 id="direct-直连模式">3. Direct 直连模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
-<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
-</ul>
-<h4 id="script-脚本模式">4. Script 脚本模式</h4>
-<ul>
-<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
-<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
-</ul>
-<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
-<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
-<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
-<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
-<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
-<pre>
-<code class="mermaid">
-
-graph TD;
-    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
-    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
-    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
-    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
-    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
-</code>
-</pre>
-<ol type="1">
-<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
-<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
-<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
-<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
-</ol>
-<blockquote>
-<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
-</blockquote>
-<blockquote>
-<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
-<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
-<ul>
-<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
-<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
-</ul>
-<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
-</blockquote>
-<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
-<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
-<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
-<ul>
-<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
-<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
-<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
-<li><strong>主要作用</strong>：
-<ol type="1">
-<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
-<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
-<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
-</ol></li>
-</ul>
-<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
-<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
-<h4 id="核心结构">核心结构</h4>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
-<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
-<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
-<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
-<ul>
-<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
-<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
-<li><strong>用途</strong>：
-<ul>
-<li>强制开启 TUN 模式。</li>
-<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
-<li>添加个人的局域网 IP 直连规则。</li>
-</ul></li>
-</ul>
-<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
-</blockquote>
-<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
-<ol type="1">
-<li><strong>“开了全局模式就是最安全的”</strong>
-<ul>
-<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
-</ul></li>
-<li><strong>“Ping 值低网速就快”</strong>
-<ul>
-<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
-</ul></li>
-<li><strong>“TUN 模式会影响打游戏吗？”</strong>
-<ul>
-<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
-</ul></li>
-<li><strong>Clash 是 VPN 吗？</strong>
-<ul>
-<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
-<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
-</ul></li>
-</ol>
-]]></content>
-      <categories>
-        <category>网络工具</category>
-      </categories>
-      <tags>
-        <tag>Clash</tag>
-        <tag>Network</tag>
-        <tag>VPN</tag>
-        <tag>代理</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Understanding the Linux Kernel Lecture 1 Note</title>
     <url>/posts/b1b647fa/</url>
     <content><![CDATA[<h2 id="引言">引言</h2>
@@ -6490,6 +6274,222 @@ graph TD;
         <tag>Linux</tag>
         <tag>操作系统</tag>
         <tag>内核</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Clash 与网络代理详解</title>
+    <url>/posts/755f751e/</url>
+    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>VPN</strong></td>
+<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
+<td>秘密隧道</td>
+</tr>
+<tr class="even">
+<td><strong>Proxy</strong></td>
+<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
+<td>传话筒</td>
+</tr>
+<tr class="odd">
+<td><strong>Clash</strong></td>
+<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
+<td>智能调度员</td>
+</tr>
+<tr class="even">
+<td><strong>Rule</strong></td>
+<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
+<td>分流路牌</td>
+</tr>
+<tr class="odd">
+<td><strong>TUN</strong></td>
+<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
+<td>虚拟网卡</td>
+</tr>
+<tr class="even">
+<td><strong>Mixin</strong></td>
+<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
+<td>补丁包</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>VPN</th>
+<th>代理 (Proxy)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>工作层级</strong></td>
+<td>操作系统层 (OSI L3 网络层)</td>
+<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
+</tr>
+<tr class="even">
+<td><strong>接管范围</strong></td>
+<td>全局接管（通常），所有软件流量都走隧道</td>
+<td>仅接管支持代理设置的软件 (如浏览器)</td>
+</tr>
+<tr class="odd">
+<td><strong>加密程度</strong></td>
+<td>全程加密，强调安全性</td>
+<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
+</tr>
+<tr class="even">
+<td><strong>灵活性</strong></td>
+<td>较差，通常“全走”或“全不走”</td>
+<td>极高，可按域名/进程分流</td>
+</tr>
+<tr class="odd">
+<td><strong>典型协议</strong></td>
+<td>WireGuard, OpenVPN, IPSec</td>
+<td>HTTP, Socks5, Shadowsocks, VMess</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
+<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
+<h4 id="global-全局模式">1. Global 全局模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
+<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
+<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
+</ul>
+<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
+<ul>
+<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
+<li><strong>流程</strong>：
+<ol type="1">
+<li>拦截请求。</li>
+<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
+<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
+</ol></li>
+<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
+</ul>
+<h4 id="direct-直连模式">3. Direct 直连模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
+<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
+</ul>
+<h4 id="script-脚本模式">4. Script 脚本模式</h4>
+<ul>
+<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
+<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
+</ul>
+<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
+<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
+<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
+<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
+<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
+<pre>
+<code class="mermaid">
+
+graph TD;
+    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
+    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
+    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
+    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
+    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
+</code>
+</pre>
+<ol type="1">
+<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
+<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
+<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
+<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
+</ol>
+<blockquote>
+<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
+</blockquote>
+<blockquote>
+<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
+<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
+<ul>
+<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
+<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
+</ul>
+<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
+</blockquote>
+<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
+<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
+<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
+<ul>
+<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
+<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
+<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
+<li><strong>主要作用</strong>：
+<ol type="1">
+<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
+<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
+<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
+</ol></li>
+</ul>
+<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
+<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
+<h4 id="核心结构">核心结构</h4>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
+<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
+<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
+<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
+<ul>
+<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
+<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
+<li><strong>用途</strong>：
+<ul>
+<li>强制开启 TUN 模式。</li>
+<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
+<li>添加个人的局域网 IP 直连规则。</li>
+</ul></li>
+</ul>
+<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
+</blockquote>
+<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
+<ol type="1">
+<li><strong>“开了全局模式就是最安全的”</strong>
+<ul>
+<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
+</ul></li>
+<li><strong>“Ping 值低网速就快”</strong>
+<ul>
+<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
+</ul></li>
+<li><strong>“TUN 模式会影响打游戏吗？”</strong>
+<ul>
+<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
+</ul></li>
+<li><strong>Clash 是 VPN 吗？</strong>
+<ul>
+<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
+<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
+</ul></li>
+</ol>
+]]></content>
+      <categories>
+        <category>网络工具</category>
+      </categories>
+      <tags>
+        <tag>Clash</tag>
+        <tag>Network</tag>
+        <tag>VPN</tag>
+        <tag>代理</tag>
       </tags>
   </entry>
   <entry>
@@ -8233,145 +8233,6 @@ graph TD;
       </tags>
   </entry>
   <entry>
-    <title>pytorch入门</title>
-    <url>/posts/5f1831aa/</url>
-    <content><![CDATA[<p>PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 <code>Dataset</code>、<code>DataLoader</code>、<code>Transforms</code> 和 <code>TensorBoard</code> 是高效训练模型的关键。本文将带你快速入门这四大核心组件。 <span id="more"></span></p>
-<h3 id="核心组件速记">📚 核心组件速记</h3>
-<table>
-<thead>
-<tr class="header">
-<th>组件</th>
-<th>一句话记忆</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>Dataset</code></td>
-<td><code>__getitem__</code> 和 <code>__len__</code> → 封装你的数据源，按索引取数据</td>
-</tr>
-<tr class="even">
-<td><code>DataLoader</code></td>
-<td><code>batch_size</code>, <code>shuffle</code> → 从 <code>Dataset</code> 中批量、随机地取数据</td>
-</tr>
-<tr class="odd">
-<td><code>Transforms</code></td>
-<td><code>Compose</code>, <code>ToTensor</code> → 数据预处理与增强的“流水线”</td>
-</tr>
-<tr class="even">
-<td><code>TensorBoard</code></td>
-<td><code>SummaryWriter</code> → 训练过程可视化，调参与Debug的神器</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="数据流转示意图">🎨 数据流转示意图</h3>
-<p>在 PyTorch 中，数据通常经历从磁盘文件到模型输入的转换过程。理解这个流程是掌握数据加载机制的第一步。</p>
-<pre>
-<code class="mermaid">
-
-graph TD
-    subgraph &quot;硬盘&quot;
-        A[&quot;图片文件 (cat.jpg)&quot;]
-    end
-    subgraph &quot;CPU 内存&quot;
-        B[&quot;PIL Image &#x2F; OpenCV (numpy array)&quot;]
-    end
-    subgraph &quot;GPU&#x2F;CPU 内存&quot;
-        C[&quot;Torch Tensor&lt;br&#x2F;&gt;[C, H, W]&quot;]
-        D[&quot;Batch Tensor&lt;br&#x2F;&gt;[B, C, H, W]&quot;]
-        C -- &quot;DataLoader 批量化&quot; --&gt; D
-    end
-
-    A -- &quot;Image.open()&quot; --&gt; B
-    B -- &quot;transforms.ToTensor()&quot; --&gt; C
-    D &#x3D;&#x3D;&gt; E[模型输入]
-</code>
-</pre>
-<h2 id="torch.utils.data.dataset封装你的数据">1️⃣ <code>torch.utils.data.Dataset</code>：封装你的数据</h2>
-<p><code>Dataset</code> 是一个抽象类，用于表示数据集。所有自定义的数据集都应该继承它，并重写两个核心方法：</p>
-<ul>
-<li><code>__len__(self)</code>: 返回数据集的大小。</li>
-<li><code>__getitem__(self, idx)</code>: 根据索引 <code>idx</code> 返回一条数据（通常是一个样本和对应的标签）。</li>
-</ul>
-<p>这提供了一个统一的接口，让 <code>DataLoader</code> 等工具可以方便地处理各种不同来源的数据。</p>
-<h3 id="示例创建一个自定义-dataset">示例：创建一个自定义 <code>Dataset</code></h3>
-<p>假设我们有一些图片路径和对应的标签，我们可以这样创建一个 <code>Dataset</code>：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyImageDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, image_paths, labels, transform=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.image_paths = image_paths</span><br><span class="line">        <span class="variable language_">self</span>.labels = labels</span><br><span class="line">        <span class="variable language_">self</span>.transform = transform</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.image_paths)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="comment"># 读取图片</span></span><br><span class="line">        image_path = <span class="variable language_">self</span>.image_paths[idx]</span><br><span class="line">        image = Image.<span class="built_in">open</span>(image_path).convert(<span class="string">&quot;RGB&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 获取标签</span></span><br><span class="line">        label = <span class="variable language_">self</span>.labels[idx]</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 应用数据变换</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.transform:</span><br><span class="line">            image = <span class="variable language_">self</span>.transform(image)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> image, label</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">image_files = [<span class="string">&quot;./data/cat.png&quot;</span>, <span class="string">&quot;./data/dog.png&quot;</span>]</span><br><span class="line">image_labels = [<span class="number">0</span>, <span class="number">1</span>]</span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;数据总数: <span class="subst">&#123;<span class="built_in">len</span>(custom_dataset)&#125;</span>&quot;</span>)</span><br><span class="line">first_item = custom_dataset[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;第一个样本: <span class="subst">&#123;first_item&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>记忆：<code>Dataset</code> 就是个“数据地图”，<code>__getitem__</code> 负责“按图索骥”。</p>
-</blockquote>
-<hr />
-<h2 id="torchvision.transforms数据预处理与增强">2️⃣ <code>torchvision.transforms</code>：数据预处理与增强</h2>
-<p>在将数据喂给模型之前，通常需要进行预处理，例如转换为 Tensor、归一化、裁剪、旋转等。<code>transforms</code> 就是用来完成这些操作的工具箱。</p>
-<ul>
-<li><strong>常见变换</strong>：<code>ToTensor()</code>, <code>Resize()</code>, <code>CenterCrop()</code>, <code>RandomHorizontalFlip()</code>, <code>Normalize()</code> 等。</li>
-<li><strong><code>transforms.Compose()</code></strong>: 将多个变换操作串联成一个“流水线”。</li>
-</ul>
-<h3 id="示例定义一个变换流水线">示例：定义一个变换流水线</h3>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个转换流水线</span></span><br><span class="line">data_transform = transforms.Compose([</span><br><span class="line">    transforms.Resize((<span class="number">224</span>, <span class="number">224</span>)),      <span class="comment"># 调整图片大小</span></span><br><span class="line">    transforms.RandomHorizontalFlip(),  <span class="comment"># 随机水平翻转</span></span><br><span class="line">    transforms.ToTensor(),              <span class="comment"># 将 PIL Image 或 numpy.ndarray 转换为 tensor</span></span><br><span class="line">    transforms.Normalize(mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>]) <span class="comment"># 归一化</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 transform 应用到 Dataset</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>为什么要随机翻转？</strong></p>
-<p><code>RandomHorizontalFlip</code> 是一种<strong>数据增强</strong> (Data Augmentation) 技术。它的目的是在不改变图片语义（猫翻转了还是猫）的前提下，增加训练数据的多样性。</p>
-<ul>
-<li><strong>提高泛化能力</strong>：模型会学习到，无论是正着还是反着的猫，都应该被识别为猫，从而对真实世界中更多样的数据表现更好，避免<strong>过拟合</strong>。</li>
-<li><strong>扩充数据集</strong>：相当于免费让你的数据集大小翻倍。</li>
-</ul>
-<p>提示：数据增强（如随机翻转）只在训练时使用，验证和测试时应去掉，以保证结果的一致性。</p>
-</blockquote>
-<hr />
-<h2 id="torch.utils.data.dataloader批量加载数据">3️⃣ <code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
-<p><code>DataLoader</code> 是一个迭代器，它从 <code>Dataset</code> 中自动拉取数据，并将其打包成批次 (batch)。它还提供了许多有用的功能：</p>
-<ul>
-<li><strong><code>batch_size</code></strong>: 每个批次包含的样本数。</li>
-<li><strong><code>shuffle=True</code></strong>: 在每个 epoch 开始时打乱数据顺序，有助于提高模型泛化能力。</li>
-<li><strong><code>num_workers</code></strong>: 使用多少个子进程来预加载数据。增加此值可以加快数据加载速度，但会消耗更多内存和 CPU。</li>
-</ul>
-<h3 id="示例使用-dataloader">示例：使用 <code>DataLoader</code></h3>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 custom_dataset 已经创建好</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br><span class="line"></span><br><span class="line">data_loader = DataLoader(</span><br><span class="line">    dataset=custom_dataset,</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">4</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 像遍历列表一样遍历 DataLoader</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> images, labels <span class="keyword">in</span> data_loader:</span><br><span class="line">        <span class="comment"># 在这里执行模型训练</span></span><br><span class="line">        <span class="comment"># images 的形状: [32, 3, 224, 224] (假设batch_size=32)</span></span><br><span class="line">        <span class="comment"># labels 的形状: [32]</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
-<pre>
-<code class="mermaid">
-
-graph TD
-    A[原始数据文件] --&gt; B(Dataset);
-    B -- 按索引 __getitem__ --&gt; C{单条数据};
-    D(Transforms) -- 应用于 --&gt; C;
-    C --&gt; E(DataLoader);
-    E -- 打包成 batch --&gt; F[模型];
-</code>
-</pre>
-<hr />
-<h2 id="torch.utils.tensorboard可视化训练过程">4️⃣ <code>torch.utils.tensorboard</code>：可视化训练过程</h2>
-<p><code>TensorBoard</code> 是一个强大的可视化工具，可以帮助你理解、调试和优化你的模型。PyTorch 通过 <code>SummaryWriter</code> 类与其集成。</p>
-<p><strong>主要功能</strong>: - 记录标量（如 loss、accuracy）的变化曲线。 - 可视化图像、模型图、embedding 等。</p>
-<h3 id="示例使用-summarywriter">示例：使用 <code>SummaryWriter</code></h3>
-<p><code>add_scalar</code> 是最常用的方法之一，它用于记录单个标量值的变化。</p>
-<ul>
-<li><code>tag</code>: 图表的标题，例如 ‘Loss/train’ 或 ‘Accuracy/validation’。使用 <code>/</code> 可以帮助在 TensorBoard 中对图表进行分组。</li>
-<li><code>scalar_value</code>: 要记录的数值，通常是 loss 值或准确率。</li>
-<li><code>global_step</code>: x 轴坐标，通常是训练的步数（batch index）或轮数（epoch index）。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建一个 writer 实例，日志会保存在 &#x27;logs&#x27; 目录下</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&#x27;logs/experiment_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在训练循环中记录信息</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># ... 训练代码 ...</span></span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        running_loss += loss.item()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每 100 个 batch 记录一次 loss</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            writer.add_scalar(<span class="string">&#x27;training loss&#x27;</span>, running_loss / <span class="number">100</span>, epoch * <span class="built_in">len</span>(data_loader) + i)</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">    假设在每个 epoch 结束后记录一张图片</span><br><span class="line">    writer.add_image(<span class="string">&#x27;one_image&#x27;</span>, images[<span class="number">0</span>], epoch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 训练结束后关闭 writer</span></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
-<p>记录完成后，在终端中运行 <code>tensorboard --logdir=logs</code>，然后访问浏览器中显示的地址（通常是 <code>http://localhost:6006</code>）即可查看可视化结果。</p>
-<hr />
-<h2 id="小结">📝 小结</h2>
-<ol type="1">
-<li><strong><code>Dataset</code></strong>：数据源的标准化封装，核心是 <code>__len__</code> 和 <code>__getitem__</code>。</li>
-<li><strong><code>Transforms</code></strong>：数据预处理和增强的流水线，使用 <code>Compose</code> 组合。</li>
-<li><strong><code>DataLoader</code></strong>：将 <code>Dataset</code> 包装成可迭代对象，实现批量、随机和并行加载。</li>
-<li><strong><code>TensorBoard</code></strong>：通过 <code>SummaryWriter</code> 记录训练过程，实现可视化分析。</li>
-</ol>
-<p>熟练运用这四大组件，你的 PyTorch 项目将变得更加规范、高效和易于调试 🚀</p>
-]]></content>
-      <categories>
-        <category>AI</category>
-        <category>PyTorch</category>
-      </categories>
-      <tags>
-        <tag>PyTorch</tag>
-        <tag>深度学习</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>pytorch train 模板</title>
     <url>/posts/14ba9e2c/</url>
     <content><![CDATA[<p>本文提供了一个完整、通用的 PyTorch 模型训练流程模板。它涵盖了从数据准备、模型构建、训练循环、测试评估到结果可视化的每一个关键步骤，是快速搭建深度学习项目的实用骨架。 <span id="more"></span></p>
@@ -8538,6 +8399,145 @@ graph TD
         <tag>PyTorch</tag>
         <tag>深度学习</tag>
         <tag>训练模板</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>pytorch入门</title>
+    <url>/posts/5f1831aa/</url>
+    <content><![CDATA[<p>PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 <code>Dataset</code>、<code>DataLoader</code>、<code>Transforms</code> 和 <code>TensorBoard</code> 是高效训练模型的关键。本文将带你快速入门这四大核心组件。 <span id="more"></span></p>
+<h3 id="核心组件速记">📚 核心组件速记</h3>
+<table>
+<thead>
+<tr class="header">
+<th>组件</th>
+<th>一句话记忆</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Dataset</code></td>
+<td><code>__getitem__</code> 和 <code>__len__</code> → 封装你的数据源，按索引取数据</td>
+</tr>
+<tr class="even">
+<td><code>DataLoader</code></td>
+<td><code>batch_size</code>, <code>shuffle</code> → 从 <code>Dataset</code> 中批量、随机地取数据</td>
+</tr>
+<tr class="odd">
+<td><code>Transforms</code></td>
+<td><code>Compose</code>, <code>ToTensor</code> → 数据预处理与增强的“流水线”</td>
+</tr>
+<tr class="even">
+<td><code>TensorBoard</code></td>
+<td><code>SummaryWriter</code> → 训练过程可视化，调参与Debug的神器</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="数据流转示意图">🎨 数据流转示意图</h3>
+<p>在 PyTorch 中，数据通常经历从磁盘文件到模型输入的转换过程。理解这个流程是掌握数据加载机制的第一步。</p>
+<pre>
+<code class="mermaid">
+
+graph TD
+    subgraph &quot;硬盘&quot;
+        A[&quot;图片文件 (cat.jpg)&quot;]
+    end
+    subgraph &quot;CPU 内存&quot;
+        B[&quot;PIL Image &#x2F; OpenCV (numpy array)&quot;]
+    end
+    subgraph &quot;GPU&#x2F;CPU 内存&quot;
+        C[&quot;Torch Tensor&lt;br&#x2F;&gt;[C, H, W]&quot;]
+        D[&quot;Batch Tensor&lt;br&#x2F;&gt;[B, C, H, W]&quot;]
+        C -- &quot;DataLoader 批量化&quot; --&gt; D
+    end
+
+    A -- &quot;Image.open()&quot; --&gt; B
+    B -- &quot;transforms.ToTensor()&quot; --&gt; C
+    D &#x3D;&#x3D;&gt; E[模型输入]
+</code>
+</pre>
+<h2 id="torch.utils.data.dataset封装你的数据">1️⃣ <code>torch.utils.data.Dataset</code>：封装你的数据</h2>
+<p><code>Dataset</code> 是一个抽象类，用于表示数据集。所有自定义的数据集都应该继承它，并重写两个核心方法：</p>
+<ul>
+<li><code>__len__(self)</code>: 返回数据集的大小。</li>
+<li><code>__getitem__(self, idx)</code>: 根据索引 <code>idx</code> 返回一条数据（通常是一个样本和对应的标签）。</li>
+</ul>
+<p>这提供了一个统一的接口，让 <code>DataLoader</code> 等工具可以方便地处理各种不同来源的数据。</p>
+<h3 id="示例创建一个自定义-dataset">示例：创建一个自定义 <code>Dataset</code></h3>
+<p>假设我们有一些图片路径和对应的标签，我们可以这样创建一个 <code>Dataset</code>：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyImageDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, image_paths, labels, transform=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.image_paths = image_paths</span><br><span class="line">        <span class="variable language_">self</span>.labels = labels</span><br><span class="line">        <span class="variable language_">self</span>.transform = transform</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.image_paths)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="comment"># 读取图片</span></span><br><span class="line">        image_path = <span class="variable language_">self</span>.image_paths[idx]</span><br><span class="line">        image = Image.<span class="built_in">open</span>(image_path).convert(<span class="string">&quot;RGB&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 获取标签</span></span><br><span class="line">        label = <span class="variable language_">self</span>.labels[idx]</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 应用数据变换</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.transform:</span><br><span class="line">            image = <span class="variable language_">self</span>.transform(image)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> image, label</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">image_files = [<span class="string">&quot;./data/cat.png&quot;</span>, <span class="string">&quot;./data/dog.png&quot;</span>]</span><br><span class="line">image_labels = [<span class="number">0</span>, <span class="number">1</span>]</span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;数据总数: <span class="subst">&#123;<span class="built_in">len</span>(custom_dataset)&#125;</span>&quot;</span>)</span><br><span class="line">first_item = custom_dataset[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;第一个样本: <span class="subst">&#123;first_item&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>记忆：<code>Dataset</code> 就是个“数据地图”，<code>__getitem__</code> 负责“按图索骥”。</p>
+</blockquote>
+<hr />
+<h2 id="torchvision.transforms数据预处理与增强">2️⃣ <code>torchvision.transforms</code>：数据预处理与增强</h2>
+<p>在将数据喂给模型之前，通常需要进行预处理，例如转换为 Tensor、归一化、裁剪、旋转等。<code>transforms</code> 就是用来完成这些操作的工具箱。</p>
+<ul>
+<li><strong>常见变换</strong>：<code>ToTensor()</code>, <code>Resize()</code>, <code>CenterCrop()</code>, <code>RandomHorizontalFlip()</code>, <code>Normalize()</code> 等。</li>
+<li><strong><code>transforms.Compose()</code></strong>: 将多个变换操作串联成一个“流水线”。</li>
+</ul>
+<h3 id="示例定义一个变换流水线">示例：定义一个变换流水线</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个转换流水线</span></span><br><span class="line">data_transform = transforms.Compose([</span><br><span class="line">    transforms.Resize((<span class="number">224</span>, <span class="number">224</span>)),      <span class="comment"># 调整图片大小</span></span><br><span class="line">    transforms.RandomHorizontalFlip(),  <span class="comment"># 随机水平翻转</span></span><br><span class="line">    transforms.ToTensor(),              <span class="comment"># 将 PIL Image 或 numpy.ndarray 转换为 tensor</span></span><br><span class="line">    transforms.Normalize(mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>]) <span class="comment"># 归一化</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 transform 应用到 Dataset</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>为什么要随机翻转？</strong></p>
+<p><code>RandomHorizontalFlip</code> 是一种<strong>数据增强</strong> (Data Augmentation) 技术。它的目的是在不改变图片语义（猫翻转了还是猫）的前提下，增加训练数据的多样性。</p>
+<ul>
+<li><strong>提高泛化能力</strong>：模型会学习到，无论是正着还是反着的猫，都应该被识别为猫，从而对真实世界中更多样的数据表现更好，避免<strong>过拟合</strong>。</li>
+<li><strong>扩充数据集</strong>：相当于免费让你的数据集大小翻倍。</li>
+</ul>
+<p>提示：数据增强（如随机翻转）只在训练时使用，验证和测试时应去掉，以保证结果的一致性。</p>
+</blockquote>
+<hr />
+<h2 id="torch.utils.data.dataloader批量加载数据">3️⃣ <code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
+<p><code>DataLoader</code> 是一个迭代器，它从 <code>Dataset</code> 中自动拉取数据，并将其打包成批次 (batch)。它还提供了许多有用的功能：</p>
+<ul>
+<li><strong><code>batch_size</code></strong>: 每个批次包含的样本数。</li>
+<li><strong><code>shuffle=True</code></strong>: 在每个 epoch 开始时打乱数据顺序，有助于提高模型泛化能力。</li>
+<li><strong><code>num_workers</code></strong>: 使用多少个子进程来预加载数据。增加此值可以加快数据加载速度，但会消耗更多内存和 CPU。</li>
+</ul>
+<h3 id="示例使用-dataloader">示例：使用 <code>DataLoader</code></h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 custom_dataset 已经创建好</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br><span class="line"></span><br><span class="line">data_loader = DataLoader(</span><br><span class="line">    dataset=custom_dataset,</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">4</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 像遍历列表一样遍历 DataLoader</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> images, labels <span class="keyword">in</span> data_loader:</span><br><span class="line">        <span class="comment"># 在这里执行模型训练</span></span><br><span class="line">        <span class="comment"># images 的形状: [32, 3, 224, 224] (假设batch_size=32)</span></span><br><span class="line">        <span class="comment"># labels 的形状: [32]</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<pre>
+<code class="mermaid">
+
+graph TD
+    A[原始数据文件] --&gt; B(Dataset);
+    B -- 按索引 __getitem__ --&gt; C{单条数据};
+    D(Transforms) -- 应用于 --&gt; C;
+    C --&gt; E(DataLoader);
+    E -- 打包成 batch --&gt; F[模型];
+</code>
+</pre>
+<hr />
+<h2 id="torch.utils.tensorboard可视化训练过程">4️⃣ <code>torch.utils.tensorboard</code>：可视化训练过程</h2>
+<p><code>TensorBoard</code> 是一个强大的可视化工具，可以帮助你理解、调试和优化你的模型。PyTorch 通过 <code>SummaryWriter</code> 类与其集成。</p>
+<p><strong>主要功能</strong>: - 记录标量（如 loss、accuracy）的变化曲线。 - 可视化图像、模型图、embedding 等。</p>
+<h3 id="示例使用-summarywriter">示例：使用 <code>SummaryWriter</code></h3>
+<p><code>add_scalar</code> 是最常用的方法之一，它用于记录单个标量值的变化。</p>
+<ul>
+<li><code>tag</code>: 图表的标题，例如 ‘Loss/train’ 或 ‘Accuracy/validation’。使用 <code>/</code> 可以帮助在 TensorBoard 中对图表进行分组。</li>
+<li><code>scalar_value</code>: 要记录的数值，通常是 loss 值或准确率。</li>
+<li><code>global_step</code>: x 轴坐标，通常是训练的步数（batch index）或轮数（epoch index）。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建一个 writer 实例，日志会保存在 &#x27;logs&#x27; 目录下</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&#x27;logs/experiment_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在训练循环中记录信息</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># ... 训练代码 ...</span></span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        running_loss += loss.item()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每 100 个 batch 记录一次 loss</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            writer.add_scalar(<span class="string">&#x27;training loss&#x27;</span>, running_loss / <span class="number">100</span>, epoch * <span class="built_in">len</span>(data_loader) + i)</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">    假设在每个 epoch 结束后记录一张图片</span><br><span class="line">    writer.add_image(<span class="string">&#x27;one_image&#x27;</span>, images[<span class="number">0</span>], epoch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 训练结束后关闭 writer</span></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
+<p>记录完成后，在终端中运行 <code>tensorboard --logdir=logs</code>，然后访问浏览器中显示的地址（通常是 <code>http://localhost:6006</code>）即可查看可视化结果。</p>
+<hr />
+<h2 id="小结">📝 小结</h2>
+<ol type="1">
+<li><strong><code>Dataset</code></strong>：数据源的标准化封装，核心是 <code>__len__</code> 和 <code>__getitem__</code>。</li>
+<li><strong><code>Transforms</code></strong>：数据预处理和增强的流水线，使用 <code>Compose</code> 组合。</li>
+<li><strong><code>DataLoader</code></strong>：将 <code>Dataset</code> 包装成可迭代对象，实现批量、随机和并行加载。</li>
+<li><strong><code>TensorBoard</code></strong>：通过 <code>SummaryWriter</code> 记录训练过程，实现可视化分析。</li>
+</ol>
+<p>熟练运用这四大组件，你的 PyTorch 项目将变得更加规范、高效和易于调试 🚀</p>
+]]></content>
+      <categories>
+        <category>AI</category>
+        <category>PyTorch</category>
+      </categories>
+      <tags>
+        <tag>PyTorch</tag>
+        <tag>深度学习</tag>
       </tags>
   </entry>
   <entry>
@@ -9447,6 +9447,98 @@ graph TD
       </tags>
   </entry>
   <entry>
+    <title>混合加密入门：集安全与效率于一身的艺术</title>
+    <url>/posts/8c9a7e4f/</url>
+    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
+<ul>
+<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
+<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
+</ul>
+<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
+<span id="more"></span>
+<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
+<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
+<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
+<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
+<ul>
+<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
+<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
+<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
+<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
+</ul>
+<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
+<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
+<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
+<ul>
+<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
+<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
+</ul>
+<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
+<ul>
+<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
+<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
+<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
+</ul>
+<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
+<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
+<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
+<p>它的执行流程如同一场精心编排的双人舞：</p>
+<ol type="1">
+<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
+<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
+<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
+<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
+<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
+<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
+</ol>
+<p>至此，一次安全又高效的通信便完成了。</p>
+我们可以用下面这个流程图来清晰地展示这个过程：
+<pre class="mermaid">sequenceDiagram
+    participant Sender as 发送方
+    participant Receiver as 接收方
+
+    Note over Sender, Receiver: 混合加密流程
+
+    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
+    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
+    
+    rect rgba(255, 220, 220, 0.4)
+        note right of Sender: 获取接收方的公钥
+        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
+    end
+    
+    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
+    
+    rect rgba(220, 255, 220, 0.4)
+        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
+        note right of Receiver: 获得对称密钥
+        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
+    end
+    
+    Receiver->>Sender: 通信已安全建立</pre>
+<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
+<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
+<ul>
+<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
+<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
+<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
+<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
+</ul>
+<h3 id="四总结">✨ 四、总结</h3>
+<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
+<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>加密</tag>
+        <tag>密码学</tag>
+        <tag>安全</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>实模式（Real Mode）</title>
     <url>/posts/b08764f6/</url>
     <content><![CDATA[<p>本文主要介绍实模式（Real Mode）的基本概念、主要特性，以及其在x86架构启动流程中的作用。通过理解实模式，可以帮助大家更好地理解现代操作系统为何要经历“实模式→保护模式→长模式”等阶段，以及16位、20位寻址等历史遗留问题的成因。</p>
@@ -9886,98 +9978,6 @@ graph LR
         <tag>x86</tag>
         <tag>启动</tag>
         <tag>实模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>混合加密入门：集安全与效率于一身的艺术</title>
-    <url>/posts/8c9a7e4f/</url>
-    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
-<ul>
-<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
-<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
-</ul>
-<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
-<span id="more"></span>
-<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
-<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
-<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
-<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
-<ul>
-<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
-<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
-<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
-<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
-</ul>
-<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
-<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
-<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
-<ul>
-<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
-<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
-</ul>
-<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
-<ul>
-<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
-<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
-<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
-</ul>
-<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
-<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
-<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
-<p>它的执行流程如同一场精心编排的双人舞：</p>
-<ol type="1">
-<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
-<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
-<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
-<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
-<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
-<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
-</ol>
-<p>至此，一次安全又高效的通信便完成了。</p>
-我们可以用下面这个流程图来清晰地展示这个过程：
-<pre class="mermaid">sequenceDiagram
-    participant Sender as 发送方
-    participant Receiver as 接收方
-
-    Note over Sender, Receiver: 混合加密流程
-
-    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
-    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
-    
-    rect rgba(255, 220, 220, 0.4)
-        note right of Sender: 获取接收方的公钥
-        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
-    end
-    
-    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
-    
-    rect rgba(220, 255, 220, 0.4)
-        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
-        note right of Receiver: 获得对称密钥
-        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
-    end
-    
-    Receiver->>Sender: 通信已安全建立</pre>
-<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
-<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
-<ul>
-<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
-<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
-<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
-<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
-</ul>
-<h3 id="四总结">✨ 四、总结</h3>
-<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
-<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>加密</tag>
-        <tag>密码学</tag>
-        <tag>安全</tag>
       </tags>
   </entry>
   <entry>
