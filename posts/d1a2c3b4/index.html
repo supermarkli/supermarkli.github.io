@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
@@ -19,7 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
     <meta name="description" content="如果把 CPU 比作“多才多艺的总管”，GPU 更像“高效的流水线工厂”：CPU 擅长复杂分支与少量任务的低延迟处理，GPU 擅长大量相同&#x2F;相似任务的高吞吐处理。本文先给出关键概念，再用 CPU 对比串起 GPU 的架构、执行模型、内存层次与性能要点。">
 <meta property="og:type" content="article">
@@ -195,12 +196,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">34</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-count">122</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -564,7 +565,7 @@ flowchart TD
 <li>AoS（Array of Structs） <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Pt</span> &#123; <span class="type">float</span> x,y,z; &#125;;</span><br><span class="line">Pt* pts; <span class="comment">// pts[i].x 连续性差，warp 取 x 会跨步</span></span><br></pre></td></tr></table></figure></li>
 <li><p>SoA（Struct of Arrays） <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Pts</span> &#123; <span class="type">float</span>* x; <span class="type">float</span>* y; <span class="type">float</span>* z; &#125;;</span><br><span class="line"><span class="comment">// 连续访问 x[i] 更易合并为少量内存事务</span></span><br></pre></td></tr></table></figure></p></li>
 <li>假设一个 warp 有 32 个线程，每个线程要读一个 <code>float x</code>（4 字节）。</li>
-<li>如果是 AoS：内存像这样排 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x0 y0 z0 | x1 y1 z1 | x2 y2 z2 | ...   // 每个点的 x、y、z 挨在一起</span><br></pre></td></tr></table></figure> 第 i 个线程要读 <code>xi</code>，地址间隔是“一个点的大小”（约 12 字节），即 0, 12, 24, 36, ... 32 个地址跨越范围≈ 32 × 12 = 384 字节，比较分散，需要多次内存事务才能取完。</li>
+<li>如果是 AoS：内存像这样排 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x0 y0 z0 | x1 y1 z1 | x2 y2 z2 | ...   // 每个点的 x、y、z 挨在一起</span><br></pre></td></tr></table></figure> 第 i 个线程要读 <code>xi</code>，地址间隔是“一个点的大小”（约 12 字节），即 0, 12, 24, 36, … 32 个地址跨越范围≈ 32 × 12 = 384 字节，比较分散，需要多次内存事务才能取完。</li>
 <li><p>如果是 SoA：内存像这样排 <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">x0 x1 x2 x3 ... x31 | y0 y1 ... | z0 z1 ...   // 所有 x 连在一起</span><br></pre></td></tr></table></figure> 32 个线程读取 <code>x0..x31</code> 对应地址正好是连续的 128 字节（32 × 4B），硬件可以“一次/极少数几次”就打包取齐（称为合并访存）。</p></li>
 </ul>
 <p>经验法则：让“相邻线程 → 访问相邻地址”。读 x 用 SoA 更容易一次性打包；读整点（x,y,z 都要）时 AoS 也未必差，但要注意对齐与访问顺序。</p>
@@ -707,7 +708,7 @@ flowchart TD
 
   <div class="copyright">
     &copy; 
-    <span itemprop="copyrightYear">2025</span>
+    <span itemprop="copyrightYear">2026</span>
     <span class="with-love">
       <i class="fa-solid fa-headphones"></i>
     </span>
@@ -718,13 +719,13 @@ flowchart TD
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">233k</span>
+    <span title="站点总字数">235k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:03</span>
+    <span title="站点阅读时长">7:08</span>
   </span>
 </div>
 <div class="busuanzi-count">

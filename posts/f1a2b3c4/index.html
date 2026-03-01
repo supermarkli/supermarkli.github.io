@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
@@ -19,7 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
     <meta name="description" content="这篇文章会带你一起，从 FaaS 的诞生背景聊起，彻底搞懂它的核心概念、真实应用场景，并手把手教你把第一个函数部署上云。">
 <meta property="og:type" content="article">
@@ -194,12 +195,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">34</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-count">122</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -326,7 +327,7 @@
 <p><strong>第二站：虚拟机 (IaaS) 时代</strong></p>
 <p>云计算的出现带来了转机。以 AWS EC2 为代表的虚拟机服务，让我们告别了实体硬件，可以在云端“租”服务器。这极大地提高了灵活性，几分钟内就能创建一台虚拟机。但问题并没有完全解决：我们依然要为整台虚拟机买单，哪怕上面的应用空闲着。同时，操作系统的维护、安全补丁的更新，这些运维工作一样也没少。</p>
 <p><strong>第三站：容器 (PaaS/CaaS) 时代</strong></p>
-<p>Docker 和 Kubernetes 的风靡，让部署进入了容器化时代。我们将应用和它的依赖打包成一个轻量的“集装箱”，实现了环境的标准化和交付的敏捷性。但新的“烦恼”也随之而来：为了运行这些容器，我们得维护一个庞大而复杂的 Kubernetes 集群。容量规划、节点扩容、网络配置... 我们似乎从“应用运维”的坑，跳进了“集群运维”的坑。</p>
+<p>Docker 和 Kubernetes 的风靡，让部署进入了容器化时代。我们将应用和它的依赖打包成一个轻量的“集装箱”，实现了环境的标准化和交付的敏捷性。但新的“烦恼”也随之而来：为了运行这些容器，我们得维护一个庞大而复杂的 Kubernetes 集群。容量规划、节点扩容、网络配置… 我们似乎从“应用运维”的坑，跳进了“集群运维”的坑。</p>
 <p>兜兜转转，开发者们始终有一个终极梦想：<strong>我们能只关心业务代码，而彻底不用管服务器吗？</strong></p>
 <p>FaaS 响亮地回答了：“能！”</p>
 <p>它的核心思想简单而彻底：<strong>让开发者回归最纯粹的编程，将服务器及相关的一切运维工作，都交给云平台</strong>。无论是操作系统、运行时环境，还是弹性伸缩、高可用，你通通不用管。你的世界里，只剩下你的“函数”——那段实现核心业务逻辑的代码。</p>
@@ -337,7 +338,7 @@
 <li><p><strong>FaaS (Function-as-a-Service, 函数即服务)</strong> 这是我们要掌握的核心。我喜欢用一个比喻：<strong>租厨房，而不是租公寓</strong>。 在传统模式下，为了做顿饭，你得先租下一整套公寓（服务器），自己装修（配环境）、打扫（运维）。而 FaaS 就像一个共享厨房，你只需带着菜谱（代码）进去，锅碗瓢盆（运行环境）一应俱全。你只为炒菜的几分钟付费，完事就走，绝不为厨房的闲置时间买单。</p></li>
 <li><p><strong>Serverless (无服务器架构)</strong> 这是一个更宏大的理念，FaaS 只是它最广为人知的“代言人”。Serverless 并非真的没有服务器，而是强调一种<strong>开发者无需关心服务器</strong>的架构思想。 如果说 FaaS 是共享厨房，那 Serverless 就是整个美食广场。这个广场里除了厨房（FaaS），还有现成的食材超市（BaaS - 数据库服务）、统一的安保系统（BaaS - 身份验证服务）等等。Serverless 的目标，就是让你作为大厨，能心无旁骛地专注于“炒菜”这一件事上。</p></li>
 <li><p><strong>事件驱动 (Event-Driven)</strong> 这是 FaaS 的灵魂。你的函数并非 24 小时待命，而是像个“懒汉”，<strong>“有事才干，没事歇着”</strong>。 你可以把函数想象成一个装了门铃的房间。只有当“事件”发生时——比如有人按门铃（HTTP 请求）、信箱里有新信件（文件上传）、手机闹钟响了（定时任务）——它才会被唤醒去开门（执行函数）。这种模式确保了资源不会被空耗。</p></li>
-<li><p><strong>冷启动 (Cold Start)</strong> 这是 FaaS 的一个独特挑战。如果你的函数长时间没被调用（没人按门铃），平台为了节约资源，会把它“请回家休息”（回收实例）。当下一个请求突然到来时，平台需要重新给它分配资源、加载代码、初始化环境... 这个过程就像大冬天里发动一台冷了很久的汽车，会有一个明显的延迟，这就是“冷启动”。 一旦启动完毕，后续的连续请求就会非常快（这叫“热启动”），直到它再次因为“没人理”而进入休眠。</p></li>
+<li><p><strong>冷启动 (Cold Start)</strong> 这是 FaaS 的一个独特挑战。如果你的函数长时间没被调用（没人按门铃），平台为了节约资源，会把它“请回家休息”（回收实例）。当下一个请求突然到来时，平台需要重新给它分配资源、加载代码、初始化环境… 这个过程就像大冬天里发动一台冷了很久的汽车，会有一个明显的延迟，这就是“冷启动”。 一旦启动完毕，后续的连续请求就会非常快（这叫“热启动”），直到它再次因为“没人理”而进入休眠。</p></li>
 <li><p><strong>BaaS (Backend-as-a-Service, 后端即服务)</strong> 前面提到，这是 Serverless 美食广场的另一半。它提供了各种开箱即用的后端能力，比如数据库 (<code>Firebase</code>)、对象存储 (<code>AWS S3</code>)、用户认证 (<code>Auth0</code>) 等。FaaS 函数通常和 BaaS 服务配合，一个主内（负责无状态的计算逻辑），一个主外（负责有状态的数据存储），共同构建出一个完整的 Serverless 应用。</p></li>
 </ul>
 <h3 id="三身手初试faas-的真实应用场景">三、身手初试：FaaS 的真实应用场景</h3>
@@ -389,7 +390,7 @@ LBD --&gt; DLQ[&quot;死信队列&lt;br&#x2F;&gt;(可选)&quot;]
 <p><strong>解密冷启动</strong>：从上面的流程可以看出，一次冷启动的耗时主要来自：拉取代码镜像 → 启动 Runtime 容器 → 初始化你的代码 → (如果需要)挂载网络。</p>
 </blockquote>
 <h4 id="开发到上线五步法">开发到上线：五步法</h4>
-<p>接下来，我们用一个经典的 "Hello World" 示例，走完从开发到上线的完整流程。</p>
+<p>接下来，我们用一个经典的 “Hello World” 示例，走完从开发到上线的完整流程。</p>
 <ol type="1">
 <li><p><strong>初始化工程</strong> 首先，在本地创建一个项目目录，并编写一个简单的 Node.js 函数。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> hello-faas &amp;&amp; <span class="built_in">cd</span> <span class="variable">$_</span></span><br><span class="line"><span class="comment"># 创建一个 index.js 文件，内容如下</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;exports.handler = async (event) =&gt; &quot;Hello from FaaS!&quot;;&#x27;</span> &gt; index.js</span><br><span class="line"><span class="comment"># 将项目打包成 zip 文件</span></span><br><span class="line">zip -r function.zip .</span><br></pre></td></tr></table></figure></p></li>
 <li><p><strong>创建函数</strong> 登录云厂商控制台（或使用命令行工具），创建一个新函数。 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以 AWS CLI 为例</span></span><br><span class="line">aws lambda create-function \</span><br><span class="line">    --function-name hello-world \</span><br><span class="line">    --runtime nodejs20.x \</span><br><span class="line">    --handler index.handler \</span><br><span class="line">    --zip-file fileb://function.zip \</span><br><span class="line">    --role &lt;your-lambda-execution-role-arn&gt;</span><br></pre></td></tr></table></figure> 这里需要指定函数名、运行时、入口文件 (<code>index.js</code>里的<code>handler</code>方法)，并上传代码包。</p></li>
@@ -537,7 +538,7 @@ LBD --&gt; DLQ[&quot;死信队列&lt;br&#x2F;&gt;(可选)&quot;]
 
   <div class="copyright">
     &copy; 
-    <span itemprop="copyrightYear">2025</span>
+    <span itemprop="copyrightYear">2026</span>
     <span class="with-love">
       <i class="fa-solid fa-headphones"></i>
     </span>
@@ -548,13 +549,13 @@ LBD --&gt; DLQ[&quot;死信队列&lt;br&#x2F;&gt;(可选)&quot;]
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">233k</span>
+    <span title="站点总字数">235k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:03</span>
+    <span title="站点阅读时长">7:08</span>
   </span>
 </div>
 <div class="busuanzi-count">

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
@@ -19,7 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
     <meta name="description" content="Intel TDX Demystified: A Top-Down Approach 摘要：Intel Trust Domain Extensions (TDX) 是一种在第四代 Intel Xeon Scalable 处理器中引入的架构扩展，支持保密计算。TDX 允许在安全仲裁模式 (SEAM) 中部署虚拟机 (VM)，提供加密的 CPU 状态和内存、完整性保护以及远程认证。">
 <meta property="og:type" content="article">
@@ -208,12 +209,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">34</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-count">122</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -391,7 +392,7 @@
 <p>TDX 假设对手可能具有<strong>物理或远程访问计算机</strong>的能力，并能够<strong>控制启动固件、系统管理模式 (SMM)、主机操作系统 (OS)、虚拟机管理程序 (Hypervisor) 和外围设备</strong>。</p>
 <p>这些对手的主要目标是获取机密数据或干扰 TD 的执行。需要注意的是，TDX 不能保证可用性，因为对手<strong>可以控制分配给 TD 的所有计算资源</strong>，并发起拒绝服务 (DoS) 攻击。</p>
 <blockquote>
-<p>这里的"可用性"是指虚拟机（TD）能够可靠、持续地执行和运行的能力</p>
+<p>这里的“可用性”是指虚拟机（TD）能够可靠、持续地执行和运行的能力</p>
 <p><strong>拒绝服务攻击（Denial of Service，简称 DoS）</strong> 是一种网络攻击，它的目的是使目标系统或服务无法正常提供服务。攻击者通过向目标发送大量请求或恶意数据，耗尽目标的资源（如带宽、CPU、内存等），导致合法用户无法访问或使用目标系统或服务。</p>
 </blockquote>
 <p>因此，TDX 的设计必须防止对手采取任何可能破坏 TDX 安全保证的行为。下面，我们总结了对手的能力，并确定了潜在的攻击向量和场景。</p>
@@ -430,11 +431,11 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
 <p>为了保护敏感数据和代码，PEF 引入了一个受信固件——受保护执行 Ultravisor（Ultravisor），该固件通过 CPU 架构变化来屏蔽 SVM 执行并强制执行安全保障。PEF 依赖于系统的安全和受信启动，并在一个新的、最高特权的 CPU 状态（称为 Secure State）中执行 Ultravisor。</p>
 <p>虚拟机管理程序启动 VM，然后调用 Ultravisor 来切换到 SVM。Ultravisor 通过将其移动到受保护的内存来将 VM 转换为 SVM，从而确保这些内存对于不受信任的代码是不可访问的。</p>
 <h3 id="arm-cca">Arm CCA</h3>
-<p>CCA（保密计算架构）是 Armv9 架构中引入的一项技术。传统上，Arm TrustZone 通过将"普通世界"（Normal World）和"安全世界"（Secure World）分隔开来，实现了安全执行。TrustZone 防止普通世界的软件访问安全世界中的数据。</p>
-<p>CCA 引入了"领域管理扩展"（Realm Management Extension，RME），通过添加两个新的世界：领域世界（Realm World）和根世界（Root World），进一步扩展了这种分隔。</p>
+<p>CCA（保密计算架构）是 Armv9 架构中引入的一项技术。传统上，Arm TrustZone 通过将“普通世界”（Normal World）和“安全世界”（Secure World）分隔开来，实现了安全执行。TrustZone 防止普通世界的软件访问安全世界中的数据。</p>
+<p>CCA 引入了“领域管理扩展”（Realm Management Extension，RME），通过添加两个新的世界：领域世界（Realm World）和根世界（Root World），进一步扩展了这种分隔。</p>
 <p>领域世界（Realm World）为保密虚拟机（Confidential VMs）提供了相互不信任的执行环境，隔离工作负载，使其不受其他安全域（包括主机操作系统、虚拟机管理程序、其他领域和 TrustZone）的干扰。</p>
-<p>为了实施地址空间的隔离，CCA 使用了一种扩展的页面表结构——"粒度保护表"（Granule Protection Table，GPT），该结构用于跟踪每个页面的所有权，并将其归属于不同的世界。</p>
-<p>根世界（Root World）中的"监控器"（Monitor）负责创建和管理 GPT，防止虚拟机管理程序或操作系统直接更改它。监控器可以通过更新 GPT 动态地在不同世界之间移动物理内存。CCA 还支持对 CCA 平台及其领域的初始状态进行认证，以确保其安全性。</p>
+<p>为了实施地址空间的隔离，CCA 使用了一种扩展的页面表结构——“粒度保护表”（Granule Protection Table，GPT），该结构用于跟踪每个页面的所有权，并将其归属于不同的世界。</p>
+<p>根世界（Root World）中的“监控器”（Monitor）负责创建和管理 GPT，防止虚拟机管理程序或操作系统直接更改它。监控器可以通过更新 GPT 动态地在不同世界之间移动物理内存。CCA 还支持对 CCA 平台及其领域的初始状态进行认证，以确保其安全性。</p>
 <h3 id="risc-v-cove">RISC-V CoVE</h3>
 <p>CoVE（保密虚拟机扩展）是 RISC-V 的一个参考保密计算架构，其受保护的实例被称为 TEE 虚拟机（TVM）。该架构引入了 TEE 安全管理器（TSM）驱动，这是一个 M 模式（RISC-V 中的最高特权级别）固件组件，用于在保密环境和非保密环境之间切换。TSM 驱动通过内存跟踪表（Memory Tracking Table，MTT）跟踪 TVM 的内存页面分配。</p>
 <p>TSM 驱动测量并加载 TSM，它是虚拟机管理程序与 TVM 之间的受信中介。CoVE 定义了一个应用程序二进制接口（ABI），供虚拟机管理程序从 TSM 请求虚拟机管理服务。</p>
@@ -472,7 +473,7 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
 <ul>
 <li><strong>本地认证</strong>：用于在同一平台上的两个飞地之间建立信任关系。第一个飞地生成一份报告，并使用第二个飞地的身份信息对其进行签名。第二个飞地检索其报告密钥，并使用此密钥验证报告。<br />
 </li>
-<li><strong>远程认证</strong>：用于向平台外的第三方实体验证飞地的可信性。SGX 使用一个特殊的架构飞地，称为引用飞地（Quoting Enclave，QE），由 Intel 开发并签署。QE 接收来自另一个飞地的报告，在本地验证报告，并通过使用认证密钥对其进行签名，将其转换为远程可验证的"引用"（qote）。远程方可以将该 qote 发送到 Intel 认证服务（IAS），IAS 对 qote 进行验证，以确认并评估飞地的可信度。</li>
+<li><strong>远程认证</strong>：用于向平台外的第三方实体验证飞地的可信性。SGX 使用一个特殊的架构飞地，称为引用飞地（Quoting Enclave，QE），由 Intel 开发并签署。QE 接收来自另一个飞地的报告，在本地验证报告，并通过使用认证密钥对其进行签名，将其转换为远程可验证的“引用”（qote）。远程方可以将该 qote 发送到 Intel 认证服务（IAS），IAS 对 qote 进行验证，以确认并评估飞地的可信度。</li>
 </ul>
 <p>引用飞地（Quoting Enclave，QE）的角色是<strong>为报告转换为引用</strong>提供一个安全且可信的环境，并<strong>确保引用不能被篡改或伪造</strong>。Intel 还提供了数据中心认证原语（DCAP），这是由多个软件包组成的，数据中心可以利用它们部署自己的 ECDSA 认证基础设施以进行 SGX 飞地认证。</p>
 <p>研究人员已经利用 SGX 来提供安全容器（例如，Scone）和为未经修改的应用程序提供屏蔽执行（例如，Haven）。Graphene 是一个基于 SGX 的框架，它提供了在 SGX 飞地内运行未经修改的应用程序及动态库的技术。此外，SGX 还有广泛的应用，包括功能加密系统（如 Iron）、代码划分保护敏感数据和功能（如 Glamdring）、机器学习、安全网络、安全的分布式系统协调（如 SecureKeeper）以及安全的分布式计算等。</p>
@@ -496,7 +497,7 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
 <p>安全仲裁模式 (SEAM) 是对 VMX 架构的扩展，提供了两种新的执行模式：SEAM VMX 根模式和 SEAM VMX 非根模式。</p>
 <p>一个 TDX 友好的虚拟机管理程序在传统的 VMX 根模式下运行，并使用 SEAMCALL 指令调用 TDX 模块的主机侧接口函数。当 SEAMCALL 指令执行时，逻辑处理器 (LP) 从 VMX 根模式过渡到 SEAM VMX 根模式，并开始执行 TDX 模块中的代码。一旦 TDX 模块完成任务，它通过执行 SEAMRET 指令返回到 VMX 根模式下的虚拟机管理程序。</p>
 <p>另一方面，TD（信任域）在 SEAM VMX 非根模式下运行。TDX 支持在 TD 中执行未经修改的用户级应用程序，类似于在标准虚拟机中执行的方式。然而，TD 的来宾操作系统内核（在图 1 中显示为 TDX 友好操作系统）需要进行一些修改，以适应底层 TDX 平台，并符合其架构范式和安全要求。这些修改包括处理新的 TDX 异常（通过来宾虚拟化异常（VE）处理程序）、实现类似于超调用的机制以便 TD 与 TDX 模块通信、为 I/O 操作转换内存页面（从私有到共享），以及集成认证支持。具体实现细节可能因操作系统类型而异。例如，经过增强的来宾 Linux 内核的详细实现已在内核文档中进行了描述。</p>
-<p>TD 通过 TD 退出或调用 TDCALL 指令陷入 TDX 模块的上下文中。两种情况下，逻辑处理器 (LP) 都会从 SEAM VMX 非根模式转换到 SEAM VMX 根模式，并开始在 TDX 模块上下文中执行。处理 TDCALL 的来宾侧接口函数以 "TDG" 开头。有关 TDX 上下文切换的详细信息，可以参见第 7.5 节。</p>
+<p>TD 通过 TD 退出或调用 TDCALL 指令陷入 TDX 模块的上下文中。两种情况下，逻辑处理器 (LP) 都会从 SEAM VMX 非根模式转换到 SEAM VMX 根模式，并开始在 TDX 模块上下文中执行。处理 TDCALL 的来宾侧接口函数以 “TDG” 开头。有关 TDX 上下文切换的详细信息，可以参见第 7.5 节。</p>
 <p>保密计算带来的机密性保障使其成为研究侧信道信息泄漏的主要目标。近年来，CPU 推测执行的系列微架构攻击暴露了一个令人担忧的问题：在架构状态中强制执行的安全域隔离可能与微架构状态不一致。随着 TDX 在市场上变得更加普及，它预计将吸引更多安全研究人员的关注。我们主要着重于审查已集成到 TDX 模块中的现有防御措施，以应对已知的攻击向量。详细信息请参见第 7.8 节。</p>
 <h3 id="tdx-内存保护">TDX 内存保护</h3>
 <p>TDX 利用 VMX 强制执行对 TD 的内存隔离。类似于传统虚拟机，TD 无法访问其他安全域的内存，如 SMM、虚拟机管理程序、TDX 模块和其他虚拟机/TD。使用 VMX，虚拟机管理程序维护扩展页表（EPT）来强制实施内存隔离。然而，由于虚拟机管理程序不再被信任，<strong>TDX 已将内存管理任务转移至 TDX 模块，TDX 模块控制 TD 私有内存的地址转换</strong>。</p>
@@ -533,7 +534,7 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
 <p><strong>实时迁移</strong></p>
 <p>实时迁移是云服务提供商的一项重要功能，因为它可以让他们在不中断服务的情况下，<strong>将运行中的虚拟机从一台物理主机迁移到另一台物理主机</strong>。这一功能对于硬件升级、软件修补和负载均衡等维护任务至关重要。</p>
 <p>然而，由于保密计算的安全要求，迁移 TD 比迁移传统虚拟机更加复杂。由于虚拟机管理程序被视为不可信，因此它不能直接访问和传输源平台上的 TD 的 CPU 状态和私有内存。此外，租户应能够定义和强制执行迁移策略。例如，如果目标平台未满足策略中规定的 TCB 要求，则应取消迁移。</p>
-<p>Intel 引入了"服务 TD"（Service TD），以扩展 TDX 模块的信任边界。与将 TDX 模块本身过度复杂化和膨胀化相比，将自定义和专门化的功能添加到服务 TD 中更加方便灵活。服务 TD 可以通过 TDX 模块与常规 TD 绑定，并且可以对其资产具有访问权限。</p>
+<p>Intel 引入了“服务 TD”（Service TD），以扩展 TDX 模块的信任边界。与将 TDX 模块本身过度复杂化和膨胀化相比，将自定义和专门化的功能添加到服务 TD 中更加方便灵活。服务 TD 可以通过 TDX 模块与常规 TD 绑定，并且可以对其资产具有访问权限。</p>
 <p>迁移 TD（MigTD）是专为实时迁移设计的服务 TD。整个实时迁移过程由 TDX 模块和迁移 TD 控制。不可信的虚拟机管理程序（由云服务提供商控制）仅负责通过网络传输已加密的 TD 资产。这些资产包括 TD 的元数据、CPU 状态和私有内存，并通过仅由迁移 TD 和 TDX 模块访问的迁移会话密钥 (MSK) 进行保护。</p>
 <p>源平台和目标平台上都运行着迁移 TD（MigTD）。迁移 TD 分别与源 TD（要迁移的 TD）和目标 TD（最初为等待迁移的 TD 模板）绑定。迁移 TD 负责源平台和目标平台之间的远程认证，并根据安全策略评估其 TCB 级别。一旦平台被认为适合迁移，源迁移 TD 和目标迁移 TD 之间就会建立安全通道。源迁移 TD 生成一个 MSK，并通过此安全通道共享给目标迁移 TD。源和目标迁移 TD 分别将 MSK 编程到相应的 TDX 模块中。源 TDX 模块使用 MSK 对 TD 的资产进行加密和导出，而目标 TDX 模块使用相同的密钥进行解密并将资产导入目标 TD。需要注意的是<strong>，源 TD 和目标 TD 分别分配了独立的 HKID，因此它们受到不同 TD 私钥的保护</strong>。</p>
 <p><strong>可信 I/O</strong></p>
@@ -714,7 +715,7 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
 
   <div class="copyright">
     &copy; 
-    <span itemprop="copyrightYear">2025</span>
+    <span itemprop="copyrightYear">2026</span>
     <span class="with-love">
       <i class="fa-solid fa-headphones"></i>
     </span>
@@ -725,13 +726,13 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">233k</span>
+    <span title="站点总字数">235k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:03</span>
+    <span title="站点阅读时长">7:08</span>
   </span>
 </div>
 <div class="busuanzi-count">

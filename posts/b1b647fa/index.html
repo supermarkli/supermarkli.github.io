@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
@@ -19,7 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
     <meta name="description" content="引言 这本书是导师推荐给我很久了的，一直没啃完，希望这个寒假可以啃完这本八百页的书。(失败)">
 <meta property="og:type" content="article">
@@ -194,12 +195,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">34</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-count">122</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -323,7 +324,7 @@
 <li>系统启动时被装入RAM</li>
 <li>包含系统运行必需的核心过程(procedure)</li>
 <li>决定了系统的基本特性和能力</li>
-<li>"操作系统"常作为"内核"的同义词</li>
+<li>“操作系统”常作为“内核”的同义词</li>
 </ul>
 <h3 id="操作系统的双重目标">操作系统的双重目标</h3>
 <ol type="1">
@@ -387,7 +388,7 @@
 <h3 id="单块结构monolithic-kernel">单块结构(Monolithic Kernel)</h3>
 <p>Linux采用单块内核结构,是一个庞大、复杂的自我完善(do-it-yourself)程序。它由几个逻辑上独立的成分构成,这一点上相当传统,大多数商用Unix变体也是单块结构。(值得注意的是Apple的Mac OS X和GNU的Hurd操作系统采用了微内核方法)</p>
 <h3 id="模块化支持">模块化支持</h3>
-<p>Linux对模块的支持非常出色,内核可以动态地装载和卸载部分内核代码(典型的例子如设备驱动程序)。这些代码被称为"模块"(module),Linux支持在运行时动态加载或卸载模块。在主要的商用Unix变体中,只有SVR4.2和Solaris内核有类似特性。</p>
+<p>Linux对模块的支持非常出色,内核可以动态地装载和卸载部分内核代码(典型的例子如设备驱动程序)。这些代码被称为“模块”(module),Linux支持在运行时动态加载或卸载模块。在主要的商用Unix变体中,只有SVR4.2和Solaris内核有类似特性。</p>
 <h3 id="内核线程">内核线程</h3>
 <p>内核线程是一个能被独立调度的执行环境(context),它与用户程序有关。线程之间的上下文切换比普通进程间的上下文切换花费要少得多,因为前者通常在同一个地址空间内执行。Linux以一种十分有限的方式使用内核线程来周期性地执行几个内核函数。</p>
 <h3 id="多线程应用程序支持">多线程应用程序支持</h3>
@@ -470,7 +471,7 @@
 <li><strong>arm/arm26</strong>: 基于ARM处理器的计算机(如PDA)和嵌入式设备</li>
 <li><strong>m32r</strong>: 基于Renesas M32R系列微处理器的计算机</li>
 <li><strong>m68k/m68knommu</strong>: 基于Motorola MC680x0微处理器的个人计算机</li>
-<li><strong>cris</strong>: Axis在其嵌入式服务器中使用的"代码精简指令集(CRIS)"CPU</li>
+<li><strong>cris</strong>: Axis在其嵌入式服务器中使用的“代码精简指令集(CRIS)”CPU</li>
 <li><strong>frv</strong>: 基于Fujitsu FR-V系列微处理器的嵌入式系统</li>
 </ul>
 <h3 id="risc处理器">RISC处理器</h3>
@@ -607,7 +608,7 @@
 <li>系统维护任务</li>
 </ul>
 <h3 id="进程process">进程(Process)</h3>
-<p>进程是操作系统使用的一种基本抽象，可以定义为： - "程序执行时的一个实例" - "一个运行程序的执行上下文"</p>
+<p>进程是操作系统使用的一种基本抽象，可以定义为： - “程序执行时的一个实例” - “一个运行程序的执行上下文”</p>
 <h4 id="进程特征">进程特征</h4>
 <ol type="1">
 <li>地址空间</li>
@@ -731,7 +732,7 @@
 <h3 id="目录结构">目录结构</h3>
 <ul>
 <li>文件被组织在一个树结构的命名空间中。</li>
-<li>根目录("/")是树的起点。</li>
+<li>根目录(“/”)是树的起点。</li>
 <li>目录节点表示目录名，包含其下文件及目录的所有节点。</li>
 </ul>
 <h4 id="示例目录结构">示例目录结构</h4>
@@ -742,7 +743,7 @@
 <h3 id="文件命名与路径">文件命名与路径</h3>
 <h4 id="文件命名规则">文件命名规则</h4>
 <ul>
-<li>文件名由ASCII字符序列组成(除"/"和"\0"外)</li>
+<li>文件名由ASCII字符序列组成(除“/”和“\0”外)</li>
 <li>大多数文件系统限制文件名长度不超过255个字符</li>
 <li>同一目录下文件名不能重复</li>
 <li>不同目录下可以使用相同的文件名</li>
@@ -752,7 +753,7 @@
 <li>绝对路径</li>
 </ol>
 <ul>
-<li>以根目录"/"开头</li>
+<li>以根目录“/”开头</li>
 <li>完整指定文件位置的路径</li>
 <li>从根目录开始的完整路径名</li>
 </ul>
@@ -772,9 +773,9 @@
 </ul>
 <h4 id="特殊目录符号">特殊目录符号</h4>
 <ul>
-<li>"." 表示当前工作目录</li>
-<li>".." 表示父目录</li>
-<li>当前工作目录为根目录时,"."和".."相同</li>
+<li>“.” 表示当前工作目录</li>
+<li>“..” 表示父目录</li>
+<li>当前工作目录为根目录时,“.”和“..”相同</li>
 </ul>
 <h3 id="链接类型">链接类型</h3>
 <h4 id="硬链接hard-link">硬链接(Hard Link)</h4>
@@ -829,7 +830,7 @@
 </ol>
 <p>前三种文件类型是所有Unix文件系统的基本类型，其实现将在第十八章详细讨论。</p>
 <p>设备文件与I/O设备以及集成到内核中的设备驱动程序相关。例如，当程序访问设备文件时，它直接访问与那个文件相关的I/O设备(参见第十三章)。</p>
-<p>管道和套接字是用于进程间通信的特殊文件(参见本章后面的"同步和临界区"一节以及第十九章)。</p>
+<p>管道和套接字是用于进程间通信的特殊文件(参见本章后面的“同步和临界区”一节以及第十九章)。</p>
 <h3 id="文件描述符与索引节点">文件描述符与索引节点</h3>
 <ul>
 <li>Unix对文件的内容和描述文件的信息给出了清晰的区分</li>
@@ -1034,7 +1035,7 @@
 
   <div class="copyright">
     &copy; 
-    <span itemprop="copyrightYear">2025</span>
+    <span itemprop="copyrightYear">2026</span>
     <span class="with-love">
       <i class="fa-solid fa-headphones"></i>
     </span>
@@ -1045,13 +1046,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">233k</span>
+    <span title="站点总字数">235k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:03</span>
+    <span title="站点阅读时长">7:08</span>
   </span>
 </div>
 <div class="busuanzi-count">

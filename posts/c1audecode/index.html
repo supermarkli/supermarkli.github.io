@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
@@ -19,7 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
     <meta name="description" content="最近一直在用 Cursor，后来也体验了 Copilot（因为有免费额度），但一直还没真正体验过 Claude Code。听说最近 GLM 4.7 非常火，就打算来体验一下 CC + GLM 4.7 的效果。">
 <meta property="og:type" content="article">
@@ -194,12 +195,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">34</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-count">122</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -315,7 +316,7 @@
 <span id="more"></span>
 <h3 id="什么是-vibecoding">🌊 什么是 VibeCoding</h3>
 <p><strong>VibeCoding</strong> = <strong>Vibe</strong>（氛围/直觉）+ <strong>Coding</strong>（编程）</p>
-<p>一种新的编程范式：你用自然语言描述<strong>意图</strong>，AI Agent 执行<strong>操作</strong>。你不再是逐行敲代码，而是与 AI <strong>对话式协作</strong>——你负责"想做什么"，AI 负责"怎么做"。</p>
+<p>一种新的编程范式：你用自然语言描述<strong>意图</strong>，AI Agent 执行<strong>操作</strong>。你不再是逐行敲代码，而是与 AI <strong>对话式协作</strong>——你负责“想做什么”，AI 负责“怎么做”。</p>
 <blockquote>
 <p>传统编程：IDE + 手写代码 → VibeCoding：AI Agent + 自然语言指令</p>
 </blockquote>
@@ -364,7 +365,7 @@
 <p><strong>MCP</strong> = <strong>Model Context Protocol</strong>（模型上下文协议）</p>
 <p>一个开放标准协议，让 AI 模型能够<strong>安全、统一地访问外部数据源和工具</strong>。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────┐      MCP      ┌──────────────┐</span><br><span class="line">│  AI Model   │ ←──────────→ │ MCP Server   │</span><br><span class="line">│ (Claude等)  │   统一接口    │ (提供能力)    │</span><br><span class="line">└─────────────┘              └──────────────┘</span><br><span class="line">                                    │</span><br><span class="line">                    ┌───────────────┼───────────────┐</span><br><span class="line">                    ▼               ▼               ▼</span><br><span class="line">              [文件系统]        [数据库]        [API/网页]</span><br></pre></td></tr></table></figure>
-<p><strong>核心价值</strong>：AI 不再是"孤立的大脑"，而是能连接真实世界的"智能体"。</p>
+<p><strong>核心价值</strong>：AI 不再是“孤立的大脑”，而是能连接真实世界的“智能体”。</p>
 <h4 id="什么是-agent">什么是 Agent</h4>
 <p><strong>Agent</strong> = <strong>智能体</strong>，能自主执行复杂任务的 AI 系统。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">      传统 LLM                    AI Agent</span><br><span class="line">┌─────────────┐             ┌─────────────┐</span><br><span class="line">│ 问 → 答     │             │ 目标 → 规划 → 执行 → 验证 │</span><br><span class="line">│ 单轮对话    │             │ 多步自主执行   │</span><br><span class="line">└─────────────┘             └─────────────┘</span><br></pre></td></tr></table></figure>
@@ -408,7 +409,7 @@
 </tbody>
 </table>
 <h4 id="如何安装-mcp">如何安装 MCP</h4>
-<p><strong>是的，MCP 服务器需要自己安装</strong>。MCP 采用"客户端-服务器"架构：</p>
+<p><strong>是的，MCP 服务器需要自己安装</strong>。MCP 采用“客户端-服务器”架构：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────┐     配置     ┌─────────────────┐</span><br><span class="line">│  Claude Code    │ ←────────→  │  MCP Servers    │</span><br><span class="line">│  (Client)       │             │  (你自己安装)    │</span><br><span class="line">└─────────────────┘             └─────────────────┘</span><br></pre></td></tr></table></figure>
 <p><strong>安装步骤</strong>（以 npx 方式为例）：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方法1：使用 claude mcp 命令</span></span><br><span class="line">claude mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem /home/algernon</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法2：手动编辑 ~/.claude.json 或项目下的 .claude.json</span></span><br><span class="line"><span class="comment"># 添加 MCP 服务器配置：</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;mcpServers&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;filesystem&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;command&quot;</span>: <span class="string">&quot;npx&quot;</span>,</span><br><span class="line">      <span class="string">&quot;args&quot;</span>: [<span class="string">&quot;-y&quot;</span>, <span class="string">&quot;@modelcontextprotocol/server-filesystem&quot;</span>, <span class="string">&quot;/allowed/path&quot;</span>]</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">&quot;git&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;command&quot;</span>: <span class="string">&quot;npx&quot;</span>,</span><br><span class="line">      <span class="string">&quot;args&quot;</span>: [<span class="string">&quot;-y&quot;</span>, <span class="string">&quot;@modelcontextprotocol/server-git&quot;</span>, <span class="string">&quot;--repository&quot;</span>, <span class="string">&quot;/path/to/repo&quot;</span>]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -495,17 +496,17 @@
 <tr class="even">
 <td><strong>明确意图</strong></td>
 <td>一次性说完整需求，避免来回确认</td>
-<td>"添加一个深色切换按钮，点击时切换主题，状态存 localStorage"</td>
+<td>“添加一个深色切换按钮，点击时切换主题，状态存 localStorage”</td>
 </tr>
 <tr class="odd">
 <td><strong>分步任务</strong></td>
-<td>复杂任务直接说"帮我规划"</td>
-<td>"帮我规划一下如何重构登录流程"</td>
+<td>复杂任务直接说“帮我规划”</td>
+<td>“帮我规划一下如何重构登录流程”</td>
 </tr>
 <tr class="even">
 <td><strong>选中代码</strong></td>
 <td>IDE 中选中代码后提问，Claude 知道上下文</td>
-<td>选中函数后问"优化这段代码"</td>
+<td>选中函数后问“优化这段代码”</td>
 </tr>
 <tr class="odd">
 <td><strong>/commit</strong></td>
@@ -581,7 +582,7 @@
 
   <div class="copyright">
     &copy; 
-    <span itemprop="copyrightYear">2025</span>
+    <span itemprop="copyrightYear">2026</span>
     <span class="with-love">
       <i class="fa-solid fa-headphones"></i>
     </span>
@@ -592,13 +593,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">233k</span>
+    <span title="站点总字数">235k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:03</span>
+    <span title="站点阅读时长">7:08</span>
   </span>
 </div>
 <div class="busuanzi-count">

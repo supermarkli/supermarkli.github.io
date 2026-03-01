@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width">
-<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
@@ -19,7 +20,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
     <meta name="description" content="编码 今天在复习编译原理的时候，发现对底层的编码都是还停留在听过或者见过的状态，所以决定学习一下有关编码的知识。">
 <meta property="og:type" content="article">
@@ -193,12 +194,12 @@
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">34</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">91</span>
+        <span class="site-state-item-count">122</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -332,7 +333,7 @@
 <ul>
 <li>使用7位二进制数，可以表示128个字符（2^7 = 128）</li>
 <li>0-31：控制字符（如换行符= 10，回车符 13）</li>
-<li>32-127：可打印字符（如'A' = 65，'a' = 97，'0' = 48）</li>
+<li>32-127：可打印字符（如’A’ = 65，‘a’ = 97，‘0’ = 48）</li>
 </ul></li>
 <li><strong>优点</strong>
 <ul>
@@ -342,7 +343,7 @@
 <li><strong>缺点</strong>
 <ul>
 <li>只能表示英文字母和符号，无法表示其他语言字符</li>
-<li>例如：无法表示"中文"、"日本語"等字符</li>
+<li>例如：无法表示“中文”、“日本語”等字符</li>
 </ul></li>
 </ul>
 <h4 id="gb2312与gbk">GB2312与GBK</h4>
@@ -365,8 +366,8 @@
 </ul></li>
 <li><strong>示例</strong>：
 <ul>
-<li>"中"的GB2312编码为0xD6D0（第45区第60个汉字）</li>
-<li>"国"的GB2312编码为0xB9FA（第16区第15个汉字）</li>
+<li>“中”的GB2312编码为0xD6D0（第45区第60个汉字）</li>
+<li>“国”的GB2312编码为0xB9FA（第16区第15个汉字）</li>
 </ul></li>
 </ul></li>
 <li><strong>优点</strong>：
@@ -389,7 +390,7 @@
 </ul></li>
 <li><strong>示例</strong>：
 <ul>
-<li>"㠭"（生僻字）在GB2312中无法表示，但GBK可以表示</li>
+<li>“㠭”（生僻字）在GB2312中无法表示，但GBK可以表示</li>
 </ul></li>
 <li><strong>优点</strong>：
 <ul>
@@ -427,9 +428,9 @@
 </ul></li>
 <li><strong>示例</strong>：
 <ul>
-<li>"A" → U+0041（基本拉丁字母）</li>
-<li>"中" → U+4E2D（CJK统一表意文字）</li>
-<li>"😀" → U+1F600（补充表意平面，表情符号）</li>
+<li>“A” → U+0041（基本拉丁字母）</li>
+<li>“中” → U+4E2D（CJK统一表意文字）</li>
+<li>“😀” → U+1F600（补充表意平面，表情符号）</li>
 </ul></li>
 </ul></li>
 <li><strong>UTF-8</strong>
@@ -549,7 +550,7 @@
 
   <div class="copyright">
     &copy; 
-    <span itemprop="copyrightYear">2025</span>
+    <span itemprop="copyrightYear">2026</span>
     <span class="with-love">
       <i class="fa-solid fa-headphones"></i>
     </span>
@@ -560,13 +561,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="站点总字数">233k</span>
+    <span title="站点总字数">235k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">7:03</span>
+    <span title="站点阅读时长">7:08</span>
   </span>
 </div>
 <div class="busuanzi-count">
