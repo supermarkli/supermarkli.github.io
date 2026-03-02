@@ -3478,6 +3478,133 @@ flowchart TD
       </tags>
   </entry>
   <entry>
+    <title>NFC Note</title>
+    <url>/posts/78289205/</url>
+    <content><![CDATA[<h2 id="什么是nfc">什么是NFC？</h2>
+<p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
+<span id="more"></span>
+<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
+<figure>
+<img src="/assets/NFC-image.png" alt="alt text" /><figcaption>alt text</figcaption>
+</figure>
+<h3 id="nfc是怎么工作的">NFC是怎么工作的？</h3>
+<p>想象一下，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
+<ol type="1">
+<li><strong>基本原理</strong>
+<ul>
+<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
+<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
+<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
+<li>数据传输速率可达424Kbps</li>
+</ul></li>
+<li><strong>为什么要靠得这么近？</strong>
+<ul>
+<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
+<li>近场通信使用感应耦合（而不是电磁波传播）</li>
+<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
+</ul></li>
+</ol>
+<blockquote>
+<p><strong>调制解调技术</strong></p>
+<p>想象用手电筒给远处的朋友发信号：</p>
+<ol type="1">
+<li><strong>什么是调制？</strong>
+<ul>
+<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
+<li>NFC中主要使用两种调制方式：
+<ul>
+<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
+<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
+</ul></li>
+</ul></li>
+<li><strong>为什么要调制？</strong>
+<ul>
+<li>原始数据（比如1和0）不能直接传输</li>
+<li>需要把数据“搭载”在13.56MHz的载波信号上</li>
+<li>就像把信息写在纸飞机上才能传递给别人</li>
+</ul></li>
+<li><strong>解调是什么？</strong>
+<ul>
+<li>接收方需要从收到的信号中“提取”出原始数据</li>
+<li>就像接收方要从纸飞机上读取信息</li>
+<li>或者从手电筒的闪烁中理解传递的含义</li>
+</ul></li>
+</ol>
+</blockquote>
+<h3 id="nfc能做什么">NFC能做什么？</h3>
+<p>NFC有三种常见的使用方式：</p>
+<ol type="1">
+<li><strong>读写模式</strong>
+<ul>
+<li>就像用手机碰一碰地铁站的时刻表海报</li>
+<li>或者用手机读取商品上的电子标签</li>
+</ul></li>
+<li><strong>手机支付模式</strong>
+<ul>
+<li>手机变身成公交卡、银行卡</li>
+<li>碰一碰就能付款</li>
+</ul></li>
+<li><strong>设备互联模式</strong>
+<ul>
+<li>两个手机之间传照片</li>
+<li>新耳机和手机快速配对</li>
+</ul></li>
+</ol>
+<h3 id="nfc的特点">NFC的特点</h3>
+<ol type="1">
+<li><strong>超级方便</strong>
+<ul>
+<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
+<li>支持双向通信，设备可以自动切换读写角色</li>
+</ul></li>
+<li><strong>很安全</strong>
+<ul>
+<li>物理层：通信距离限制</li>
+<li>协议层：支持AES-128等加密算法</li>
+<li>应用层：可集成安全单元（SE）存储敏感数据</li>
+</ul></li>
+<li><strong>省电</strong>
+<ul>
+<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
+<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
+<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
+</ul></li>
+</ol>
+<h3 id="生活中的nfc应用">生活中的NFC应用</h3>
+<ol type="1">
+<li><strong>支付场景</strong>
+<ul>
+<li>手机付款（Apple Pay、微信/支付宝碰一碰）</li>
+<li>刷公交地铁</li>
+<li>超市购物</li>
+</ul></li>
+<li><strong>智能家居</strong>
+<ul>
+<li>碰一碰开门</li>
+<li>碰一碰控制家电</li>
+<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
+</ul></li>
+<li><strong>便捷生活</strong>
+<ul>
+<li>门禁卡</li>
+<li>打卡签到</li>
+<li>快速连接蓝牙设备</li>
+</ul></li>
+</ol>
+<h2 id="总结">总结</h2>
+<p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>网络与通信</category>
+      </categories>
+      <tags>
+        <tag>无线通信</tag>
+        <tag>NFC</tag>
+        <tag>RFID</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Linux 包管理：从入门到进阶的实战指南</title>
     <url>/posts/3b71e21f/</url>
     <content><![CDATA[<p>如果把发行版比作操作系统的“应用商店”，包管理器就是开发与运维最常用的“装、删、查、管”工具。本文从概念到实操、从单机到团队，给出一份可以落地的学习大纲与命令速查，帮助你跨发行版高效工作。</p>
@@ -3672,133 +3799,6 @@ FileSystem --&gt; App[&quot;应用可用&quot;]
         <tag>Linux</tag>
         <tag>包管理</tag>
         <tag>Package</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NFC Note</title>
-    <url>/posts/78289205/</url>
-    <content><![CDATA[<h2 id="什么是nfc">什么是NFC？</h2>
-<p>今天听实验室师兄的分享时提到了NFC技术，自己对这个技术也是一知半解，所以来记录一下。</p>
-<span id="more"></span>
-<p>NFC（Near Field Communication，近场通信）是一种短距离无线通信技术，工作频率为13.56MHz，最大通信距离通常在10厘米以内。这项技术继承了RFID（射频识别）的核心原理，但针对移动设备进行了优化和扩展。</p>
-<figure>
-<img src="/assets/NFC-image.png" alt="alt text" /><figcaption>alt text</figcaption>
-</figure>
-<h3 id="nfc是怎么工作的">NFC是怎么工作的？</h3>
-<p>想象一下，两个磁铁靠近时会相互影响。NFC的工作原理也差不多：</p>
-<ol type="1">
-<li><strong>基本原理</strong>
-<ul>
-<li>主动设备（比如刷卡机）通过天线产生13.56MHz的高频交变磁场</li>
-<li>被动设备（比如NFC标签）进入磁场后，通过电磁感应获得能量</li>
-<li>两个设备通过调制解调技术（ASK、PSK等）在磁场中编码和解码数据</li>
-<li>数据传输速率可达424Kbps</li>
-</ul></li>
-<li><strong>为什么要靠得这么近？</strong>
-<ul>
-<li>磁场强度与距离的平方成反比，超过10cm信号就急剧减弱</li>
-<li>近场通信使用感应耦合（而不是电磁波传播）</li>
-<li>这种物理特性自然形成了安全距离，防止远距离窃听</li>
-</ul></li>
-</ol>
-<blockquote>
-<p><strong>调制解调技术</strong></p>
-<p>想象用手电筒给远处的朋友发信号：</p>
-<ol type="1">
-<li><strong>什么是调制？</strong>
-<ul>
-<li>就像用手电筒发信号时，通过开关灯来传递信息</li>
-<li>NFC中主要使用两种调制方式：
-<ul>
-<li>ASK（幅度调制）：类似于调整手电筒的亮度</li>
-<li>PSK（相位调制）：类似于按固定节奏闪烁手电筒</li>
-</ul></li>
-</ul></li>
-<li><strong>为什么要调制？</strong>
-<ul>
-<li>原始数据（比如1和0）不能直接传输</li>
-<li>需要把数据“搭载”在13.56MHz的载波信号上</li>
-<li>就像把信息写在纸飞机上才能传递给别人</li>
-</ul></li>
-<li><strong>解调是什么？</strong>
-<ul>
-<li>接收方需要从收到的信号中“提取”出原始数据</li>
-<li>就像接收方要从纸飞机上读取信息</li>
-<li>或者从手电筒的闪烁中理解传递的含义</li>
-</ul></li>
-</ol>
-</blockquote>
-<h3 id="nfc能做什么">NFC能做什么？</h3>
-<p>NFC有三种常见的使用方式：</p>
-<ol type="1">
-<li><strong>读写模式</strong>
-<ul>
-<li>就像用手机碰一碰地铁站的时刻表海报</li>
-<li>或者用手机读取商品上的电子标签</li>
-</ul></li>
-<li><strong>手机支付模式</strong>
-<ul>
-<li>手机变身成公交卡、银行卡</li>
-<li>碰一碰就能付款</li>
-</ul></li>
-<li><strong>设备互联模式</strong>
-<ul>
-<li>两个手机之间传照片</li>
-<li>新耳机和手机快速配对</li>
-</ul></li>
-</ol>
-<h3 id="nfc的特点">NFC的特点</h3>
-<ol type="1">
-<li><strong>超级方便</strong>
-<ul>
-<li>采用即时配对（Peer-to-Peer）技术，无需复杂配对流程</li>
-<li>支持双向通信，设备可以自动切换读写角色</li>
-</ul></li>
-<li><strong>很安全</strong>
-<ul>
-<li>物理层：通信距离限制</li>
-<li>协议层：支持AES-128等加密算法</li>
-<li>应用层：可集成安全单元（SE）存储敏感数据</li>
-</ul></li>
-<li><strong>省电</strong>
-<ul>
-<li>被动设备（如NFC标签）利用电磁感应供电，无需电池</li>
-<li>主动设备仅在通信时开启RF场，待机功耗极低</li>
-<li>典型NFC操作仅需几毫秒，耗电量可忽略不计</li>
-</ul></li>
-</ol>
-<h3 id="生活中的nfc应用">生活中的NFC应用</h3>
-<ol type="1">
-<li><strong>支付场景</strong>
-<ul>
-<li>手机付款（Apple Pay、微信/支付宝碰一碰）</li>
-<li>刷公交地铁</li>
-<li>超市购物</li>
-</ul></li>
-<li><strong>智能家居</strong>
-<ul>
-<li>碰一碰开门</li>
-<li>碰一碰控制家电</li>
-<li>碰一碰自动设置手机模式（比如睡觉模式）</li>
-</ul></li>
-<li><strong>便捷生活</strong>
-<ul>
-<li>门禁卡</li>
-<li>打卡签到</li>
-<li>快速连接蓝牙设备</li>
-</ul></li>
-</ol>
-<h2 id="总结">总结</h2>
-<p>NFC作为一种成熟的近距离无线通信技术，已经在我们的日常生活中扮演着越来越重要的角色。它的高安全性、便捷性和广泛的应用场景使其成为移动支付和智能设备交互的首选技术之一。随着物联网技术的发展，NFC的应用领域将会进一步扩大。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>网络与通信</category>
-      </categories>
-      <tags>
-        <tag>无线通信</tag>
-        <tag>NFC</tag>
-        <tag>RFID</tag>
       </tags>
   </entry>
   <entry>
@@ -5588,6 +5588,222 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
+    <title>Clash 与网络代理详解</title>
+    <url>/posts/755f751e/</url>
+    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>VPN</strong></td>
+<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
+<td>秘密隧道</td>
+</tr>
+<tr class="even">
+<td><strong>Proxy</strong></td>
+<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
+<td>传话筒</td>
+</tr>
+<tr class="odd">
+<td><strong>Clash</strong></td>
+<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
+<td>智能调度员</td>
+</tr>
+<tr class="even">
+<td><strong>Rule</strong></td>
+<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
+<td>分流路牌</td>
+</tr>
+<tr class="odd">
+<td><strong>TUN</strong></td>
+<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
+<td>虚拟网卡</td>
+</tr>
+<tr class="even">
+<td><strong>Mixin</strong></td>
+<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
+<td>补丁包</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>VPN</th>
+<th>代理 (Proxy)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>工作层级</strong></td>
+<td>操作系统层 (OSI L3 网络层)</td>
+<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
+</tr>
+<tr class="even">
+<td><strong>接管范围</strong></td>
+<td>全局接管（通常），所有软件流量都走隧道</td>
+<td>仅接管支持代理设置的软件 (如浏览器)</td>
+</tr>
+<tr class="odd">
+<td><strong>加密程度</strong></td>
+<td>全程加密，强调安全性</td>
+<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
+</tr>
+<tr class="even">
+<td><strong>灵活性</strong></td>
+<td>较差，通常“全走”或“全不走”</td>
+<td>极高，可按域名/进程分流</td>
+</tr>
+<tr class="odd">
+<td><strong>典型协议</strong></td>
+<td>WireGuard, OpenVPN, IPSec</td>
+<td>HTTP, Socks5, Shadowsocks, VMess</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
+<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
+<h4 id="global-全局模式">1. Global 全局模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
+<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
+<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
+</ul>
+<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
+<ul>
+<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
+<li><strong>流程</strong>：
+<ol type="1">
+<li>拦截请求。</li>
+<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
+<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
+</ol></li>
+<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
+</ul>
+<h4 id="direct-直连模式">3. Direct 直连模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
+<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
+</ul>
+<h4 id="script-脚本模式">4. Script 脚本模式</h4>
+<ul>
+<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
+<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
+</ul>
+<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
+<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
+<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
+<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
+<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
+<pre>
+<code class="mermaid">
+
+graph TD;
+    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
+    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
+    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
+    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
+    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
+</code>
+</pre>
+<ol type="1">
+<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
+<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
+<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
+<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
+</ol>
+<blockquote>
+<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
+</blockquote>
+<blockquote>
+<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
+<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
+<ul>
+<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
+<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
+</ul>
+<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
+</blockquote>
+<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
+<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
+<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
+<ul>
+<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
+<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
+<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
+<li><strong>主要作用</strong>：
+<ol type="1">
+<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
+<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
+<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
+</ol></li>
+</ul>
+<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
+<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
+<h4 id="核心结构">核心结构</h4>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
+<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
+<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
+<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
+<ul>
+<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
+<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
+<li><strong>用途</strong>：
+<ul>
+<li>强制开启 TUN 模式。</li>
+<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
+<li>添加个人的局域网 IP 直连规则。</li>
+</ul></li>
+</ul>
+<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
+</blockquote>
+<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
+<ol type="1">
+<li><strong>“开了全局模式就是最安全的”</strong>
+<ul>
+<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
+</ul></li>
+<li><strong>“Ping 值低网速就快”</strong>
+<ul>
+<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
+</ul></li>
+<li><strong>“TUN 模式会影响打游戏吗？”</strong>
+<ul>
+<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
+</ul></li>
+<li><strong>Clash 是 VPN 吗？</strong>
+<ul>
+<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
+<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
+</ul></li>
+</ol>
+]]></content>
+      <categories>
+        <category>网络工具</category>
+      </categories>
+      <tags>
+        <tag>Clash</tag>
+        <tag>Network</tag>
+        <tag>VPN</tag>
+        <tag>代理</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Understanding the Linux Kernel Lecture 1 Note</title>
     <url>/posts/b1b647fa/</url>
     <content><![CDATA[<h2 id="引言">引言</h2>
@@ -6277,222 +6493,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
-    <title>Clash 与网络代理详解</title>
-    <url>/posts/755f751e/</url>
-    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
-<span id="more"></span>
-<h3 id="基本概念速读">📚 基本概念速读</h3>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>定义</th>
-<th>省流</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>VPN</strong></td>
-<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
-<td>秘密隧道</td>
-</tr>
-<tr class="even">
-<td><strong>Proxy</strong></td>
-<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
-<td>传话筒</td>
-</tr>
-<tr class="odd">
-<td><strong>Clash</strong></td>
-<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
-<td>智能调度员</td>
-</tr>
-<tr class="even">
-<td><strong>Rule</strong></td>
-<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
-<td>分流路牌</td>
-</tr>
-<tr class="odd">
-<td><strong>TUN</strong></td>
-<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
-<td>虚拟网卡</td>
-</tr>
-<tr class="even">
-<td><strong>Mixin</strong></td>
-<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
-<td>补丁包</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th>特性</th>
-<th>VPN</th>
-<th>代理 (Proxy)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>工作层级</strong></td>
-<td>操作系统层 (OSI L3 网络层)</td>
-<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
-</tr>
-<tr class="even">
-<td><strong>接管范围</strong></td>
-<td>全局接管（通常），所有软件流量都走隧道</td>
-<td>仅接管支持代理设置的软件 (如浏览器)</td>
-</tr>
-<tr class="odd">
-<td><strong>加密程度</strong></td>
-<td>全程加密，强调安全性</td>
-<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
-</tr>
-<tr class="even">
-<td><strong>灵活性</strong></td>
-<td>较差，通常“全走”或“全不走”</td>
-<td>极高，可按域名/进程分流</td>
-</tr>
-<tr class="odd">
-<td><strong>典型协议</strong></td>
-<td>WireGuard, OpenVPN, IPSec</td>
-<td>HTTP, Socks5, Shadowsocks, VMess</td>
-</tr>
-</tbody>
-</table>
-</blockquote>
-<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
-<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
-<h4 id="global-全局模式">1. Global 全局模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
-<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
-<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
-</ul>
-<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
-<ul>
-<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
-<li><strong>流程</strong>：
-<ol type="1">
-<li>拦截请求。</li>
-<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
-<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
-</ol></li>
-<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
-</ul>
-<h4 id="direct-直连模式">3. Direct 直连模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
-<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
-</ul>
-<h4 id="script-脚本模式">4. Script 脚本模式</h4>
-<ul>
-<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
-<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
-</ul>
-<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
-<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
-<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
-<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
-<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
-<pre>
-<code class="mermaid">
-
-graph TD;
-    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
-    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
-    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
-    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
-    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
-</code>
-</pre>
-<ol type="1">
-<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
-<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
-<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
-<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
-</ol>
-<blockquote>
-<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
-</blockquote>
-<blockquote>
-<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
-<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
-<ul>
-<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
-<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
-</ul>
-<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
-</blockquote>
-<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
-<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
-<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
-<ul>
-<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
-<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
-<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
-<li><strong>主要作用</strong>：
-<ol type="1">
-<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
-<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
-<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
-</ol></li>
-</ul>
-<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
-<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
-<h4 id="核心结构">核心结构</h4>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
-<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
-<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
-<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
-<ul>
-<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
-<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
-<li><strong>用途</strong>：
-<ul>
-<li>强制开启 TUN 模式。</li>
-<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
-<li>添加个人的局域网 IP 直连规则。</li>
-</ul></li>
-</ul>
-<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
-</blockquote>
-<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
-<ol type="1">
-<li><strong>“开了全局模式就是最安全的”</strong>
-<ul>
-<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
-</ul></li>
-<li><strong>“Ping 值低网速就快”</strong>
-<ul>
-<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
-</ul></li>
-<li><strong>“TUN 模式会影响打游戏吗？”</strong>
-<ul>
-<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
-</ul></li>
-<li><strong>Clash 是 VPN 吗？</strong>
-<ul>
-<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
-<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
-</ul></li>
-</ol>
-]]></content>
-      <categories>
-        <category>网络工具</category>
-      </categories>
-      <tags>
-        <tag>Clash</tag>
-        <tag>Network</tag>
-        <tag>VPN</tag>
-        <tag>代理</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CMake 入门</title>
     <url>/posts/233853f2/</url>
     <content><![CDATA[<p>不论你是写 C/C++、CUDA，还是要同时照顾 Linux/Windows/macOS，当项目走出“玩具”阶段，构建就会成为最大的摩擦源：不同编译器、不同 IDE、不同参数、不同依赖的发现与链接。如果还靠手写 <code>Makefile</code> 或分别维护 VS/Xcode 工程，成本会直线上升。</p>
@@ -6632,231 +6632,6 @@ graph TD;
         <tag>CMake</tag>
         <tag>构建系统</tag>
         <tag>C/C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>influxdb Connection Problem</title>
-    <url>/posts/dbeb2432/</url>
-    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
-<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
-<h3 id="token401问题">token401问题</h3>
-<h4 id="登录401">登录401</h4>
-<p>一开始拿到公司的token测试连接</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<figure>
-<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
-</figure>
-<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
-<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
-<figure>
-<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
-</figure>
-<p>于是把ini文件改为</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
-<p>发现可以正常读取了</p>
-<h4 id="过期401">过期401</h4>
-<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
-<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
-<h3 id="数据读取问题">数据读取问题</h3>
-<p>原本的数据库为mysql，查询语句如下</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
-<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
-<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
-<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
-<h3 id="其他问题">其他问题</h3>
-<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
-<p>此外influxdb不支持int索引。</p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>InfluxDB</tag>
-        <tag>数据库</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>git之路：rebase &amp; cherry-pick</title>
-    <url>/posts/1566a5aa/</url>
-    <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
-<span id="more"></span>
-<h2 id="一核心概念">🧩 一、核心概念</h2>
-<ul>
-<li><strong>rebase (变基)</strong>：将当前分支的一系列提交“重放”到另一个目标分支之上。其核心用途是<strong>整理个人分支的提交历史</strong>，使其在并入主干时保持线性、清晰。</li>
-<li><strong>cherry-pick (拣选)</strong>：将某个（或某些）特定的提交<strong>复制</strong>到当前分支。它像摘樱桃一样，适合“挑着搬运”某个功能或紧急修复。</li>
-</ul>
-<h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
-<p>下面的两幅 Mermaid 图示分别演示了 Rebase 和 Cherry-pick 在典型协作场景中的作用。将代码块直接放入支持 Mermaid 的 Markdown 环境即可自动渲染。</p>
-<h3 id="图-1-rebase-工作流主干更新后将功能分支变基到最新-main">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</h3>
-<pre>
-<code class="mermaid">
-
-flowchart TD
-    subgraph &quot;main 分支&quot;
-        c0((c0)) --&gt; c1((c1)) --&gt; c3((c3))
-    end
-
-    subgraph &quot;feature&#x2F;a (rebase 前)&quot;
-        c2_before((c2)) --&gt; c4_before((c4))
-    end
-
-    subgraph &quot;feature&#x2F;a (rebase 后)&quot;
-        c2_after((&quot;c2&#39;&quot;)) --&gt; c4_after((&quot;c4&#39;&quot;))
-    end
-
-    c1 --&gt; c2_before
-    c3 --&gt; c2_after
-</code>
-</pre>
-<h3 id="图-2-cherry-pick-工作流从-featurea-拣选-c2-到-main">图 2 · Cherry-pick 工作流（从 feature/a 拣选 c2 到 main）</h3>
-<pre>
-<code class="mermaid">
-
-flowchart TD
-    subgraph &quot;初始历史&quot;
-        c0((c0)) --&gt; c1((c1))
-    end
-
-    subgraph &quot;main 分支&quot;
-        c3((c3)) --&gt; c2_prime((&quot;c2&#39;&quot;))
-        style c2_prime fill:#bbf,stroke:#333,stroke-width:2px
-    end
-
-    subgraph &quot;feature&#x2F;a 分支&quot;
-        c2((c2)) --&gt; c4((c4))
-    end
-    
-    c1 --&gt; c3
-    c1 --&gt; c2
-
-    c2 -.-&gt; c2_prime
-</code>
-</pre>
-<h3 id="场景设定">场景设定</h3>
-<ul>
-<li><code>main</code> 是我们的主分支，开发主线从 <code>c0</code> -&gt; <code>c1</code> 开始。</li>
-<li>从 <code>c1</code> 拉取了一个 <code>feature/a</code> 分支进行功能开发，并提交了 <code>c2</code> 和 <code>c4</code>。</li>
-<li>在此期间，另一位同事完成了 <code>fixbug/b</code> 分支，并将其合并回 <code>main</code>，使得 <code>main</code> 分支前进到 <code>c3</code>。</li>
-</ul>
-<p>此时，你的 <code>feature/a</code> 分支就“落后”于 <code>main</code> 分支了。在准备合并你的功能之前，最好的做法是先将 <code>main</code> 的最新更改同步到 <code>feature/a</code> 分支。这里，<code>rebase</code> 就是最佳选择。</p>
-<h3 id="rebase同步主干保持线性历史">1. Rebase：同步主干，保持线性历史</h3>
-<p>为了让 <code>feature/a</code> 的历史记录更清晰，我们执行变基操作，将 <code>feature/a</code> 的提交“重放”到最新的 <code>main</code> 分支上。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 确保你的功能分支是当前分支</span></span><br><span class="line">git checkout feature/a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 拉取远程主分支的最新代码（好习惯）</span></span><br><span class="line">git fetch origin main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 将当前分支变基到最新的 main 分支上</span></span><br><span class="line">git rebase origin/main <span class="comment"># 或者 git rebase main</span></span><br></pre></td></tr></table></figure>
-<p>执行后，Git 会在内部执行以下操作：</p>
-<ol type="1">
-<li>找到 <code>feature/a</code> 和 <code>main</code> 的共同祖先 <code>c1</code>。</li>
-<li>暂存 <code>feature/a</code> 在 <code>c1</code> 之后独有的提交（<code>c2</code>, <code>c4</code>）。</li>
-<li>将 <code>feature/a</code> 分支的指针指向 <code>main</code> 的最新提交 <code>c3</code>。</li>
-<li>将刚刚暂存的提交 <code>c2</code> 和 <code>c4</code> 重新应用（Replay）在 <code>c3</code> 之后，生成两个<strong>内容相同但ID不同</strong>的新提交 <code>c2'</code> 和 <code>c4'</code>。</li>
-</ol>
-<p>最终，<code>feature/a</code> 的历史就变成了 <code>c0 -&gt; c1 -&gt; c3 -&gt; c2' -&gt; c4'</code>。它看起来就像是你从最新的 <code>main</code> 分支拉取代码然后才开始开发的一样，历史记录干净、线性，非常便于后续的合并和代码审查。</p>
-<p>这个操作完美地诠释了 <code>rebase</code> 在个人开发分支上的核心用途：<strong>保持与主干同步，并维持一个清晰的线性历史。</strong></p>
-<h3 id="cherry-pick挑选特定提交">2. Cherry-pick：挑选特定提交</h3>
-<p>现在，我们换一个场景。假设 <code>feature/a</code> 上的 <code>c2</code> 是一个非常紧急的修复，需要立即上线，但 <code>c4</code> 还没开发完。这时就可以用 <code>cherry-pick</code>。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到需要接收修复的主分支</span></span><br><span class="line">git checkout main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 从 feature/a 分支拣选 c2 提交</span></span><br><span class="line">git cherry-pick c2</span><br></pre></td></tr></table></figure>
-<p>如图右侧所示，<code>main</code> 分支通过 <code>cherry-pick</code>，将 <code>feature/a</code> 上的 <code>c2</code> 提交“拣选”过来，生成了一个新的提交 <code>c5</code>。其他提交 (<code>c4</code>) 不会被带过来，完美满足了只需要部分功能/修复的场景。</p>
-<hr />
-<h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
-<h3 id="基本用法">1. 基本用法</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将当前分支变基到 &lt;目标分支&gt; 上</span></span><br><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="交互式-rebase">2. 交互式 rebase</h3>
-<p>这是 <code>rebase</code> 的一大神器，常用于合并、修改、整理当前分支的提交。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -i 代表 --interactive（交互式）</span></span><br><span class="line"><span class="comment"># HEAD~3 表示整理当前分支最新的 3 个提交</span></span><br><span class="line">git rebase -i HEAD~3</span><br></pre></td></tr></table></figure>
-<p>执行后会打开一个编辑器，你可以对指定范围的提交进行 <code>squash</code> (合并)、<code>edit</code> (修改)、<code>reword</code> (修改提交信息) 等精细化操作，极大提升提交历史的可读性。</p>
-<h3 id="注意事项">3. 注意事项</h3>
-<ul>
-<li>rebase 会重写历史，<strong>永远不要对已经推送并被他人使用的公共分支（如 main）进行 rebase</strong>。</li>
-<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git add .</code> 将文件标记为已解决，然后用 <code>git rebase --continue</code> 继续。</li>
-</ul>
-<hr />
-<h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
-<h3 id="基本用法-1">1. 基本用法</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick &lt;commit-hash&gt;</span><br></pre></td></tr></table></figure>
-<p>将指定的 <code>&lt;commit-hash&gt;</code> 应用到当前分支，生成一个新的提交。</p>
-<h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 拣选多个不连续的提交</span></span><br><span class="line">git cherry-pick &lt;commit-1&gt; &lt;commit-2&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拣选一个连续的提交范围（不包含 commit-A）</span></span><br><span class="line">git cherry-pick &lt;commit-A&gt;..&lt;commit-B&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="注意事项-1">3. 注意事项</h3>
-<ul>
-<li>cherry-pick 也可能遇到冲突，需手动解决并 <code>commit</code>。</li>
-<li>cherry-pick 会生成<strong>新的 commit id</strong>，因为它是在新的分支上下文中应用变更。</li>
-</ul>
-<hr />
-<h2 id="rebase-vs.-merge黄金准则与团队协作">👑 Rebase vs. Merge：黄金准则与团队协作</h2>
-<p>我们已经看到了 <code>rebase</code> 的强大之处，但它也是一把双刃剑，因为它会<strong>重写提交历史</strong>。这就引出了 Git 协作中一条最重要的准则：</p>
-<blockquote>
-<p><strong>黄金准则：在自己的私有分支上自由地 rebase，但永远不要 rebase 一个公共的、共享的分支。</strong></p>
-</blockquote>
-<p>换句话说：</p>
-<ul>
-<li><strong><code>rebase</code> 用来“整理”自己</strong>：在你的个人功能分支（如 <code>feature/a</code>）上，使用 <code>rebase</code> 来同步 <code>main</code> 分支的更新。这属于你自己的“私事”，目的是让你的工作成果能干净地对接到主线上。</li>
-<li><strong><code>merge</code> 用来“汇合”他人</strong>：当你的功能分支准备好被合并到 <code>main</code> 或 <code>develop</code> 这样的公共分支时，应该使用 <code>git merge</code>（通常是通过 GitHub/GitLab 上的 Pull Request/Merge Request）来完成。这次合并会产生一个合并提交（Merge Commit），清晰地记录了“在某个时间点，我们将 <code>feature/a</code> 的所有成果汇入了主线”这一事实。</li>
-</ul>
-<h3 id="为什么这是最佳实践">为什么这是最佳实践？</h3>
-<ol type="1">
-<li><strong>清晰且可追溯的历史</strong>：通过 <code>rebase</code> 保持功能分支的线性，使得 <code>main</code> 分支的历史由一个个清晰的功能块（通过 merge commit 连接）组成，而不是一个混乱交织的网络。阅读 <code>git log</code> 会非常轻松。</li>
-<li><strong>避免团队混乱</strong>：如果你 rebase 了一个公共分支（例如 <code>main</code>），所有基于旧的 <code>main</code> 进行开发的同事都会在下一次 <code>git pull</code> 时遇到严重的问题。他们的本地历史和被你重写过的远程历史产生了冲突，需要非常复杂的操作才能修复，这会给整个团队带来灾难。</li>
-</ol>
-<h3 id="推荐的开发工作流">推荐的开发工作流</h3>
-<p>一个标准的、健壮的开发工作流如下：</p>
-<ol type="1">
-<li><strong>开始新任务</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git pull origin main</span><br><span class="line">git checkout -b feature/new-login</span><br></pre></td></tr></table></figure></li>
-<li><strong>开心写代码并提交</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ... coding and committing ...</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add username field&quot;</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add password field&quot;</span></span><br></pre></td></tr></table></figure></li>
-<li><strong>定期与主干同步</strong>（使用 Rebase）： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 当 main 分支有更新时</span></span><br><span class="line">git fetch origin main</span><br><span class="line">git rebase origin/main</span><br><span class="line"><span class="comment"># 如果有冲突，解决冲突后 git rebase --continue</span></span><br></pre></td></tr></table></figure></li>
-<li><strong>发起合并请求</strong>：
-<ul>
-<li>将你“整理”好的分支推送到远程：<code>git push origin feature/new-login --force-with-lease</code> (<code>--force-with-lease</code> 是比 <code>--force</code> 更安全的选择，因为它不会覆盖他人的工作)。</li>
-<li>在代码托管平台（如 GitHub）上创建 Pull Request，请求将 <code>feature/new-login</code> 合并到 <code>main</code>。</li>
-<li>团队成员进行代码审查，最终由维护者点击“Merge”按钮，将你的功能安全地汇入主线。</li>
-</ul></li>
-</ol>
-<hr />
-<h2 id="五实战小结">⚡ 五、实战小结</h2>
-<ul>
-<li><strong>rebase</strong>：核心用途是在<strong>个人开发分支</strong>上同步主干分支的变更，以保持提交历史的<strong>整洁和线性</strong>。它是合并到公共分支前的“自我修养”。</li>
-<li><strong>cherry-pick</strong>：核心用途是<strong>精确复制</strong>一个或多个提交到其他分支，适合跨分支应用热修复或挑选特定功能。</li>
-<li><strong>黄金准则</strong>：永远记住在私有分支上 rebase，在公共分支上 merge。</li>
-</ul>
-<hr />
-<h2 id="六实用建议">📝 六、实用建议</h2>
-<h3 id="分支命名规范">1. 分支命名规范</h3>
-<ul>
-<li>功能开发：<code>feature/功能简述</code> 如：<code>feature/login-page</code></li>
-<li>Bug 修复：<code>fix/问题简述</code> 如：<code>fix/login-crash</code></li>
-<li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
-<li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
-</ul>
-<h3 id="commit-信息规范">2. Commit 信息规范</h3>
-<ul>
-<li>推荐格式（Angular 规范）：<code>type(scope): subject</code>
-<ul>
-<li><code>type</code>: <code>feat</code>, <code>fix</code>, <code>docs</code>, <code>style</code>, <code>refactor</code>, <code>test</code>, <code>chore</code></li>
-<li><code>scope</code>: 影响范围（可选）</li>
-<li><code>subject</code>: 简短描述</li>
-</ul></li>
-<li>一次 commit 只做一件事，保持原子性。</li>
-</ul>
-<h3 id="团队协作建议">3. 团队协作建议</h3>
-<ul>
-<li><strong>合并前先同步</strong>：在将功能分支合并到 <code>main</code> 之前，应先在自己的分支上执行 <code>git rebase main</code> 来同步最新代码，这能极大减少最终合并时的冲突。</li>
-<li><strong>保护公共分支</strong>：像 <code>main</code>、<code>release</code> 这样的重要分支应设置为受保护状态，禁止 <code>force push</code>，所有变更都必须通过 Pull Request (PR) 进行。</li>
-<li><strong>拥抱代码评审</strong>：充分利用 Pull Request 进行代码评审，这是保证代码质量和知识共享的最佳途径。</li>
-<li><strong>勤于观察状态</strong>：养成良好习惯，多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态，做到心中有数。</li>
-</ul>
-<hr />
-<p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Git</category>
-      </categories>
-      <tags>
-        <tag>Git</tag>
-        <tag>Rebase</tag>
-        <tag>Cherry-pick</tag>
       </tags>
   </entry>
   <entry>
@@ -7098,6 +6873,231 @@ flowchart LR
         <tag>Linux</tag>
         <tag>eBPF</tag>
         <tag>网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>git之路：rebase &amp; cherry-pick</title>
+    <url>/posts/1566a5aa/</url>
+    <content><![CDATA[<p>在团队协作和日常开发中，<code>rebase</code> 和 <code>cherry-pick</code> 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。</p>
+<span id="more"></span>
+<h2 id="一核心概念">🧩 一、核心概念</h2>
+<ul>
+<li><strong>rebase (变基)</strong>：将当前分支的一系列提交“重放”到另一个目标分支之上。其核心用途是<strong>整理个人分支的提交历史</strong>，使其在并入主干时保持线性、清晰。</li>
+<li><strong>cherry-pick (拣选)</strong>：将某个（或某些）特定的提交<strong>复制</strong>到当前分支。它像摘樱桃一样，适合“挑着搬运”某个功能或紧急修复。</li>
+</ul>
+<h2 id="二图解分支操作流程">🗺️ 二、图解分支操作流程</h2>
+<p>下面的两幅 Mermaid 图示分别演示了 Rebase 和 Cherry-pick 在典型协作场景中的作用。将代码块直接放入支持 Mermaid 的 Markdown 环境即可自动渲染。</p>
+<h3 id="图-1-rebase-工作流主干更新后将功能分支变基到最新-main">图 1 · Rebase 工作流（主干更新后将功能分支变基到最新 main）</h3>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    subgraph &quot;main 分支&quot;
+        c0((c0)) --&gt; c1((c1)) --&gt; c3((c3))
+    end
+
+    subgraph &quot;feature&#x2F;a (rebase 前)&quot;
+        c2_before((c2)) --&gt; c4_before((c4))
+    end
+
+    subgraph &quot;feature&#x2F;a (rebase 后)&quot;
+        c2_after((&quot;c2&#39;&quot;)) --&gt; c4_after((&quot;c4&#39;&quot;))
+    end
+
+    c1 --&gt; c2_before
+    c3 --&gt; c2_after
+</code>
+</pre>
+<h3 id="图-2-cherry-pick-工作流从-featurea-拣选-c2-到-main">图 2 · Cherry-pick 工作流（从 feature/a 拣选 c2 到 main）</h3>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    subgraph &quot;初始历史&quot;
+        c0((c0)) --&gt; c1((c1))
+    end
+
+    subgraph &quot;main 分支&quot;
+        c3((c3)) --&gt; c2_prime((&quot;c2&#39;&quot;))
+        style c2_prime fill:#bbf,stroke:#333,stroke-width:2px
+    end
+
+    subgraph &quot;feature&#x2F;a 分支&quot;
+        c2((c2)) --&gt; c4((c4))
+    end
+    
+    c1 --&gt; c3
+    c1 --&gt; c2
+
+    c2 -.-&gt; c2_prime
+</code>
+</pre>
+<h3 id="场景设定">场景设定</h3>
+<ul>
+<li><code>main</code> 是我们的主分支，开发主线从 <code>c0</code> -&gt; <code>c1</code> 开始。</li>
+<li>从 <code>c1</code> 拉取了一个 <code>feature/a</code> 分支进行功能开发，并提交了 <code>c2</code> 和 <code>c4</code>。</li>
+<li>在此期间，另一位同事完成了 <code>fixbug/b</code> 分支，并将其合并回 <code>main</code>，使得 <code>main</code> 分支前进到 <code>c3</code>。</li>
+</ul>
+<p>此时，你的 <code>feature/a</code> 分支就“落后”于 <code>main</code> 分支了。在准备合并你的功能之前，最好的做法是先将 <code>main</code> 的最新更改同步到 <code>feature/a</code> 分支。这里，<code>rebase</code> 就是最佳选择。</p>
+<h3 id="rebase同步主干保持线性历史">1. Rebase：同步主干，保持线性历史</h3>
+<p>为了让 <code>feature/a</code> 的历史记录更清晰，我们执行变基操作，将 <code>feature/a</code> 的提交“重放”到最新的 <code>main</code> 分支上。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 确保你的功能分支是当前分支</span></span><br><span class="line">git checkout feature/a</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 拉取远程主分支的最新代码（好习惯）</span></span><br><span class="line">git fetch origin main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 将当前分支变基到最新的 main 分支上</span></span><br><span class="line">git rebase origin/main <span class="comment"># 或者 git rebase main</span></span><br></pre></td></tr></table></figure>
+<p>执行后，Git 会在内部执行以下操作：</p>
+<ol type="1">
+<li>找到 <code>feature/a</code> 和 <code>main</code> 的共同祖先 <code>c1</code>。</li>
+<li>暂存 <code>feature/a</code> 在 <code>c1</code> 之后独有的提交（<code>c2</code>, <code>c4</code>）。</li>
+<li>将 <code>feature/a</code> 分支的指针指向 <code>main</code> 的最新提交 <code>c3</code>。</li>
+<li>将刚刚暂存的提交 <code>c2</code> 和 <code>c4</code> 重新应用（Replay）在 <code>c3</code> 之后，生成两个<strong>内容相同但ID不同</strong>的新提交 <code>c2'</code> 和 <code>c4'</code>。</li>
+</ol>
+<p>最终，<code>feature/a</code> 的历史就变成了 <code>c0 -&gt; c1 -&gt; c3 -&gt; c2' -&gt; c4'</code>。它看起来就像是你从最新的 <code>main</code> 分支拉取代码然后才开始开发的一样，历史记录干净、线性，非常便于后续的合并和代码审查。</p>
+<p>这个操作完美地诠释了 <code>rebase</code> 在个人开发分支上的核心用途：<strong>保持与主干同步，并维持一个清晰的线性历史。</strong></p>
+<h3 id="cherry-pick挑选特定提交">2. Cherry-pick：挑选特定提交</h3>
+<p>现在，我们换一个场景。假设 <code>feature/a</code> 上的 <code>c2</code> 是一个非常紧急的修复，需要立即上线，但 <code>c4</code> 还没开发完。这时就可以用 <code>cherry-pick</code>。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到需要接收修复的主分支</span></span><br><span class="line">git checkout main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 从 feature/a 分支拣选 c2 提交</span></span><br><span class="line">git cherry-pick c2</span><br></pre></td></tr></table></figure>
+<p>如图右侧所示，<code>main</code> 分支通过 <code>cherry-pick</code>，将 <code>feature/a</code> 上的 <code>c2</code> 提交“拣选”过来，生成了一个新的提交 <code>c5</code>。其他提交 (<code>c4</code>) 不会被带过来，完美满足了只需要部分功能/修复的场景。</p>
+<hr />
+<h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
+<h3 id="基本用法">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将当前分支变基到 &lt;目标分支&gt; 上</span></span><br><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="交互式-rebase">2. 交互式 rebase</h3>
+<p>这是 <code>rebase</code> 的一大神器，常用于合并、修改、整理当前分支的提交。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -i 代表 --interactive（交互式）</span></span><br><span class="line"><span class="comment"># HEAD~3 表示整理当前分支最新的 3 个提交</span></span><br><span class="line">git rebase -i HEAD~3</span><br></pre></td></tr></table></figure>
+<p>执行后会打开一个编辑器，你可以对指定范围的提交进行 <code>squash</code> (合并)、<code>edit</code> (修改)、<code>reword</code> (修改提交信息) 等精细化操作，极大提升提交历史的可读性。</p>
+<h3 id="注意事项">3. 注意事项</h3>
+<ul>
+<li>rebase 会重写历史，<strong>永远不要对已经推送并被他人使用的公共分支（如 main）进行 rebase</strong>。</li>
+<li>rebase 过程遇到冲突需手动解决，解决后用 <code>git add .</code> 将文件标记为已解决，然后用 <code>git rebase --continue</code> 继续。</li>
+</ul>
+<hr />
+<h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
+<h3 id="基本用法-1">1. 基本用法</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git cherry-pick &lt;commit-hash&gt;</span><br></pre></td></tr></table></figure>
+<p>将指定的 <code>&lt;commit-hash&gt;</code> 应用到当前分支，生成一个新的提交。</p>
+<h3 id="批量-cherry-pick">2. 批量 cherry-pick</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 拣选多个不连续的提交</span></span><br><span class="line">git cherry-pick &lt;commit-1&gt; &lt;commit-2&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拣选一个连续的提交范围（不包含 commit-A）</span></span><br><span class="line">git cherry-pick &lt;commit-A&gt;..&lt;commit-B&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="注意事项-1">3. 注意事项</h3>
+<ul>
+<li>cherry-pick 也可能遇到冲突，需手动解决并 <code>commit</code>。</li>
+<li>cherry-pick 会生成<strong>新的 commit id</strong>，因为它是在新的分支上下文中应用变更。</li>
+</ul>
+<hr />
+<h2 id="rebase-vs.-merge黄金准则与团队协作">👑 Rebase vs. Merge：黄金准则与团队协作</h2>
+<p>我们已经看到了 <code>rebase</code> 的强大之处，但它也是一把双刃剑，因为它会<strong>重写提交历史</strong>。这就引出了 Git 协作中一条最重要的准则：</p>
+<blockquote>
+<p><strong>黄金准则：在自己的私有分支上自由地 rebase，但永远不要 rebase 一个公共的、共享的分支。</strong></p>
+</blockquote>
+<p>换句话说：</p>
+<ul>
+<li><strong><code>rebase</code> 用来“整理”自己</strong>：在你的个人功能分支（如 <code>feature/a</code>）上，使用 <code>rebase</code> 来同步 <code>main</code> 分支的更新。这属于你自己的“私事”，目的是让你的工作成果能干净地对接到主线上。</li>
+<li><strong><code>merge</code> 用来“汇合”他人</strong>：当你的功能分支准备好被合并到 <code>main</code> 或 <code>develop</code> 这样的公共分支时，应该使用 <code>git merge</code>（通常是通过 GitHub/GitLab 上的 Pull Request/Merge Request）来完成。这次合并会产生一个合并提交（Merge Commit），清晰地记录了“在某个时间点，我们将 <code>feature/a</code> 的所有成果汇入了主线”这一事实。</li>
+</ul>
+<h3 id="为什么这是最佳实践">为什么这是最佳实践？</h3>
+<ol type="1">
+<li><strong>清晰且可追溯的历史</strong>：通过 <code>rebase</code> 保持功能分支的线性，使得 <code>main</code> 分支的历史由一个个清晰的功能块（通过 merge commit 连接）组成，而不是一个混乱交织的网络。阅读 <code>git log</code> 会非常轻松。</li>
+<li><strong>避免团队混乱</strong>：如果你 rebase 了一个公共分支（例如 <code>main</code>），所有基于旧的 <code>main</code> 进行开发的同事都会在下一次 <code>git pull</code> 时遇到严重的问题。他们的本地历史和被你重写过的远程历史产生了冲突，需要非常复杂的操作才能修复，这会给整个团队带来灾难。</li>
+</ol>
+<h3 id="推荐的开发工作流">推荐的开发工作流</h3>
+<p>一个标准的、健壮的开发工作流如下：</p>
+<ol type="1">
+<li><strong>开始新任务</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git checkout main</span><br><span class="line">git pull origin main</span><br><span class="line">git checkout -b feature/new-login</span><br></pre></td></tr></table></figure></li>
+<li><strong>开心写代码并提交</strong>： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ... coding and committing ...</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add username field&quot;</span></span><br><span class="line">git commit -m <span class="string">&quot;feat: add password field&quot;</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>定期与主干同步</strong>（使用 Rebase）： <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 当 main 分支有更新时</span></span><br><span class="line">git fetch origin main</span><br><span class="line">git rebase origin/main</span><br><span class="line"><span class="comment"># 如果有冲突，解决冲突后 git rebase --continue</span></span><br></pre></td></tr></table></figure></li>
+<li><strong>发起合并请求</strong>：
+<ul>
+<li>将你“整理”好的分支推送到远程：<code>git push origin feature/new-login --force-with-lease</code> (<code>--force-with-lease</code> 是比 <code>--force</code> 更安全的选择，因为它不会覆盖他人的工作)。</li>
+<li>在代码托管平台（如 GitHub）上创建 Pull Request，请求将 <code>feature/new-login</code> 合并到 <code>main</code>。</li>
+<li>团队成员进行代码审查，最终由维护者点击“Merge”按钮，将你的功能安全地汇入主线。</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="五实战小结">⚡ 五、实战小结</h2>
+<ul>
+<li><strong>rebase</strong>：核心用途是在<strong>个人开发分支</strong>上同步主干分支的变更，以保持提交历史的<strong>整洁和线性</strong>。它是合并到公共分支前的“自我修养”。</li>
+<li><strong>cherry-pick</strong>：核心用途是<strong>精确复制</strong>一个或多个提交到其他分支，适合跨分支应用热修复或挑选特定功能。</li>
+<li><strong>黄金准则</strong>：永远记住在私有分支上 rebase，在公共分支上 merge。</li>
+</ul>
+<hr />
+<h2 id="六实用建议">📝 六、实用建议</h2>
+<h3 id="分支命名规范">1. 分支命名规范</h3>
+<ul>
+<li>功能开发：<code>feature/功能简述</code> 如：<code>feature/login-page</code></li>
+<li>Bug 修复：<code>fix/问题简述</code> 如：<code>fix/login-crash</code></li>
+<li>热修复：<code>hotfix/问题简述</code> 如：<code>hotfix/urgent-bug</code></li>
+<li>其他类型：<code>chore/</code>、<code>test/</code>、<code>docs/</code> 等</li>
+</ul>
+<h3 id="commit-信息规范">2. Commit 信息规范</h3>
+<ul>
+<li>推荐格式（Angular 规范）：<code>type(scope): subject</code>
+<ul>
+<li><code>type</code>: <code>feat</code>, <code>fix</code>, <code>docs</code>, <code>style</code>, <code>refactor</code>, <code>test</code>, <code>chore</code></li>
+<li><code>scope</code>: 影响范围（可选）</li>
+<li><code>subject</code>: 简短描述</li>
+</ul></li>
+<li>一次 commit 只做一件事，保持原子性。</li>
+</ul>
+<h3 id="团队协作建议">3. 团队协作建议</h3>
+<ul>
+<li><strong>合并前先同步</strong>：在将功能分支合并到 <code>main</code> 之前，应先在自己的分支上执行 <code>git rebase main</code> 来同步最新代码，这能极大减少最终合并时的冲突。</li>
+<li><strong>保护公共分支</strong>：像 <code>main</code>、<code>release</code> 这样的重要分支应设置为受保护状态，禁止 <code>force push</code>，所有变更都必须通过 Pull Request (PR) 进行。</li>
+<li><strong>拥抱代码评审</strong>：充分利用 Pull Request 进行代码评审，这是保证代码质量和知识共享的最佳途径。</li>
+<li><strong>勤于观察状态</strong>：养成良好习惯，多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态，做到心中有数。</li>
+</ul>
+<hr />
+<p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Git</category>
+      </categories>
+      <tags>
+        <tag>Git</tag>
+        <tag>Rebase</tag>
+        <tag>Cherry-pick</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>influxdb Connection Problem</title>
+    <url>/posts/dbeb2432/</url>
+    <content><![CDATA[<h2 id="influxdb连接问题">influxdb连接问题</h2>
+<p>最近之前实习的嵌入式公司修改了他们产品原有的数据库结构，从mysql转移到了influxdb，在接触influxdb的过程中也遇到了一些问题，现在汇总如下： <span id="more"></span></p>
+<h3 id="token401问题">token401问题</h3>
+<h4 id="登录401">登录401</h4>
+<p>一开始拿到公司的token测试连接</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Token</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<figure>
+<img src="/assets/78c665f7d532f73e4cf89e901284eb7f.png" alt="78c665f7d532f73e4cf89e901284eb7f" /><figcaption>78c665f7d532f73e4cf89e901284eb7f</figcaption>
+</figure>
+<p>发现可以正常连接，这意味着token本身没有问题，但是想要执行查询时，会报错401</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">2024-09-13 18:14:47,261 - ERROR - Error querying InfluxDB: (401)</span><br><span class="line">Reason: Unauthorized</span><br><span class="line">HTTP response headers: HTTPHeaderDict(&#123;&#x27;Content-Type&#x27;: &#x27;application/json; charset=utf-8&#x27;, &#x27;X-Influxdb-Build&#x27;: &#x27;OSS&#x27;, &#x27;X-Influxdb-Version&#x27;: &#x27;v2.7.8&#x27;, &#x27;X-Platform-Error-Code&#x27;: &#x27;unauthorized&#x27;, &#x27;Date&#x27;: &#x27;Fri, 13 Sep 2024 09:44:47 GMT&#x27;, &#x27;Content-Length&#x27;: &#x27;55&#x27;&#125;)</span><br><span class="line">HTTP response body: b&#x27;&#123;&quot;code&quot;:&quot;unauthorized&quot;,&quot;message&quot;:&quot;unauthorized access&quot;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<p>上网搜索发现许多人遇到过这个问题，最终在一个评论区找到思路</p>
+<figure>
+<img src="/assets/image-20240919184721228.png" alt="image-20240919184721228" /><figcaption>image-20240919184721228</figcaption>
+</figure>
+<p>于是把ini文件改为</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[InfluxDB]</span></span><br><span class="line"><span class="attr">Username</span> = ***</span><br><span class="line"><span class="attr">Password</span> = ***</span><br><span class="line"><span class="attr">Org</span> = ***</span><br><span class="line"><span class="attr">ServerUrl</span> = http://localhost:<span class="number">8086</span></span><br><span class="line"><span class="attr">Bucket</span> = ***</span><br></pre></td></tr></table></figure>
+<p>发现可以正常读取了</p>
+<h4 id="过期401">过期401</h4>
+<p>后面在公司测试时又发现了401问题，还是同样的报错，重启程序发现又可以查询了，猜测可能是连接有时间限制</p>
+<p>于是修改建立连接的方式，改为每次要查询前建立连接，问题得到解决</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 动态建立 InfluxDB 连接的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_influxdb_client</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        client = InfluxDBClient(url=influxdb_url, username=influxdb_username, password=influxdb_password, org=influxdb_org)</span><br><span class="line">        logger.info(<span class="string">&quot;Successfully connected to InfluxDB.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> client</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Failed to connect to InfluxDB: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据读取问题">数据读取问题</h3>
+<p>原本的数据库为mysql，查询语句如下</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">cursor, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    获取设备事件数据</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    query = <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        f_dtc_index, f_notify, f_create_time, f_report_time, f_channel, f_desc</span></span><br><span class="line"><span class="string">    FROM</span></span><br><span class="line"><span class="string">        t_mqtt_event </span></span><br><span class="line"><span class="string">    WHERE</span></span><br><span class="line"><span class="string">        f_device_id = &#x27;<span class="subst">&#123;f_device_id&#125;</span>&#x27; AND f_report_time BETWEEN &#x27;<span class="subst">&#123;start_date&#125;</span>&#x27; AND &#x27;<span class="subst">&#123;end_date&#125;</span>&#x27;</span></span><br><span class="line"><span class="string">    ORDER BY f_id DESC</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    cursor.execute(query)</span><br><span class="line">    <span class="keyword">return</span> cursor.fetchall()</span><br></pre></td></tr></table></figure>
+<p>现在要修改为influxdb的查询语句，influxdb有自己的查询语法，这里的难点在于理解influxdb的数据是如何存取的。</p>
+<p>我个人的理解为，这里的field是一列，每个field是一个表，这里的查询返回的是所有field的行，但是每行只有一个field以及对应的值。</p>
+<p>这样会产生一个问题，就是我们要合并数据。原有的mysql查询语句是每行有多列的内容，这里我们要根据时间戳去合并所有field来达到同样的效果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_device_events</span>(<span class="params">influxdb_client, f_device_id, start_date, end_date</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    从 InfluxDB 获取设备事件数据并以元组形式输出</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 定义中国时区</span></span><br><span class="line">    cst_tz = pytz.timezone(<span class="string">&#x27;Asia/Shanghai&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保传入的 start_date 和 end_date 是 datetime 对象</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(start_date, <span class="built_in">str</span>):</span><br><span class="line">        start_date = datetime.fromisoformat(start_date)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(end_date, <span class="built_in">str</span>):</span><br><span class="line">        end_date = datetime.fromisoformat(end_date)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将时间从中国时区转换为 UTC</span></span><br><span class="line">    start_date = cst_tz.localize(start_date).astimezone(pytz.utc)</span><br><span class="line">    end_date = cst_tz.localize(end_date).astimezone(pytz.utc)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 datetime 转换为符合 RFC 3339 格式的字符串 (UTC 时间)</span></span><br><span class="line">    start_date_rfc3339 = start_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line">    end_date_rfc3339 = end_date.strftime(<span class="string">&quot;%Y-%m-%dT%H:%M:%SZ&quot;</span>)</span><br><span class="line"></span><br><span class="line">    query = <span class="string">f&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    from(bucket: &quot;***&quot;)</span></span><br><span class="line"><span class="string">      |&gt; range(start: <span class="subst">&#123;start_date_rfc3339&#125;</span>, stop: <span class="subst">&#123;end_date_rfc3339&#125;</span>)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;guid&quot;] == &quot;<span class="subst">&#123;f_device_id&#125;</span>&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r._measurement == &quot;device_history&quot;)</span></span><br><span class="line"><span class="string">      |&gt; filter(fn: (r) =&gt; r[&quot;_field&quot;] == &quot;fqIndex&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;code&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;reportTime&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;channel&quot; or </span></span><br><span class="line"><span class="string">                           r[&quot;_field&quot;] == &quot;desc&quot;)</span></span><br><span class="line"><span class="string">      |&gt; sort(columns: [&quot;_time&quot;], desc: true)</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        result = influxdb_client.query_api().query(query, org=<span class="string">&quot;shike&quot;</span>)</span><br><span class="line">        events = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> table <span class="keyword">in</span> result:</span><br><span class="line">            <span class="keyword">for</span> record <span class="keyword">in</span> table.records:</span><br><span class="line">                <span class="comment"># 获取当前记录的时间戳</span></span><br><span class="line">                timestamp = record.get_time()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 如果当前时间戳还没有对应的事件，创建一个新的事件</span></span><br><span class="line">                <span class="keyword">if</span> timestamp <span class="keyword">not</span> <span class="keyword">in</span> events:</span><br><span class="line">                    events[timestamp] = &#123;</span><br><span class="line">                        <span class="string">&quot;fqIndex&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;code&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;reportTime&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;channel&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;desc&quot;</span>: <span class="literal">None</span>,</span><br><span class="line">                        <span class="string">&quot;f_create_time&quot;</span>: timestamp  <span class="comment"># 入库时间</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 根据 _field 来提取 _value 的值</span></span><br><span class="line">                field_name = record.get_field()</span><br><span class="line">                field_value = record.get_value()</span><br><span class="line"></span><br><span class="line">                <span class="comment"># 更新事件的相应字段</span></span><br><span class="line">                <span class="keyword">if</span> field_name == <span class="string">&quot;fqIndex&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;fqIndex&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;code&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;code&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;reportTime&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;reportTime&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;channel&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;channel&quot;</span>] = field_value</span><br><span class="line">                <span class="keyword">elif</span> field_name == <span class="string">&quot;desc&quot;</span>:</span><br><span class="line">                    events[timestamp][<span class="string">&quot;desc&quot;</span>] = field_value</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 将事件转换为所需的元组格式</span></span><br><span class="line">        event_list = []</span><br><span class="line">        <span class="keyword">for</span> timestamp, event <span class="keyword">in</span> events.items():</span><br><span class="line">            event_list.append((</span><br><span class="line">                event[<span class="string">&quot;fqIndex&quot;</span>],  <span class="comment"># f_dtc_index</span></span><br><span class="line">                event[<span class="string">&quot;code&quot;</span>],  <span class="comment"># f_notify</span></span><br><span class="line">                event[<span class="string">&quot;f_create_time&quot;</span>],  <span class="comment"># f_create_time (入库时间)</span></span><br><span class="line">                datetime.fromtimestamp(event[<span class="string">&quot;reportTime&quot;</span>] / <span class="number">1000</span>) <span class="keyword">if</span> event[<span class="string">&quot;reportTime&quot;</span>] <span class="keyword">else</span> <span class="literal">None</span>,  <span class="comment"># f_report_time (上报时间)</span></span><br><span class="line">                event[<span class="string">&quot;channel&quot;</span>],  <span class="comment"># f_channel</span></span><br><span class="line">                event[<span class="string">&quot;desc&quot;</span>]  <span class="comment"># f_desc</span></span><br><span class="line">            ))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event_list</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        logger.error(<span class="string">f&quot;Error querying InfluxDB: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> []</span><br></pre></td></tr></table></figure>
+<h3 id="其他问题">其他问题</h3>
+<p>上面的代码衍生出了一个问题就是influxdb的时间戳时区设置，听公司的前辈说时间戳要设为UTC，否则会出现一些很多问题，于是在查询语句前新增了时区转换。</p>
+<p>此外influxdb不支持int索引。</p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>InfluxDB</tag>
+        <tag>数据库</tag>
       </tags>
   </entry>
   <entry>
@@ -7484,163 +7484,134 @@ graph TD;
       </tags>
   </entry>
   <entry>
-    <title>pytorch train 模板</title>
-    <url>/posts/14ba9e2c/</url>
-    <content><![CDATA[<p>本文提供了一个完整、通用的 PyTorch 模型训练流程模板。它涵盖了从数据准备、模型构建、训练循环、测试评估到结果可视化的每一个关键步骤，是快速搭建深度学习项目的实用骨架。 <span id="more"></span></p>
-<h3 id="整体流程一览">🚀 整体流程一览</h3>
-<p>一个标准的 PyTorch 训练任务通常遵循以下流程。我们将通过一个具体的 CIFAR-10 图像分类任务来逐步解析代码。</p>
+    <title>pytorch入门</title>
+    <url>/posts/5f1831aa/</url>
+    <content><![CDATA[<p>PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 <code>Dataset</code>、<code>DataLoader</code>、<code>Transforms</code> 和 <code>TensorBoard</code> 是高效训练模型的关键。本文将带你快速入门这四大核心组件。 <span id="more"></span></p>
+<h3 id="核心组件速记">📚 核心组件速记</h3>
+<table>
+<thead>
+<tr class="header">
+<th>组件</th>
+<th>一句话记忆</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Dataset</code></td>
+<td><code>__getitem__</code> 和 <code>__len__</code> → 封装你的数据源，按索引取数据</td>
+</tr>
+<tr class="even">
+<td><code>DataLoader</code></td>
+<td><code>batch_size</code>, <code>shuffle</code> → 从 <code>Dataset</code> 中批量、随机地取数据</td>
+</tr>
+<tr class="odd">
+<td><code>Transforms</code></td>
+<td><code>Compose</code>, <code>ToTensor</code> → 数据预处理与增强的“流水线”</td>
+</tr>
+<tr class="even">
+<td><code>TensorBoard</code></td>
+<td><code>SummaryWriter</code> → 训练过程可视化，调参与Debug的神器</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="数据流转示意图">🎨 数据流转示意图</h3>
+<p>在 PyTorch 中，数据通常经历从磁盘文件到模型输入的转换过程。理解这个流程是掌握数据加载机制的第一步。</p>
 <pre>
 <code class="mermaid">
 
 graph TD
-    subgraph &quot;准备阶段&quot;
-        A[&quot;准备数据集 (CIFAR-10)&quot;] --&gt; B[&quot;创建 DataLoader&quot;];
-        C[&quot;定义网络模型 (Tudui)&quot;] --&gt; D[&quot;定义损失函数 (CrossEntropy)&quot;];
-        D --&gt; E[&quot;定义优化器 (SGD)&quot;];
+    subgraph &quot;硬盘&quot;
+        A[&quot;图片文件 (cat.jpg)&quot;]
+    end
+    subgraph &quot;CPU 内存&quot;
+        B[&quot;PIL Image &#x2F; OpenCV (numpy array)&quot;]
+    end
+    subgraph &quot;GPU&#x2F;CPU 内存&quot;
+        C[&quot;Torch Tensor&lt;br&#x2F;&gt;[C, H, W]&quot;]
+        D[&quot;Batch Tensor&lt;br&#x2F;&gt;[B, C, H, W]&quot;]
+        C -- &quot;DataLoader 批量化&quot; --&gt; D
     end
 
-    subgraph &quot;循环训练与评估 (Epochs)&quot;
-        F[&quot;开始 Epoch 循环&quot;];
-        F --&gt; G[&quot;**训练模式** &#96;model.train()&#96;&quot;];
-        G --&gt; H[&quot;遍历 Train DataLoader&quot;];
-        H --&gt; I[&quot;前向传播 &#96;output &#x3D; model(input)&#96;&quot;];
-        I --&gt; J[&quot;计算损失 &#96;loss &#x3D; loss_fn(output, target)&#96;&quot;];
-        J --&gt; K[&quot;反向传播 &#96;loss.backward()&#96;&quot;];
-        K --&gt; L[&quot;更新参数 &#96;optimizer.step()&#96;&quot;];
-        L --&gt; M[&quot;记录训练 Loss (TensorBoard)&quot;];
-        M --&gt; N[&quot;**评估模式** &#96;model.eval()&#96;&quot;];
-        N --&gt; O[&quot;遍历 Test DataLoader (with &#96;torch.no_grad()&#96;)&quot;];
-        O --&gt; P[&quot;计算测试 Loss 和 Accuracy&quot;];
-        P --&gt; Q[&quot;记录测试结果 (TensorBoard)&quot;];
-        Q --&gt; R[&quot;保存模型 &#96;torch.save()&#96;&quot;];
-        R --&gt; F;
-    end
-    
-    B --&gt; H;
-    E --&gt; L;
-    C --&gt; I;
-    B --&gt; O
+    A -- &quot;Image.open()&quot; --&gt; B
+    B -- &quot;transforms.ToTensor()&quot; --&gt; C
+    D &#x3D;&#x3D;&gt; E[模型输入]
+</code>
+</pre>
+<h2 id="torch.utils.data.dataset封装你的数据">1️⃣ <code>torch.utils.data.Dataset</code>：封装你的数据</h2>
+<p><code>Dataset</code> 是一个抽象类，用于表示数据集。所有自定义的数据集都应该继承它，并重写两个核心方法：</p>
+<ul>
+<li><code>__len__(self)</code>: 返回数据集的大小。</li>
+<li><code>__getitem__(self, idx)</code>: 根据索引 <code>idx</code> 返回一条数据（通常是一个样本和对应的标签）。</li>
+</ul>
+<p>这提供了一个统一的接口，让 <code>DataLoader</code> 等工具可以方便地处理各种不同来源的数据。</p>
+<h3 id="示例创建一个自定义-dataset">示例：创建一个自定义 <code>Dataset</code></h3>
+<p>假设我们有一些图片路径和对应的标签，我们可以这样创建一个 <code>Dataset</code>：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyImageDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, image_paths, labels, transform=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.image_paths = image_paths</span><br><span class="line">        <span class="variable language_">self</span>.labels = labels</span><br><span class="line">        <span class="variable language_">self</span>.transform = transform</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.image_paths)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="comment"># 读取图片</span></span><br><span class="line">        image_path = <span class="variable language_">self</span>.image_paths[idx]</span><br><span class="line">        image = Image.<span class="built_in">open</span>(image_path).convert(<span class="string">&quot;RGB&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 获取标签</span></span><br><span class="line">        label = <span class="variable language_">self</span>.labels[idx]</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 应用数据变换</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.transform:</span><br><span class="line">            image = <span class="variable language_">self</span>.transform(image)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> image, label</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">image_files = [<span class="string">&quot;./data/cat.png&quot;</span>, <span class="string">&quot;./data/dog.png&quot;</span>]</span><br><span class="line">image_labels = [<span class="number">0</span>, <span class="number">1</span>]</span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;数据总数: <span class="subst">&#123;<span class="built_in">len</span>(custom_dataset)&#125;</span>&quot;</span>)</span><br><span class="line">first_item = custom_dataset[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;第一个样本: <span class="subst">&#123;first_item&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>记忆：<code>Dataset</code> 就是个“数据地图”，<code>__getitem__</code> 负责“按图索骥”。</p>
+</blockquote>
+<hr />
+<h2 id="torchvision.transforms数据预处理与增强">2️⃣ <code>torchvision.transforms</code>：数据预处理与增强</h2>
+<p>在将数据喂给模型之前，通常需要进行预处理，例如转换为 Tensor、归一化、裁剪、旋转等。<code>transforms</code> 就是用来完成这些操作的工具箱。</p>
+<ul>
+<li><strong>常见变换</strong>：<code>ToTensor()</code>, <code>Resize()</code>, <code>CenterCrop()</code>, <code>RandomHorizontalFlip()</code>, <code>Normalize()</code> 等。</li>
+<li><strong><code>transforms.Compose()</code></strong>: 将多个变换操作串联成一个“流水线”。</li>
+</ul>
+<h3 id="示例定义一个变换流水线">示例：定义一个变换流水线</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个转换流水线</span></span><br><span class="line">data_transform = transforms.Compose([</span><br><span class="line">    transforms.Resize((<span class="number">224</span>, <span class="number">224</span>)),      <span class="comment"># 调整图片大小</span></span><br><span class="line">    transforms.RandomHorizontalFlip(),  <span class="comment"># 随机水平翻转</span></span><br><span class="line">    transforms.ToTensor(),              <span class="comment"># 将 PIL Image 或 numpy.ndarray 转换为 tensor</span></span><br><span class="line">    transforms.Normalize(mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>]) <span class="comment"># 归一化</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 transform 应用到 Dataset</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>为什么要随机翻转？</strong></p>
+<p><code>RandomHorizontalFlip</code> 是一种<strong>数据增强</strong> (Data Augmentation) 技术。它的目的是在不改变图片语义（猫翻转了还是猫）的前提下，增加训练数据的多样性。</p>
+<ul>
+<li><strong>提高泛化能力</strong>：模型会学习到，无论是正着还是反着的猫，都应该被识别为猫，从而对真实世界中更多样的数据表现更好，避免<strong>过拟合</strong>。</li>
+<li><strong>扩充数据集</strong>：相当于免费让你的数据集大小翻倍。</li>
+</ul>
+<p>提示：数据增强（如随机翻转）只在训练时使用，验证和测试时应去掉，以保证结果的一致性。</p>
+</blockquote>
+<hr />
+<h2 id="torch.utils.data.dataloader批量加载数据">3️⃣ <code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
+<p><code>DataLoader</code> 是一个迭代器，它从 <code>Dataset</code> 中自动拉取数据，并将其打包成批次 (batch)。它还提供了许多有用的功能：</p>
+<ul>
+<li><strong><code>batch_size</code></strong>: 每个批次包含的样本数。</li>
+<li><strong><code>shuffle=True</code></strong>: 在每个 epoch 开始时打乱数据顺序，有助于提高模型泛化能力。</li>
+<li><strong><code>num_workers</code></strong>: 使用多少个子进程来预加载数据。增加此值可以加快数据加载速度，但会消耗更多内存和 CPU。</li>
+</ul>
+<h3 id="示例使用-dataloader">示例：使用 <code>DataLoader</code></h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 custom_dataset 已经创建好</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br><span class="line"></span><br><span class="line">data_loader = DataLoader(</span><br><span class="line">    dataset=custom_dataset,</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">4</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 像遍历列表一样遍历 DataLoader</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> images, labels <span class="keyword">in</span> data_loader:</span><br><span class="line">        <span class="comment"># 在这里执行模型训练</span></span><br><span class="line">        <span class="comment"># images 的形状: [32, 3, 224, 224] (假设batch_size=32)</span></span><br><span class="line">        <span class="comment"># labels 的形状: [32]</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<pre>
+<code class="mermaid">
 
-    A &amp; C &amp; E --&gt; F
+graph TD
+    A[原始数据文件] --&gt; B(Dataset);
+    B -- 按索引 __getitem__ --&gt; C{单条数据};
+    D(Transforms) -- 应用于 --&gt; C;
+    C --&gt; E(DataLoader);
+    E -- 打包成 batch --&gt; F[模型];
 </code>
 </pre>
 <hr />
-<h3 id="代码详解">📝 代码详解</h3>
-<p>下面我们来分步解析实现这个流程的 Python 代码。</p>
-<h4 id="导入库并准备数据">1. 导入库并准备数据</h4>
-<p>第一步是导入所有必要的库，并使用 <code>torchvision.datasets</code> 加载 CIFAR-10 数据集。</p>
+<h2 id="torch.utils.tensorboard可视化训练过程">4️⃣ <code>torch.utils.tensorboard</code>：可视化训练过程</h2>
+<p><code>TensorBoard</code> 是一个强大的可视化工具，可以帮助你理解、调试和优化你的模型。PyTorch 通过 <code>SummaryWriter</code> 类与其集成。</p>
+<p><strong>主要功能</strong>: - 记录标量（如 loss、accuracy）的变化曲线。 - 可视化图像、模型图、embedding 等。</p>
+<h3 id="示例使用-summarywriter">示例：使用 <code>SummaryWriter</code></h3>
+<p><code>add_scalar</code> 是最常用的方法之一，它用于记录单个标量值的变化。</p>
 <ul>
-<li><code>torchvision</code>: 提供了常用的数据集、模型和图像转换。</li>
-<li><code>Tensorboard SummaryWriter</code>: 用于可视化训练过程。</li>
-<li><code>DataLoader</code>: 用于批量加载数据。</li>
-<li><code>transforms.ToTensor</code>: 将 PIL Image 或 NumPy <code>ndarray</code> 转换为 <code>FloatTensor</code>，并将像素值从 <code>[0, 255]</code> 缩放到 <code>[0.0, 1.0]</code>。</li>
+<li><code>tag</code>: 图表的标题，例如 ‘Loss/train’ 或 ‘Accuracy/validation’。使用 <code>/</code> 可以帮助在 TensorBoard 中对图表进行分组。</li>
+<li><code>scalar_value</code>: 要记录的数值，通常是 loss 值或准确率。</li>
+<li><code>global_step</code>: x 轴坐标，通常是训练的步数（batch index）或轮数（epoch index）。</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> *  <span class="comment"># 模型定义在 model.py 中</span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 准备数据集</span></span><br><span class="line">train_data = torchvision.datasets.CIFAR10(root=<span class="string">&quot;../data&quot;</span>, train=<span class="literal">True</span>, transform=torchvision.transforms.ToTensor(),</span><br><span class="line">                                          download=<span class="literal">True</span>)</span><br><span class="line">test_data = torchvision.datasets.CIFAR10(root=<span class="string">&quot;../data&quot;</span>, train=<span class="literal">False</span>, transform=torchvision.transforms.ToTensor(),</span><br><span class="line">                                         download=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># length 长度</span></span><br><span class="line">train_data_size = <span class="built_in">len</span>(train_data)</span><br><span class="line">test_data_size = <span class="built_in">len</span>(test_data)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;训练数据集的长度为: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(train_data_size))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;测试数据集的长度为: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(test_data_size))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 利用 DataLoader 来加载数据集</span></span><br><span class="line">train_dataloader = DataLoader(train_data, batch_size=<span class="number">64</span>)</span><br><span class="line">test_dataloader = DataLoader(test_data, batch_size=<span class="number">64</span>)</span><br></pre></td></tr></table></figure>
-<h4 id="定义核心组件">2. 定义核心组件</h4>
-<p>接下来，我们创建模型实例、定义损失函数和优化器。</p>
-<ul>
-<li><strong>模型 (<code>Tudui</code>)</strong>: 这是一个自定义的神经网络模型，其具体结构定义在 <code>model.py</code> 文件中。 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Tudui</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(Tudui, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.model = nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">3</span>, <span class="number">32</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>, <span class="number">32</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>, <span class="number">64</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Flatten(),</span><br><span class="line">            nn.Linear(<span class="number">64</span>*<span class="number">4</span>*<span class="number">4</span>, <span class="number">64</span>),</span><br><span class="line">            nn.Linear(<span class="number">64</span>, <span class="number">10</span>)</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = <span class="variable language_">self</span>.model(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure></li>
-<li><strong>损失函数 (<code>nn.CrossEntropyLoss</code>)</strong>: 交叉熵损失函数，常用于多分类任务。它内部已经包含了 Softmax 操作。</li>
-<li><strong>优化器 (<code>torch.optim.SGD</code>)</strong>: 随机梯度下降（Stochastic Gradient Descent）优化器，用于根据损失函数的梯度来更新模型的参数（权重和偏置）。<code>lr</code> 是学习率（learning rate）。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建网络模型</span></span><br><span class="line">tudui = Tudui()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失函数</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优化器</span></span><br><span class="line">learning_rate = <span class="number">1e-2</span></span><br><span class="line">optimizer = torch.optim.SGD(tudui.parameters(), lr=learning_rate)</span><br></pre></td></tr></table></figure>
-<h4 id="设置训练参数与-tensorboard">3. 设置训练参数与 TensorBoard</h4>
-<p>在开始训练之前，我们需要初始化一些计数器和超参数，并设置 TensorBoard 的 <code>SummaryWriter</code> 来记录训练数据。</p>
-<ul>
-<li><code>total_train_step</code> / <code>total_test_step</code>: 记录训练和测试的步数，作为 TensorBoard 的 x 轴。</li>
-<li><code>epoch</code>: 训练的总轮数。一轮（epoch）指完整地遍历一次整个训练数据集。</li>
-<li><code>SummaryWriter</code>: 创建一个写入器实例，它会将事件日志写入指定的目录（<code>../logs_train</code>）。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置训练网络的一些参数</span></span><br><span class="line"><span class="comment"># 记录训练的次数</span></span><br><span class="line">total_train_step = <span class="number">0</span></span><br><span class="line"><span class="comment"># 记录测试的次数</span></span><br><span class="line">total_test_step = <span class="number">0</span></span><br><span class="line"><span class="comment"># 训练的轮数</span></span><br><span class="line">epoch = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加tensorboard</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&quot;../logs_train&quot;</span>)</span><br></pre></td></tr></table></figure>
-<h4 id="训练与评估循环">4. 训练与评估循环</h4>
-<p>这是整个脚本的核心。外层是 epoch 循环，内层包含一个训练步骤和一个评估步骤。</p>
-<h5 id="训练步骤">训练步骤</h5>
-<ul>
-<li><code>tudui.train()</code>: 将模型设置为<strong>训练模式</strong>。这会启用 Dropout 和 BatchNorm 等层。</li>
-<li><code>optimizer.zero_grad()</code>: 在计算新梯度之前，清除上一轮的旧梯度。</li>
-<li><code>loss.backward()</code>: 计算损失函数相对于模型参数的梯度（反向传播）。</li>
-<li><code>optimizer.step()</code>: 根据计算出的梯度更新模型参数。</li>
-<li><code>writer.add_scalar()</code>: 每 100 步记录一次训练损失。</li>
-</ul>
-<h5 id="评估步骤">评估步骤</h5>
-<ul>
-<li><code>tudui.eval()</code>: 将模型设置为<strong>评估模式</strong>。这会禁用 Dropout 和 BatchNorm 等层，确保评估结果的确定性。</li>
-<li><code>with torch.no_grad()</code>: 在此代码块内，所有计算都不会追踪梯度，从而节省内存和计算资源。</li>
-<li><strong>计算准确率</strong>: <code>(outputs.argmax(1) == targets).sum()</code> 计算一个批次中预测正确的样本数量。<code>argmax(1)</code> 找到概率最高的类别的索引。</li>
-<li><strong>记录结果</strong>: 在一轮 epoch 结束后，计算并打印在整个测试集上的总损失和正确率，并用 TensorBoard 记录。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(epoch):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;-------第 &#123;&#125; 轮训练开始-------&quot;</span>.<span class="built_in">format</span>(i+<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 训练步骤开始</span></span><br><span class="line">    tudui.train()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">        imgs, targets = data</span><br><span class="line">        outputs = tudui(imgs)</span><br><span class="line">        loss = loss_fn(outputs, targets)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 优化器优化模型</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        total_train_step = total_train_step + <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> total_train_step % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;训练次数: &#123;&#125;, Loss: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_train_step, loss.item()))</span><br><span class="line">            writer.add_scalar(<span class="string">&quot;train_loss&quot;</span>, loss.item(), total_train_step)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 测试步骤开始</span></span><br><span class="line">    tudui.<span class="built_in">eval</span>()</span><br><span class="line">    total_test_loss = <span class="number">0</span></span><br><span class="line">    total_accuracy = <span class="number">0</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> data <span class="keyword">in</span> test_dataloader:</span><br><span class="line">            imgs, targets = data</span><br><span class="line">            outputs = tudui(imgs)</span><br><span class="line">            loss = loss_fn(outputs, targets)</span><br><span class="line">            total_test_loss = total_test_loss + loss.item()</span><br><span class="line">            accuracy = (outputs.argmax(<span class="number">1</span>) == targets).<span class="built_in">sum</span>()</span><br><span class="line">            total_accuracy = total_accuracy + accuracy</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;整体测试集上的Loss: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_test_loss))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;整体测试集上的正确率: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_accuracy/test_data_size))</span><br><span class="line">    writer.add_scalar(<span class="string">&quot;test_loss&quot;</span>, total_test_loss, total_test_step)</span><br><span class="line">    writer.add_scalar(<span class="string">&quot;test_accuracy&quot;</span>, total_accuracy/test_data_size, total_test_step)</span><br><span class="line">    total_test_step = total_test_step + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    torch.save(tudui, <span class="string">&quot;tudui_&#123;&#125;.pth&quot;</span>.<span class="built_in">format</span>(i))</span><br><span class="line">    <span class="comment"># torch.save(tudui.state_dict(), &quot;tudui_&#123;&#125;.pth&quot;.format(i))</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;模型已保存&quot;</span>)</span><br><span class="line"></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>💡 模型的两种保存方式</strong></p>
-<p>PyTorch 提供了两种主要的方式来保存模型，代码中展示了这两种方式：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建一个 writer 实例，日志会保存在 &#x27;logs&#x27; 目录下</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&#x27;logs/experiment_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在训练循环中记录信息</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># ... 训练代码 ...</span></span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        running_loss += loss.item()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每 100 个 batch 记录一次 loss</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            writer.add_scalar(<span class="string">&#x27;training loss&#x27;</span>, running_loss / <span class="number">100</span>, epoch * <span class="built_in">len</span>(data_loader) + i)</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">    假设在每个 epoch 结束后记录一张图片</span><br><span class="line">    writer.add_image(<span class="string">&#x27;one_image&#x27;</span>, images[<span class="number">0</span>], epoch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 训练结束后关闭 writer</span></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
+<p>记录完成后，在终端中运行 <code>tensorboard --logdir=logs</code>，然后访问浏览器中显示的地址（通常是 <code>http://localhost:6006</code>）即可查看可视化结果。</p>
+<hr />
+<h2 id="小结">📝 小结</h2>
 <ol type="1">
-<li><strong>保存整个模型对象 (<code>torch.save(model, PATH)</code>)</strong>
-<ul>
-<li><strong>做法</strong>: <code>torch.save(tudui, "tudui_complete.pth")</code></li>
-<li><strong>优点</strong>: 非常简单，加载时也只需一行 <code>model = torch.load("tudui_complete.pth")</code>。</li>
-<li><strong>缺点</strong>: 这种方式使用了 Python 的 <code>pickle</code> 来序列化整个对象，它将模型的类定义、目录结构等都绑定在了一起。如果你的项目代码发生了变化（例如，重命名了模型类或存放模型的文件），加载时就可能会失败。可移植性较差。</li>
-</ul></li>
-<li><strong>仅保存模型参数 (<code>torch.save(model.state_dict(), PATH)</code>) - (推荐)</strong>
-<ul>
-<li><strong>做法</strong>: <code>torch.save(tudui.state_dict(), "tudui_params.pth")</code></li>
-<li><strong>优点</strong>: 只保存模型的“状态字典”(<code>state_dict</code>)，即所有的权重和偏置。它不依赖于具体的类结构，非常轻量和灵活，是官方推荐的、更具 Python 风格的方式。</li>
-<li><strong>缺点</strong>: 加载时需要先创建模型实例，然后再将参数加载进去： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要先创建模型实例</span></span><br><span class="line">model = Tudui() </span><br><span class="line"><span class="comment"># 再加载参数</span></span><br><span class="line">model.load_state_dict(torch.load(<span class="string">&quot;tudui_params.pth&quot;</span>))</span><br></pre></td></tr></table></figure></li>
-</ul></li>
+<li><strong><code>Dataset</code></strong>：数据源的标准化封装，核心是 <code>__len__</code> 和 <code>__getitem__</code>。</li>
+<li><strong><code>Transforms</code></strong>：数据预处理和增强的流水线，使用 <code>Compose</code> 组合。</li>
+<li><strong><code>DataLoader</code></strong>：将 <code>Dataset</code> 包装成可迭代对象，实现批量、随机和并行加载。</li>
+<li><strong><code>TensorBoard</code></strong>：通过 <code>SummaryWriter</code> 记录训练过程，实现可视化分析。</li>
 </ol>
-<p><strong>结论</strong>：为了代码的健壮性和可移植性，<strong>强烈推荐使用第二种方法</strong>，即只保存和加载模型的 <code>state_dict</code>。</p>
-</blockquote>
-<blockquote>
-<p><strong>为何需要 <code>train()</code> 和 <code>eval()</code>模式?</strong></p>
-<p>模型的某些层（如 <code>Dropout</code> 和 <code>BatchNorm</code>）在训练和评估时的行为是不同的。 - <strong>训练时 (<code>train()</code>模式)</strong>: <code>Dropout</code>会随机失活一些神经元来防止过拟合；<code>BatchNorm</code> 会计算当前批次的均值和方差来归一化数据。 - <strong>评估时 (<code>eval()</code>模式)</strong>: <code>Dropout</code>会被禁用；<code>BatchNorm</code> 会使用在整个训练过程中学习到的全局均值和方差。</p>
-<p>切换模式能确保模型在正确的状态下进行训练和推理。</p>
-</blockquote>
-<hr />
-<h3 id="迁移到-gpu-训练">⚡️ 迁移到 GPU 训练</h3>
-<p>如果你的机器上有 NVIDIA 显卡并正确安装了 CUDA，那么将训练迁移到 GPU 上可以极大地加速计算。PyTorch 让这个过程变得非常简单，核心只有三步：<strong>定义设备</strong>、<strong>模型上设备</strong>、<strong>数据上设备</strong>。</p>
-<h4 id="定义设备">1. 定义设备</h4>
-<p>在代码的准备阶段，首先定义一个 <code>device</code> 对象。下面的代码会自动检测 CUDA 是否可用，如果可用则选择 GPU，否则回退到 CPU。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义训练的设备</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;将使用 &#123;&#125; 设备进行训练&quot;</span>.<span class="built_in">format</span>(device))</span><br></pre></td></tr></table></figure>
-<h4 id="将模型和损失函数移动到设备">2. 将模型和损失函数移动到设备</h4>
-<p>创建完网络模型和损失函数后，调用 <code>.to(device)</code> 方法将它们发送到指定的设备上。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建网络模型</span></span><br><span class="line">tudui = Tudui()</span><br><span class="line">tudui.to(device) <span class="comment"># 发送到设备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失函数</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line">loss_fn.to(device) <span class="comment"># 发送到设备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 优化器 (无需移动)</span></span><br><span class="line">learning_rate = <span class="number">1e-2</span></span><br><span class="line">optimizer = torch.optim.SGD(tudui.parameters(), lr=learning_rate)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>提示</strong>：优化器在初始化时已经注册了模型的参数。当模型被 <code>.to(device)</code> 移动后，优化器会自动感知到参数在 GPU 上，因此<strong>优化器本身不需要被移动</strong>。</p>
-</blockquote>
-<h4 id="将数据移动到设备">3. 将数据移动到设备</h4>
-<p>最后，也是最关键的一步，是在训练和测试的循环中，将<strong>每一批次的数据</strong>也发送到同一个设备上。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在训练/测试循环中</span></span><br><span class="line"><span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">    imgs, targets = data</span><br><span class="line">    imgs = imgs.to(device) <span class="comment"># 将图像数据发送到设备</span></span><br><span class="line">    targets = targets.to(device) <span class="comment"># 将标签数据发送到设备</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 现在模型和数据都在同一个设备上，可以进行计算</span></span><br><span class="line">    outputs = tudui(imgs)</span><br><span class="line">    loss = loss_fn(outputs, targets)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
-<p>完成这三步修改后，你的训练代码就能在 GPU 上飞速运行了！</p>
-<hr />
-<h3 id="模型验证">🔬 模型验证</h3>
-<p>训练完成后，我们可以加载保存好的模型，用它来对全新的、从未见过的数据进行预测。下面是一个完整的验证（或称推理，Inference）流程示例。</p>
-<h4 id="准备环境和数据">1. 准备环境和数据</h4>
-<p>首先，我们需要导入相关库，并准备一张待预测的图片。请注意，这张图片需要经过和训练时<strong>完全相同</strong>的预处理（<code>transform</code>）。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"><span class="comment"># 确保 Tudui 类的定义可见</span></span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> Tudui </span><br><span class="line"></span><br><span class="line"><span class="comment"># CIFAR-10 类别</span></span><br><span class="line">classes = (<span class="string">&#x27;plane&#x27;</span>, <span class="string">&#x27;car&#x27;</span>, <span class="string">&#x27;bird&#x27;</span>, <span class="string">&#x27;cat&#x27;</span>, <span class="string">&#x27;deer&#x27;</span>, <span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;frog&#x27;</span>, <span class="string">&#x27;horse&#x27;</span>, <span class="string">&#x27;ship&#x27;</span>, <span class="string">&#x27;truck&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载图片</span></span><br><span class="line">image_path = <span class="string">&quot;imgs/dog.png&quot;</span> <span class="comment"># 请替换为你的图片路径</span></span><br><span class="line">image = Image.<span class="built_in">open</span>(image_path)</span><br><span class="line"><span class="comment"># PNG 图片可能有4个通道 (RGBA)，需要转换为3通道 (RGB)</span></span><br><span class="line">image = image.convert(<span class="string">&#x27;RGB&#x27;</span>) </span><br><span class="line"></span><br><span class="line"><span class="comment"># 和训练时一样的 Transform</span></span><br><span class="line">transform = transforms.Compose([transforms.Resize((<span class="number">32</span>, <span class="number">32</span>)),</span><br><span class="line">                                transforms.ToTensor()])</span><br><span class="line">image = transform(image)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;图片预处理后形状: <span class="subst">&#123;image.shape&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调整形状以匹配模型输入</span></span><br><span class="line"><span class="comment"># 模型需要一个4D张量: [batch_size, channels, height, width]</span></span><br><span class="line">image = torch.reshape(image, (<span class="number">1</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">32</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;调整后送入模型的形状: <span class="subst">&#123;image.shape&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-<h4 id="加载模型并进行预测">2. 加载模型并进行预测</h4>
-<p>接下来，我们加载已经训练好的模型文件，并进行预测。</p>
-<ul>
-<li><code>torch.load()</code>: 加载模型文件。</li>
-<li><code>map_location</code>: 这是一个非常重要的参数！如果你的模型是在 GPU 上训练保存的（<code>.pth</code> 文件中包含了 GPU 张量），而你现在想在只有 CPU 的机器上加载它，就必须指定 <code>map_location=torch.device('cpu')</code>，它会智能地将所有张量重新映射到 CPU 上。</li>
-<li><code>model.eval()</code>: 切换到评估模式，这和训练时的验证步骤一样重要。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 加载模型</span></span><br><span class="line"><span class="comment"># 假设模型是在 GPU 保存的，我们现在用 CPU 加载</span></span><br><span class="line"><span class="comment"># 注意：如果使用 torch.save(model)，加载时不需要 Tudui 类的定义</span></span><br><span class="line"><span class="comment"># 但如果使用 torch.save(model.state_dict())，则需要先 model=Tudui()</span></span><br><span class="line">model = torch.load(<span class="string">&quot;tudui_29_gpu.pth&quot;</span>, map_location=torch.device(<span class="string">&#x27;cpu&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(model)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型评估与预测</span></span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    output = model(image)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;模型输出 (logits): \n<span class="subst">&#123;output&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取预测结果</span></span><br><span class="line">predicted_class_index = output.argmax(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测结果的索引: <span class="subst">&#123;predicted_class_index.item()&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测的类别是: <span class="subst">&#123;classes[predicted_class_index.item()]&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-<p>通过这个流程，你就可以用训练好的模型来处理任何新的输入数据了。</p>
-<hr />
-<h3 id="启动-tensorboard">📈 启动 TensorBoard</h3>
-<p>训练开始后，你可以在终端中运行以下命令来启动 TensorBoard 服务：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tensorboard --logdir=../logs_train</span><br></pre></td></tr></table></figure>
-<p>然后打开浏览器访问 <code>http://localhost:6006</code> 即可看到 <code>train_loss</code>, <code>test_loss</code> 和 <code>test_accuracy</code> 的变化曲线。</p>
-<h3 id="小结">📝 小结</h3>
-<p>这个模板展示了 PyTorch 训练一个模型的标准范式：</p>
-<ol type="1">
-<li><strong>数据加载</strong>：使用 <code>Dataset</code> 和 <code>DataLoader</code>。</li>
-<li><strong>模型构建</strong>：定义网络、损失函数和优化器。</li>
-<li><strong>循环迭代</strong>：通过 <code>for</code> 循环进行多轮 (epoch) 训练。</li>
-<li><strong>训练模式</strong>：在每轮 epoch 开始时调用 <code>model.train()</code>，进行前向传播、计算损失、反向传播和参数更新。</li>
-<li><strong>评估模式</strong>：调用 <code>model.eval()</code> 和 <code>with torch.no_grad()</code>，在测试集上评估模型性能。</li>
-<li><strong>可视化与保存</strong>：使用 <code>TensorBoard</code> 监控过程，使用 <code>torch.save</code> 保存模型。</li>
-</ol>
-<p>参考自 B站up 我是土堆，链接：<a href="https://www.bilibili.com/video/BV1hE411t7RN?spm_id_from=333.788.videopod.episodes&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">https://www.bilibili.com/video/BV1hE411t7RN?spm_id_from=333.788.videopod.episodes&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1</a></p>
+<p>熟练运用这四大组件，你的 PyTorch 项目将变得更加规范、高效和易于调试 🚀</p>
 ]]></content>
       <categories>
         <category>AI</category>
@@ -7649,7 +7620,6 @@ graph TD
       <tags>
         <tag>PyTorch</tag>
         <tag>深度学习</tag>
-        <tag>训练模板</tag>
       </tags>
   </entry>
   <entry>
@@ -8402,134 +8372,215 @@ graph TD
       </tags>
   </entry>
   <entry>
-    <title>pytorch入门</title>
-    <url>/posts/5f1831aa/</url>
-    <content><![CDATA[<p>PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 <code>Dataset</code>、<code>DataLoader</code>、<code>Transforms</code> 和 <code>TensorBoard</code> 是高效训练模型的关键。本文将带你快速入门这四大核心组件。 <span id="more"></span></p>
-<h3 id="核心组件速记">📚 核心组件速记</h3>
-<table>
-<thead>
-<tr class="header">
-<th>组件</th>
-<th>一句话记忆</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>Dataset</code></td>
-<td><code>__getitem__</code> 和 <code>__len__</code> → 封装你的数据源，按索引取数据</td>
-</tr>
-<tr class="even">
-<td><code>DataLoader</code></td>
-<td><code>batch_size</code>, <code>shuffle</code> → 从 <code>Dataset</code> 中批量、随机地取数据</td>
-</tr>
-<tr class="odd">
-<td><code>Transforms</code></td>
-<td><code>Compose</code>, <code>ToTensor</code> → 数据预处理与增强的“流水线”</td>
-</tr>
-<tr class="even">
-<td><code>TensorBoard</code></td>
-<td><code>SummaryWriter</code> → 训练过程可视化，调参与Debug的神器</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h3 id="数据流转示意图">🎨 数据流转示意图</h3>
-<p>在 PyTorch 中，数据通常经历从磁盘文件到模型输入的转换过程。理解这个流程是掌握数据加载机制的第一步。</p>
-<pre>
-<code class="mermaid">
-
-graph TD
-    subgraph &quot;硬盘&quot;
-        A[&quot;图片文件 (cat.jpg)&quot;]
-    end
-    subgraph &quot;CPU 内存&quot;
-        B[&quot;PIL Image &#x2F; OpenCV (numpy array)&quot;]
-    end
-    subgraph &quot;GPU&#x2F;CPU 内存&quot;
-        C[&quot;Torch Tensor&lt;br&#x2F;&gt;[C, H, W]&quot;]
-        D[&quot;Batch Tensor&lt;br&#x2F;&gt;[B, C, H, W]&quot;]
-        C -- &quot;DataLoader 批量化&quot; --&gt; D
-    end
-
-    A -- &quot;Image.open()&quot; --&gt; B
-    B -- &quot;transforms.ToTensor()&quot; --&gt; C
-    D &#x3D;&#x3D;&gt; E[模型输入]
-</code>
-</pre>
-<h2 id="torch.utils.data.dataset封装你的数据">1️⃣ <code>torch.utils.data.Dataset</code>：封装你的数据</h2>
-<p><code>Dataset</code> 是一个抽象类，用于表示数据集。所有自定义的数据集都应该继承它，并重写两个核心方法：</p>
-<ul>
-<li><code>__len__(self)</code>: 返回数据集的大小。</li>
-<li><code>__getitem__(self, idx)</code>: 根据索引 <code>idx</code> 返回一条数据（通常是一个样本和对应的标签）。</li>
-</ul>
-<p>这提供了一个统一的接口，让 <code>DataLoader</code> 等工具可以方便地处理各种不同来源的数据。</p>
-<h3 id="示例创建一个自定义-dataset">示例：创建一个自定义 <code>Dataset</code></h3>
-<p>假设我们有一些图片路径和对应的标签，我们可以这样创建一个 <code>Dataset</code>：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> Dataset</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyImageDataset</span>(<span class="title class_ inherited__">Dataset</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, image_paths, labels, transform=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.image_paths = image_paths</span><br><span class="line">        <span class="variable language_">self</span>.labels = labels</span><br><span class="line">        <span class="variable language_">self</span>.transform = transform</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__len__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">len</span>(<span class="variable language_">self</span>.image_paths)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getitem__</span>(<span class="params">self, idx</span>):</span><br><span class="line">        <span class="comment"># 读取图片</span></span><br><span class="line">        image_path = <span class="variable language_">self</span>.image_paths[idx]</span><br><span class="line">        image = Image.<span class="built_in">open</span>(image_path).convert(<span class="string">&quot;RGB&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 获取标签</span></span><br><span class="line">        label = <span class="variable language_">self</span>.labels[idx]</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 应用数据变换</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.transform:</span><br><span class="line">            image = <span class="variable language_">self</span>.transform(image)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> image, label</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line">image_files = [<span class="string">&quot;./data/cat.png&quot;</span>, <span class="string">&quot;./data/dog.png&quot;</span>]</span><br><span class="line">image_labels = [<span class="number">0</span>, <span class="number">1</span>]</span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;数据总数: <span class="subst">&#123;<span class="built_in">len</span>(custom_dataset)&#125;</span>&quot;</span>)</span><br><span class="line">first_item = custom_dataset[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;第一个样本: <span class="subst">&#123;first_item&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>记忆：<code>Dataset</code> 就是个“数据地图”，<code>__getitem__</code> 负责“按图索骥”。</p>
-</blockquote>
-<hr />
-<h2 id="torchvision.transforms数据预处理与增强">2️⃣ <code>torchvision.transforms</code>：数据预处理与增强</h2>
-<p>在将数据喂给模型之前，通常需要进行预处理，例如转换为 Tensor、归一化、裁剪、旋转等。<code>transforms</code> 就是用来完成这些操作的工具箱。</p>
-<ul>
-<li><strong>常见变换</strong>：<code>ToTensor()</code>, <code>Resize()</code>, <code>CenterCrop()</code>, <code>RandomHorizontalFlip()</code>, <code>Normalize()</code> 等。</li>
-<li><strong><code>transforms.Compose()</code></strong>: 将多个变换操作串联成一个“流水线”。</li>
-</ul>
-<h3 id="示例定义一个变换流水线">示例：定义一个变换流水线</h3>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个转换流水线</span></span><br><span class="line">data_transform = transforms.Compose([</span><br><span class="line">    transforms.Resize((<span class="number">224</span>, <span class="number">224</span>)),      <span class="comment"># 调整图片大小</span></span><br><span class="line">    transforms.RandomHorizontalFlip(),  <span class="comment"># 随机水平翻转</span></span><br><span class="line">    transforms.ToTensor(),              <span class="comment"># 将 PIL Image 或 numpy.ndarray 转换为 tensor</span></span><br><span class="line">    transforms.Normalize(mean=[<span class="number">0.485</span>, <span class="number">0.456</span>, <span class="number">0.406</span>], std=[<span class="number">0.229</span>, <span class="number">0.224</span>, <span class="number">0.225</span>]) <span class="comment"># 归一化</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 transform 应用到 Dataset</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>为什么要随机翻转？</strong></p>
-<p><code>RandomHorizontalFlip</code> 是一种<strong>数据增强</strong> (Data Augmentation) 技术。它的目的是在不改变图片语义（猫翻转了还是猫）的前提下，增加训练数据的多样性。</p>
-<ul>
-<li><strong>提高泛化能力</strong>：模型会学习到，无论是正着还是反着的猫，都应该被识别为猫，从而对真实世界中更多样的数据表现更好，避免<strong>过拟合</strong>。</li>
-<li><strong>扩充数据集</strong>：相当于免费让你的数据集大小翻倍。</li>
-</ul>
-<p>提示：数据增强（如随机翻转）只在训练时使用，验证和测试时应去掉，以保证结果的一致性。</p>
-</blockquote>
-<hr />
-<h2 id="torch.utils.data.dataloader批量加载数据">3️⃣ <code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
-<p><code>DataLoader</code> 是一个迭代器，它从 <code>Dataset</code> 中自动拉取数据，并将其打包成批次 (batch)。它还提供了许多有用的功能：</p>
-<ul>
-<li><strong><code>batch_size</code></strong>: 每个批次包含的样本数。</li>
-<li><strong><code>shuffle=True</code></strong>: 在每个 epoch 开始时打乱数据顺序，有助于提高模型泛化能力。</li>
-<li><strong><code>num_workers</code></strong>: 使用多少个子进程来预加载数据。增加此值可以加快数据加载速度，但会消耗更多内存和 CPU。</li>
-</ul>
-<h3 id="示例使用-dataloader">示例：使用 <code>DataLoader</code></h3>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 假设 custom_dataset 已经创建好</span></span><br><span class="line">custom_dataset = MyImageDataset(image_files, image_labels, transform=data_transform)</span><br><span class="line"></span><br><span class="line">data_loader = DataLoader(</span><br><span class="line">    dataset=custom_dataset,</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    shuffle=<span class="literal">True</span>,</span><br><span class="line">    num_workers=<span class="number">4</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 像遍历列表一样遍历 DataLoader</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    <span class="keyword">for</span> images, labels <span class="keyword">in</span> data_loader:</span><br><span class="line">        <span class="comment"># 在这里执行模型训练</span></span><br><span class="line">        <span class="comment"># images 的形状: [32, 3, 224, 224] (假设batch_size=32)</span></span><br><span class="line">        <span class="comment"># labels 的形状: [32]</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
-<pre>
-<code class="mermaid">
-
-graph TD
-    A[原始数据文件] --&gt; B(Dataset);
-    B -- 按索引 __getitem__ --&gt; C{单条数据};
-    D(Transforms) -- 应用于 --&gt; C;
-    C --&gt; E(DataLoader);
-    E -- 打包成 batch --&gt; F[模型];
-</code>
-</pre>
-<hr />
-<h2 id="torch.utils.tensorboard可视化训练过程">4️⃣ <code>torch.utils.tensorboard</code>：可视化训练过程</h2>
-<p><code>TensorBoard</code> 是一个强大的可视化工具，可以帮助你理解、调试和优化你的模型。PyTorch 通过 <code>SummaryWriter</code> 类与其集成。</p>
-<p><strong>主要功能</strong>: - 记录标量（如 loss、accuracy）的变化曲线。 - 可视化图像、模型图、embedding 等。</p>
-<h3 id="示例使用-summarywriter">示例：使用 <code>SummaryWriter</code></h3>
-<p><code>add_scalar</code> 是最常用的方法之一，它用于记录单个标量值的变化。</p>
-<ul>
-<li><code>tag</code>: 图表的标题，例如 ‘Loss/train’ 或 ‘Accuracy/validation’。使用 <code>/</code> 可以帮助在 TensorBoard 中对图表进行分组。</li>
-<li><code>scalar_value</code>: 要记录的数值，通常是 loss 值或准确率。</li>
-<li><code>global_step</code>: x 轴坐标，通常是训练的步数（batch index）或轮数（epoch index）。</li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建一个 writer 实例，日志会保存在 &#x27;logs&#x27; 目录下</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&#x27;logs/experiment_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在训练循环中记录信息</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># ... 训练代码 ...</span></span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        running_loss += loss.item()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每 100 个 batch 记录一次 loss</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            writer.add_scalar(<span class="string">&#x27;training loss&#x27;</span>, running_loss / <span class="number">100</span>, epoch * <span class="built_in">len</span>(data_loader) + i)</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">    假设在每个 epoch 结束后记录一张图片</span><br><span class="line">    writer.add_image(<span class="string">&#x27;one_image&#x27;</span>, images[<span class="number">0</span>], epoch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 训练结束后关闭 writer</span></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
-<p>记录完成后，在终端中运行 <code>tensorboard --logdir=logs</code>，然后访问浏览器中显示的地址（通常是 <code>http://localhost:6006</code>）即可查看可视化结果。</p>
-<hr />
-<h2 id="小结">📝 小结</h2>
+    <title>了解Diffusion Language Model</title>
+    <url>/posts/a1d79e4c/</url>
+    <content><![CDATA[<p>我们熟悉的 Transformer 等模型采用“自回归”方式逐词生成文本，这限制了生成速度且不易保证长文本连贯。受图像生成领域成功的 <strong>扩散模型 (Diffusion Model)</strong> 启发，研究者将其引入文本生成，<strong>扩散语言模型 (Diffusion Language Model)</strong> 应运而生。</p>
+<span id="more"></span>
+<h2 id="什么是扩散模型">什么是扩散模型？</h2>
+<p><img src="/assets/image.png" /></p>
+<p>在深入了解其如何应用于语言之前，我们先通过一个直观的例子——图像生成——来理解扩散模型的核心思想。它主要包含两个过程：</p>
 <ol type="1">
-<li><strong><code>Dataset</code></strong>：数据源的标准化封装，核心是 <code>__len__</code> 和 <code>__getitem__</code>。</li>
-<li><strong><code>Transforms</code></strong>：数据预处理和增强的流水线，使用 <code>Compose</code> 组合。</li>
-<li><strong><code>DataLoader</code></strong>：将 <code>Dataset</code> 包装成可迭代对象，实现批量、随机和并行加载。</li>
-<li><strong><code>TensorBoard</code></strong>：通过 <code>SummaryWriter</code> 记录训练过程，实现可视化分析。</li>
+<li><p><strong>前向过程（Forward Process）</strong>：也叫“扩散”过程。想象一下，我们从一张清晰的图片开始，一步步地、逐渐地向图片中添加微小的“噪声”，直到这张图片完全变成一个毫无规律的噪声图。这个过程是固定的、可控的。</p></li>
+<li><p><strong>反向过程（Reverse Process）</strong>：也叫“去噪”过程。这是真正的“生成”环节。我们训练一个神经网络，让它学会上述过程的“逆操作”——即从一张纯噪声的图片开始，一步步地、逐渐地去除噪声，最终还原出一张清晰、有意义的图片。</p></li>
 </ol>
-<p>熟练运用这四大组件，你的 PyTorch 项目将变得更加规范、高效和易于调试 🚀</p>
+<p>一旦模型学会了如何“去噪”，我们就可以给它任何随机噪声，让它“创造”出全新的、从未见过的图片。</p>
+<h2 id="如何将扩散模型用于文本">如何将扩散模型用于文本？</h2>
+<p>直接将扩散模型应用于文本面临一个核心挑战：<strong>文本是离散的，而扩散过程处理的是连续的数据</strong>。我们无法像给图片像素值加噪声那样，给一个“词”加上一点“噪声”变成另一个“半词”。</p>
+<p>解决方案是：<strong>在连续空间中操作</strong>。</p>
+<p>我们不直接处理文字，而是先将文字通过 <strong>词嵌入（Word Embedding）</strong> 技术转换为高维度的连续向量。这样，文本序列就变成了一组向量，我们可以在这个连续的向量空间中执行扩散和去噪过程。</p>
+<h2 id="diffusion-语言模型的工作原理">Diffusion 语言模型的工作原理</h2>
+<p>理解了以上概念后，扩散语言模型的工作流程就清晰了：</p>
+<ol type="1">
+<li><strong>前向过程</strong>：取一个句子，将其转换为词向量序列。然后，逐步向这些向量中添加噪声，直到它们变成一组随机向量。</li>
+<li><strong>反向过程</strong>：训练一个模型（通常是基于 Transformer 架构）来学习逆转这个过程。模型的任务是接收一串加了噪声的向量，并预测出“更干净”的向量应该是什么样子。</li>
+<li><strong>文本生成</strong>：当需要生成新文本时，我们从一组完全随机的向量开始，然后反复利用训练好的去噪模型进行迭代处理。每一步，向量都会变得“更清晰”一点，逐渐从无序的噪声收敛为有意义的词向量。最后，将这些“去噪”完成的词向量转换回人类可读的文字，就完成了一次文本生成。</li>
+</ol>
+<h2 id="diffusion-语言模型的优势">Diffusion 语言模型的优势</h2>
+<p>与传统的自回归模型相比，扩散语言模型展现出一些独特的优势：</p>
+<ul>
+<li><strong>并行生成</strong>：扩散模型在生成时是迭代式地对整个序列进行优化的，而不是像自回归模型那样必须逐词生成。这为并行计算和更快的生成速度提供了可能。</li>
+<li><strong>全局一致性</strong>：由于模型的每一步去噪都是基于对整个序列的观察，它能更好地捕捉全局依赖关系，生成的文本在长距离连贯性和结构完整性上可能更具优势。</li>
+<li><strong>可控性更强</strong>：扩散模型的迭代特性使其在生成过程中更容易被引导和控制。我们可以通过修改去噪过程来控制生成文本的风格、主题或结构，使其更适用于文本编辑、修复和改写等任务。</li>
+</ul>
+<h2 id="前沿研究进展">前沿研究进展</h2>
+<p>尽管扩散语言模型是一个较新的研究方向，但它已经展现出惊人的潜力，涌现了许多前沿工作：</p>
+<ul>
+<li><strong>大规模模型的成功</strong>：以 <strong>LLaDA</strong> 为代表的研究表明，当参数规模扩大到数十亿级别时，精心设计的扩散语言模型在性能上足以媲美甚至在某些复杂任务上超越顶尖的自回归模型（如 LLaMA3、GPT-4o），这证明了该技术路线的可行性与潜力。</li>
+<li><strong>效率与质量的权衡</strong>：一些研究也指出，当前扩散语言模型在推理时为了达到高质量的生成效果，可能需要较多的“去噪”迭代步骤，这导致其计算成本相对较高。如何平衡生成质量与推理效率，是目前该领域的研究热点之一。</li>
+<li><strong>多模态统一框架</strong>：部分工作（如 <strong>Transfusion</strong> 架构）尝试将扩散模型与 Transformer 深度融合，在一个统一的框架内同时处理文本和图像的生成任务，为多模态内容创作提供了新的思路。</li>
+<li><strong>行业巨头的投入</strong>：以 Google 推出的 <strong>Gemini Diffusion</strong> 为例，科技巨头们也开始在该领域发力，进一步验证了文本扩散模型作为下一代生成技术核心的潜力。</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>扩散语言模型通过借鉴图像生成领域的成功经验，为自然语言生成任务提供了一种全新的、非自回归的解决方案。它通过在连续的词向量空间中进行“加噪”和“去噪”，克服了文本数据的离散性难题。尽管这一领域仍处于快速发展阶段，但其在并行生成、全局连贯性和可控性方面展现出的巨大潜力，预示着它将成为未来自然语言处理领域一个重要的研究方向。</p>
+]]></content>
+      <categories>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>Diffusion</tag>
+        <tag>LLM</tag>
+        <tag>生成模型</tag>
+        <tag>扩散模型</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>pytorch train 模板</title>
+    <url>/posts/14ba9e2c/</url>
+    <content><![CDATA[<p>本文提供了一个完整、通用的 PyTorch 模型训练流程模板。它涵盖了从数据准备、模型构建、训练循环、测试评估到结果可视化的每一个关键步骤，是快速搭建深度学习项目的实用骨架。 <span id="more"></span></p>
+<h3 id="整体流程一览">🚀 整体流程一览</h3>
+<p>一个标准的 PyTorch 训练任务通常遵循以下流程。我们将通过一个具体的 CIFAR-10 图像分类任务来逐步解析代码。</p>
+<pre>
+<code class="mermaid">
+
+graph TD
+    subgraph &quot;准备阶段&quot;
+        A[&quot;准备数据集 (CIFAR-10)&quot;] --&gt; B[&quot;创建 DataLoader&quot;];
+        C[&quot;定义网络模型 (Tudui)&quot;] --&gt; D[&quot;定义损失函数 (CrossEntropy)&quot;];
+        D --&gt; E[&quot;定义优化器 (SGD)&quot;];
+    end
+
+    subgraph &quot;循环训练与评估 (Epochs)&quot;
+        F[&quot;开始 Epoch 循环&quot;];
+        F --&gt; G[&quot;**训练模式** &#96;model.train()&#96;&quot;];
+        G --&gt; H[&quot;遍历 Train DataLoader&quot;];
+        H --&gt; I[&quot;前向传播 &#96;output &#x3D; model(input)&#96;&quot;];
+        I --&gt; J[&quot;计算损失 &#96;loss &#x3D; loss_fn(output, target)&#96;&quot;];
+        J --&gt; K[&quot;反向传播 &#96;loss.backward()&#96;&quot;];
+        K --&gt; L[&quot;更新参数 &#96;optimizer.step()&#96;&quot;];
+        L --&gt; M[&quot;记录训练 Loss (TensorBoard)&quot;];
+        M --&gt; N[&quot;**评估模式** &#96;model.eval()&#96;&quot;];
+        N --&gt; O[&quot;遍历 Test DataLoader (with &#96;torch.no_grad()&#96;)&quot;];
+        O --&gt; P[&quot;计算测试 Loss 和 Accuracy&quot;];
+        P --&gt; Q[&quot;记录测试结果 (TensorBoard)&quot;];
+        Q --&gt; R[&quot;保存模型 &#96;torch.save()&#96;&quot;];
+        R --&gt; F;
+    end
+    
+    B --&gt; H;
+    E --&gt; L;
+    C --&gt; I;
+    B --&gt; O
+
+    A &amp; C &amp; E --&gt; F
+</code>
+</pre>
+<hr />
+<h3 id="代码详解">📝 代码详解</h3>
+<p>下面我们来分步解析实现这个流程的 Python 代码。</p>
+<h4 id="导入库并准备数据">1. 导入库并准备数据</h4>
+<p>第一步是导入所有必要的库，并使用 <code>torchvision.datasets</code> 加载 CIFAR-10 数据集。</p>
+<ul>
+<li><code>torchvision</code>: 提供了常用的数据集、模型和图像转换。</li>
+<li><code>Tensorboard SummaryWriter</code>: 用于可视化训练过程。</li>
+<li><code>DataLoader</code>: 用于批量加载数据。</li>
+<li><code>transforms.ToTensor</code>: 将 PIL Image 或 NumPy <code>ndarray</code> 转换为 <code>FloatTensor</code>，并将像素值从 <code>[0, 255]</code> 缩放到 <code>[0.0, 1.0]</code>。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torchvision</span><br><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> *  <span class="comment"># 模型定义在 model.py 中</span></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader</span><br><span class="line"></span><br><span class="line"><span class="comment"># 准备数据集</span></span><br><span class="line">train_data = torchvision.datasets.CIFAR10(root=<span class="string">&quot;../data&quot;</span>, train=<span class="literal">True</span>, transform=torchvision.transforms.ToTensor(),</span><br><span class="line">                                          download=<span class="literal">True</span>)</span><br><span class="line">test_data = torchvision.datasets.CIFAR10(root=<span class="string">&quot;../data&quot;</span>, train=<span class="literal">False</span>, transform=torchvision.transforms.ToTensor(),</span><br><span class="line">                                         download=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># length 长度</span></span><br><span class="line">train_data_size = <span class="built_in">len</span>(train_data)</span><br><span class="line">test_data_size = <span class="built_in">len</span>(test_data)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;训练数据集的长度为: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(train_data_size))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;测试数据集的长度为: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(test_data_size))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 利用 DataLoader 来加载数据集</span></span><br><span class="line">train_dataloader = DataLoader(train_data, batch_size=<span class="number">64</span>)</span><br><span class="line">test_dataloader = DataLoader(test_data, batch_size=<span class="number">64</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="定义核心组件">2. 定义核心组件</h4>
+<p>接下来，我们创建模型实例、定义损失函数和优化器。</p>
+<ul>
+<li><strong>模型 (<code>Tudui</code>)</strong>: 这是一个自定义的神经网络模型，其具体结构定义在 <code>model.py</code> 文件中。 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Tudui</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(Tudui, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.model = nn.Sequential(</span><br><span class="line">            nn.Conv2d(<span class="number">3</span>, <span class="number">32</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>, <span class="number">32</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Conv2d(<span class="number">32</span>, <span class="number">64</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>),</span><br><span class="line">            nn.MaxPool2d(<span class="number">2</span>),</span><br><span class="line">            nn.Flatten(),</span><br><span class="line">            nn.Linear(<span class="number">64</span>*<span class="number">4</span>*<span class="number">4</span>, <span class="number">64</span>),</span><br><span class="line">            nn.Linear(<span class="number">64</span>, <span class="number">10</span>)</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = <span class="variable language_">self</span>.model(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure></li>
+<li><strong>损失函数 (<code>nn.CrossEntropyLoss</code>)</strong>: 交叉熵损失函数，常用于多分类任务。它内部已经包含了 Softmax 操作。</li>
+<li><strong>优化器 (<code>torch.optim.SGD</code>)</strong>: 随机梯度下降（Stochastic Gradient Descent）优化器，用于根据损失函数的梯度来更新模型的参数（权重和偏置）。<code>lr</code> 是学习率（learning rate）。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建网络模型</span></span><br><span class="line">tudui = Tudui()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失函数</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 优化器</span></span><br><span class="line">learning_rate = <span class="number">1e-2</span></span><br><span class="line">optimizer = torch.optim.SGD(tudui.parameters(), lr=learning_rate)</span><br></pre></td></tr></table></figure>
+<h4 id="设置训练参数与-tensorboard">3. 设置训练参数与 TensorBoard</h4>
+<p>在开始训练之前，我们需要初始化一些计数器和超参数，并设置 TensorBoard 的 <code>SummaryWriter</code> 来记录训练数据。</p>
+<ul>
+<li><code>total_train_step</code> / <code>total_test_step</code>: 记录训练和测试的步数，作为 TensorBoard 的 x 轴。</li>
+<li><code>epoch</code>: 训练的总轮数。一轮（epoch）指完整地遍历一次整个训练数据集。</li>
+<li><code>SummaryWriter</code>: 创建一个写入器实例，它会将事件日志写入指定的目录（<code>../logs_train</code>）。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 设置训练网络的一些参数</span></span><br><span class="line"><span class="comment"># 记录训练的次数</span></span><br><span class="line">total_train_step = <span class="number">0</span></span><br><span class="line"><span class="comment"># 记录测试的次数</span></span><br><span class="line">total_test_step = <span class="number">0</span></span><br><span class="line"><span class="comment"># 训练的轮数</span></span><br><span class="line">epoch = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加tensorboard</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&quot;../logs_train&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="训练与评估循环">4. 训练与评估循环</h4>
+<p>这是整个脚本的核心。外层是 epoch 循环，内层包含一个训练步骤和一个评估步骤。</p>
+<h5 id="训练步骤">训练步骤</h5>
+<ul>
+<li><code>tudui.train()</code>: 将模型设置为<strong>训练模式</strong>。这会启用 Dropout 和 BatchNorm 等层。</li>
+<li><code>optimizer.zero_grad()</code>: 在计算新梯度之前，清除上一轮的旧梯度。</li>
+<li><code>loss.backward()</code>: 计算损失函数相对于模型参数的梯度（反向传播）。</li>
+<li><code>optimizer.step()</code>: 根据计算出的梯度更新模型参数。</li>
+<li><code>writer.add_scalar()</code>: 每 100 步记录一次训练损失。</li>
+</ul>
+<h5 id="评估步骤">评估步骤</h5>
+<ul>
+<li><code>tudui.eval()</code>: 将模型设置为<strong>评估模式</strong>。这会禁用 Dropout 和 BatchNorm 等层，确保评估结果的确定性。</li>
+<li><code>with torch.no_grad()</code>: 在此代码块内，所有计算都不会追踪梯度，从而节省内存和计算资源。</li>
+<li><strong>计算准确率</strong>: <code>(outputs.argmax(1) == targets).sum()</code> 计算一个批次中预测正确的样本数量。<code>argmax(1)</code> 找到概率最高的类别的索引。</li>
+<li><strong>记录结果</strong>: 在一轮 epoch 结束后，计算并打印在整个测试集上的总损失和正确率，并用 TensorBoard 记录。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(epoch):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;-------第 &#123;&#125; 轮训练开始-------&quot;</span>.<span class="built_in">format</span>(i+<span class="number">1</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 训练步骤开始</span></span><br><span class="line">    tudui.train()</span><br><span class="line">    <span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">        imgs, targets = data</span><br><span class="line">        outputs = tudui(imgs)</span><br><span class="line">        loss = loss_fn(outputs, targets)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 优化器优化模型</span></span><br><span class="line">        optimizer.zero_grad()</span><br><span class="line">        loss.backward()</span><br><span class="line">        optimizer.step()</span><br><span class="line"></span><br><span class="line">        total_train_step = total_train_step + <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> total_train_step % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;训练次数: &#123;&#125;, Loss: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_train_step, loss.item()))</span><br><span class="line">            writer.add_scalar(<span class="string">&quot;train_loss&quot;</span>, loss.item(), total_train_step)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 测试步骤开始</span></span><br><span class="line">    tudui.<span class="built_in">eval</span>()</span><br><span class="line">    total_test_loss = <span class="number">0</span></span><br><span class="line">    total_accuracy = <span class="number">0</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():</span><br><span class="line">        <span class="keyword">for</span> data <span class="keyword">in</span> test_dataloader:</span><br><span class="line">            imgs, targets = data</span><br><span class="line">            outputs = tudui(imgs)</span><br><span class="line">            loss = loss_fn(outputs, targets)</span><br><span class="line">            total_test_loss = total_test_loss + loss.item()</span><br><span class="line">            accuracy = (outputs.argmax(<span class="number">1</span>) == targets).<span class="built_in">sum</span>()</span><br><span class="line">            total_accuracy = total_accuracy + accuracy</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;整体测试集上的Loss: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_test_loss))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;整体测试集上的正确率: &#123;&#125;&quot;</span>.<span class="built_in">format</span>(total_accuracy/test_data_size))</span><br><span class="line">    writer.add_scalar(<span class="string">&quot;test_loss&quot;</span>, total_test_loss, total_test_step)</span><br><span class="line">    writer.add_scalar(<span class="string">&quot;test_accuracy&quot;</span>, total_accuracy/test_data_size, total_test_step)</span><br><span class="line">    total_test_step = total_test_step + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    torch.save(tudui, <span class="string">&quot;tudui_&#123;&#125;.pth&quot;</span>.<span class="built_in">format</span>(i))</span><br><span class="line">    <span class="comment"># torch.save(tudui.state_dict(), &quot;tudui_&#123;&#125;.pth&quot;.format(i))</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;模型已保存&quot;</span>)</span><br><span class="line"></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>💡 模型的两种保存方式</strong></p>
+<p>PyTorch 提供了两种主要的方式来保存模型，代码中展示了这两种方式：</p>
+<ol type="1">
+<li><strong>保存整个模型对象 (<code>torch.save(model, PATH)</code>)</strong>
+<ul>
+<li><strong>做法</strong>: <code>torch.save(tudui, "tudui_complete.pth")</code></li>
+<li><strong>优点</strong>: 非常简单，加载时也只需一行 <code>model = torch.load("tudui_complete.pth")</code>。</li>
+<li><strong>缺点</strong>: 这种方式使用了 Python 的 <code>pickle</code> 来序列化整个对象，它将模型的类定义、目录结构等都绑定在了一起。如果你的项目代码发生了变化（例如，重命名了模型类或存放模型的文件），加载时就可能会失败。可移植性较差。</li>
+</ul></li>
+<li><strong>仅保存模型参数 (<code>torch.save(model.state_dict(), PATH)</code>) - (推荐)</strong>
+<ul>
+<li><strong>做法</strong>: <code>torch.save(tudui.state_dict(), "tudui_params.pth")</code></li>
+<li><strong>优点</strong>: 只保存模型的“状态字典”(<code>state_dict</code>)，即所有的权重和偏置。它不依赖于具体的类结构，非常轻量和灵活，是官方推荐的、更具 Python 风格的方式。</li>
+<li><strong>缺点</strong>: 加载时需要先创建模型实例，然后再将参数加载进去： <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 需要先创建模型实例</span></span><br><span class="line">model = Tudui() </span><br><span class="line"><span class="comment"># 再加载参数</span></span><br><span class="line">model.load_state_dict(torch.load(<span class="string">&quot;tudui_params.pth&quot;</span>))</span><br></pre></td></tr></table></figure></li>
+</ul></li>
+</ol>
+<p><strong>结论</strong>：为了代码的健壮性和可移植性，<strong>强烈推荐使用第二种方法</strong>，即只保存和加载模型的 <code>state_dict</code>。</p>
+</blockquote>
+<blockquote>
+<p><strong>为何需要 <code>train()</code> 和 <code>eval()</code>模式?</strong></p>
+<p>模型的某些层（如 <code>Dropout</code> 和 <code>BatchNorm</code>）在训练和评估时的行为是不同的。 - <strong>训练时 (<code>train()</code>模式)</strong>: <code>Dropout</code>会随机失活一些神经元来防止过拟合；<code>BatchNorm</code> 会计算当前批次的均值和方差来归一化数据。 - <strong>评估时 (<code>eval()</code>模式)</strong>: <code>Dropout</code>会被禁用；<code>BatchNorm</code> 会使用在整个训练过程中学习到的全局均值和方差。</p>
+<p>切换模式能确保模型在正确的状态下进行训练和推理。</p>
+</blockquote>
+<hr />
+<h3 id="迁移到-gpu-训练">⚡️ 迁移到 GPU 训练</h3>
+<p>如果你的机器上有 NVIDIA 显卡并正确安装了 CUDA，那么将训练迁移到 GPU 上可以极大地加速计算。PyTorch 让这个过程变得非常简单，核心只有三步：<strong>定义设备</strong>、<strong>模型上设备</strong>、<strong>数据上设备</strong>。</p>
+<h4 id="定义设备">1. 定义设备</h4>
+<p>在代码的准备阶段，首先定义一个 <code>device</code> 对象。下面的代码会自动检测 CUDA 是否可用，如果可用则选择 GPU，否则回退到 CPU。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义训练的设备</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;将使用 &#123;&#125; 设备进行训练&quot;</span>.<span class="built_in">format</span>(device))</span><br></pre></td></tr></table></figure>
+<h4 id="将模型和损失函数移动到设备">2. 将模型和损失函数移动到设备</h4>
+<p>创建完网络模型和损失函数后，调用 <code>.to(device)</code> 方法将它们发送到指定的设备上。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建网络模型</span></span><br><span class="line">tudui = Tudui()</span><br><span class="line">tudui.to(device) <span class="comment"># 发送到设备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失函数</span></span><br><span class="line">loss_fn = nn.CrossEntropyLoss()</span><br><span class="line">loss_fn.to(device) <span class="comment"># 发送到设备</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 优化器 (无需移动)</span></span><br><span class="line">learning_rate = <span class="number">1e-2</span></span><br><span class="line">optimizer = torch.optim.SGD(tudui.parameters(), lr=learning_rate)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>提示</strong>：优化器在初始化时已经注册了模型的参数。当模型被 <code>.to(device)</code> 移动后，优化器会自动感知到参数在 GPU 上，因此<strong>优化器本身不需要被移动</strong>。</p>
+</blockquote>
+<h4 id="将数据移动到设备">3. 将数据移动到设备</h4>
+<p>最后，也是最关键的一步，是在训练和测试的循环中，将<strong>每一批次的数据</strong>也发送到同一个设备上。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在训练/测试循环中</span></span><br><span class="line"><span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">    imgs, targets = data</span><br><span class="line">    imgs = imgs.to(device) <span class="comment"># 将图像数据发送到设备</span></span><br><span class="line">    targets = targets.to(device) <span class="comment"># 将标签数据发送到设备</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 现在模型和数据都在同一个设备上，可以进行计算</span></span><br><span class="line">    outputs = tudui(imgs)</span><br><span class="line">    loss = loss_fn(outputs, targets)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>完成这三步修改后，你的训练代码就能在 GPU 上飞速运行了！</p>
+<hr />
+<h3 id="模型验证">🔬 模型验证</h3>
+<p>训练完成后，我们可以加载保存好的模型，用它来对全新的、从未见过的数据进行预测。下面是一个完整的验证（或称推理，Inference）流程示例。</p>
+<h4 id="准备环境和数据">1. 准备环境和数据</h4>
+<p>首先，我们需要导入相关库，并准备一张待预测的图片。请注意，这张图片需要经过和训练时<strong>完全相同</strong>的预处理（<code>transform</code>）。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"><span class="comment"># 确保 Tudui 类的定义可见</span></span><br><span class="line"><span class="keyword">from</span> model <span class="keyword">import</span> Tudui </span><br><span class="line"></span><br><span class="line"><span class="comment"># CIFAR-10 类别</span></span><br><span class="line">classes = (<span class="string">&#x27;plane&#x27;</span>, <span class="string">&#x27;car&#x27;</span>, <span class="string">&#x27;bird&#x27;</span>, <span class="string">&#x27;cat&#x27;</span>, <span class="string">&#x27;deer&#x27;</span>, <span class="string">&#x27;dog&#x27;</span>, <span class="string">&#x27;frog&#x27;</span>, <span class="string">&#x27;horse&#x27;</span>, <span class="string">&#x27;ship&#x27;</span>, <span class="string">&#x27;truck&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载图片</span></span><br><span class="line">image_path = <span class="string">&quot;imgs/dog.png&quot;</span> <span class="comment"># 请替换为你的图片路径</span></span><br><span class="line">image = Image.<span class="built_in">open</span>(image_path)</span><br><span class="line"><span class="comment"># PNG 图片可能有4个通道 (RGBA)，需要转换为3通道 (RGB)</span></span><br><span class="line">image = image.convert(<span class="string">&#x27;RGB&#x27;</span>) </span><br><span class="line"></span><br><span class="line"><span class="comment"># 和训练时一样的 Transform</span></span><br><span class="line">transform = transforms.Compose([transforms.Resize((<span class="number">32</span>, <span class="number">32</span>)),</span><br><span class="line">                                transforms.ToTensor()])</span><br><span class="line">image = transform(image)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;图片预处理后形状: <span class="subst">&#123;image.shape&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调整形状以匹配模型输入</span></span><br><span class="line"><span class="comment"># 模型需要一个4D张量: [batch_size, channels, height, width]</span></span><br><span class="line">image = torch.reshape(image, (<span class="number">1</span>, <span class="number">3</span>, <span class="number">32</span>, <span class="number">32</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;调整后送入模型的形状: <span class="subst">&#123;image.shape&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="加载模型并进行预测">2. 加载模型并进行预测</h4>
+<p>接下来，我们加载已经训练好的模型文件，并进行预测。</p>
+<ul>
+<li><code>torch.load()</code>: 加载模型文件。</li>
+<li><code>map_location</code>: 这是一个非常重要的参数！如果你的模型是在 GPU 上训练保存的（<code>.pth</code> 文件中包含了 GPU 张量），而你现在想在只有 CPU 的机器上加载它，就必须指定 <code>map_location=torch.device('cpu')</code>，它会智能地将所有张量重新映射到 CPU 上。</li>
+<li><code>model.eval()</code>: 切换到评估模式，这和训练时的验证步骤一样重要。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 加载模型</span></span><br><span class="line"><span class="comment"># 假设模型是在 GPU 保存的，我们现在用 CPU 加载</span></span><br><span class="line"><span class="comment"># 注意：如果使用 torch.save(model)，加载时不需要 Tudui 类的定义</span></span><br><span class="line"><span class="comment"># 但如果使用 torch.save(model.state_dict())，则需要先 model=Tudui()</span></span><br><span class="line">model = torch.load(<span class="string">&quot;tudui_29_gpu.pth&quot;</span>, map_location=torch.device(<span class="string">&#x27;cpu&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(model)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型评估与预测</span></span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    output = model(image)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;模型输出 (logits): \n<span class="subst">&#123;output&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取预测结果</span></span><br><span class="line">predicted_class_index = output.argmax(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测结果的索引: <span class="subst">&#123;predicted_class_index.item()&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测的类别是: <span class="subst">&#123;classes[predicted_class_index.item()]&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>通过这个流程，你就可以用训练好的模型来处理任何新的输入数据了。</p>
+<hr />
+<h3 id="启动-tensorboard">📈 启动 TensorBoard</h3>
+<p>训练开始后，你可以在终端中运行以下命令来启动 TensorBoard 服务：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tensorboard --logdir=../logs_train</span><br></pre></td></tr></table></figure>
+<p>然后打开浏览器访问 <code>http://localhost:6006</code> 即可看到 <code>train_loss</code>, <code>test_loss</code> 和 <code>test_accuracy</code> 的变化曲线。</p>
+<h3 id="小结">📝 小结</h3>
+<p>这个模板展示了 PyTorch 训练一个模型的标准范式：</p>
+<ol type="1">
+<li><strong>数据加载</strong>：使用 <code>Dataset</code> 和 <code>DataLoader</code>。</li>
+<li><strong>模型构建</strong>：定义网络、损失函数和优化器。</li>
+<li><strong>循环迭代</strong>：通过 <code>for</code> 循环进行多轮 (epoch) 训练。</li>
+<li><strong>训练模式</strong>：在每轮 epoch 开始时调用 <code>model.train()</code>，进行前向传播、计算损失、反向传播和参数更新。</li>
+<li><strong>评估模式</strong>：调用 <code>model.eval()</code> 和 <code>with torch.no_grad()</code>，在测试集上评估模型性能。</li>
+<li><strong>可视化与保存</strong>：使用 <code>TensorBoard</code> 监控过程，使用 <code>torch.save</code> 保存模型。</li>
+</ol>
+<p>参考自 B站up 我是土堆，链接：<a href="https://www.bilibili.com/video/BV1hE411t7RN?spm_id_from=333.788.videopod.episodes&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">https://www.bilibili.com/video/BV1hE411t7RN?spm_id_from=333.788.videopod.episodes&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1</a></p>
 ]]></content>
       <categories>
         <category>AI</category>
@@ -8538,6 +8589,7 @@ graph TD
       <tags>
         <tag>PyTorch</tag>
         <tag>深度学习</tag>
+        <tag>训练模板</tag>
       </tags>
   </entry>
   <entry>
@@ -8620,55 +8672,57 @@ graph TD
       </tags>
   </entry>
   <entry>
-    <title>了解Diffusion Language Model</title>
-    <url>/posts/a1d79e4c/</url>
-    <content><![CDATA[<p>我们熟悉的 Transformer 等模型采用“自回归”方式逐词生成文本，这限制了生成速度且不易保证长文本连贯。受图像生成领域成功的 <strong>扩散模型 (Diffusion Model)</strong> 启发，研究者将其引入文本生成，<strong>扩散语言模型 (Diffusion Language Model)</strong> 应运而生。</p>
+    <title>了解Transformer</title>
+    <url>/posts/9008a9df/</url>
+    <content><![CDATA[<p>在之前的文章中我们了解到，RNN（及其变体如 LSTM、GRU）在处理序列数据时，必须按照时间步顺序计算，这导致其无法进行大规模并行计算。同时，它也难以解决长距离依赖的问题。</p>
+<p>为了解决这两个核心痛点，一种全新的、不依赖于循环结构的模型——Transformer 横空出世。</p>
 <span id="more"></span>
-<h2 id="什么是扩散模型">什么是扩散模型？</h2>
-<p><img src="/assets/image.png" /></p>
-<p>在深入了解其如何应用于语言之前，我们先通过一个直观的例子——图像生成——来理解扩散模型的核心思想。它主要包含两个过程：</p>
-<ol type="1">
-<li><p><strong>前向过程（Forward Process）</strong>：也叫“扩散”过程。想象一下，我们从一张清晰的图片开始，一步步地、逐渐地向图片中添加微小的“噪声”，直到这张图片完全变成一个毫无规律的噪声图。这个过程是固定的、可控的。</p></li>
-<li><p><strong>反向过程（Reverse Process）</strong>：也叫“去噪”过程。这是真正的“生成”环节。我们训练一个神经网络，让它学会上述过程的“逆操作”——即从一张纯噪声的图片开始，一步步地、逐渐地去除噪声，最终还原出一张清晰、有意义的图片。</p></li>
-</ol>
-<p>一旦模型学会了如何“去噪”，我们就可以给它任何随机噪声，让它“创造”出全新的、从未见过的图片。</p>
-<h2 id="如何将扩散模型用于文本">如何将扩散模型用于文本？</h2>
-<p>直接将扩散模型应用于文本面临一个核心挑战：<strong>文本是离散的，而扩散过程处理的是连续的数据</strong>。我们无法像给图片像素值加噪声那样，给一个“词”加上一点“噪声”变成另一个“半词”。</p>
-<p>解决方案是：<strong>在连续空间中操作</strong>。</p>
-<p>我们不直接处理文字，而是先将文字通过 <strong>词嵌入（Word Embedding）</strong> 技术转换为高维度的连续向量。这样，文本序列就变成了一组向量，我们可以在这个连续的向量空间中执行扩散和去噪过程。</p>
-<h2 id="diffusion-语言模型的工作原理">Diffusion 语言模型的工作原理</h2>
-<p>理解了以上概念后，扩散语言模型的工作流程就清晰了：</p>
-<ol type="1">
-<li><strong>前向过程</strong>：取一个句子，将其转换为词向量序列。然后，逐步向这些向量中添加噪声，直到它们变成一组随机向量。</li>
-<li><strong>反向过程</strong>：训练一个模型（通常是基于 Transformer 架构）来学习逆转这个过程。模型的任务是接收一串加了噪声的向量，并预测出“更干净”的向量应该是什么样子。</li>
-<li><strong>文本生成</strong>：当需要生成新文本时，我们从一组完全随机的向量开始，然后反复利用训练好的去噪模型进行迭代处理。每一步，向量都会变得“更清晰”一点，逐渐从无序的噪声收敛为有意义的词向量。最后，将这些“去噪”完成的词向量转换回人类可读的文字，就完成了一次文本生成。</li>
-</ol>
-<h2 id="diffusion-语言模型的优势">Diffusion 语言模型的优势</h2>
-<p>与传统的自回归模型相比，扩散语言模型展现出一些独特的优势：</p>
+<p>和之前一样，输入神经网络的数据，要先转换为 <strong>词嵌入（Word Embedding）</strong> 向量。</p>
+<h2 id="第一步融入位置信息">第一步：融入位置信息</h2>
+<p>由于 Transformer 抛弃了 RNN 的循环结构，模型本身无法感知输入序列中词语的先后顺序。</p>
+<p>为了解决这个问题，我们需要给每个词的词向量中添加 <strong>位置编码（Positional Encoding）</strong>，以此来表示这个词在句子中的绝对或相对位置。</p>
+<p>这样，每个词的输入向量就同时包含了语义信息和位置信息。</p>
+<h2 id="核心机制自注意力self-attention">核心机制：自注意力（Self-Attention）</h2>
+<p>仅仅包含位置信息是不够的，每个词的向量中还不包含与其他词的关系。为了让模型“注意”到句子中其他词的存在并建立联系，Transformer 引入了 <strong>自注意力机制</strong>。</p>
+<p>该机制的核心思想是为句子中的每个词动态地计算一个权重系数，这个权重代表了在编码当前词时，句子中其他词对它的重要性。这是通过三个特殊的向量来实现的：</p>
 <ul>
-<li><strong>并行生成</strong>：扩散模型在生成时是迭代式地对整个序列进行优化的，而不是像自回归模型那样必须逐词生成。这为并行计算和更快的生成速度提供了可能。</li>
-<li><strong>全局一致性</strong>：由于模型的每一步去噪都是基于对整个序列的观察，它能更好地捕捉全局依赖关系，生成的文本在长距离连贯性和结构完整性上可能更具优势。</li>
-<li><strong>可控性更强</strong>：扩散模型的迭代特性使其在生成过程中更容易被引导和控制。我们可以通过修改去噪过程来控制生成文本的风格、主题或结构，使其更适用于文本编辑、修复和改写等任务。</li>
+<li><strong>Query (查询向量 Q)</strong>：代表当前词，用于去“查询”其他词。</li>
+<li><strong>Key (键向量 K)</strong>：代表被查询的词，用于和查询向量进行匹配。</li>
+<li><strong>Value (值向量 V)</strong>：代表被查询词的实际内容。</li>
 </ul>
-<h2 id="前沿研究进展">前沿研究进展</h2>
-<p>尽管扩散语言模型是一个较新的研究方向，但它已经展现出惊人的潜力，涌现了许多前沿工作：</p>
+<p>这三个向量是通过将每个词的词向量（已包含位置编码）分别与三个可训练的权重矩阵 <code>Wq</code>、<code>Wk</code>、<code>Wv</code> 相乘得到的。</p>
+<p><img src="/assets/image-20251010230923988.png" /></p>
+<p>计算过程如下： 1. 拿一个词的查询向量 <code>q</code> 去和所有词（包括它自己）的键向量 <code>k</code> 做点积，得到一个 <strong>注意力分数</strong>。这个分数衡量了两个词之间的相关性。 2. 对得到的分数进行归一化处理（例如通过 SoftMax）。 3. 将归一化后的分数与每个词对应的值向量 <code>v</code> 相乘。 4. 将所有加权后的值向量 <code>v</code> 相加，就得到了一个新的向量 <code>a</code>。</p>
+<p><img src="/assets/image-20251010231017325.png" /></p>
+<p>这个新向量 <code>a</code> 就包含了整个句子上下文的信息，并且是为当前词量身定制的。对句子中的每一个词都执行相同的操作，我们就能得到一组全新的、富含上下文信息的词向量。</p>
+<p><img src="/assets/image-20251010231100716.png" /></p>
+<h2 id="优化多头注意力multi-head-attention">优化：多头注意力（Multi-Head Attention）</h2>
+<p>一个词与另一个词的关系可能有很多种（例如，语法关系、语义关系等）。如果只用一组 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵来计算相关性，灵活性会很低。</p>
+<p>因此，Transformer 提出了 <strong>多头注意力机制</strong>。它通过设置多组独立的 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵（每一组被称为一个“头”），将原始的 Q, K, V 映射到不同的子空间中，学习不同方面的相关性。</p>
+<p><img src="/assets/image-20251010231200452.png" /></p>
+<p>每个头都会独立地执行一次注意力计算，得到一个输出向量。最后，将所有头的输出向量拼接起来，再经过一次线性变换，就得到了最终的输出。这样，模型就能在不同维度上综合地理解词与词之间的关系。</p>
+<h2 id="整体架构编码器与解码器">整体架构：编码器与解码器</h2>
+<p>Transformer 的整体架构由 <strong>编码器（Encoder）</strong> 和 <strong>解码器（Decoder）</strong> 两大部分组成，每一部分都由多层堆叠而成。我们上面介绍的多头注意力机制就是其核心组件。</p>
 <ul>
-<li><strong>大规模模型的成功</strong>：以 <strong>LLaDA</strong> 为代表的研究表明，当参数规模扩大到数十亿级别时，精心设计的扩散语言模型在性能上足以媲美甚至在某些复杂任务上超越顶尖的自回归模型（如 LLaMA3、GPT-4o），这证明了该技术路线的可行性与潜力。</li>
-<li><strong>效率与质量的权衡</strong>：一些研究也指出，当前扩散语言模型在推理时为了达到高质量的生成效果，可能需要较多的“去噪”迭代步骤，这导致其计算成本相对较高。如何平衡生成质量与推理效率，是目前该领域的研究热点之一。</li>
-<li><strong>多模态统一框架</strong>：部分工作（如 <strong>Transfusion</strong> 架构）尝试将扩散模型与 Transformer 深度融合，在一个统一的框架内同时处理文本和图像的生成任务，为多模态内容创作提供了新的思路。</li>
-<li><strong>行业巨头的投入</strong>：以 Google 推出的 <strong>Gemini Diffusion</strong> 为例，科技巨头们也开始在该领域发力，进一步验证了文本扩散模型作为下一代生成技术核心的潜力。</li>
+<li><strong>编码器</strong>：负责将输入序列处理成一系列富含上下文信息的表示。</li>
+<li><strong>解码器</strong>：根据编码器的输出和之前已生成的结果，来生成下一个词。</li>
 </ul>
+<p><img src="/assets/image-20251010231339402.png" /></p>
 <h2 id="总结">总结</h2>
-<p>扩散语言模型通过借鉴图像生成领域的成功经验，为自然语言生成任务提供了一种全新的、非自回归的解决方案。它通过在连续的词向量空间中进行“加噪”和“去噪”，克服了文本数据的离散性难题。尽管这一领域仍处于快速发展阶段，但其在并行生成、全局连贯性和可控性方面展现出的巨大潜力，预示着它将成为未来自然语言处理领域一个重要的研究方向。</p>
+<p>Transformer 通过引入自注意力机制和位置编码，完全摒弃了传统的循环和卷积结构。其强大的并行计算能力和捕捉长距离依赖的优势，使其在自然语言处理领域取得了革命性的成功，并为后续的 BERT、GPT 等大规模预训练模型奠定了基础。</p>
+<blockquote>
+<p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
+</blockquote>
 ]]></content>
       <categories>
         <category>AI</category>
+        <category>深度学习</category>
       </categories>
       <tags>
-        <tag>Diffusion</tag>
-        <tag>LLM</tag>
-        <tag>生成模型</tag>
-        <tag>扩散模型</tag>
+        <tag>深度学习</tag>
+        <tag>Transformer</tag>
+        <tag>Attention</tag>
+        <tag>自注意力</tag>
       </tags>
   </entry>
   <entry>
@@ -8730,60 +8784,6 @@ graph TD
         <tag>RNN</tag>
         <tag>NLP</tag>
         <tag>词嵌入</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>了解Transformer</title>
-    <url>/posts/9008a9df/</url>
-    <content><![CDATA[<p>在之前的文章中我们了解到，RNN（及其变体如 LSTM、GRU）在处理序列数据时，必须按照时间步顺序计算，这导致其无法进行大规模并行计算。同时，它也难以解决长距离依赖的问题。</p>
-<p>为了解决这两个核心痛点，一种全新的、不依赖于循环结构的模型——Transformer 横空出世。</p>
-<span id="more"></span>
-<p>和之前一样，输入神经网络的数据，要先转换为 <strong>词嵌入（Word Embedding）</strong> 向量。</p>
-<h2 id="第一步融入位置信息">第一步：融入位置信息</h2>
-<p>由于 Transformer 抛弃了 RNN 的循环结构，模型本身无法感知输入序列中词语的先后顺序。</p>
-<p>为了解决这个问题，我们需要给每个词的词向量中添加 <strong>位置编码（Positional Encoding）</strong>，以此来表示这个词在句子中的绝对或相对位置。</p>
-<p>这样，每个词的输入向量就同时包含了语义信息和位置信息。</p>
-<h2 id="核心机制自注意力self-attention">核心机制：自注意力（Self-Attention）</h2>
-<p>仅仅包含位置信息是不够的，每个词的向量中还不包含与其他词的关系。为了让模型“注意”到句子中其他词的存在并建立联系，Transformer 引入了 <strong>自注意力机制</strong>。</p>
-<p>该机制的核心思想是为句子中的每个词动态地计算一个权重系数，这个权重代表了在编码当前词时，句子中其他词对它的重要性。这是通过三个特殊的向量来实现的：</p>
-<ul>
-<li><strong>Query (查询向量 Q)</strong>：代表当前词，用于去“查询”其他词。</li>
-<li><strong>Key (键向量 K)</strong>：代表被查询的词，用于和查询向量进行匹配。</li>
-<li><strong>Value (值向量 V)</strong>：代表被查询词的实际内容。</li>
-</ul>
-<p>这三个向量是通过将每个词的词向量（已包含位置编码）分别与三个可训练的权重矩阵 <code>Wq</code>、<code>Wk</code>、<code>Wv</code> 相乘得到的。</p>
-<p><img src="/assets/image-20251010230923988.png" /></p>
-<p>计算过程如下： 1. 拿一个词的查询向量 <code>q</code> 去和所有词（包括它自己）的键向量 <code>k</code> 做点积，得到一个 <strong>注意力分数</strong>。这个分数衡量了两个词之间的相关性。 2. 对得到的分数进行归一化处理（例如通过 SoftMax）。 3. 将归一化后的分数与每个词对应的值向量 <code>v</code> 相乘。 4. 将所有加权后的值向量 <code>v</code> 相加，就得到了一个新的向量 <code>a</code>。</p>
-<p><img src="/assets/image-20251010231017325.png" /></p>
-<p>这个新向量 <code>a</code> 就包含了整个句子上下文的信息，并且是为当前词量身定制的。对句子中的每一个词都执行相同的操作，我们就能得到一组全新的、富含上下文信息的词向量。</p>
-<p><img src="/assets/image-20251010231100716.png" /></p>
-<h2 id="优化多头注意力multi-head-attention">优化：多头注意力（Multi-Head Attention）</h2>
-<p>一个词与另一个词的关系可能有很多种（例如，语法关系、语义关系等）。如果只用一组 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵来计算相关性，灵活性会很低。</p>
-<p>因此，Transformer 提出了 <strong>多头注意力机制</strong>。它通过设置多组独立的 <code>Wq</code>, <code>Wk</code>, <code>Wv</code> 矩阵（每一组被称为一个“头”），将原始的 Q, K, V 映射到不同的子空间中，学习不同方面的相关性。</p>
-<p><img src="/assets/image-20251010231200452.png" /></p>
-<p>每个头都会独立地执行一次注意力计算，得到一个输出向量。最后，将所有头的输出向量拼接起来，再经过一次线性变换，就得到了最终的输出。这样，模型就能在不同维度上综合地理解词与词之间的关系。</p>
-<h2 id="整体架构编码器与解码器">整体架构：编码器与解码器</h2>
-<p>Transformer 的整体架构由 <strong>编码器（Encoder）</strong> 和 <strong>解码器（Decoder）</strong> 两大部分组成，每一部分都由多层堆叠而成。我们上面介绍的多头注意力机制就是其核心组件。</p>
-<ul>
-<li><strong>编码器</strong>：负责将输入序列处理成一系列富含上下文信息的表示。</li>
-<li><strong>解码器</strong>：根据编码器的输出和之前已生成的结果，来生成下一个词。</li>
-</ul>
-<p><img src="/assets/image-20251010231339402.png" /></p>
-<h2 id="总结">总结</h2>
-<p>Transformer 通过引入自注意力机制和位置编码，完全摒弃了传统的循环和卷积结构。其强大的并行计算能力和捕捉长距离依赖的优势，使其在自然语言处理领域取得了革命性的成功，并为后续的 BERT、GPT 等大规模预训练模型奠定了基础。</p>
-<blockquote>
-<p>参考自 <a href="https://www.bilibili.com/video/BV1NCgVzoEG9?spm_id_from=333.788.player.switch&amp;vd_source=a1e48cea1c1e1104579f0aefa6e00490&amp;p=1">B站up主 飞天闪客</a></p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>AI</category>
-        <category>深度学习</category>
-      </categories>
-      <tags>
-        <tag>深度学习</tag>
-        <tag>Transformer</tag>
-        <tag>Attention</tag>
-        <tag>自注意力</tag>
       </tags>
   </entry>
   <entry>
@@ -9305,6 +9305,148 @@ graph TD
       </tags>
   </entry>
   <entry>
+    <title>大模型百词</title>
+    <url>/posts/8c9ab17b/</url>
+    <content><![CDATA[<p>当下，大模型（Large Model）无疑是科技领域最炙手可热的话题。从 ChatGPT 的惊艳亮相到各类 AIGC 应用的层出不穷，我们每天都会接触到海量的新名词和新概念。为了帮助大家更好地理解这个日新月异的领域，本文梳理了一系列核心术语，希望能为你构建一个清晰的知识地图。</p>
+<span id="more"></span>
+<h2 id="基本概念">基本概念</h2>
+<ol type="1">
+<li><strong>函数 (Function)</strong>：通过一个或多个输入得到对应输出的关系，万物皆函数</li>
+<li><strong>符号主义 (Symbolism)</strong>：找出精确函数以试图解释一切原理，但存在瓶颈</li>
+<li><strong>联结主义 (Connectionism)</strong>：不进行预设，通过复杂函数计算出的预测值与真实值的误差，对函数中的未知参数进行不断调整</li>
+<li><strong>模型 (Model)</strong>：联结主义思想所使用的复杂函数</li>
+<li><strong>权重 (Weights)</strong>：模型中需要调整的参数</li>
+<li><strong>大模型 (Large Model)</strong>：需要调整参数较多的模型</li>
+<li><strong>大语言模型 (Large Language Model, LLM)</strong>：用于自然语言处理的模型</li>
+<li><strong>生成式AI (Generative AI)</strong>：根据输入内容持续计算并自动生成新内容的人工智能系统</li>
+<li><strong>通用人工智能 (Artificial General Intelligence, AGI)</strong>：是指能够在各种领域执行复杂认知任务的人工智能系统</li>
+<li><strong>Token</strong>：将文字、图像、声音、视频分割成的最小粒度</li>
+<li><strong>上下文 (Context)</strong>：对话时给到大模型的所有信息</li>
+<li><strong>提示词 (Prompt)</strong>：用于指导模型的回答流程与风格，与上下文含义类似</li>
+<li><strong>提示词工程师 (Prompt Engineer)</strong>：研究如何与大模型对话以达到更优反馈的职位</li>
+</ol>
+<h2 id="训练与推理">训练与推理</h2>
+<ol type="1">
+<li><strong>训练 (Training)</strong>：对模型中的参数进行调整</li>
+<li><strong>预训练 (Pre-training)</strong>：在大量数据上训练基础模型以学习通用特征</li>
+<li><strong>微调 (Fine-tuning)</strong>：在预训练模型基础上对特定方向任务进行训练</li>
+<li><strong>推理 (Inference)</strong>：参数调整完成后，根据函数的输入计算输出结果的过程</li>
+<li><strong>涌现 (Emergence)</strong>：模型参数量显著增长后，推理能力得到大幅提升的现象</li>
+<li><strong>随机性 (Randomness)</strong>：对大模型固定输出的内容进行调整，使其并不是总取概率最高</li>
+<li><strong>温度 (Temperature)</strong>：控制随机性的参数</li>
+<li><strong>Top-K</strong>：控制输出中选择出前K个最大或最小的元素的操作</li>
+<li><strong>幻觉 (Hallucination)</strong>：随机性过高或过低导致输出结果存在事实性错误或虚假信息的情况</li>
+<li><strong>联网 (Web Browsing)</strong>：通过互联网获取相关信息，结合相关信息进行输出，以减少幻觉的方法</li>
+</ol>
+<h2 id="模型与产品">模型与产品</h2>
+<ol type="1">
+<li><strong>ChatGPT</strong>：2023年爆火的用于聊天的产品</li>
+<li><strong>GPT (Generative Pre-trained Transformer, 生成式预训练变换器)</strong>：为大语言模型的一种系列</li>
+<li><strong>OpenAI</strong>：开发ChatGPT的公司，产品为闭源</li>
+<li><strong>Claude</strong>：Anthropic发布的大语言模型</li>
+<li><strong>Gemini</strong>：Google DeepMind发布的AI</li>
+<li><strong>DeepSeek</strong>：深度求索公司发布的AI</li>
+<li><strong>豆包 (Doubao)</strong>：字节跳动公司基于云雀模型开发的AI</li>
+<li><strong>通义千问 (Qwen)</strong>：阿里云发布的AI</li>
+<li><strong>腾讯元宝 (Tencent Yuanbao)</strong>：腾讯发布的基于自研混元大模型开发的C端AI</li>
+<li><strong>Midjourney</strong>：闭源的AI图像生成器（中国实验室版名为悠船）</li>
+<li><strong>Stable Diffusion</strong>：Stability AI推出的开源AI图像生成器</li>
+<li><strong>Sora</strong>：OpenAI发布的人工智能文生视频大模型</li>
+<li><strong>可灵 (Kling)</strong>：快手AI团队发布的视频生成大模型</li>
+<li><strong>即梦 (Jmeng)</strong>：字节跳动旗下剪映团队研发的AI创作平台</li>
+</ol>
+<h2 id="模型分类与部署">模型分类与部署</h2>
+<ol type="1">
+<li><strong>闭源模型 (Closed-source Model)</strong>：不开放源代码与权重，只提供最终服务的模型（如ChatGPT、Claude、Gemini）</li>
+<li><strong>开放权重模型 (Open-weight Model)</strong>：可本地部署的，开放权重以供调整的模型（不开放训练代码与数据，如DeepSeek、LLaMA）</li>
+<li><strong>完全开源模型 (Fully Open-source Model)</strong>：开放训练代码、数据、权重的模型（如‌Mistral）</li>
+<li><strong>私有化部署 (Private Deployment)</strong>：不依托其他服务，将模型下载到本地进行使用的过程</li>
+<li><strong>云桌面 (Cloud Desktop)</strong>：搭载好了所需环境的，高性能的，可远程网络控制的一种服务</li>
+<li><strong>镜像 (Image)</strong>：用于特定开发所需的打包好的环境和软件</li>
+</ol>
+<h2 id="技术与应用">技术与应用</h2>
+<ol type="1">
+<li><strong>多模态 (Multimodality)</strong>：能处理图像、声音、视频多种内容的能力</li>
+<li><strong>检索增强生成 (Retrieval-Augmented Generation, RAG)</strong>：在私有数据库中进行搜索以获取信息的方法</li>
+<li><strong>知识库 (Knowledge Base)</strong>：用于大模型查询所用的私有数据库</li>
+<li><strong>向量数据库 (Vector Database)</strong>：特化模型与知识库语义匹配，以向量形式存储的数据库</li>
+<li><strong>词嵌入 (Word Embedding)</strong>：把文字转换为词向量的方式，用于捕捉词间语义关系</li>
+<li><strong>向量检索 (Vector Retrieval)</strong>：对比词向量相似度，以在知识库中找到相关问题答案的方式</li>
+<li><strong>数字人 (Digital Human)</strong>：运用数字技术创造出来的、与人类形象接近的数字化人物形象</li>
+<li><strong>工作流 (Workflow)</strong>：多次使用大模型能力，将工作内容分为多个步骤分别处理并整合为一个流程的能力</li>
+<li><strong>智能体 (Agent)</strong>：按工作流封装大模型与工具集以实现自动完成复杂任务的程序</li>
+<li><strong>多智能体 (Multi-Agent)</strong>：多个智能体协作完成更复杂任务的程序</li>
+<li><strong>插件 (Plugins)</strong>：ChatGPT 的附加组件系统（智能体）</li>
+<li><strong>AutoGPT</strong>：GPT模型驱动的智能体系统</li>
+<li><strong>Manus</strong>：具备从规划到执行全流程自主完成任务能力的智能体</li>
+<li><strong>MCP (Model-graded Controllable Preference)</strong>：Anthropic提出的，用于AI操作外部世界的协议</li>
+<li><strong>A2A (Agent-to-Agent)</strong>：Google提出的用于智能体与智能体间通信的协议</li>
+</ol>
+<h2 id="优化与进阶">优化与进阶</h2>
+<ol type="1">
+<li><strong>模型压缩 (Model Compression)</strong>：由于模型大小与能力出现边际收益递减，以减少成本与方便个人的减小模型大小的方法</li>
+<li><strong>量化 (Quantization)</strong>：把模型中的浮点数用更低精度表示以减少显存与计算的方法</li>
+<li><strong>蒸馏 (Distillation)</strong>：用参数量较大的大模型指导参数量较小的小模型的方法</li>
+<li><strong>剪枝 (Pruning)</strong>：删除模型中不重要神经元，让模型更稀疏以提升速度的方法</li>
+<li><strong>低秩适应 (Low-Rank Adaptation, LoRA)</strong>：用更低成本改善微调方式的方法</li>
+<li><strong>思维链 (Chain-of-Thought, CoT)</strong>：从推理能力方向增强模型能力的方法</li>
+<li><strong>人类反馈强化学习 (Reinforcement Learning from Human Feedback, RLHF)</strong>：让模型输出更符合人类心意的方法</li>
+</ol>
+<h2 id="生态与行业">生态与行业</h2>
+<ol type="1">
+<li><strong>专业生产内容 (Professional Generated Content, PGC)</strong></li>
+<li><strong>用户生产内容 (User Generated Content, UGC)</strong></li>
+<li><strong>人工智能生成内容 (AI Generated Content, AIGC)</strong></li>
+<li><strong>炸裂体 (“Explosive” Style)</strong>：媒体与互联网对AI类产品进行描述与介绍时使用的一种强调或夸大性语气</li>
+<li><strong>套壳 (Wrapping)</strong>：封装大模型对应接口提供服务</li>
+<li><strong>卖铲子 (Selling Shovels)</strong>：提供工具或服务、教程等帮助他人在AI中淘金的赚钱方式</li>
+<li><strong>Hugging Face</strong>：AI开源平台及社区</li>
+</ol>
+<h2 id="硬件与框架">硬件与框架</h2>
+<ol type="1">
+<li><strong>GPU (Graphics Processing Unit, 图形处理单元)</strong>:NVIDIA公司的产品</li>
+<li><strong>CUDA (Compute Unified Device Architecture)</strong>：NVIDIA推出的AI开发框架</li>
+<li><strong>TPU (Tensor Processing Unit, 张量处理单元)</strong>：专用与大规模神经网络训练与推理的处理器</li>
+<li><strong>NPU (Neural Processing Unit, 神经网络处理单元)</strong>：专用于终端设备加速推理的处理器</li>
+<li><strong>Python</strong>：适合AI开发的编程语言</li>
+<li><strong>PyTorch</strong>：Python提供的针对AI编程的库</li>
+<li><strong>TensorFlow</strong>：由 Google Brain 团队开发的深度学习框架</li>
+<li><strong>Ollama</strong>：大模型本地运行工具</li>
+<li><strong>vLLM</strong>：提升大语言模型推理速度的推理引擎</li>
+<li><strong>ComfyUI</strong>：构建在 Stable Diffusion 之上的基于节点的绘画工作流软件（B站:秋葉aaaki 大佬制作了很多相关整合包）</li>
+<li><strong>扣子 (Coze)</strong>：在网页端编排工作流的一款工具</li>
+<li><strong>LangChain</strong>：以代码方式编排工具流的方式</li>
+<li><strong>Cursor</strong>：Anysphere开发的人工智能编程助手</li>
+<li><strong>GitHub Copilot</strong>：微软与OpenAI共同推出的AI编程工具</li>
+</ol>
+<h2 id="神经网络基础">神经网络基础</h2>
+<ol type="1">
+<li><strong>数学 (Mathematics)</strong>：AI基石，包括线性代数、微积分、概率论等</li>
+<li><strong>自然语言处理 (Natural Language Processing, NLP)</strong>：人工智能的一大分支领域，其主要目的是让机器理解人类的语言文字，从而执行一系列任务</li>
+<li><strong>计算机视觉 (Computer Vision, CV)</strong>：与图片高度相关</li>
+<li><strong>神经网络 (Neural Network)</strong>：模仿生物神经系统结构和功能的计算模型</li>
+<li><strong>损失函数 (Loss Function)</strong>：估量模型的预测值f(x)与真实值Y的不一致程度的函数</li>
+<li><strong>反向传播 (Backpropagation)</strong>：计算损失函数关于网络参数的梯度来更新参数</li>
+<li><strong>多层感知机 (Multilayer Perceptron, MLP)</strong>：将输入的多个数据集映射到单一的输出的数据集，是一种人工神经网络模型</li>
+<li><strong>卷积神经网络 (Convolutional Neural Network, CNN)</strong>：包含卷积计算且具有深度结构的神经网络</li>
+<li><strong>循环神经网络 (Recurrent Neural Network, RNN)</strong>：适合于处理序列数据的神经网络</li>
+<li><strong>注意力机制 (Attention Mechanism)</strong>：模拟人类选择性注意机制，提升信息处理效率</li>
+<li><strong>Transformer</strong>：一种基于注意力机制的神经网络结构</li>
+<li><strong>文本转语音 (Text To Speech, TTS)</strong></li>
+<li><strong>语音转文字 (Automatic Speech Recognition, ASR)</strong></li>
+</ol>
+]]></content>
+      <categories>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>LLM</tag>
+        <tag>术语</tag>
+        <tag>大模型</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>实模式（Real Mode）</title>
     <url>/posts/b08764f6/</url>
     <content><![CDATA[<p>本文主要介绍实模式（Real Mode）的基本概念、主要特性，以及其在x86架构启动流程中的作用。通过理解实模式，可以帮助大家更好地理解现代操作系统为何要经历“实模式→保护模式→长模式”等阶段，以及16位、20位寻址等历史遗留问题的成因。</p>
@@ -9744,148 +9886,6 @@ graph LR
         <tag>x86</tag>
         <tag>启动</tag>
         <tag>实模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>大模型百词</title>
-    <url>/posts/8c9ab17b/</url>
-    <content><![CDATA[<p>当下，大模型（Large Model）无疑是科技领域最炙手可热的话题。从 ChatGPT 的惊艳亮相到各类 AIGC 应用的层出不穷，我们每天都会接触到海量的新名词和新概念。为了帮助大家更好地理解这个日新月异的领域，本文梳理了一系列核心术语，希望能为你构建一个清晰的知识地图。</p>
-<span id="more"></span>
-<h2 id="基本概念">基本概念</h2>
-<ol type="1">
-<li><strong>函数 (Function)</strong>：通过一个或多个输入得到对应输出的关系，万物皆函数</li>
-<li><strong>符号主义 (Symbolism)</strong>：找出精确函数以试图解释一切原理，但存在瓶颈</li>
-<li><strong>联结主义 (Connectionism)</strong>：不进行预设，通过复杂函数计算出的预测值与真实值的误差，对函数中的未知参数进行不断调整</li>
-<li><strong>模型 (Model)</strong>：联结主义思想所使用的复杂函数</li>
-<li><strong>权重 (Weights)</strong>：模型中需要调整的参数</li>
-<li><strong>大模型 (Large Model)</strong>：需要调整参数较多的模型</li>
-<li><strong>大语言模型 (Large Language Model, LLM)</strong>：用于自然语言处理的模型</li>
-<li><strong>生成式AI (Generative AI)</strong>：根据输入内容持续计算并自动生成新内容的人工智能系统</li>
-<li><strong>通用人工智能 (Artificial General Intelligence, AGI)</strong>：是指能够在各种领域执行复杂认知任务的人工智能系统</li>
-<li><strong>Token</strong>：将文字、图像、声音、视频分割成的最小粒度</li>
-<li><strong>上下文 (Context)</strong>：对话时给到大模型的所有信息</li>
-<li><strong>提示词 (Prompt)</strong>：用于指导模型的回答流程与风格，与上下文含义类似</li>
-<li><strong>提示词工程师 (Prompt Engineer)</strong>：研究如何与大模型对话以达到更优反馈的职位</li>
-</ol>
-<h2 id="训练与推理">训练与推理</h2>
-<ol type="1">
-<li><strong>训练 (Training)</strong>：对模型中的参数进行调整</li>
-<li><strong>预训练 (Pre-training)</strong>：在大量数据上训练基础模型以学习通用特征</li>
-<li><strong>微调 (Fine-tuning)</strong>：在预训练模型基础上对特定方向任务进行训练</li>
-<li><strong>推理 (Inference)</strong>：参数调整完成后，根据函数的输入计算输出结果的过程</li>
-<li><strong>涌现 (Emergence)</strong>：模型参数量显著增长后，推理能力得到大幅提升的现象</li>
-<li><strong>随机性 (Randomness)</strong>：对大模型固定输出的内容进行调整，使其并不是总取概率最高</li>
-<li><strong>温度 (Temperature)</strong>：控制随机性的参数</li>
-<li><strong>Top-K</strong>：控制输出中选择出前K个最大或最小的元素的操作</li>
-<li><strong>幻觉 (Hallucination)</strong>：随机性过高或过低导致输出结果存在事实性错误或虚假信息的情况</li>
-<li><strong>联网 (Web Browsing)</strong>：通过互联网获取相关信息，结合相关信息进行输出，以减少幻觉的方法</li>
-</ol>
-<h2 id="模型与产品">模型与产品</h2>
-<ol type="1">
-<li><strong>ChatGPT</strong>：2023年爆火的用于聊天的产品</li>
-<li><strong>GPT (Generative Pre-trained Transformer, 生成式预训练变换器)</strong>：为大语言模型的一种系列</li>
-<li><strong>OpenAI</strong>：开发ChatGPT的公司，产品为闭源</li>
-<li><strong>Claude</strong>：Anthropic发布的大语言模型</li>
-<li><strong>Gemini</strong>：Google DeepMind发布的AI</li>
-<li><strong>DeepSeek</strong>：深度求索公司发布的AI</li>
-<li><strong>豆包 (Doubao)</strong>：字节跳动公司基于云雀模型开发的AI</li>
-<li><strong>通义千问 (Qwen)</strong>：阿里云发布的AI</li>
-<li><strong>腾讯元宝 (Tencent Yuanbao)</strong>：腾讯发布的基于自研混元大模型开发的C端AI</li>
-<li><strong>Midjourney</strong>：闭源的AI图像生成器（中国实验室版名为悠船）</li>
-<li><strong>Stable Diffusion</strong>：Stability AI推出的开源AI图像生成器</li>
-<li><strong>Sora</strong>：OpenAI发布的人工智能文生视频大模型</li>
-<li><strong>可灵 (Kling)</strong>：快手AI团队发布的视频生成大模型</li>
-<li><strong>即梦 (Jmeng)</strong>：字节跳动旗下剪映团队研发的AI创作平台</li>
-</ol>
-<h2 id="模型分类与部署">模型分类与部署</h2>
-<ol type="1">
-<li><strong>闭源模型 (Closed-source Model)</strong>：不开放源代码与权重，只提供最终服务的模型（如ChatGPT、Claude、Gemini）</li>
-<li><strong>开放权重模型 (Open-weight Model)</strong>：可本地部署的，开放权重以供调整的模型（不开放训练代码与数据，如DeepSeek、LLaMA）</li>
-<li><strong>完全开源模型 (Fully Open-source Model)</strong>：开放训练代码、数据、权重的模型（如‌Mistral）</li>
-<li><strong>私有化部署 (Private Deployment)</strong>：不依托其他服务，将模型下载到本地进行使用的过程</li>
-<li><strong>云桌面 (Cloud Desktop)</strong>：搭载好了所需环境的，高性能的，可远程网络控制的一种服务</li>
-<li><strong>镜像 (Image)</strong>：用于特定开发所需的打包好的环境和软件</li>
-</ol>
-<h2 id="技术与应用">技术与应用</h2>
-<ol type="1">
-<li><strong>多模态 (Multimodality)</strong>：能处理图像、声音、视频多种内容的能力</li>
-<li><strong>检索增强生成 (Retrieval-Augmented Generation, RAG)</strong>：在私有数据库中进行搜索以获取信息的方法</li>
-<li><strong>知识库 (Knowledge Base)</strong>：用于大模型查询所用的私有数据库</li>
-<li><strong>向量数据库 (Vector Database)</strong>：特化模型与知识库语义匹配，以向量形式存储的数据库</li>
-<li><strong>词嵌入 (Word Embedding)</strong>：把文字转换为词向量的方式，用于捕捉词间语义关系</li>
-<li><strong>向量检索 (Vector Retrieval)</strong>：对比词向量相似度，以在知识库中找到相关问题答案的方式</li>
-<li><strong>数字人 (Digital Human)</strong>：运用数字技术创造出来的、与人类形象接近的数字化人物形象</li>
-<li><strong>工作流 (Workflow)</strong>：多次使用大模型能力，将工作内容分为多个步骤分别处理并整合为一个流程的能力</li>
-<li><strong>智能体 (Agent)</strong>：按工作流封装大模型与工具集以实现自动完成复杂任务的程序</li>
-<li><strong>多智能体 (Multi-Agent)</strong>：多个智能体协作完成更复杂任务的程序</li>
-<li><strong>插件 (Plugins)</strong>：ChatGPT 的附加组件系统（智能体）</li>
-<li><strong>AutoGPT</strong>：GPT模型驱动的智能体系统</li>
-<li><strong>Manus</strong>：具备从规划到执行全流程自主完成任务能力的智能体</li>
-<li><strong>MCP (Model-graded Controllable Preference)</strong>：Anthropic提出的，用于AI操作外部世界的协议</li>
-<li><strong>A2A (Agent-to-Agent)</strong>：Google提出的用于智能体与智能体间通信的协议</li>
-</ol>
-<h2 id="优化与进阶">优化与进阶</h2>
-<ol type="1">
-<li><strong>模型压缩 (Model Compression)</strong>：由于模型大小与能力出现边际收益递减，以减少成本与方便个人的减小模型大小的方法</li>
-<li><strong>量化 (Quantization)</strong>：把模型中的浮点数用更低精度表示以减少显存与计算的方法</li>
-<li><strong>蒸馏 (Distillation)</strong>：用参数量较大的大模型指导参数量较小的小模型的方法</li>
-<li><strong>剪枝 (Pruning)</strong>：删除模型中不重要神经元，让模型更稀疏以提升速度的方法</li>
-<li><strong>低秩适应 (Low-Rank Adaptation, LoRA)</strong>：用更低成本改善微调方式的方法</li>
-<li><strong>思维链 (Chain-of-Thought, CoT)</strong>：从推理能力方向增强模型能力的方法</li>
-<li><strong>人类反馈强化学习 (Reinforcement Learning from Human Feedback, RLHF)</strong>：让模型输出更符合人类心意的方法</li>
-</ol>
-<h2 id="生态与行业">生态与行业</h2>
-<ol type="1">
-<li><strong>专业生产内容 (Professional Generated Content, PGC)</strong></li>
-<li><strong>用户生产内容 (User Generated Content, UGC)</strong></li>
-<li><strong>人工智能生成内容 (AI Generated Content, AIGC)</strong></li>
-<li><strong>炸裂体 (“Explosive” Style)</strong>：媒体与互联网对AI类产品进行描述与介绍时使用的一种强调或夸大性语气</li>
-<li><strong>套壳 (Wrapping)</strong>：封装大模型对应接口提供服务</li>
-<li><strong>卖铲子 (Selling Shovels)</strong>：提供工具或服务、教程等帮助他人在AI中淘金的赚钱方式</li>
-<li><strong>Hugging Face</strong>：AI开源平台及社区</li>
-</ol>
-<h2 id="硬件与框架">硬件与框架</h2>
-<ol type="1">
-<li><strong>GPU (Graphics Processing Unit, 图形处理单元)</strong>:NVIDIA公司的产品</li>
-<li><strong>CUDA (Compute Unified Device Architecture)</strong>：NVIDIA推出的AI开发框架</li>
-<li><strong>TPU (Tensor Processing Unit, 张量处理单元)</strong>：专用与大规模神经网络训练与推理的处理器</li>
-<li><strong>NPU (Neural Processing Unit, 神经网络处理单元)</strong>：专用于终端设备加速推理的处理器</li>
-<li><strong>Python</strong>：适合AI开发的编程语言</li>
-<li><strong>PyTorch</strong>：Python提供的针对AI编程的库</li>
-<li><strong>TensorFlow</strong>：由 Google Brain 团队开发的深度学习框架</li>
-<li><strong>Ollama</strong>：大模型本地运行工具</li>
-<li><strong>vLLM</strong>：提升大语言模型推理速度的推理引擎</li>
-<li><strong>ComfyUI</strong>：构建在 Stable Diffusion 之上的基于节点的绘画工作流软件（B站:秋葉aaaki 大佬制作了很多相关整合包）</li>
-<li><strong>扣子 (Coze)</strong>：在网页端编排工作流的一款工具</li>
-<li><strong>LangChain</strong>：以代码方式编排工具流的方式</li>
-<li><strong>Cursor</strong>：Anysphere开发的人工智能编程助手</li>
-<li><strong>GitHub Copilot</strong>：微软与OpenAI共同推出的AI编程工具</li>
-</ol>
-<h2 id="神经网络基础">神经网络基础</h2>
-<ol type="1">
-<li><strong>数学 (Mathematics)</strong>：AI基石，包括线性代数、微积分、概率论等</li>
-<li><strong>自然语言处理 (Natural Language Processing, NLP)</strong>：人工智能的一大分支领域，其主要目的是让机器理解人类的语言文字，从而执行一系列任务</li>
-<li><strong>计算机视觉 (Computer Vision, CV)</strong>：与图片高度相关</li>
-<li><strong>神经网络 (Neural Network)</strong>：模仿生物神经系统结构和功能的计算模型</li>
-<li><strong>损失函数 (Loss Function)</strong>：估量模型的预测值f(x)与真实值Y的不一致程度的函数</li>
-<li><strong>反向传播 (Backpropagation)</strong>：计算损失函数关于网络参数的梯度来更新参数</li>
-<li><strong>多层感知机 (Multilayer Perceptron, MLP)</strong>：将输入的多个数据集映射到单一的输出的数据集，是一种人工神经网络模型</li>
-<li><strong>卷积神经网络 (Convolutional Neural Network, CNN)</strong>：包含卷积计算且具有深度结构的神经网络</li>
-<li><strong>循环神经网络 (Recurrent Neural Network, RNN)</strong>：适合于处理序列数据的神经网络</li>
-<li><strong>注意力机制 (Attention Mechanism)</strong>：模拟人类选择性注意机制，提升信息处理效率</li>
-<li><strong>Transformer</strong>：一种基于注意力机制的神经网络结构</li>
-<li><strong>文本转语音 (Text To Speech, TTS)</strong></li>
-<li><strong>语音转文字 (Automatic Speech Recognition, ASR)</strong></li>
-</ol>
-]]></content>
-      <categories>
-        <category>AI</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-        <tag>LLM</tag>
-        <tag>术语</tag>
-        <tag>大模型</tag>
       </tags>
   </entry>
   <entry>
