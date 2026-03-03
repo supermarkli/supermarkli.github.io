@@ -30,7 +30,7 @@
 <meta property="og:description" content="本文尝试用一张图把 CUDA 从“硬件→内核→用户态驱动→工具包→深度学习框架”的完整链路讲清楚，并解释常见的版本不匹配问题与定位思路。即便没有 CUDA 基础，也可以按文中的检查顺序逐步排查。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-09-19T10:36:21.000Z">
-<meta property="article:modified_time" content="2026-03-01T03:53:51.027Z">
+<meta property="article:modified_time" content="2026-03-03T06:31:56.218Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="CUDA">
 <meta property="article:tag" content="GPU">
@@ -272,7 +272,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-03-01 11:53:51" itemprop="dateModified" datetime="2026-03-01T11:53:51+08:00">2026-03-01</time>
+      <time title="Modified: 2026-03-03 14:31:56" itemprop="dateModified" datetime="2026-03-03T14:31:56+08:00">2026-03-03</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -364,13 +364,13 @@ graph TD;
 <li><p>SM / CUDA Core：SM 是 GPU 的并行计算引擎，内部包含若干 CUDA Core；可以把 CUDA Core 理解为做浮点/整数运算的“工位”。</p></li>
 <li><p>ioctl：用户态程序向内核模块发送带结构体参数的“命令”的方式，要求两端对 ABI（应用二进制接口）理解一致。</p></li>
 <li><p>驱动 vs. 工具包：<code>libcuda.so</code>/<code>libnvidia-ml.so</code> 属于“用户态驱动”，与内核模块一一对应；<code>libcudart.so</code>/<code>libcublas.so</code>/<code>libcudnn.so</code> 属于 CUDA Toolkit，用于开发与加速库调用。</p></li>
-<li><strong>SONAME 与共享库版本</strong>：<code>.so</code> 文件名后的数字是 Linux 管理库版本与 ABI (应用二进制接口) 兼容性的核心机制。它遵循“三级文件名”约定：
+<li><p><strong>SONAME 与共享库版本</strong>：<code>.so</code> 文件名后的数字是 Linux 管理库版本与 ABI (应用二进制接口) 兼容性的核心机制。它遵循“三级文件名”约定：</p>
 <ul>
 <li><strong>真实名 (Real Name)</strong>：包含实际代码的文件，如 <code>libcuda.so.570.133.20</code>，版本号最全。</li>
 <li><strong>SONAME (Shared Object Name)</strong>：程序运行时查找的接口名，如 <code>libcuda.so.1</code>。主版本号 <code>1</code> 保证了 ABI 的向后兼容性。它通常是指向真实名的符号链接。</li>
 <li><strong>链接名 (Linker Name)</strong>：编译时使用的名字，如 <code>libcuda.so</code>。它不带版本号，通常指向 SONAME。 简而言之，编译时链接 <code>libcuda.so</code>，运行时系统通过 <code>libcuda.so.1</code> 这个 SONAME 找到具体的 <code>libcuda.so.570.133.20</code> 文件。</li>
 </ul></li>
-<li><strong>动态链接 (Dynamic Linking) vs. 静态链接 (Static Linking)</strong>：
+<li><p><strong>动态链接 (Dynamic Linking) vs. 静态链接 (Static Linking)</strong>：</p>
 <ul>
 <li><strong>动态链接</strong>：程序在 <strong>运行时</strong> 才由系统加载器（如 <code>ld-linux.so.2</code>）去查找并链接共享库（<code>.so</code> 文件），这个过程受 <code>LD_LIBRARY_PATH</code> 环境变量影响。可执行文件只记录了依赖的库名，因此体积小、便于共享和独立更新库。CUDA 软件栈中的各层库（<code>libcuda.so</code>, <code>libcudart.so</code> 等）均通过此方式协同工作。</li>
 <li><strong>静态链接</strong>：程序在 <strong>编译时</strong> 就将库的完整代码复制进最终的可执行文件。文件体积大，但无需外部依赖即可运行。</li>

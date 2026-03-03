@@ -30,7 +30,7 @@
 <meta property="og:description" content="本文深入探讨了可信执行环境（TEE）的核心技术，特别是Intel的Trust Domain Extensions (TDX)。我们从TEE的基本概念出发，逐步解析了其信任模型从传统虚拟化到机密虚拟机的演进历程。文章重点剖析了TDX的几大核心安全机制，包括远程证明、安全数据处理模式（内存计算与Sealing）、以及安全的密钥生命周期管理。通过对“代码修改”、“自我泄露”和“证明瞬时性”等关键问题的思">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-07-10T06:31:48.000Z">
-<meta property="article:modified_time" content="2025-08-06T08:49:10.178Z">
+<meta property="article:modified_time" content="2026-03-03T06:25:10.662Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="TDX">
 <meta property="article:tag" content="TEE">
@@ -271,7 +271,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2025-08-06 16:49:10" itemprop="dateModified" datetime="2025-08-06T16:49:10+08:00">2025-08-06</time>
+      <time title="Modified: 2026-03-03 14:25:10" itemprop="dateModified" datetime="2026-03-03T14:25:10+08:00">2026-03-03</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -347,32 +347,32 @@
 <p>TDX吸取了SGX的教训，旨在提供一种更简单、更全面的保护模型，能够轻松地“兜住”一整个未经修改的虚拟机。</p>
 <ul>
 <li><strong>层次结构</strong>: <code>硬件(含TDX Module) -&gt; Hypervisor(被降权) + 机密虚拟机(TD)</code>。</li>
-<li><strong>信任模型的革命性变化</strong>:
+<li><p><strong>信任模型的革命性变化</strong>：</p>
 <ul>
-<li><strong>Hypervisor不再是上帝</strong>: Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
-<li><strong>新的信任根</strong>: 管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
+<li><strong>Hypervisor不再是上帝</strong>：Hypervisor从“全知的管理者”变成了一个“被蒙上眼睛的调度员”。它负责调度TD，但CPU硬件会阻止它访问TD的明文内存。</li>
+<li><strong>新的信任根</strong>：管理TDX安全策略的不再是Hypervisor，而是CPU内部那个可信的<strong>TDX Module</strong>。TD的整个内存状态由CPU硬件的内存加密引擎（MKTME）自动进行加解密，密钥对Hypervisor不可见。</li>
 </ul></li>
 </ul>
 <h3 id="第三章tee中的信任边界剖析">第三章：TEE中的信任边界剖析</h3>
 <p>当我们采用TEE后，信任链条发生了根本性的变化。我们可以将信任关系拆解成三个层次来看：</p>
 <ul>
-<li><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong>
+<li><p><strong>层次一：信任代码逻辑 (Trust in the Code Logic)</strong></p>
 <ul>
-<li><strong>核心</strong>: 客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
-<li><strong>如何建立</strong>: 通过代码审计和开源。</li>
-<li><strong>TEE的角色</strong>: 将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
+<li><strong>核心</strong>：客户端必须相信我们编写的聚合算法本身是公平、无害、没有后门的。</li>
+<li><strong>如何建立</strong>：通过代码审计和开源。</li>
+<li><strong>TEE的角色</strong>：将这种“纸面”信任变为“现实”。远程证明可以<strong>密码学地验证</strong>服务器上运行的，就是那个经过共同审计的代码版本。信任的对象从“人”转移到了“代码”。</li>
 </ul></li>
-<li><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong>
+<li><p><strong>层次二：信任执行过程 (Trust in the Execution Process)</strong></p>
 <ul>
-<li><strong>核心</strong>: 相信代码在执行过程中不会被篡改或窥探。</li>
-<li><strong>没有TEE</strong>: 这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
-<li><strong>有了TEE</strong>: TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
+<li><strong>核心</strong>：相信代码在执行过程中不会被篡改或窥探。</li>
+<li><strong>没有TEE</strong>：这是最大的信任鸿沟。租户（root用户）或云服务商可以随时dump内存，附加调试器。</li>
+<li><strong>有了TEE</strong>：TEE的硬件隔离特性使得租户和云服务商失去了窥探和篡改运行时状态的能力。信任的对象从“租户/云服务商”转移到了“CPU硬件（如Intel）”。</li>
 </ul></li>
-<li><strong>层次三：信任服务运维 (Trust in the Operation)</strong>
+<li><p><strong>层次三：信任服务运维 (Trust in the Operation)</strong></p>
 <ul>
-<li><strong>核心</strong>: 这是TEE也无法完全消除的、最后残留的信任层。</li>
-<li><strong>需要信任什么</strong>: 客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
-<li><strong>结论</strong>: 租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
+<li><strong>核心</strong>：这是TEE也无法完全消除的、最后残留的信任层。</li>
+<li><strong>需要信任什么</strong>：客户端仍然需要信任租户会保证服务的<strong>可用性</strong>（不关机、不断网）和<strong>公平性</strong>（不恶意屏蔽某些客户端）。</li>
+<li><strong>结论</strong>：租户最多只能做到“不让你玩”（破坏可用性），而无法做到“偷你的东西”（破坏机密性）。在商业合作中，这是一个可以通过服务等级协议（SLA）来约束的可接受风险。</li>
 </ul></li>
 </ul>
 <h3 id="第四章tee安全编程核心实践">第四章：TEE安全编程核心实践</h3>
@@ -381,10 +381,10 @@
 <p>一个关键问题是：数据一旦在TEE/TD内部变成明文，租户（作为root用户）是否能在此期间访问到它？答案是：<strong>设计良好的TEE应用会确保租户无法接触到任何阶段的明文数据。</strong></p>
 <ul>
 <li><strong>错误（不安全）的设计模式</strong>: TEE应用为了方便处理，执行了<code>file.write(plaintext_data)</code>，将明文数据直接写入到了Guest OS的文件系统中。此时，由于文件系统由不受信的Guest OS管理，租户可以轻松登录并读取该明文文件。</li>
-<li><strong>正确（安全）的设计模式</strong>:
+<li><p><strong>正确（安全）的设计模式</strong>：</p>
 <ul>
-<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>: 客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
-<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>: 如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
+<li><strong>方案1：端到端加密，仅在内存中处理 (最常用)</strong>：客户端发送密文，TEE应用在<strong>受保护的内存中</strong>完成解密、计算、聚合的全过程。明文数据从不落盘，始终不离开TEE的硬件保护边界。租户无法dump进程内存，因此无法获取明文。</li>
+<li><strong>方案2：利用TEE的安全存储 (Sealing)</strong>：如果数据需要持久化，TEE应用不应直接写入文件，而是调用<code>seal()</code>函数。该函数会使用一个与平台和应用身份绑定的、只有当前TEE实例才能访问的硬件密钥，对明文数据进行加密。加密后的数据块（Sealed Blob）可以安全地存放在不受信的文件系统上。租户只能看到一堆加密乱码，无法解密。当TEE需要再次使用时，再调用<code>unseal()</code>在内存中解封。</li>
 </ul></li>
 </ul>
 <h4 id="密钥生命周期管理从诞生到休眠">4.2 密钥生命周期管理：从诞生到休眠</h4>

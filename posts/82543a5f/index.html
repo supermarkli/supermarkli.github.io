@@ -30,7 +30,7 @@
 <meta property="og:description" content="很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-01T08:34:53.000Z">
-<meta property="article:modified_time" content="2025-08-06T08:49:36.874Z">
+<meta property="article:modified_time" content="2026-03-03T06:23:56.254Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="Windows">
@@ -273,7 +273,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2025-08-06 16:49:36" itemprop="dateModified" datetime="2025-08-06T16:49:36+08:00">2025-08-06</time>
+      <time title="Modified: 2026-03-03 14:23:56" itemprop="dateModified" datetime="2026-03-03T14:23:56+08:00">2026-03-03</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -361,42 +361,42 @@
 <h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
 <p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
 <ul>
-<li><strong>主要功能</strong>:
+<li><p><strong>主要功能</strong>：</p>
 <ul>
-<li><strong>字符渲染</strong>: 把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
-<li><strong>会话管理</strong>: 提供多标签、多窗格、会话恢复等功能。</li>
-<li><strong>输入处理</strong>: 捕获你的键盘输入，并发送给 Shell。</li>
-<li><strong>美化与配置</strong>: 允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
+<li><strong>字符渲染</strong>：把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
+<li><strong>会话管理</strong>：提供多标签、多窗格、会话恢复等功能。</li>
+<li><strong>输入处理</strong>：捕获你的键盘输入，并发送给 Shell。</li>
+<li><strong>美化与配置</strong>：允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
 </ul></li>
-<li><strong>主流实现</strong>:
+<li><p><strong>主流实现</strong>：</p>
 <ul>
-<li><strong>Windows</strong>: <code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
-<li><strong>macOS</strong>: <code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
-<li><strong>Linux</strong>: <code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
+<li><strong>Windows</strong>：<code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
+<li><strong>macOS</strong>：<code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
+<li><strong>Linux</strong>：<code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
 </ul></li>
 </ul>
 <h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
 <p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
 <ul>
-<li><strong>主要功能</strong>:
+<li><p><strong>主要功能</strong>：</p>
 <ul>
-<li><strong>命令解析</strong>: 读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
-<li><strong>脚本编程</strong>: 提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
-<li><strong>环境管理</strong>: 通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
-<li><strong>管道与重定向</strong>: 实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
+<li><strong>命令解析</strong>：读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
+<li><strong>脚本编程</strong>：提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
+<li><strong>环境管理</strong>：通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
+<li><strong>管道与重定向</strong>：实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
 </ul></li>
-<li><strong>主流实现</strong>:
+<li><p><strong>主流实现</strong>：</p>
 <ul>
-<li><strong>POSIX 家族 (Linux/macOS)</strong>:
+<li><strong>POSIX 家族</strong>：
 <ul>
-<li><code>bash</code>: 最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
-<li><code>zsh</code>: 功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
-<li><code>fish</code>: 以“开箱即用”和“智能自动补全”著称。</li>
+<li><code>bash</code>：最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
+<li><code>zsh</code>：功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
+<li><code>fish</code>：以“开箱即用”和“智能自动补全”著称。</li>
 </ul></li>
-<li><strong>Windows 家族</strong>:
+<li><strong>Windows 家族</strong>：
 <ul>
-<li><code>cmd.exe</code>: 传统的命令提示符，功能简单。</li>
-<li><code>PowerShell</code>: 现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
+<li><code>cmd.exe</code>：传统的命令提示符，功能简单。</li>
+<li><code>PowerShell</code>：现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
 </ul></li>
 </ul></li>
 </ul>
@@ -463,30 +463,30 @@
 <h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
 <h4 id="windows-平台">1. Windows 平台</h4>
 <ul>
-<li><strong>现代组合</strong>:
+<li><p><strong>现代组合</strong>：</p>
 <ul>
-<li><strong>终端</strong>: <code>Windows Terminal</code></li>
-<li><strong>Shell</strong>: <code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
+<li><strong>终端</strong>：<code>Windows Terminal</code></li>
+<li><strong>Shell</strong>：<code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
 </ul></li>
-<li><strong>配置示例 (<code>settings.json</code>)</strong>: 在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+<li><p><strong>配置示例 (<code>settings.json</code>)</strong>：在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></p></li>
 </ul>
 <h4 id="macos-平台">2. macOS 平台</h4>
 <ul>
-<li><strong>主流组合</strong>:
+<li><p><strong>主流组合</strong>：</p>
 <ul>
-<li><strong>终端</strong>: <code>iTerm2</code></li>
-<li><strong>Shell</strong>: <code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
+<li><strong>终端</strong>：<code>iTerm2</code></li>
+<li><strong>Shell</strong>：<code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
 </ul></li>
-<li><strong>切换默认 Shell</strong>: 如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</li>
+<li><p><strong>切换默认 Shell</strong>：如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</p></li>
 </ul>
 <h4 id="linux-平台">3. Linux 平台</h4>
 <ul>
-<li><strong>常见组合</strong>:
+<li><p><strong>常见组合</strong>：</p>
 <ul>
-<li><strong>终端</strong>: <code>GNOME Terminal</code> 或 <code>Konsole</code></li>
-<li><strong>Shell</strong>: <code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
+<li><strong>终端</strong>：<code>GNOME Terminal</code> 或 <code>Konsole</code></li>
+<li><strong>Shell</strong>：<code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
 </ul></li>
-<li><strong>安装 zsh</strong>: <code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</li>
+<li><p><strong>安装 zsh</strong>：<code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</p></li>
 </ul>
 <hr />
 <h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
