@@ -3812,318 +3812,6 @@ FileSystem --&gt; App[&quot;应用可用&quot;]
       </tags>
   </entry>
   <entry>
-    <title>NVBit 插桩：从 0 到可用</title>
-    <url>/posts/d4c3b2a1/</url>
-    <content><![CDATA[<p>想在不改用户代码的前提下“看见”每条 GPU 指令如何执行？NVBit 是 NVIDIA 开源的“轻量级 CUDA 指令级动态插桩框架”。本文以“能上手能采样”为目标，从 GPU 并行模型 → CUDA 基础 → PTX/SASS → Linux 注入机制 → NVBit API，总结一份可直接套用的插桩笔记。</p>
-<span id="more"></span>
-<h2 id="gpu-计算硬件与并行模型">1️⃣ GPU 计算硬件与并行模型</h2>
-<ul>
-<li><strong>层级概念</strong>：
-<ul>
-<li><strong>Thread</strong>：最小执行单元，对应内核中的一个逻辑线程。</li>
-<li><strong>Warp</strong>：通常 32 个线程的执行束，硬件以 warp 为粒度调度（SIMT）。</li>
-<li><strong>Block</strong>：多个 warp 组成的线程块，共享 <code>Shared Memory</code> 与 <code>__syncthreads()</code>。</li>
-<li><strong>Grid</strong>：多个 Block 的集合，即一次内核启动的整体并行范围。</li>
-</ul></li>
-<li><strong>调度与分歧</strong>：
-<ul>
-<li><strong>Warp Scheduler</strong> 在 SM 上挑选可就绪的 warp 发射指令；</li>
-<li><strong>SIMT</strong>：同一 warp 的线程同发同取，但可因分支发生“分歧”，由硬件做掩码串行化执行；</li>
-<li>分歧越多，吞吐越差。</li>
-</ul></li>
-<li><strong>内存层次</strong>：<code>Global</code>（大容量/高延迟）、<code>L2</code>、<code>Shared</code>（块内共享/低延迟）、<code>Constant/Texture</code>（只读/缓存友好）、<code>Local</code>（线程私有，实质访问全局内存）。</li>
-<li><strong>隐式切换（Latency Hiding）</strong>：高延迟访存期间，调度器切换到其他就绪 warp，靠并行隐藏延迟。</li>
-</ul>
-<hr />
-<h2 id="cuda-编程基础与插桩相关的最小知识">2️⃣ CUDA 编程基础（与插桩相关的最小知识）</h2>
-<ul>
-<li><strong>Kernel 定义与启动</strong>：</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__global__ <span class="type">void</span> <span class="title function_">saxpy</span><span class="params">(<span class="type">float</span> a, <span class="type">const</span> <span class="type">float</span>* x, <span class="type">float</span>* y, <span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">int</span> i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (i &lt; n) y[i] = a * x[i] + y[i];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 启动：&lt;&lt;&lt;grid, block[, shared_mem, stream]&gt;&gt;&gt;</span></span><br><span class="line"><span class="type">int</span> n = <span class="number">1</span>&lt;&lt;<span class="number">20</span>; dim3 <span class="title function_">block</span><span class="params">(<span class="number">256</span>)</span>, <span class="title function_">grid</span><span class="params">((n+<span class="number">255</span>)/<span class="number">256</span>)</span>;</span><br><span class="line">saxpy&lt;&lt;&lt;grid, block&gt;&gt;&gt;(<span class="number">2.0f</span>, dx, dy, n);</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong>线程索引</strong>：<code>threadIdx</code>、<code>blockIdx</code>、<code>blockDim</code>、<code>gridDim</code> 用于计算全局线性索引。</li>
-<li><strong>同步与原子</strong>：同 Block 内 <code>__syncthreads()</code>；跨线程的共享写入使用 <code>atomicAdd()</code> 等。</li>
-<li><strong>Runtime vs Driver API</strong>：
-<ul>
-<li>Runtime（<code>cudaMalloc/cudaMemcpy/...</code>）更易用；</li>
-<li>Driver（<code>cuInit/cuModuleLoad/cuLaunchKernel</code>）更底层，NVBit 在 Driver 层拦截 <code>cuLaunchKernel</code> 以获取函数与指令信息。</li>
-</ul></li>
-</ul>
-<p>常见编译选项（调试友好）：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo -Xptxas -v -<span class="built_in">arch</span>=sm_80 app.cu -o app</span><br></pre></td></tr></table></figure>
-<ul>
-<li><strong><code>-G</code></strong> 设备端调试符号（会降速，调试开启，性能测试关闭）。</li>
-<li><strong><code>-lineinfo</code></strong> 保留行号映射，便于日志对回源代码。</li>
-<li><strong><code>-Xptxas -v</code></strong> 打印寄存器、共享内存使用等编译信息。</li>
-<li><strong><code>-arch=sm_xx</code></strong> 指定目标架构，保证 PTX/SASS 与目标 GPU 匹配。</li>
-</ul>
-<hr />
-<h2 id="ptx-sass两层汇编">3️⃣ PTX &amp; SASS：两层汇编</h2>
-<p>可以把“写 CUDA 代码 → 编译 → 在 GPU 上跑”这个过程类比成翻译：</p>
-<ul>
-<li>你写的 C/C++（CUDA）像“中文原稿”。</li>
-<li>编译器先把它翻成一种“标准中间语”（PTX），方便跨多种 GPU 架构复用。</li>
-<li>最后再由后端把 PTX 翻成“某一代显卡能直接听懂的话”（SASS 机器码）。</li>
-</ul>
-<h3 id="ptx-是什么跨架构的中间语">3.1 PTX 是什么？（跨架构的“中间语”）</h3>
-<ul>
-<li>定位：PTX 是 NVIDIA 的虚拟指令集，跨架构、可读性强，类似“高级汇编”。</li>
-<li>记住三件事：
-<ul>
-<li>指令名 = 动作 + 地址空间 + 数据类型，例如 <code>ld.global.s32</code>：从全局内存加载 32 位有符号整数。</li>
-<li>寄存器带类型，<code>.s32/.u32/.f32/.pred</code> 分别表示 有符号整型/无符号整型/浮点/谓词（布尔）。</li>
-<li>大多数算术/访存都显式写出类型，便于你“用肉眼推导”数据流。</li>
-</ul></li>
-</ul>
-<p>一个极简 PTX 片段：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.reg .s32 r1, r2, r3;     // 三个 32 位整型寄存器</span><br><span class="line">.reg .pred p;              // 一个布尔寄存器</span><br><span class="line">ld.global.s32 r1, [x];     // r1 ← *x（从全局内存地址 x 取 4 字节）</span><br><span class="line">ld.global.s32 r2, [y];     // r2 ← *y</span><br><span class="line">mad.lo.s32 r3, r1, a, r2;  // r3 ← r1*a + r2  （乘加）</span><br><span class="line">st.global.s32 [y], r3;     // *y ← r3         （回写到全局内存）</span><br></pre></td></tr></table></figure>
-<p>如何读 PTX？</p>
-<ul>
-<li>先看“动词”（<code>ld/st/mov/add/mad/...</code>），判定动作。</li>
-<li>再看“地址空间/修饰符”（<code>global/shared/local</code>）。</li>
-<li>最后看“类型”（<code>.s32/.f32/...</code>）与操作数，推导数据宽度与含义。</li>
-</ul>
-<p>常见类型速查：</p>
-<ul>
-<li><code>.s32/.u32</code>：32 位整型（有符号/无符号）</li>
-<li><code>.f32/.f64</code>：32/64 位浮点</li>
-<li><code>.pred</code>：谓词/布尔（常用于条件执行）</li>
-</ul>
-<p>生成 PTX 的常用方法：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -<span class="built_in">ptx</span> app.cu -o app.ptx             <span class="comment"># 直接产出 PTX 文件</span></span><br><span class="line">cuobjdump --dump-ptx app                <span class="comment"># 从可执行文件/库里抽取 PTX</span></span><br></pre></td></tr></table></figure>
-<h3 id="sass-是什么某一代-gpu-的母语">3.2 SASS 是什么？（某一代 GPU 的“母语”）</h3>
-<ul>
-<li>定位：SASS 是真实机器码的人类可读形式（反汇编结果），和 PTX 不保证一一对应（编译器/后端会做调度与优化）。</li>
-<li>读法套路：助记符 + 修饰符 + 数据宽度 + 操作数。例如：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LDG.E.32 R2, [R4]   // 从全局内存加载 4 字节到寄存器 R2（R4 为地址）</span><br><span class="line">FADD R6, R2, R3     // 浮点加法：R6 = R2 + R3</span><br><span class="line">STG.E.32 [R4], R6   // 把 R6 的 4 字节写回全局内存地址 R4</span><br></pre></td></tr></table></figure>
-<p>拿到 SASS 的方式：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -cubin -<span class="built_in">arch</span>=sm_80 app.cu -o app.cubin  <span class="comment"># 生成与架构绑定的 cubin</span></span><br><span class="line">nvdisasm -g app.cubin | less                 <span class="comment"># 反汇编 SASS（-g 带行号映射）</span></span><br><span class="line">cuobjdump --dump-sass app                    <span class="comment"># 也可从成品二进制中抽取</span></span><br></pre></td></tr></table></figure>
-<p>小贴士：不同 GPU 架构（如 Volta/Ampere/Hopper）SASS 语法/修饰符略有差异，读法不变：先看动词，再看宽度/修饰，再看寄存器/地址。</p>
-<h3 id="一眼看懂从-c-到-ptx-到-sass的映射">3.3 一眼看懂“从 C 到 PTX 到 SASS”的映射</h3>
-<p>以 <code>y[i] = a * x[i] + y[i]</code> 为例：</p>
-<ul>
-<li>C/CUDA：从 <code>x[i]</code> 读，乘以 <code>a</code>，再加 <code>y[i]</code>，写回 <code>y[i]</code>。</li>
-<li>PTX（示意）：<code>ld.global.f32</code> 两次加载，<code>fma.rn.f32</code> 或 <code>mul+add</code> 做计算，<code>st.global.f32</code> 回写。</li>
-<li>SASS（示意）：<code>LDG.E.32</code> → <code>FFMA</code>/<code>FADD</code> → <code>STG.E.32</code>。</li>
-</ul>
-<p>不必逐条抠细节，抓主干就行：访存是 <code>LD*/ST*</code>，算术是 <code>F*</code>（浮点）或 <code>I*</code>（整数），控制流是 <code>BRA/SSY/...</code>。</p>
-<h3 id="与-nvbit-有什么关系">3.4 与 NVBit 有什么关系？</h3>
-<ul>
-<li>NVBit 在 Driver 层能拿到“函数的指令列表”，其中就包含 SASS 级别的信息（助记符、操作数等）。</li>
-<li>你可以按“指令类别”筛选（如只对 <code>LDG/STG</code> 插桩），或按助记符前缀聚焦热点（如分支、原子、内存）。</li>
-<li>牢记：PTX 更易读、跨架构；SASS 更贴近硬件、与性能强相关。做插桩时，两者都值得参考：用 PTX 快速理解语义，用 SASS 判断真实代价与分布。</li>
-</ul>
-<h3 id="三步拿到汇编实操">3.5 三步拿到汇编（实操）</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1) 生成 PTX，快速理解语义</span></span><br><span class="line">nvcc -O2 -<span class="built_in">ptx</span> app.cu -o app.ptx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 生成 cubin 并反汇编 SASS，观察真实发射的指令</span></span><br><span class="line">nvcc -O2 -cubin -<span class="built_in">arch</span>=sm_80 app.cu -o app.cubin</span><br><span class="line">nvdisasm -g app.cubin | sed -n <span class="string">&#x27;1,120p&#x27;</span> | <span class="built_in">cat</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 若 app 已链接成可执行文件/动态库，从成品中抽取</span></span><br><span class="line">cuobjdump --dump-ptx --dump-sass ./app | <span class="built_in">head</span> -n 200 | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
-<p>看懂这层关系后，你就能把“源代码的语义”和“GPU 上真实执行的代价”链接起来：这对插桩点选择、性能评估与采样策略都至关重要。</p>
-<hr />
-<h2 id="linux-动态链接与环境变量">4️⃣ Linux 动态链接与环境变量</h2>
-<p>动态链接器（<code>ld-linux.so</code>）在程序启动时负责把用到的共享库（<code>.so</code>）装进进程，并把函数地址“接上去”。理解这套机制，有助于你知道“NVBit/LD_PRELOAD 是怎么把工具注入进去的”。</p>
-<h3 id="动态链接调用链详解">4.1 动态链接调用链详解</h3>
-<p>我们以一个调用 <code>printf</code> 的简单程序为例，看看从执行到函数调用的完整链路，并把核心概念放进去。</p>
-<p><strong>调用链分步走：</strong></p>
-<ol type="1">
-<li><strong>编译期</strong>：
-<ul>
-<li>你写 <code>printf("hello");</code> 并用 <code>gcc hello.c -o hello</code> 编译。</li>
-<li>编译器生成一个 <strong>ELF</strong> 格式的可执行文件 <code>hello</code>。</li>
-<li>这个文件里记录了：“我需要 <code>libc.so.6</code> 这个库”（<code>NEEDED</code> 条目），并且为 <code>printf</code> 准备了一个“跳转跳板”（<strong>PLT</strong> 条目）和一个“地址记录本”（<strong>GOT</strong> 条目）。此时，GOT 里记的不是真地址，而是一个“待解析”的占位符。</li>
-</ul></li>
-<li><strong>程序启动</strong>：
-<ul>
-<li>你在 shell 里输入 <code>./hello</code>。</li>
-<li>操作系统内核加载 <code>hello</code>，看到它是个动态链接程序，于是把控制权交给 <strong>动态链接器</strong>（<code>ld-linux.so.2</code>）。</li>
-</ul></li>
-<li><strong>链接器工作</strong>：
-<ul>
-<li>动态链接器读取 <code>hello</code> 的 <code>NEEDED</code> 列表，找到 <code>libc.so.6</code>。</li>
-<li>它按“查找顺序”（<code>LD_LIBRARY_PATH</code> → 系统缓存 → 默认路径）定位并把 <code>libc.so.6</code> 加载到内存。</li>
-</ul></li>
-<li><strong>首次调用 <code>printf</code></strong>：
-<ul>
-<li>CPU 执行到 <code>printf</code> 调用时，它其实是 <code>call printf@plt</code>，即跳到 PLT 里的“跳板”。</li>
-<li>“跳板”指令去查“地址记录本”（GOT）。</li>
-<li>发现 GOT 里是“待解析”占位符，于是这个“跳板”指令会把控制权再次交给动态链接器，说：“请帮我找到 <code>printf</code> 的真地址”。</li>
-<li>动态链接器在已加载的 <code>libc.so.6</code> 里查找 <code>printf</code>，找到后，把它的真实内存地址<strong>写回</strong>到 GOT 的 <code>printf</code> 条目里。</li>
-<li>最后，动态链接器直接跳转到 <code>printf</code> 的真实地址，函数得以执行。</li>
-</ul></li>
-<li><strong>再次调用 <code>printf</code></strong>：
-<ul>
-<li>CPU 再次执行 <code>call printf@plt</code>。</li>
-<li>“跳板”再次去查 GOT。</li>
-<li>这次 GOT 里已经是 <code>printf</code> 的真实地址了，于是“跳板”直接跳转到该地址，函数执行。整个过程不再需要动态链接器介入，非常快。</li>
-</ul></li>
-</ol>
-<blockquote>
-<p><strong>省流总结</strong> 程序喊：“我要用 <code>printf</code>！” → 先跳到一个“跳板”（PLT），跳板问“地址记录本”（GOT）：“地址在哪？” → 第一次，记录本说“不知道”，于是喊“链接器”来找，找到后把地址记下来 → 第二次，记录本直接报出地址，程序直达。</p>
-</blockquote>
-<blockquote>
-<p><strong>名词速记</strong> • <strong>ELF</strong>：Executable &amp; Linkable Format，Linux 可执行/共享库的通用容器。<br/> • <strong>NEEDED</strong>：ELF Header 里的依赖库列表；<code>readelf -d a.out</code> 可见 <code>NEEDED libm.so.6</code>。<br/> • <strong>动态链接器</strong>：<code>ld-linux-x86-64.so.2</code>，启动时按搜索顺序(LD_LIBRARY_PATH → <code>/etc/ld.so.cache</code> → <code>/lib64</code>) 找到并加载那些 .so。<br/> • <strong>PLT / GOT</strong>：Procedure Linkage Table &amp; Global Offset Table；前者存“跳转占位指令”，后者存“真实地址”，首调用触发解析并回写 GOT，后续直跳。<br/> • <strong><code>dlsym</code></strong>：运行期手动查符号，用途：插件/热更新；本质：动态链接器里再查一次符号表。</p>
-</blockquote>
-<h3 id="ld_preload-如何影响调用链">4.2 <code>LD_PRELOAD</code> 如何影响调用链</h3>
-<p><code>LD_PRELOAD</code> 是一种强大的动态链接插桩机制，它直接作用于我们在 <strong>4.1 节描述的调用链</strong>，主要影响<strong>第 3 步（链接器工作）</strong>和<strong>第 4 步（首次调用）</strong>。</p>
-<p><strong>影响调用链分步走：</strong></p>
-<ol type="1">
-<li><strong>影响第 3 步（链接器工作）</strong>
-<ul>
-<li>当你设置 <code>LD_PRELOAD=./libhook.so</code> 并启动程序时，动态链接器在读取 <code>NEEDED</code> 列表、查找依赖库之前，会<strong>最优先</strong>把 <code>libhook.so</code> 加载到内存。</li>
-<li>这相当于在链接器的“查找顺序”里强行插入了一个最高优先级项。</li>
-</ul></li>
-<li><strong>影响第 4 步（首次调用 <code>malloc</code>）</strong>
-<ul>
-<li>当程序首次调用 <code>malloc</code> 时，和 <code>printf</code> 一样，会跳到 PLT，然后触发动态链接器去查找 <code>malloc</code> 的真实地址。</li>
-<li>链接器开始按顺序查找：它首先看最先加载的 <code>libhook.so</code>，结果发现里面就有一个叫 <code>malloc</code> 的函数。</li>
-<li>这就触发了 <strong>符号抢占 (Symbol Interposition)</strong>：链接器“抢先”绑定了你的假 <code>malloc</code>，并把地址写回 GOT。它不会再继续往后找 <code>libc.so.6</code> 里的真 <code>malloc</code> 了。</li>
-<li>控制权交给你的假 <code>malloc</code>，拦截成功。</li>
-</ul></li>
-<li><strong>在拦截函数中调用原始函数</strong>
-<ul>
-<li>在你的假 <code>malloc</code> 里，不能直接再写 <code>malloc()</code>，否则会无限递归调用自己。</li>
-<li>此时需要用 <code>dlsym(RTLD_NEXT, "malloc")</code>。<code>RTLD_NEXT</code> 这个特殊句柄告诉动态链接器：“请从<strong>下一个</strong>加载的库（也就是 <code>libc.so.6</code>）开始，帮我查找 <code>malloc</code>”。</li>
-<li><code>dlsym</code> 会返回真正的 <code>malloc</code> 地址，你存下来就可以调用了。</li>
-</ul></li>
-</ol>
-<blockquote>
-<p><strong>省流总结</strong> <code>LD_PRELOAD</code> 就像给链接器戴上了一副“有色眼镜”，让它最先看到你的 <code>hook.so</code>。当程序要找函数时，链接器就从你的库里找到了一个“冒名顶替”的版本（符号抢占），从而实现拦截。而 <code>dlsym(RTLD_NEXT, ...)</code> 则是摘下眼镜，让你能找到并调用被顶替的“真人”。</p>
-</blockquote>
-<p><strong>最小拦截示例：统计 <code>malloc</code> 使用次数</strong> <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// file: hook.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span>* (*real_malloc)(<span class="type">size_t</span>) = <span class="literal">NULL</span>;</span><br><span class="line"><span class="type">static</span> <span class="type">size_t</span> g_count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">__attribute__((constructor)) <span class="type">static</span> <span class="type">void</span> <span class="title function_">init_hook</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;[hook] loaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span>* <span class="title function_">malloc</span><span class="params">(<span class="type">size_t</span> size)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!real_malloc) &#123;</span><br><span class="line">        <span class="comment">// RTLD_NEXT: 从下一个库开始找 malloc</span></span><br><span class="line">        real_malloc = (<span class="type">void</span>*(*)(<span class="type">size_t</span>))dlsym(RTLD_NEXT, <span class="string">&quot;malloc&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">void</span>* p = real_malloc(size);</span><br><span class="line">    g_count++;</span><br><span class="line">    <span class="keyword">if</span> (getenv(<span class="string">&quot;HOOK_VERBOSE&quot;</span>)) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;[hook] malloc(%zu) =&gt; %p (count=%zu)\n&quot;</span>, size, p, g_count);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><strong>编译与运行</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -shared -fPIC -ldl hook.c -o libhook.so</span><br><span class="line">LD_PRELOAD=<span class="variable">$PWD</span>/libhook.so HOOK_VERBOSE=1 ./your_program</span><br></pre></td></tr></table></figure></p>
-<p><strong>要点</strong> - <strong>与 NVBit 的关系</strong>：NVBit 注入 <code>libnvbit.so</code> 来拦截 CUDA Driver API（如 <code>cuLaunchKernel</code>），原理与此完全相同。</p>
-<h3 id="环境变量给工具遥控器">4.3 环境变量：给工具“遥控器”</h3>
-<p>用环境变量控制行为是业界惯例：无需改代码/重编译，随开随关。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">get_int_env</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key, <span class="type">int</span> defv)</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* v = getenv(key);</span><br><span class="line">    <span class="keyword">return</span> v ? atoi(v) : defv;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">get_bool_env</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key, <span class="type">int</span> defv)</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* v = getenv(key);</span><br><span class="line">    <span class="keyword">if</span> (!v) <span class="keyword">return</span> defv;</span><br><span class="line">    <span class="keyword">return</span> (!<span class="built_in">strcmp</span>(v, <span class="string">&quot;1&quot;</span>) || !<span class="built_in">strcmp</span>(v, <span class="string">&quot;true&quot;</span>) || !<span class="built_in">strcmp</span>(v, <span class="string">&quot;on&quot;</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用法：</span></span><br><span class="line"><span class="comment">// int verbose = get_bool_env(&quot;NVBIT_VERBOSE&quot;, 0);</span></span><br><span class="line"><span class="comment">// int sample_n = get_int_env(&quot;MY_TOOL_SAMPLE_N&quot;, 100);</span></span><br></pre></td></tr></table></figure>
-<p>实践建议：</p>
-<ul>
-<li>约定统一前缀（如 <code>MYTOOL_*</code>），避免与系统变量冲突。</li>
-<li>为每个开关提供默认值与帮助说明（打印到日志首行）。</li>
-</ul>
-<h3 id="proc-与排错技巧">4.4 /proc 与排错技巧</h3>
-<ul>
-<li>看看进程到底加载了哪些库、地址在哪：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> /proc/$$/maps | grep -E <span class="string">&quot;libcuda|libnvbit|libhook&quot;</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>动态链接问题一把梭：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldd ./app</span><br><span class="line">LD_DEBUG=libs,symbols,bindings ./app 2&gt;&amp;1 | less</span><br></pre></td></tr></table></figure>
-<ul>
-<li>了解即可：<code>ptrace</code> 可让调试器（<code>gdb</code> 等）附加进程；分析崩溃时有用，但与动态链接不是一件事。</li>
-</ul>
-<hr />
-<h2 id="gpu-指令级插桩基本思路">5️⃣ GPU 指令级插桩基本思路</h2>
-<p>“钩子（Hook）是什么”：在不改原程序逻辑的前提下，拦截某个函数或事件的执行点，插入你的自定义代码（记录/修改/放行），然后把控制权交还原逻辑。</p>
-<p>在本节语境里，常用两层 Hook：</p>
-<ul>
-<li><strong>驱动事件 Hook</strong>：在 <code>cuLaunchKernel</code> 等 Driver API 的进入/退出时机回调你的代码，用来“决定是否对这次 Kernel 做插桩”。</li>
-<li><strong>指令级 Hook</strong>：对目标 <code>CUfunction</code> 的每条（或部分）SASS 指令，在指令前/后插入对设备端处理函数的调用，实现“记录/采样/统计”。</li>
-</ul>
-<p>优点：零侵入、上线快；注意：有额外开销，需配合过滤/采样，并避免递归拦截与线程不安全。</p>
-<h3 id="想达到什么目标">5.1 想达到什么目标？</h3>
-<ul>
-<li>明确你需要“看见什么”：
-<ul>
-<li>指令计数（总量/类别占比）、内存访问信息（地址、宽度）、分支行为（是否分歧）、原子/Barrier 使用等。</li>
-</ul></li>
-<li>先从“最小目标”起步（仅计数或仅内存指令），验证链路，再逐步加字段。</li>
-</ul>
-<h3 id="静态-vs-动态两条路">5.2 静态 vs 动态（两条路）</h3>
-<ul>
-<li>静态插桩：在编译期修改 PTX/SASS（或用编译器 pass）。
-<ul>
-<li>优点：开销可控、可定制性强。</li>
-<li>缺点：兼容性/维护成本高；适配不同架构麻烦。</li>
-</ul></li>
-<li>动态插桩（NVBit）：运行时拦截驱动，对已加载的 <code>CUfunction</code> 动态加钩子。
-<ul>
-<li>优点：对用户二进制零侵入、快速迭代。</li>
-<li>缺点：插入调用本身有额外成本，需要过滤/采样。</li>
-</ul></li>
-</ul>
-<h3 id="插桩颗粒度与插点策略">5.3 插桩颗粒度与插点策略</h3>
-<ul>
-<li>粒度：函数级（仅启停）/ 指令级（精确到 <code>LDG/STG/ATOM/BRA/...</code>）。</li>
-<li>插点：<code>IPOINT_BEFORE</code>（指令执行前）或 <code>IPOINT_AFTER</code>（执行后）。
-<ul>
-<li>读内存：多在 BEFORE（记录将要访问的地址）。</li>
-<li>写内存：多在 AFTER（可记录最终值，代价更高）。</li>
-</ul></li>
-<li>谓词执行：许多 SASS 指令有谓词屏蔽，务必把谓词传给设备端处理以过滤未执行的路径。</li>
-</ul>
-<h3 id="记录格式record怎么设计">5.4 记录格式（Record）怎么设计？</h3>
-<ul>
-<li>原则：结构体字段最小化、定长、cache 友好；避免可变长字符串。</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">align__</span>(16) <span class="title">MemRec</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> smid;           <span class="comment">// 可选：SM id</span></span><br><span class="line">    <span class="type">unsigned</span> warp;           <span class="comment">// 可选：Warp id（lane/warp 组合）</span></span><br><span class="line">    <span class="type">unsigned</span> inst_tag;       <span class="comment">// 指令标识（host 侧映射助记符/位置）</span></span><br><span class="line">    <span class="type">unsigned</span> flags;          <span class="comment">// 谓词/读写/空间等 bit 位</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> addr; <span class="comment">// 访存地址（如需）</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>如果只做计数：完全可以把 <code>MemRec</code> 简化成“按类别的计数器”放在全局/共享内存中，降低带宽。</li>
-</ul>
-<h3 id="设备端缓冲与背压ring-buffer">5.5 设备端缓冲与背压（Ring Buffer）</h3>
-<ul>
-<li>每条记录一条 <code>printf</code> 会拖垮性能，必须“先写缓冲 → 批量回传”。</li>
-<li>常见方案：全局环形缓冲 + 原子游标；必要时配合 Block 内共享内存做分层缓冲。</li>
-</ul>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__device__ __managed__ MemRec gbuf[<span class="number">1</span>&lt;&lt;<span class="number">20</span>];</span><br><span class="line">__device__ __managed__ <span class="type">unsigned</span> ghead = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> __device__ __noinline__ <span class="type">void</span> <span class="title function_">dev_record_pred</span><span class="params">(<span class="type">int</span> pred,</span></span><br><span class="line"><span class="params">                                                         <span class="type">unsigned</span> inst_tag,</span></span><br><span class="line"><span class="params">                                                         <span class="type">unsigned</span> flags,</span></span><br><span class="line"><span class="params">                                                         <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> addr)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!pred) <span class="keyword">return</span>;  <span class="comment">// 指令未执行，直接跳过</span></span><br><span class="line">    <span class="type">unsigned</span> pos = atomicAdd(&amp;ghead, <span class="number">1</span>);</span><br><span class="line">    pos &amp;= (<span class="number">1</span>&lt;&lt;<span class="number">20</span>) - <span class="number">1</span>; <span class="comment">// 环形</span></span><br><span class="line">    gbuf[pos] = &#123; <span class="comment">/*smid*/</span><span class="number">0u</span>, <span class="comment">/*warp*/</span><span class="number">0u</span>, inst_tag, flags, addr &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>背压：当生产速度 &gt; 消费速度，会覆盖旧数据。策略：
-<ul>
-<li>增大缓冲（牺牲显存），</li>
-<li>提高回传频率（更多 DMA），</li>
-<li>采样/过滤（减少写入），</li>
-<li>分层缓冲（共享内存聚合，减少全局原子）。</li>
-</ul></li>
-</ul>
-<h3 id="host-device-回传批量且异步">5.6 Host ↔ Device 回传（批量且异步）</h3>
-<ul>
-<li>Host 侧维护 pinned host 缓冲 + stream，周期性 <code>cudaMemcpyAsync</code> 回传一批数据；双缓冲流水化：</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 伪代码</span></span><br><span class="line"><span class="built_in">cudaMemcpyAsync</span>(host_buf[cur], gbuf, bytes, cudaMemcpyDeviceToHost, stream);</span><br><span class="line"><span class="built_in">cudaEventRecord</span>(done[cur], stream);</span><br><span class="line"><span class="comment">// 轮转 cur，另一路并行解析/落盘</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li>落盘：优先二进制；解析器单独实现，避免在线文本格式化。</li>
-</ul>
-<h3 id="过滤与采样把开销打下来">5.7 过滤与采样（把开销打下来）</h3>
-<ul>
-<li>Kernel 名过滤（正则/白名单）。</li>
-<li>指令类别过滤（只插 <code>LDG/STG/ATOM/BRA/...</code>）。</li>
-<li>比例采样（每 N 条插 1 条）或时间窗口采样（只在前 M 毫秒记录）。</li>
-<li>启停控制：通过环境变量在 <code>nvbit_at_cuda_event</code> 里仅对前 K 次 launch 开启。</li>
-</ul>
-<h3 id="正确性与验证别被插桩污染">5.8 正确性与验证（别被插桩“污染”）</h3>
-<ul>
-<li>确保设备端处理函数 <code>__noinline__</code>，避免被内联改变控制流。</li>
-<li>避免在设备端大量 <code>printf</code>；必要时仅在小规模 debug 期开启。</li>
-<li>检查寄存器/共享内存占用（<code>-Xptxas -v</code>）；插桩会增加压力，可能导致寄存器溢出到 Local，性能骤降。</li>
-<li>与 <code>compute-sanitizer</code> 联合：先保证无越界/竞争/屏障问题，再看插桩结果。</li>
-</ul>
-<h3 id="最小插桩实战统计全局内存读取次数">5.9 最小插桩实战：统计全局内存读取次数</h3>
-<p>下面我们用三段代码，完整演示如何插桩一个 CUDA 程序来统计它执行了多少次全局内存读取（<code>LDG</code> 指令）。</p>
-<h4 id="host-端工具-tool.cpp">1. Host 端工具 (<code>tool.cpp</code>)</h4>
-<p>这是插桩工具的核心逻辑，负责告诉 NVBit“在哪些指令前，插入哪些函数调用”。</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// file: tool.cpp</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;nvbit.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明我们将在 Device 端定义的处理函数</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">__device__ <span class="type">void</span> <span class="title">count_ldg</span><span class="params">(<span class="type">int</span> pred)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NVBit 在加载每个 CUfunction 时会调用这个函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">instrument_function</span><span class="params">(CUfunction func)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 遍历函数的所有基本块和指令</span></span><br><span class="line">    <span class="function">nvbit_iterator_instr <span class="title">cf_graph</span><span class="params">(func)</span></span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> it = cf_graph.<span class="built_in">begin</span>(); it != cf_graph.<span class="built_in">end</span>(); ++it) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> instr : it-&gt;<span class="built_in">get_instrs</span>()) &#123;</span><br><span class="line">            <span class="comment">// 如果是 LDG (Load Global) 指令</span></span><br><span class="line">            <span class="keyword">if</span> (instr-&gt;<span class="built_in">get_opcode_name</span>().<span class="built_in">find</span>(<span class="string">&quot;LDG&quot;</span>) != std::string::npos) &#123;</span><br><span class="line">                <span class="comment">// 在它执行前，插入对 dev_count_ldg 的调用</span></span><br><span class="line">                <span class="built_in">nvbit_insert_call</span>(instr, <span class="string">&quot;count_ldg&quot;</span>, IPOINT_BEFORE);</span><br><span class="line">                <span class="comment">// 把指令的谓词（是否执行）作为第一个参数传给 dev_count_ldg</span></span><br><span class="line">                <span class="built_in">nvbit_add_call_arg_guard_pred</span>(instr);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NVBit 工具加载时会调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">nvbit_at_init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[NVBit Tool] Initialized. Ready to instrument.\n&quot;</span>);</span><br><span class="line">    <span class="comment">// 注册我们的插桩函数</span></span><br><span class="line">    <span class="built_in">nvbit_register_callback</span>(NVBIT_CB_TYPE_FUNCTION_LOAD, instrument_function);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="device-端处理-dev.cu">2. Device 端处理 (<code>dev.cu</code>)</h4>
-<p>这是被插入到 GPU 代码流中的“钩子”函数，它在 GPU 上执行。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// file: dev.cu</span><br><span class="line">#include &lt;cuda.h&gt;</span><br><span class="line">#include &lt;stdint.h&gt;</span><br><span class="line"></span><br><span class="line">// 定义一个全局计数器，__managed__ 让它在 Host/Device 间可见</span><br><span class="line">__device__ __managed__ uint64_t ldg_counter = 0;</span><br><span class="line"></span><br><span class="line">// Host 端插入的调用，最终会执行这个函数</span><br><span class="line">extern &quot;C&quot; __device__ __noinline__ void count_ldg(int pred) &#123;</span><br><span class="line">    // 只有当指令的谓词为 true (即指令确实会执行) 时，才计数</span><br><span class="line">    if (pred) &#123;</span><br><span class="line">        atomicAdd((unsigned long long*)&amp;ldg_counter, 1);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="编译与运行">3. 编译与运行</h4>
-<p>假设我们有一个简单的 CUDA 程序 <code>app.cu</code>。</p>
-<p><strong>编译</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 编译 Device 端代码为对象文件</span></span><br><span class="line">nvcc -dlink -Xptxas -v --shared dev.cu -o dev.o</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 编译 Host 端工具，并把 Device 端代码链接进去</span></span><br><span class="line">g++ -I<span class="variable">$CUDA_HOME</span>/include -shared -fPIC tool.cpp dev.o -o tool.so \</span><br><span class="line">    -L<span class="variable">$CUDA_HOME</span>/lib64 -lcuda</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 编译你的目标 CUDA 程序</span></span><br><span class="line">nvcc app.cu -o app</span><br></pre></td></tr></table></figure></p>
-<p><strong>运行与验证</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 设置 NVBIT_TOOL 环境变量，指向你的工具</span></span><br><span class="line"><span class="built_in">export</span> NVBIT_TOOL=<span class="variable">$PWD</span>/tool.so</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 运行目标程序</span></span><br><span class="line">./app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 检查计数器结果（需在 app 中加入打印 ldg_counter 的代码）</span></span><br><span class="line"><span class="comment"># 或者在 tool.cpp 的 nvbit_at_exit 回调中打印</span></span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p><strong>省流总结</strong> <code>tool.cpp</code> 像一个“手术规划师”，它决定了要在 <code>LDG</code> 指令这个“手术点”，插入 <code>count_ldg</code> 这个“探针”。<code>dev.cu</code> 定义了这个“探针”的具体动作（原子加）。<code>nvcc</code> 和 <code>g++</code> 负责把这两部分打包成一个完整的插桩工具 <code>tool.so</code>，最后通过环境变量注入到目标程序中。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>CUDA</category>
-        <category>调试与性能</category>
-      </categories>
-      <tags>
-        <tag>CUDA</tag>
-        <tag>调试</tag>
-        <tag>工具</tag>
-        <tag>NVBit</tag>
-        <tag>插桩</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Python 语法与工程骨架</title>
     <url>/posts/6a8247a7/</url>
     <content><![CDATA[<p>想在大型项目里写出“既优雅又不掉坑”的 Python？本文用 <strong>抽象基类 → 生成器 → 类型提示 → 模块组织</strong> 四步，给你一套可复用的工程骨架。 <span id="more"></span></p>
@@ -4569,6 +4257,318 @@ flowchart TD
         <tag>网络安全</tag>
         <tag>加密</tag>
         <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NVBit 插桩：从 0 到可用</title>
+    <url>/posts/d4c3b2a1/</url>
+    <content><![CDATA[<p>想在不改用户代码的前提下“看见”每条 GPU 指令如何执行？NVBit 是 NVIDIA 开源的“轻量级 CUDA 指令级动态插桩框架”。本文以“能上手能采样”为目标，从 GPU 并行模型 → CUDA 基础 → PTX/SASS → Linux 注入机制 → NVBit API，总结一份可直接套用的插桩笔记。</p>
+<span id="more"></span>
+<h2 id="gpu-计算硬件与并行模型">1️⃣ GPU 计算硬件与并行模型</h2>
+<ul>
+<li><strong>层级概念</strong>：
+<ul>
+<li><strong>Thread</strong>：最小执行单元，对应内核中的一个逻辑线程。</li>
+<li><strong>Warp</strong>：通常 32 个线程的执行束，硬件以 warp 为粒度调度（SIMT）。</li>
+<li><strong>Block</strong>：多个 warp 组成的线程块，共享 <code>Shared Memory</code> 与 <code>__syncthreads()</code>。</li>
+<li><strong>Grid</strong>：多个 Block 的集合，即一次内核启动的整体并行范围。</li>
+</ul></li>
+<li><strong>调度与分歧</strong>：
+<ul>
+<li><strong>Warp Scheduler</strong> 在 SM 上挑选可就绪的 warp 发射指令；</li>
+<li><strong>SIMT</strong>：同一 warp 的线程同发同取，但可因分支发生“分歧”，由硬件做掩码串行化执行；</li>
+<li>分歧越多，吞吐越差。</li>
+</ul></li>
+<li><strong>内存层次</strong>：<code>Global</code>（大容量/高延迟）、<code>L2</code>、<code>Shared</code>（块内共享/低延迟）、<code>Constant/Texture</code>（只读/缓存友好）、<code>Local</code>（线程私有，实质访问全局内存）。</li>
+<li><strong>隐式切换（Latency Hiding）</strong>：高延迟访存期间，调度器切换到其他就绪 warp，靠并行隐藏延迟。</li>
+</ul>
+<hr />
+<h2 id="cuda-编程基础与插桩相关的最小知识">2️⃣ CUDA 编程基础（与插桩相关的最小知识）</h2>
+<ul>
+<li><strong>Kernel 定义与启动</strong>：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__global__ <span class="type">void</span> <span class="title function_">saxpy</span><span class="params">(<span class="type">float</span> a, <span class="type">const</span> <span class="type">float</span>* x, <span class="type">float</span>* y, <span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">int</span> i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (i &lt; n) y[i] = a * x[i] + y[i];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 启动：&lt;&lt;&lt;grid, block[, shared_mem, stream]&gt;&gt;&gt;</span></span><br><span class="line"><span class="type">int</span> n = <span class="number">1</span>&lt;&lt;<span class="number">20</span>; dim3 <span class="title function_">block</span><span class="params">(<span class="number">256</span>)</span>, <span class="title function_">grid</span><span class="params">((n+<span class="number">255</span>)/<span class="number">256</span>)</span>;</span><br><span class="line">saxpy&lt;&lt;&lt;grid, block&gt;&gt;&gt;(<span class="number">2.0f</span>, dx, dy, n);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>线程索引</strong>：<code>threadIdx</code>、<code>blockIdx</code>、<code>blockDim</code>、<code>gridDim</code> 用于计算全局线性索引。</li>
+<li><strong>同步与原子</strong>：同 Block 内 <code>__syncthreads()</code>；跨线程的共享写入使用 <code>atomicAdd()</code> 等。</li>
+<li><strong>Runtime vs Driver API</strong>：
+<ul>
+<li>Runtime（<code>cudaMalloc/cudaMemcpy/...</code>）更易用；</li>
+<li>Driver（<code>cuInit/cuModuleLoad/cuLaunchKernel</code>）更底层，NVBit 在 Driver 层拦截 <code>cuLaunchKernel</code> 以获取函数与指令信息。</li>
+</ul></li>
+</ul>
+<p>常见编译选项（调试友好）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -g -G -lineinfo -Xptxas -v -<span class="built_in">arch</span>=sm_80 app.cu -o app</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>-G</code></strong> 设备端调试符号（会降速，调试开启，性能测试关闭）。</li>
+<li><strong><code>-lineinfo</code></strong> 保留行号映射，便于日志对回源代码。</li>
+<li><strong><code>-Xptxas -v</code></strong> 打印寄存器、共享内存使用等编译信息。</li>
+<li><strong><code>-arch=sm_xx</code></strong> 指定目标架构，保证 PTX/SASS 与目标 GPU 匹配。</li>
+</ul>
+<hr />
+<h2 id="ptx-sass两层汇编">3️⃣ PTX &amp; SASS：两层汇编</h2>
+<p>可以把“写 CUDA 代码 → 编译 → 在 GPU 上跑”这个过程类比成翻译：</p>
+<ul>
+<li>你写的 C/C++（CUDA）像“中文原稿”。</li>
+<li>编译器先把它翻成一种“标准中间语”（PTX），方便跨多种 GPU 架构复用。</li>
+<li>最后再由后端把 PTX 翻成“某一代显卡能直接听懂的话”（SASS 机器码）。</li>
+</ul>
+<h3 id="ptx-是什么跨架构的中间语">3.1 PTX 是什么？（跨架构的“中间语”）</h3>
+<ul>
+<li>定位：PTX 是 NVIDIA 的虚拟指令集，跨架构、可读性强，类似“高级汇编”。</li>
+<li>记住三件事：
+<ul>
+<li>指令名 = 动作 + 地址空间 + 数据类型，例如 <code>ld.global.s32</code>：从全局内存加载 32 位有符号整数。</li>
+<li>寄存器带类型，<code>.s32/.u32/.f32/.pred</code> 分别表示 有符号整型/无符号整型/浮点/谓词（布尔）。</li>
+<li>大多数算术/访存都显式写出类型，便于你“用肉眼推导”数据流。</li>
+</ul></li>
+</ul>
+<p>一个极简 PTX 片段：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.reg .s32 r1, r2, r3;     // 三个 32 位整型寄存器</span><br><span class="line">.reg .pred p;              // 一个布尔寄存器</span><br><span class="line">ld.global.s32 r1, [x];     // r1 ← *x（从全局内存地址 x 取 4 字节）</span><br><span class="line">ld.global.s32 r2, [y];     // r2 ← *y</span><br><span class="line">mad.lo.s32 r3, r1, a, r2;  // r3 ← r1*a + r2  （乘加）</span><br><span class="line">st.global.s32 [y], r3;     // *y ← r3         （回写到全局内存）</span><br></pre></td></tr></table></figure>
+<p>如何读 PTX？</p>
+<ul>
+<li>先看“动词”（<code>ld/st/mov/add/mad/...</code>），判定动作。</li>
+<li>再看“地址空间/修饰符”（<code>global/shared/local</code>）。</li>
+<li>最后看“类型”（<code>.s32/.f32/...</code>）与操作数，推导数据宽度与含义。</li>
+</ul>
+<p>常见类型速查：</p>
+<ul>
+<li><code>.s32/.u32</code>：32 位整型（有符号/无符号）</li>
+<li><code>.f32/.f64</code>：32/64 位浮点</li>
+<li><code>.pred</code>：谓词/布尔（常用于条件执行）</li>
+</ul>
+<p>生成 PTX 的常用方法：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -<span class="built_in">ptx</span> app.cu -o app.ptx             <span class="comment"># 直接产出 PTX 文件</span></span><br><span class="line">cuobjdump --dump-ptx app                <span class="comment"># 从可执行文件/库里抽取 PTX</span></span><br></pre></td></tr></table></figure>
+<h3 id="sass-是什么某一代-gpu-的母语">3.2 SASS 是什么？（某一代 GPU 的“母语”）</h3>
+<ul>
+<li>定位：SASS 是真实机器码的人类可读形式（反汇编结果），和 PTX 不保证一一对应（编译器/后端会做调度与优化）。</li>
+<li>读法套路：助记符 + 修饰符 + 数据宽度 + 操作数。例如：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LDG.E.32 R2, [R4]   // 从全局内存加载 4 字节到寄存器 R2（R4 为地址）</span><br><span class="line">FADD R6, R2, R3     // 浮点加法：R6 = R2 + R3</span><br><span class="line">STG.E.32 [R4], R6   // 把 R6 的 4 字节写回全局内存地址 R4</span><br></pre></td></tr></table></figure>
+<p>拿到 SASS 的方式：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvcc -cubin -<span class="built_in">arch</span>=sm_80 app.cu -o app.cubin  <span class="comment"># 生成与架构绑定的 cubin</span></span><br><span class="line">nvdisasm -g app.cubin | less                 <span class="comment"># 反汇编 SASS（-g 带行号映射）</span></span><br><span class="line">cuobjdump --dump-sass app                    <span class="comment"># 也可从成品二进制中抽取</span></span><br></pre></td></tr></table></figure>
+<p>小贴士：不同 GPU 架构（如 Volta/Ampere/Hopper）SASS 语法/修饰符略有差异，读法不变：先看动词，再看宽度/修饰，再看寄存器/地址。</p>
+<h3 id="一眼看懂从-c-到-ptx-到-sass的映射">3.3 一眼看懂“从 C 到 PTX 到 SASS”的映射</h3>
+<p>以 <code>y[i] = a * x[i] + y[i]</code> 为例：</p>
+<ul>
+<li>C/CUDA：从 <code>x[i]</code> 读，乘以 <code>a</code>，再加 <code>y[i]</code>，写回 <code>y[i]</code>。</li>
+<li>PTX（示意）：<code>ld.global.f32</code> 两次加载，<code>fma.rn.f32</code> 或 <code>mul+add</code> 做计算，<code>st.global.f32</code> 回写。</li>
+<li>SASS（示意）：<code>LDG.E.32</code> → <code>FFMA</code>/<code>FADD</code> → <code>STG.E.32</code>。</li>
+</ul>
+<p>不必逐条抠细节，抓主干就行：访存是 <code>LD*/ST*</code>，算术是 <code>F*</code>（浮点）或 <code>I*</code>（整数），控制流是 <code>BRA/SSY/...</code>。</p>
+<h3 id="与-nvbit-有什么关系">3.4 与 NVBit 有什么关系？</h3>
+<ul>
+<li>NVBit 在 Driver 层能拿到“函数的指令列表”，其中就包含 SASS 级别的信息（助记符、操作数等）。</li>
+<li>你可以按“指令类别”筛选（如只对 <code>LDG/STG</code> 插桩），或按助记符前缀聚焦热点（如分支、原子、内存）。</li>
+<li>牢记：PTX 更易读、跨架构；SASS 更贴近硬件、与性能强相关。做插桩时，两者都值得参考：用 PTX 快速理解语义，用 SASS 判断真实代价与分布。</li>
+</ul>
+<h3 id="三步拿到汇编实操">3.5 三步拿到汇编（实操）</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1) 生成 PTX，快速理解语义</span></span><br><span class="line">nvcc -O2 -<span class="built_in">ptx</span> app.cu -o app.ptx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2) 生成 cubin 并反汇编 SASS，观察真实发射的指令</span></span><br><span class="line">nvcc -O2 -cubin -<span class="built_in">arch</span>=sm_80 app.cu -o app.cubin</span><br><span class="line">nvdisasm -g app.cubin | sed -n <span class="string">&#x27;1,120p&#x27;</span> | <span class="built_in">cat</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3) 若 app 已链接成可执行文件/动态库，从成品中抽取</span></span><br><span class="line">cuobjdump --dump-ptx --dump-sass ./app | <span class="built_in">head</span> -n 200 | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>看懂这层关系后，你就能把“源代码的语义”和“GPU 上真实执行的代价”链接起来：这对插桩点选择、性能评估与采样策略都至关重要。</p>
+<hr />
+<h2 id="linux-动态链接与环境变量">4️⃣ Linux 动态链接与环境变量</h2>
+<p>动态链接器（<code>ld-linux.so</code>）在程序启动时负责把用到的共享库（<code>.so</code>）装进进程，并把函数地址“接上去”。理解这套机制，有助于你知道“NVBit/LD_PRELOAD 是怎么把工具注入进去的”。</p>
+<h3 id="动态链接调用链详解">4.1 动态链接调用链详解</h3>
+<p>我们以一个调用 <code>printf</code> 的简单程序为例，看看从执行到函数调用的完整链路，并把核心概念放进去。</p>
+<p><strong>调用链分步走：</strong></p>
+<ol type="1">
+<li><strong>编译期</strong>：
+<ul>
+<li>你写 <code>printf("hello");</code> 并用 <code>gcc hello.c -o hello</code> 编译。</li>
+<li>编译器生成一个 <strong>ELF</strong> 格式的可执行文件 <code>hello</code>。</li>
+<li>这个文件里记录了：“我需要 <code>libc.so.6</code> 这个库”（<code>NEEDED</code> 条目），并且为 <code>printf</code> 准备了一个“跳转跳板”（<strong>PLT</strong> 条目）和一个“地址记录本”（<strong>GOT</strong> 条目）。此时，GOT 里记的不是真地址，而是一个“待解析”的占位符。</li>
+</ul></li>
+<li><strong>程序启动</strong>：
+<ul>
+<li>你在 shell 里输入 <code>./hello</code>。</li>
+<li>操作系统内核加载 <code>hello</code>，看到它是个动态链接程序，于是把控制权交给 <strong>动态链接器</strong>（<code>ld-linux.so.2</code>）。</li>
+</ul></li>
+<li><strong>链接器工作</strong>：
+<ul>
+<li>动态链接器读取 <code>hello</code> 的 <code>NEEDED</code> 列表，找到 <code>libc.so.6</code>。</li>
+<li>它按“查找顺序”（<code>LD_LIBRARY_PATH</code> → 系统缓存 → 默认路径）定位并把 <code>libc.so.6</code> 加载到内存。</li>
+</ul></li>
+<li><strong>首次调用 <code>printf</code></strong>：
+<ul>
+<li>CPU 执行到 <code>printf</code> 调用时，它其实是 <code>call printf@plt</code>，即跳到 PLT 里的“跳板”。</li>
+<li>“跳板”指令去查“地址记录本”（GOT）。</li>
+<li>发现 GOT 里是“待解析”占位符，于是这个“跳板”指令会把控制权再次交给动态链接器，说：“请帮我找到 <code>printf</code> 的真地址”。</li>
+<li>动态链接器在已加载的 <code>libc.so.6</code> 里查找 <code>printf</code>，找到后，把它的真实内存地址<strong>写回</strong>到 GOT 的 <code>printf</code> 条目里。</li>
+<li>最后，动态链接器直接跳转到 <code>printf</code> 的真实地址，函数得以执行。</li>
+</ul></li>
+<li><strong>再次调用 <code>printf</code></strong>：
+<ul>
+<li>CPU 再次执行 <code>call printf@plt</code>。</li>
+<li>“跳板”再次去查 GOT。</li>
+<li>这次 GOT 里已经是 <code>printf</code> 的真实地址了，于是“跳板”直接跳转到该地址，函数执行。整个过程不再需要动态链接器介入，非常快。</li>
+</ul></li>
+</ol>
+<blockquote>
+<p><strong>省流总结</strong> 程序喊：“我要用 <code>printf</code>！” → 先跳到一个“跳板”（PLT），跳板问“地址记录本”（GOT）：“地址在哪？” → 第一次，记录本说“不知道”，于是喊“链接器”来找，找到后把地址记下来 → 第二次，记录本直接报出地址，程序直达。</p>
+</blockquote>
+<blockquote>
+<p><strong>名词速记</strong> • <strong>ELF</strong>：Executable &amp; Linkable Format，Linux 可执行/共享库的通用容器。<br/> • <strong>NEEDED</strong>：ELF Header 里的依赖库列表；<code>readelf -d a.out</code> 可见 <code>NEEDED libm.so.6</code>。<br/> • <strong>动态链接器</strong>：<code>ld-linux-x86-64.so.2</code>，启动时按搜索顺序(LD_LIBRARY_PATH → <code>/etc/ld.so.cache</code> → <code>/lib64</code>) 找到并加载那些 .so。<br/> • <strong>PLT / GOT</strong>：Procedure Linkage Table &amp; Global Offset Table；前者存“跳转占位指令”，后者存“真实地址”，首调用触发解析并回写 GOT，后续直跳。<br/> • <strong><code>dlsym</code></strong>：运行期手动查符号，用途：插件/热更新；本质：动态链接器里再查一次符号表。</p>
+</blockquote>
+<h3 id="ld_preload-如何影响调用链">4.2 <code>LD_PRELOAD</code> 如何影响调用链</h3>
+<p><code>LD_PRELOAD</code> 是一种强大的动态链接插桩机制，它直接作用于我们在 <strong>4.1 节描述的调用链</strong>，主要影响<strong>第 3 步（链接器工作）</strong>和<strong>第 4 步（首次调用）</strong>。</p>
+<p><strong>影响调用链分步走：</strong></p>
+<ol type="1">
+<li><strong>影响第 3 步（链接器工作）</strong>
+<ul>
+<li>当你设置 <code>LD_PRELOAD=./libhook.so</code> 并启动程序时，动态链接器在读取 <code>NEEDED</code> 列表、查找依赖库之前，会<strong>最优先</strong>把 <code>libhook.so</code> 加载到内存。</li>
+<li>这相当于在链接器的“查找顺序”里强行插入了一个最高优先级项。</li>
+</ul></li>
+<li><strong>影响第 4 步（首次调用 <code>malloc</code>）</strong>
+<ul>
+<li>当程序首次调用 <code>malloc</code> 时，和 <code>printf</code> 一样，会跳到 PLT，然后触发动态链接器去查找 <code>malloc</code> 的真实地址。</li>
+<li>链接器开始按顺序查找：它首先看最先加载的 <code>libhook.so</code>，结果发现里面就有一个叫 <code>malloc</code> 的函数。</li>
+<li>这就触发了 <strong>符号抢占 (Symbol Interposition)</strong>：链接器“抢先”绑定了你的假 <code>malloc</code>，并把地址写回 GOT。它不会再继续往后找 <code>libc.so.6</code> 里的真 <code>malloc</code> 了。</li>
+<li>控制权交给你的假 <code>malloc</code>，拦截成功。</li>
+</ul></li>
+<li><strong>在拦截函数中调用原始函数</strong>
+<ul>
+<li>在你的假 <code>malloc</code> 里，不能直接再写 <code>malloc()</code>，否则会无限递归调用自己。</li>
+<li>此时需要用 <code>dlsym(RTLD_NEXT, "malloc")</code>。<code>RTLD_NEXT</code> 这个特殊句柄告诉动态链接器：“请从<strong>下一个</strong>加载的库（也就是 <code>libc.so.6</code>）开始，帮我查找 <code>malloc</code>”。</li>
+<li><code>dlsym</code> 会返回真正的 <code>malloc</code> 地址，你存下来就可以调用了。</li>
+</ul></li>
+</ol>
+<blockquote>
+<p><strong>省流总结</strong> <code>LD_PRELOAD</code> 就像给链接器戴上了一副“有色眼镜”，让它最先看到你的 <code>hook.so</code>。当程序要找函数时，链接器就从你的库里找到了一个“冒名顶替”的版本（符号抢占），从而实现拦截。而 <code>dlsym(RTLD_NEXT, ...)</code> 则是摘下眼镜，让你能找到并调用被顶替的“真人”。</p>
+</blockquote>
+<p><strong>最小拦截示例：统计 <code>malloc</code> 使用次数</strong> <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// file: hook.c</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span>* (*real_malloc)(<span class="type">size_t</span>) = <span class="literal">NULL</span>;</span><br><span class="line"><span class="type">static</span> <span class="type">size_t</span> g_count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">__attribute__((constructor)) <span class="type">static</span> <span class="type">void</span> <span class="title function_">init_hook</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;[hook] loaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span>* <span class="title function_">malloc</span><span class="params">(<span class="type">size_t</span> size)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!real_malloc) &#123;</span><br><span class="line">        <span class="comment">// RTLD_NEXT: 从下一个库开始找 malloc</span></span><br><span class="line">        real_malloc = (<span class="type">void</span>*(*)(<span class="type">size_t</span>))dlsym(RTLD_NEXT, <span class="string">&quot;malloc&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">void</span>* p = real_malloc(size);</span><br><span class="line">    g_count++;</span><br><span class="line">    <span class="keyword">if</span> (getenv(<span class="string">&quot;HOOK_VERBOSE&quot;</span>)) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;[hook] malloc(%zu) =&gt; %p (count=%zu)\n&quot;</span>, size, p, g_count);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>编译与运行</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gcc -shared -fPIC -ldl hook.c -o libhook.so</span><br><span class="line">LD_PRELOAD=<span class="variable">$PWD</span>/libhook.so HOOK_VERBOSE=1 ./your_program</span><br></pre></td></tr></table></figure></p>
+<p><strong>要点</strong> - <strong>与 NVBit 的关系</strong>：NVBit 注入 <code>libnvbit.so</code> 来拦截 CUDA Driver API（如 <code>cuLaunchKernel</code>），原理与此完全相同。</p>
+<h3 id="环境变量给工具遥控器">4.3 环境变量：给工具“遥控器”</h3>
+<p>用环境变量控制行为是业界惯例：无需改代码/重编译，随开随关。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">get_int_env</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key, <span class="type">int</span> defv)</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* v = getenv(key);</span><br><span class="line">    <span class="keyword">return</span> v ? atoi(v) : defv;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> <span class="title function_">get_bool_env</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* key, <span class="type">int</span> defv)</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">char</span>* v = getenv(key);</span><br><span class="line">    <span class="keyword">if</span> (!v) <span class="keyword">return</span> defv;</span><br><span class="line">    <span class="keyword">return</span> (!<span class="built_in">strcmp</span>(v, <span class="string">&quot;1&quot;</span>) || !<span class="built_in">strcmp</span>(v, <span class="string">&quot;true&quot;</span>) || !<span class="built_in">strcmp</span>(v, <span class="string">&quot;on&quot;</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用法：</span></span><br><span class="line"><span class="comment">// int verbose = get_bool_env(&quot;NVBIT_VERBOSE&quot;, 0);</span></span><br><span class="line"><span class="comment">// int sample_n = get_int_env(&quot;MY_TOOL_SAMPLE_N&quot;, 100);</span></span><br></pre></td></tr></table></figure>
+<p>实践建议：</p>
+<ul>
+<li>约定统一前缀（如 <code>MYTOOL_*</code>），避免与系统变量冲突。</li>
+<li>为每个开关提供默认值与帮助说明（打印到日志首行）。</li>
+</ul>
+<h3 id="proc-与排错技巧">4.4 /proc 与排错技巧</h3>
+<ul>
+<li>看看进程到底加载了哪些库、地址在哪：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cat</span> /proc/$$/maps | grep -E <span class="string">&quot;libcuda|libnvbit|libhook&quot;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>动态链接问题一把梭：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldd ./app</span><br><span class="line">LD_DEBUG=libs,symbols,bindings ./app 2&gt;&amp;1 | less</span><br></pre></td></tr></table></figure>
+<ul>
+<li>了解即可：<code>ptrace</code> 可让调试器（<code>gdb</code> 等）附加进程；分析崩溃时有用，但与动态链接不是一件事。</li>
+</ul>
+<hr />
+<h2 id="gpu-指令级插桩基本思路">5️⃣ GPU 指令级插桩基本思路</h2>
+<p>“钩子（Hook）是什么”：在不改原程序逻辑的前提下，拦截某个函数或事件的执行点，插入你的自定义代码（记录/修改/放行），然后把控制权交还原逻辑。</p>
+<p>在本节语境里，常用两层 Hook：</p>
+<ul>
+<li><strong>驱动事件 Hook</strong>：在 <code>cuLaunchKernel</code> 等 Driver API 的进入/退出时机回调你的代码，用来“决定是否对这次 Kernel 做插桩”。</li>
+<li><strong>指令级 Hook</strong>：对目标 <code>CUfunction</code> 的每条（或部分）SASS 指令，在指令前/后插入对设备端处理函数的调用，实现“记录/采样/统计”。</li>
+</ul>
+<p>优点：零侵入、上线快；注意：有额外开销，需配合过滤/采样，并避免递归拦截与线程不安全。</p>
+<h3 id="想达到什么目标">5.1 想达到什么目标？</h3>
+<ul>
+<li>明确你需要“看见什么”：
+<ul>
+<li>指令计数（总量/类别占比）、内存访问信息（地址、宽度）、分支行为（是否分歧）、原子/Barrier 使用等。</li>
+</ul></li>
+<li>先从“最小目标”起步（仅计数或仅内存指令），验证链路，再逐步加字段。</li>
+</ul>
+<h3 id="静态-vs-动态两条路">5.2 静态 vs 动态（两条路）</h3>
+<ul>
+<li>静态插桩：在编译期修改 PTX/SASS（或用编译器 pass）。
+<ul>
+<li>优点：开销可控、可定制性强。</li>
+<li>缺点：兼容性/维护成本高；适配不同架构麻烦。</li>
+</ul></li>
+<li>动态插桩（NVBit）：运行时拦截驱动，对已加载的 <code>CUfunction</code> 动态加钩子。
+<ul>
+<li>优点：对用户二进制零侵入、快速迭代。</li>
+<li>缺点：插入调用本身有额外成本，需要过滤/采样。</li>
+</ul></li>
+</ul>
+<h3 id="插桩颗粒度与插点策略">5.3 插桩颗粒度与插点策略</h3>
+<ul>
+<li>粒度：函数级（仅启停）/ 指令级（精确到 <code>LDG/STG/ATOM/BRA/...</code>）。</li>
+<li>插点：<code>IPOINT_BEFORE</code>（指令执行前）或 <code>IPOINT_AFTER</code>（执行后）。
+<ul>
+<li>读内存：多在 BEFORE（记录将要访问的地址）。</li>
+<li>写内存：多在 AFTER（可记录最终值，代价更高）。</li>
+</ul></li>
+<li>谓词执行：许多 SASS 指令有谓词屏蔽，务必把谓词传给设备端处理以过滤未执行的路径。</li>
+</ul>
+<h3 id="记录格式record怎么设计">5.4 记录格式（Record）怎么设计？</h3>
+<ul>
+<li>原则：结构体字段最小化、定长、cache 友好；避免可变长字符串。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">align__</span>(16) <span class="title">MemRec</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> smid;           <span class="comment">// 可选：SM id</span></span><br><span class="line">    <span class="type">unsigned</span> warp;           <span class="comment">// 可选：Warp id（lane/warp 组合）</span></span><br><span class="line">    <span class="type">unsigned</span> inst_tag;       <span class="comment">// 指令标识（host 侧映射助记符/位置）</span></span><br><span class="line">    <span class="type">unsigned</span> flags;          <span class="comment">// 谓词/读写/空间等 bit 位</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> addr; <span class="comment">// 访存地址（如需）</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果只做计数：完全可以把 <code>MemRec</code> 简化成“按类别的计数器”放在全局/共享内存中，降低带宽。</li>
+</ul>
+<h3 id="设备端缓冲与背压ring-buffer">5.5 设备端缓冲与背压（Ring Buffer）</h3>
+<ul>
+<li>每条记录一条 <code>printf</code> 会拖垮性能，必须“先写缓冲 → 批量回传”。</li>
+<li>常见方案：全局环形缓冲 + 原子游标；必要时配合 Block 内共享内存做分层缓冲。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">__device__ __managed__ MemRec gbuf[<span class="number">1</span>&lt;&lt;<span class="number">20</span>];</span><br><span class="line">__device__ __managed__ <span class="type">unsigned</span> ghead = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> __device__ __noinline__ <span class="type">void</span> <span class="title function_">dev_record_pred</span><span class="params">(<span class="type">int</span> pred,</span></span><br><span class="line"><span class="params">                                                         <span class="type">unsigned</span> inst_tag,</span></span><br><span class="line"><span class="params">                                                         <span class="type">unsigned</span> flags,</span></span><br><span class="line"><span class="params">                                                         <span class="type">unsigned</span> <span class="type">long</span> <span class="type">long</span> addr)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!pred) <span class="keyword">return</span>;  <span class="comment">// 指令未执行，直接跳过</span></span><br><span class="line">    <span class="type">unsigned</span> pos = atomicAdd(&amp;ghead, <span class="number">1</span>);</span><br><span class="line">    pos &amp;= (<span class="number">1</span>&lt;&lt;<span class="number">20</span>) - <span class="number">1</span>; <span class="comment">// 环形</span></span><br><span class="line">    gbuf[pos] = &#123; <span class="comment">/*smid*/</span><span class="number">0u</span>, <span class="comment">/*warp*/</span><span class="number">0u</span>, inst_tag, flags, addr &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>背压：当生产速度 &gt; 消费速度，会覆盖旧数据。策略：
+<ul>
+<li>增大缓冲（牺牲显存），</li>
+<li>提高回传频率（更多 DMA），</li>
+<li>采样/过滤（减少写入），</li>
+<li>分层缓冲（共享内存聚合，减少全局原子）。</li>
+</ul></li>
+</ul>
+<h3 id="host-device-回传批量且异步">5.6 Host ↔ Device 回传（批量且异步）</h3>
+<ul>
+<li>Host 侧维护 pinned host 缓冲 + stream，周期性 <code>cudaMemcpyAsync</code> 回传一批数据；双缓冲流水化：</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 伪代码</span></span><br><span class="line"><span class="built_in">cudaMemcpyAsync</span>(host_buf[cur], gbuf, bytes, cudaMemcpyDeviceToHost, stream);</span><br><span class="line"><span class="built_in">cudaEventRecord</span>(done[cur], stream);</span><br><span class="line"><span class="comment">// 轮转 cur，另一路并行解析/落盘</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>落盘：优先二进制；解析器单独实现，避免在线文本格式化。</li>
+</ul>
+<h3 id="过滤与采样把开销打下来">5.7 过滤与采样（把开销打下来）</h3>
+<ul>
+<li>Kernel 名过滤（正则/白名单）。</li>
+<li>指令类别过滤（只插 <code>LDG/STG/ATOM/BRA/...</code>）。</li>
+<li>比例采样（每 N 条插 1 条）或时间窗口采样（只在前 M 毫秒记录）。</li>
+<li>启停控制：通过环境变量在 <code>nvbit_at_cuda_event</code> 里仅对前 K 次 launch 开启。</li>
+</ul>
+<h3 id="正确性与验证别被插桩污染">5.8 正确性与验证（别被插桩“污染”）</h3>
+<ul>
+<li>确保设备端处理函数 <code>__noinline__</code>，避免被内联改变控制流。</li>
+<li>避免在设备端大量 <code>printf</code>；必要时仅在小规模 debug 期开启。</li>
+<li>检查寄存器/共享内存占用（<code>-Xptxas -v</code>）；插桩会增加压力，可能导致寄存器溢出到 Local，性能骤降。</li>
+<li>与 <code>compute-sanitizer</code> 联合：先保证无越界/竞争/屏障问题，再看插桩结果。</li>
+</ul>
+<h3 id="最小插桩实战统计全局内存读取次数">5.9 最小插桩实战：统计全局内存读取次数</h3>
+<p>下面我们用三段代码，完整演示如何插桩一个 CUDA 程序来统计它执行了多少次全局内存读取（<code>LDG</code> 指令）。</p>
+<h4 id="host-端工具-tool.cpp">1. Host 端工具 (<code>tool.cpp</code>)</h4>
+<p>这是插桩工具的核心逻辑，负责告诉 NVBit“在哪些指令前，插入哪些函数调用”。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// file: tool.cpp</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;nvbit.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 声明我们将在 Device 端定义的处理函数</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> <span class="function">__device__ <span class="type">void</span> <span class="title">count_ldg</span><span class="params">(<span class="type">int</span> pred)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NVBit 在加载每个 CUfunction 时会调用这个函数</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">instrument_function</span><span class="params">(CUfunction func)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 遍历函数的所有基本块和指令</span></span><br><span class="line">    <span class="function">nvbit_iterator_instr <span class="title">cf_graph</span><span class="params">(func)</span></span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">auto</span> it = cf_graph.<span class="built_in">begin</span>(); it != cf_graph.<span class="built_in">end</span>(); ++it) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> instr : it-&gt;<span class="built_in">get_instrs</span>()) &#123;</span><br><span class="line">            <span class="comment">// 如果是 LDG (Load Global) 指令</span></span><br><span class="line">            <span class="keyword">if</span> (instr-&gt;<span class="built_in">get_opcode_name</span>().<span class="built_in">find</span>(<span class="string">&quot;LDG&quot;</span>) != std::string::npos) &#123;</span><br><span class="line">                <span class="comment">// 在它执行前，插入对 dev_count_ldg 的调用</span></span><br><span class="line">                <span class="built_in">nvbit_insert_call</span>(instr, <span class="string">&quot;count_ldg&quot;</span>, IPOINT_BEFORE);</span><br><span class="line">                <span class="comment">// 把指令的谓词（是否执行）作为第一个参数传给 dev_count_ldg</span></span><br><span class="line">                <span class="built_in">nvbit_add_call_arg_guard_pred</span>(instr);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NVBit 工具加载时会调用</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">nvbit_at_init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[NVBit Tool] Initialized. Ready to instrument.\n&quot;</span>);</span><br><span class="line">    <span class="comment">// 注册我们的插桩函数</span></span><br><span class="line">    <span class="built_in">nvbit_register_callback</span>(NVBIT_CB_TYPE_FUNCTION_LOAD, instrument_function);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="device-端处理-dev.cu">2. Device 端处理 (<code>dev.cu</code>)</h4>
+<p>这是被插入到 GPU 代码流中的“钩子”函数，它在 GPU 上执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// file: dev.cu</span><br><span class="line">#include &lt;cuda.h&gt;</span><br><span class="line">#include &lt;stdint.h&gt;</span><br><span class="line"></span><br><span class="line">// 定义一个全局计数器，__managed__ 让它在 Host/Device 间可见</span><br><span class="line">__device__ __managed__ uint64_t ldg_counter = 0;</span><br><span class="line"></span><br><span class="line">// Host 端插入的调用，最终会执行这个函数</span><br><span class="line">extern &quot;C&quot; __device__ __noinline__ void count_ldg(int pred) &#123;</span><br><span class="line">    // 只有当指令的谓词为 true (即指令确实会执行) 时，才计数</span><br><span class="line">    if (pred) &#123;</span><br><span class="line">        atomicAdd((unsigned long long*)&amp;ldg_counter, 1);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="编译与运行">3. 编译与运行</h4>
+<p>假设我们有一个简单的 CUDA 程序 <code>app.cu</code>。</p>
+<p><strong>编译</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 编译 Device 端代码为对象文件</span></span><br><span class="line">nvcc -dlink -Xptxas -v --shared dev.cu -o dev.o</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 编译 Host 端工具，并把 Device 端代码链接进去</span></span><br><span class="line">g++ -I<span class="variable">$CUDA_HOME</span>/include -shared -fPIC tool.cpp dev.o -o tool.so \</span><br><span class="line">    -L<span class="variable">$CUDA_HOME</span>/lib64 -lcuda</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 编译你的目标 CUDA 程序</span></span><br><span class="line">nvcc app.cu -o app</span><br></pre></td></tr></table></figure></p>
+<p><strong>运行与验证</strong> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1. 设置 NVBIT_TOOL 环境变量，指向你的工具</span></span><br><span class="line"><span class="built_in">export</span> NVBIT_TOOL=<span class="variable">$PWD</span>/tool.so</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 运行目标程序</span></span><br><span class="line">./app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 检查计数器结果（需在 app 中加入打印 ldg_counter 的代码）</span></span><br><span class="line"><span class="comment"># 或者在 tool.cpp 的 nvbit_at_exit 回调中打印</span></span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p><strong>省流总结</strong> <code>tool.cpp</code> 像一个“手术规划师”，它决定了要在 <code>LDG</code> 指令这个“手术点”，插入 <code>count_ldg</code> 这个“探针”。<code>dev.cu</code> 定义了这个“探针”的具体动作（原子加）。<code>nvcc</code> 和 <code>g++</code> 负责把这两部分打包成一个完整的插桩工具 <code>tool.so</code>，最后通过环境变量注入到目标程序中。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>CUDA</category>
+        <category>调试与性能</category>
+      </categories>
+      <tags>
+        <tag>CUDA</tag>
+        <tag>调试</tag>
+        <tag>工具</tag>
+        <tag>NVBit</tag>
+        <tag>插桩</tag>
       </tags>
   </entry>
   <entry>
@@ -9485,98 +9485,6 @@ graph TD
       </tags>
   </entry>
   <entry>
-    <title>混合加密入门：集安全与效率于一身的艺术</title>
-    <url>/posts/8c9a7e4f/</url>
-    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
-<ul>
-<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
-<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
-</ul>
-<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
-<span id="more"></span>
-<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
-<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
-<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
-<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
-<ul>
-<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
-<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
-<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
-<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
-</ul>
-<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
-<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
-<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
-<ul>
-<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
-<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
-</ul>
-<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
-<ul>
-<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
-<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
-<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
-</ul>
-<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
-<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
-<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
-<p>它的执行流程如同一场精心编排的双人舞：</p>
-<ol type="1">
-<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
-<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
-<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
-<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
-<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
-<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
-</ol>
-<p>至此，一次安全又高效的通信便完成了。</p>
-我们可以用下面这个流程图来清晰地展示这个过程：
-<pre class="mermaid">sequenceDiagram
-    participant Sender as 发送方
-    participant Receiver as 接收方
-
-    Note over Sender, Receiver: 混合加密流程
-
-    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
-    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
-    
-    rect rgba(255, 220, 220, 0.4)
-        note right of Sender: 获取接收方的公钥
-        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
-    end
-    
-    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
-    
-    rect rgba(220, 255, 220, 0.4)
-        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
-        note right of Receiver: 获得对称密钥
-        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
-    end
-    
-    Receiver->>Sender: 通信已安全建立</pre>
-<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
-<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
-<ul>
-<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
-<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
-<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
-<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
-</ul>
-<h3 id="四总结">✨ 四、总结</h3>
-<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
-<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
-]]></content>
-      <categories>
-        <category>计算机基础</category>
-        <category>安全</category>
-      </categories>
-      <tags>
-        <tag>加密</tag>
-        <tag>密码学</tag>
-        <tag>安全</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>实模式（Real Mode）</title>
     <url>/posts/b08764f6/</url>
     <content><![CDATA[<p>本文主要介绍实模式（Real Mode）的基本概念、主要特性，以及其在x86架构启动流程中的作用。通过理解实模式，可以帮助大家更好地理解现代操作系统为何要经历“实模式→保护模式→长模式”等阶段，以及16位、20位寻址等历史遗留问题的成因。</p>
@@ -10016,6 +9924,98 @@ graph LR
         <tag>x86</tag>
         <tag>启动</tag>
         <tag>实模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>混合加密入门：集安全与效率于一身的艺术</title>
+    <url>/posts/8c9a7e4f/</url>
+    <content><![CDATA[<p>在数字世界中，我们渴望两全其美：既想要信息传输绝对安全，又追求其过程畅快高效。若把数据加密比作锁门，我们面临一个两难选择：</p>
+<ul>
+<li><strong>对称加密</strong>像一把普通的房门钥匙：开锁和上锁都用同一把，速度飞快，但把这把唯一的钥匙安全地交给远方的朋友却成了一个大难题。</li>
+<li><strong>非对称加密</strong>则像一个银行保险箱：对外提供一个只能存东西的“公钥”（存款口），而取东西的“私钥”（保险箱钥匙）则由自己牢牢保管。它完美解决了密钥分发问题，但操作起来却相对“笨重”，处理大量数据时效率不高。</li>
+</ul>
+<p>有没有一种方法，能让我们同时拥有对称加密的“快”和非对称加密的“稳”呢？答案是肯定的，这就是我们今天要探讨的主角——<strong>混合加密 (Hybrid Encryption)</strong>。</p>
+<span id="more"></span>
+<h3 id="一加密世界的两大支柱">🏛️ 一、加密世界的两大支柱</h3>
+<p>要理解混合加密的精妙之处，我们首先要掌握它的两个核心构建模块：对称加密与非对称加密。</p>
+<h4 id="对称加密速度的王者">🔑 对称加密：速度的王者</h4>
+<p>对称加密（Symmetric Encryption）是最直观的加密形式。它的特点是<strong>加密和解密使用同一个密钥</strong>。</p>
+<ul>
+<li><strong>工作原理</strong>：<code>解密( 加密(数据, 密钥), 密钥) = 原始数据</code></li>
+<li><strong>优点</strong>：算法成熟，计算速度快，适合加密大体积的文件或数据流。</li>
+<li><strong>缺点</strong>：<strong>密钥分发困难</strong>。如何在不安全的网络上，将这把“万能钥匙”安全地送到接收者手中，是其最大的软肋。一旦密钥在传输过程中被窃取，整个加密体系便形同虚设。</li>
+<li><strong>常见算法</strong>：<code>AES (Advanced Encryption Standard)</code></li>
+</ul>
+<p>可以把它想象成你家的门锁，你和家人用同一把钥匙开门，非常方便。但如果你想给一个远方的朋友这把钥匙，你必须通过一个绝对可靠的方式（比如当面交付）送达，否则风险极高。</p>
+<h4 id="非对称加密安全的基石">👥 非对称加密：安全的基石</h4>
+<p>为了解决密钥分发的难题，非对称加密（Asymmetric Encryption）应运而生。它拥有一对数学上相关的密钥：<strong>公钥 (Public Key)</strong> 和 <strong>私钥 (Private Key)</strong>。</p>
+<ul>
+<li><strong>公钥</strong>：可以任意公开，任何人都可以获取。它用于<strong>加密数据</strong>和<strong>验证签名</strong>。</li>
+<li><strong>私钥</strong>：必须严格保密，只有持有者知道。它用于<strong>解密数据</strong>和<strong>生成签名</strong>。</li>
+</ul>
+<p>它的工作流分为两种： 1. <strong>加密/解密</strong>：<code>A</code> 想给 <code>B</code> 发送机密消息。<code>A</code> 用 <code>B</code> 的公钥加密消息，<code>B</code> 收到后用自己的私钥解密。其他人即使截获了消息，没有 <code>B</code> 的私钥也无法破解。 2. <strong>签名/验证</strong>：<code>A</code> 想证明某条消息确实是自己发的。<code>A</code> 用自己的私钥对消息“签名”，并将签名连同消息一起发给 <code>B</code>。<code>B</code> 用 <code>A</code> 的公"钥来验证签名，如果成功，就能确定消息来自 <code>A</code> 且未被篡改。</p>
+<ul>
+<li><strong>优点</strong>：完美解决了密钥分发问题，安全性高，且能实现数字签名。</li>
+<li><strong>缺点</strong>：计算复杂度高，加密速度远慢于对称加密，不适合直接加密大量数据。</li>
+<li><strong>常见算法</strong>：<code>RSA</code>, <code>ECC</code></li>
+</ul>
+<p>这就像一个公开的邮箱（公钥），任何人都可以往里投信，但只有持有唯一钥匙（私钥）的你才能打开邮箱取信。</p>
+<h3 id="二融合之道混合加密如何工作">🤝 二、融合之道：混合加密如何工作</h3>
+<p>混合加密的核心思想是<strong>“取长补短”</strong>： &gt; 用非对称加密的“安全”来弥补对称加密在“密钥分发”上的短板； &gt; 用对称加密的“高效”来解决非对称加密在“处理大数据”上的性能瓶颈。</p>
+<p>它的执行流程如同一场精心编排的双人舞：</p>
+<ol type="1">
+<li><strong>生成会话密钥</strong>：发送方（比如，你的浏览器）针对本次通信，随机生成一个临时的、一次性的<strong>对称密钥</strong>（也称“会话密钥”）。</li>
+<li><strong>加密数据</strong>：发送方使用这个<strong>会话密钥</strong>，通过对称加密算法（如 AES）加密要发送的全部<strong>正文数据</strong>。这一步速度很快。</li>
+<li><strong>加密会话密钥</strong>：为了安全地把会话密钥交给接收方（比如，网站服务器），发送方使用接收方的<strong>公钥</strong>，通过非对称加密算法（如 RSA）只对这个短小的<strong>会话密钥</strong>进行加密。这一步虽然慢，但因为加密的数据量极小，所以几乎不影响整体效率。</li>
+<li><strong>发送</strong>：发送方将<strong>“第 2 步加密后的正文”</strong>和<strong>“第 3 步加密后的会话密钥”</strong>打包，一起发送给接收方。</li>
+<li><strong>解密会话密钥</strong>：接收方收到后，首先用自己的<strong>私钥</strong>解密出原始的<strong>会话密钥</strong>。</li>
+<li><strong>解密数据</strong>：接收方现在拥有了安全的会话密钥，于是用它通过对称解密算法，高效地解密出全部<strong>正文数据</strong>。</li>
+</ol>
+<p>至此，一次安全又高效的通信便完成了。</p>
+我们可以用下面这个流程图来清晰地展示这个过程：
+<pre class="mermaid">sequenceDiagram
+    participant Sender as 发送方
+    participant Receiver as 接收方
+
+    Note over Sender, Receiver: 混合加密流程
+
+    Sender->>Sender: 1. 生成临时对称密钥 (Session Key)
+    Sender->>Sender: 2. 用对称密钥加密<br/>大量数据 (AES)
+    
+    rect rgba(255, 220, 220, 0.4)
+        note right of Sender: 获取接收方的公钥
+        Sender->>Sender: 3. 用接收方的公钥加密<br/>对称密钥 (RSA)
+    end
+    
+    Sender->>Receiver: 4. 发送 [加密的数据] + [加密的对称密钥]
+    
+    rect rgba(220, 255, 220, 0.4)
+        Receiver->>Receiver: 5. 用自己的私钥解密<br/>对称密钥
+        note right of Receiver: 获得对称密钥
+        Receiver->>Receiver: 6. 用对称密钥解密<br/>大量数据
+    end
+    
+    Receiver->>Sender: 通信已安全建立</pre>
+<h3 id="三现实世界的应用">🌍 三、现实世界的应用</h3>
+<p>混合加密并非象牙塔里的理论，它早已深入我们日常数字生活的方方面面：</p>
+<ul>
+<li><strong>HTTPS/TLS</strong>：你访问的所有 <code>https://</code> 网站，其安全基石都是 TLS 协议，而 TLS 的核心就是混合加密。你的浏览器和服务器通过非对称加密协商出一个会话密钥，之后的所有应用数据都通过这个对称密钥进行加密传输。</li>
+<li><strong>PGP/GPG 邮件加密</strong>：当你使用 GPG 加密一封邮件时，GPG 会随机生成一个对称密钥来加密你的邮件内容，然后用收件人的 GPG 公钥来加密这个对称密钥。</li>
+<li><strong>SSH 连接</strong>：我们用 <code>ssh</code> 登录服务器时，同样利用了混合加密来建立安全信道，保护我们输入的命令和服务器返回的数据不被窃听。</li>
+<li><strong>安全聊天应用 (Signal, Telegram)</strong>：这些端到端加密的聊天工具，同样采用类似的混合加密模型来保护每一条消息的安全。</li>
+</ul>
+<h3 id="四总结">✨ 四、总结</h3>
+<p>混合加密通过一种极为务实和优雅的方式，将对称加密与非对称加密的优势完美结合，构建了当今网络安全通信的骨架。它告诉我们，在工程领域，最优的解决方案往往不是单一技术的极致发挥，而是多种技术恰到好处的协同与融合。</p>
+<p>下一次，当你看到浏览器地址栏那把绿色的小锁时，希望你能想起背后这套安全与效率并存的“混合之舞”。</p>
+]]></content>
+      <categories>
+        <category>计算机基础</category>
+        <category>安全</category>
+      </categories>
+      <tags>
+        <tag>加密</tag>
+        <tag>密码学</tag>
+        <tag>安全</tag>
       </tags>
   </entry>
   <entry>
