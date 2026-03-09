@@ -30,7 +30,7 @@
 <meta property="og:description" content="PyTorch 为深度学习提供了强大的数据加载和可视化工具。掌握 Dataset、DataLoader、Transforms 和 TensorBoard 是高效训练模型的关键。本文将带你快速入门这四大核心组件。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-10-07T07:24:18.000Z">
-<meta property="article:modified_time" content="2026-03-03T06:26:34.106Z">
+<meta property="article:modified_time" content="2026-03-09T09:06:41.074Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="PyTorch">
 <meta property="article:tag" content="深度学习">
@@ -173,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E9%80%9F%E8%AE%B0"><span class="nav-number">1.</span> <span class="nav-text">📚 核心组件速记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%B5%81%E8%BD%AC%E7%A4%BA%E6%84%8F%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">🎨 数据流转示意图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.data.dataset%E5%B0%81%E8%A3%85%E4%BD%A0%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number"></span> <span class="nav-text">1️⃣ torch.utils.data.Dataset：封装你的数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E5%AE%9A%E4%B9%89-dataset"><span class="nav-number">1.</span> <span class="nav-text">示例：创建一个自定义 Dataset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torchvision.transforms%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B8%8E%E5%A2%9E%E5%BC%BA"><span class="nav-number"></span> <span class="nav-text">2️⃣ torchvision.transforms：数据预处理与增强</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E5%8F%98%E6%8D%A2%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-number">1.</span> <span class="nav-text">示例：定义一个变换流水线</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.data.dataloader%E6%89%B9%E9%87%8F%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE"><span class="nav-number"></span> <span class="nav-text">3️⃣ torch.utils.data.DataLoader：批量加载数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BD%BF%E7%94%A8-dataloader"><span class="nav-number">1.</span> <span class="nav-text">示例：使用 DataLoader</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.tensorboard%E5%8F%AF%E8%A7%86%E5%8C%96%E8%AE%AD%E7%BB%83%E8%BF%87%E7%A8%8B"><span class="nav-number"></span> <span class="nav-text">4️⃣ torch.utils.tensorboard：可视化训练过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BD%BF%E7%94%A8-summarywriter"><span class="nav-number">1.</span> <span class="nav-text">示例：使用 SummaryWriter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">📝 小结</span></a></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E9%80%9F%E8%AE%B0"><span class="nav-number">1.</span> <span class="nav-text">📚 核心组件速记</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%B5%81%E8%BD%AC%E7%A4%BA%E6%84%8F%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">🎨 数据流转示意图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.data.dataset%E5%B0%81%E8%A3%85%E4%BD%A0%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="nav-number"></span> <span class="nav-text">torch.utils.data.Dataset：封装你的数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E5%AE%9A%E4%B9%89-dataset"><span class="nav-number">1.</span> <span class="nav-text">示例：创建一个自定义 Dataset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torchvision.transforms%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86%E4%B8%8E%E5%A2%9E%E5%BC%BA"><span class="nav-number"></span> <span class="nav-text">torchvision.transforms：数据预处理与增强</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E5%8F%98%E6%8D%A2%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-number">1.</span> <span class="nav-text">示例：定义一个变换流水线</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.data.dataloader%E6%89%B9%E9%87%8F%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE"><span class="nav-number"></span> <span class="nav-text">torch.utils.data.DataLoader：批量加载数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BD%BF%E7%94%A8-dataloader"><span class="nav-number">1.</span> <span class="nav-text">示例：使用 DataLoader</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#torch.utils.tensorboard%E5%8F%AF%E8%A7%86%E5%8C%96%E8%AE%AD%E7%BB%83%E8%BF%87%E7%A8%8B"><span class="nav-number"></span> <span class="nav-text">torch.utils.tensorboard：可视化训练过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BD%BF%E7%94%A8-summarywriter"><span class="nav-number">1.</span> <span class="nav-text">示例：使用 SummaryWriter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">📝 小结</span></a></div>
         </div>
         <!--/noindex-->
 
@@ -270,7 +270,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-03-03 14:26:34" itemprop="dateModified" datetime="2026-03-03T14:26:34+08:00">2026-03-03</time>
+      <time title="Modified: 2026-03-09 17:06:41" itemprop="dateModified" datetime="2026-03-09T17:06:41+08:00">2026-03-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -345,7 +345,6 @@
 </tr>
 </tbody>
 </table>
-<hr />
 <h3 id="数据流转示意图">🎨 数据流转示意图</h3>
 <p>在 PyTorch 中，数据通常经历从磁盘文件到模型输入的转换过程。理解这个流程是掌握数据加载机制的第一步。</p>
 <pre>
@@ -369,7 +368,7 @@ graph TD
     D &#x3D;&#x3D;&gt; E[模型输入]
 </code>
 </pre>
-<h2 id="torch.utils.data.dataset封装你的数据">1️⃣ <code>torch.utils.data.Dataset</code>：封装你的数据</h2>
+<h2 id="torch.utils.data.dataset封装你的数据"><code>torch.utils.data.Dataset</code>：封装你的数据</h2>
 <p><code>Dataset</code> 是一个抽象类，用于表示数据集。所有自定义的数据集都应该继承它，并重写两个核心方法：</p>
 <ul>
 <li><code>__len__(self)</code>: 返回数据集的大小。</li>
@@ -382,8 +381,7 @@ graph TD
 <blockquote>
 <p>记忆：<code>Dataset</code> 就是个“数据地图”，<code>__getitem__</code> 负责“按图索骥”。</p>
 </blockquote>
-<hr />
-<h2 id="torchvision.transforms数据预处理与增强">2️⃣ <code>torchvision.transforms</code>：数据预处理与增强</h2>
+<h2 id="torchvision.transforms数据预处理与增强"><code>torchvision.transforms</code>：数据预处理与增强</h2>
 <p>在将数据喂给模型之前，通常需要进行预处理，例如转换为 Tensor、归一化、裁剪、旋转等。<code>transforms</code> 就是用来完成这些操作的工具箱。</p>
 <ul>
 <li><strong>常见变换</strong>：<code>ToTensor()</code>, <code>Resize()</code>, <code>CenterCrop()</code>, <code>RandomHorizontalFlip()</code>, <code>Normalize()</code> 等。</li>
@@ -400,8 +398,7 @@ graph TD
 </ul>
 <p>提示：数据增强（如随机翻转）只在训练时使用，验证和测试时应去掉，以保证结果的一致性。</p>
 </blockquote>
-<hr />
-<h2 id="torch.utils.data.dataloader批量加载数据">3️⃣ <code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
+<h2 id="torch.utils.data.dataloader批量加载数据"><code>torch.utils.data.DataLoader</code>：批量加载数据</h2>
 <p><code>DataLoader</code> 是一个迭代器，它从 <code>Dataset</code> 中自动拉取数据，并将其打包成批次 (batch)。它还提供了许多有用的功能：</p>
 <ul>
 <li><strong><code>batch_size</code></strong>: 每个批次包含的样本数。</li>
@@ -421,8 +418,7 @@ graph TD
     E -- 打包成 batch --&gt; F[模型];
 </code>
 </pre>
-<hr />
-<h2 id="torch.utils.tensorboard可视化训练过程">4️⃣ <code>torch.utils.tensorboard</code>：可视化训练过程</h2>
+<h2 id="torch.utils.tensorboard可视化训练过程"><code>torch.utils.tensorboard</code>：可视化训练过程</h2>
 <p><code>TensorBoard</code> 是一个强大的可视化工具，可以帮助你理解、调试和优化你的模型。PyTorch 通过 <code>SummaryWriter</code> 类与其集成。</p>
 <p><strong>主要功能</strong>：</p>
 <ul>
@@ -438,7 +434,6 @@ graph TD
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 创建一个 writer 实例，日志会保存在 &#x27;logs&#x27; 目录下</span></span><br><span class="line">writer = SummaryWriter(<span class="string">&#x27;logs/experiment_1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 在训练循环中记录信息</span></span><br><span class="line"><span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="built_in">range</span>(num_epochs):</span><br><span class="line">    running_loss = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i, data <span class="keyword">in</span> <span class="built_in">enumerate</span>(data_loader, <span class="number">0</span>):</span><br><span class="line">        <span class="comment"># ... 训练代码 ...</span></span><br><span class="line">        loss = criterion(outputs, labels)</span><br><span class="line">        running_loss += loss.item()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 每 100 个 batch 记录一次 loss</span></span><br><span class="line">        <span class="keyword">if</span> i % <span class="number">100</span> == <span class="number">99</span>:</span><br><span class="line">            writer.add_scalar(<span class="string">&#x27;training loss&#x27;</span>, running_loss / <span class="number">100</span>, epoch * <span class="built_in">len</span>(data_loader) + i)</span><br><span class="line">            running_loss = <span class="number">0.0</span></span><br><span class="line"></span><br><span class="line">    假设在每个 epoch 结束后记录一张图片</span><br><span class="line">    writer.add_image(<span class="string">&#x27;one_image&#x27;</span>, images[<span class="number">0</span>], epoch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 训练结束后关闭 writer</span></span><br><span class="line">writer.close()</span><br></pre></td></tr></table></figure>
 <p>记录完成后，在终端中运行 <code>tensorboard --logdir=logs</code>，然后访问浏览器中显示的地址（通常是 <code>http://localhost:6006</code>）即可查看可视化结果。</p>
-<hr />
 <h2 id="小结">📝 小结</h2>
 <ol type="1">
 <li><strong><code>Dataset</code></strong>：数据源的标准化封装，核心是 <code>__len__</code> 和 <code>__getitem__</code>。</li>
@@ -508,7 +503,7 @@ graph TD
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">7:21</span>
+    <span title="Reading time total">7:20</span>
   </span>
 </div>
 <div class="busuanzi-count">

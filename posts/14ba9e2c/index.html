@@ -30,7 +30,7 @@
 <meta property="og:description" content="本文提供了一个完整、通用的 PyTorch 模型训练流程模板。它涵盖了从数据准备、模型构建、训练循环、测试评估到结果可视化的每一个关键步骤，是快速搭建深度学习项目的实用骨架。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-10-08T03:50:28.000Z">
-<meta property="article:modified_time" content="2026-03-03T06:07:03.979Z">
+<meta property="article:modified_time" content="2026-03-09T09:02:09.366Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="PyTorch">
 <meta property="article:tag" content="深度学习">
@@ -271,7 +271,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-03-03 14:07:03" itemprop="dateModified" datetime="2026-03-03T14:07:03+08:00">2026-03-03</time>
+      <time title="Modified: 2026-03-09 17:02:09" itemprop="dateModified" datetime="2026-03-09T17:02:09+08:00">2026-03-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -356,7 +356,6 @@ graph TD
     A &amp; C &amp; E --&gt; F
 </code>
 </pre>
-<hr />
 <h3 id="代码详解">📝 代码详解</h3>
 <p>下面我们来分步解析实现这个流程的 Python 代码。</p>
 <h4 id="导入库并准备数据">1. 导入库并准备数据</h4>
@@ -426,7 +425,6 @@ graph TD
 <p>模型的某些层（如 <code>Dropout</code> 和 <code>BatchNorm</code>）在训练和评估时的行为是不同的。 - <strong>训练时 (<code>train()</code>模式)</strong>: <code>Dropout</code>会随机失活一些神经元来防止过拟合；<code>BatchNorm</code> 会计算当前批次的均值和方差来归一化数据。 - <strong>评估时 (<code>eval()</code>模式)</strong>: <code>Dropout</code>会被禁用；<code>BatchNorm</code> 会使用在整个训练过程中学习到的全局均值和方差。</p>
 <p>切换模式能确保模型在正确的状态下进行训练和推理。</p>
 </blockquote>
-<hr />
 <h3 id="迁移到-gpu-训练">⚡️ 迁移到 GPU 训练</h3>
 <p>如果你的机器上有 NVIDIA 显卡并正确安装了 CUDA，那么将训练迁移到 GPU 上可以极大地加速计算。PyTorch 让这个过程变得非常简单，核心只有三步：<strong>定义设备</strong>、<strong>模型上设备</strong>、<strong>数据上设备</strong>。</p>
 <h4 id="定义设备">1. 定义设备</h4>
@@ -442,7 +440,6 @@ graph TD
 <p>最后，也是最关键的一步，是在训练和测试的循环中，将<strong>每一批次的数据</strong>也发送到同一个设备上。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在训练/测试循环中</span></span><br><span class="line"><span class="keyword">for</span> data <span class="keyword">in</span> train_dataloader:</span><br><span class="line">    imgs, targets = data</span><br><span class="line">    imgs = imgs.to(device) <span class="comment"># 将图像数据发送到设备</span></span><br><span class="line">    targets = targets.to(device) <span class="comment"># 将标签数据发送到设备</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 现在模型和数据都在同一个设备上，可以进行计算</span></span><br><span class="line">    outputs = tudui(imgs)</span><br><span class="line">    loss = loss_fn(outputs, targets)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
 <p>完成这三步修改后，你的训练代码就能在 GPU 上飞速运行了！</p>
-<hr />
 <h3 id="模型验证">🔬 模型验证</h3>
 <p>训练完成后，我们可以加载保存好的模型，用它来对全新的、从未见过的数据进行预测。下面是一个完整的验证（或称推理，Inference）流程示例。</p>
 <h4 id="准备环境和数据">1. 准备环境和数据</h4>
@@ -457,7 +454,6 @@ graph TD
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载模型</span></span><br><span class="line"><span class="comment"># 假设模型是在 GPU 保存的，我们现在用 CPU 加载</span></span><br><span class="line"><span class="comment"># 注意：如果使用 torch.save(model)，加载时不需要 Tudui 类的定义</span></span><br><span class="line"><span class="comment"># 但如果使用 torch.save(model.state_dict())，则需要先 model=Tudui()</span></span><br><span class="line">model = torch.load(<span class="string">&quot;tudui_29_gpu.pth&quot;</span>, map_location=torch.device(<span class="string">&#x27;cpu&#x27;</span>))</span><br><span class="line"><span class="built_in">print</span>(model)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模型评估与预测</span></span><br><span class="line">model.<span class="built_in">eval</span>()</span><br><span class="line"><span class="keyword">with</span> torch.no_grad():</span><br><span class="line">    output = model(image)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;模型输出 (logits): \n<span class="subst">&#123;output&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取预测结果</span></span><br><span class="line">predicted_class_index = output.argmax(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测结果的索引: <span class="subst">&#123;predicted_class_index.item()&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;预测的类别是: <span class="subst">&#123;classes[predicted_class_index.item()]&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
 <p>通过这个流程，你就可以用训练好的模型来处理任何新的输入数据了。</p>
-<hr />
 <h3 id="启动-tensorboard">📈 启动 TensorBoard</h3>
 <p>训练开始后，你可以在终端中运行以下命令来启动 TensorBoard 服务：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensorboard --logdir=../logs_train</span><br></pre></td></tr></table></figure>
@@ -535,7 +531,7 @@ graph TD
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">7:21</span>
+    <span title="Reading time total">7:20</span>
   </span>
 </div>
 <div class="busuanzi-count">

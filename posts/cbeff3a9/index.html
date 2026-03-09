@@ -43,7 +43,7 @@
 <meta property="og:image" content="https://supermarkli.github.io/assets/QQ_1730019455971.png">
 <meta property="og:image" content="https://supermarkli.github.io/assets/QQ_1730019484460.png">
 <meta property="article:published_time" content="2025-01-05T10:53:36.000Z">
-<meta property="article:modified_time" content="2026-03-03T06:07:03.975Z">
+<meta property="article:modified_time" content="2026-03-09T09:02:09.358Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="TDX">
 <meta property="article:tag" content="TEE">
@@ -285,7 +285,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-03-03 14:07:03" itemprop="dateModified" datetime="2026-03-03T14:07:03+08:00">2026-03-03</time>
+      <time title="Modified: 2026-03-09 17:02:09" itemprop="dateModified" datetime="2026-03-09T17:02:09+08:00">2026-03-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -387,7 +387,6 @@
 <blockquote>
 <p><strong>TLS（Transport Layer Security）</strong> 是一种用于在计算机网络上提供安全通信的加密协议。它通过加密、数据完整性验证和身份认证来保护数据的传输，防止信息泄露和篡改。</p>
 </blockquote>
-<hr />
 <h2 id="威胁模型">威胁模型</h2>
 <p>TDX 假设对手可能具有<strong>物理或远程访问计算机</strong>的能力，并能够<strong>控制启动固件、系统管理模式 (SMM)、主机操作系统 (OS)、虚拟机管理程序 (Hypervisor) 和外围设备</strong>。</p>
 <p>这些对手的主要目标是获取机密数据或干扰 TD 的执行。需要注意的是，TDX 不能保证可用性，因为对手<strong>可以控制分配给 TD 的所有计算资源</strong>，并发起拒绝服务 (DoS) 攻击。</p>
@@ -406,7 +405,6 @@
 <p>在 TD 内运行的软件栈由租户拥有，并被视为 TCB 的一部分。TDX 中使用的加密原语被认为是可靠的，其实现也是安全的，包括随机数的生成和侧信道攻击（如时间攻击）的防护。</p>
 <p>租户必须信任处理器制造商 Intel，以开发、制造、构建和签署用于 TDX 的硬件/软件组件。TDX 模块、NP/P-SEAM 加载器以及 DCAP 的源代码是公开可审计的，允许租户评估其可信度。然而，租户还必须信任 Intel 签署的版本与他们审查的版本一致，这涉及在编译过程中对供应链攻击的保护。</p>
 <p>此外，租户还需要信任 Intel 的供应证书服务 (PCS) 进行远程认证。PCS 最初支持 SGX 认证，现已扩展至包括检索供应证书密钥 (PCK) 证书、撤销列表和 TCB 信息。</p>
-<hr />
 <h2 id="保密计算技术的比较">保密计算技术的比较</h2>
 <p>保密计算技术的共同目标是保护在不可信第三方基础设施上托管的敏感数据和计算，防止未授权访问、篡改和披露。</p>
 <p>主要处理器供应商正在竞争将保密计算功能集成到其芯片中。尽管在实现和术语上存在差异，但这些技术共享基本的安全原则，并具有类似的系统设计，如引入新的执行模式或特权级别，将虚拟机管理功能迁移到经过认证的固件/软件中，确保受信或测量的可信组件的启动，实施内存访问控制，并提供内存加密保护。</p>
@@ -539,7 +537,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
 <p>源平台和目标平台上都运行着迁移 TD（MigTD）。迁移 TD 分别与源 TD（要迁移的 TD）和目标 TD（最初为等待迁移的 TD 模板）绑定。迁移 TD 负责源平台和目标平台之间的远程认证，并根据安全策略评估其 TCB 级别。一旦平台被认为适合迁移，源迁移 TD 和目标迁移 TD 之间就会建立安全通道。源迁移 TD 生成一个 MSK，并通过此安全通道共享给目标迁移 TD。源和目标迁移 TD 分别将 MSK 编程到相应的 TDX 模块中。源 TDX 模块使用 MSK 对 TD 的资产进行加密和导出，而目标 TDX 模块使用相同的密钥进行解密并将资产导入目标 TD。需要注意的是<strong>，源 TD 和目标 TD 分别分配了独立的 HKID，因此它们受到不同 TD 私钥的保护</strong>。</p>
 <p><strong>可信 I/O</strong></p>
 <p>计算机由各种功能组件组成。然而，保密计算从概念上打破了统一的信任模型。因此，由不同供应商制造的每个组件之间不能再相互信任，这对高效 I/O 造成了严重障碍，因为不可信的设备无法读取和写入 TEE 的私有内存。为了解决这一问题，Intel 提出了 TDX 2.0 中的 <strong>TDX Connect</strong>，旨在将 TD 的信任扩展到外部设备。这需要对设备和 TDX 平台进行更改，以使用兼容的协议来建立相互信任，并启用安全的通信通道。关键原则是，<strong>TD 和设备应能够安全地交换和验证彼此的身份和测量值</strong>。此外，TD 和设备之间的数据路径并不受信任，可能会受到攻击者的拦截。因此，必须建立端到端的安全通道来保护 TD 和设备之间传输的数据。有关 TDX Connect 的详细协议，可以在相关提案中找到。</p>
-<hr />
 <h2 id="tdx-模块">TDX 模块</h2>
 <p>本节对 TDX 模块进行了深入分析。我们首先在第 7.1 节讨论其加载过程，接着在第 7.2 节中解释其物理和线性内存布局。随后，我们在第 7.4 节中描述 TDX 模块用于管理 TD 的元数据，并在第 7.5 节中探讨不同安全域之间的上下文切换过程。此外，我们还介绍了 TDX 模块的 Keyhole 结构（第 7.6 节）及其内存管理（第 7.7 节）。</p>
 <h3 id="加载-tdx-模块">加载 TDX 模块</h3>
@@ -732,7 +729,7 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">7:21</span>
+    <span title="Reading time total">7:20</span>
   </span>
 </div>
 <div class="busuanzi-count">

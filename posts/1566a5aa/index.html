@@ -30,7 +30,7 @@
 <meta property="og:description" content="在团队协作和日常开发中，rebase 和 cherry-pick 是 Git 中非常强大的两个命令。它们不仅能让你的提交历史更加清晰，还能灵活地“搬运”代码。本文结合一张可视化分支图，带你深入理解这两者的用法与区别，并掌握团队协作中的最佳实践。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-08-05T10:01:30.000Z">
-<meta property="article:modified_time" content="2026-03-03T06:27:06.310Z">
+<meta property="article:modified_time" content="2026-03-09T09:02:09.362Z">
 <meta property="article:author" content="吃糠咽菜">
 <meta property="article:tag" content="Git">
 <meta property="article:tag" content="Rebase">
@@ -271,7 +271,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-03-03 14:27:06" itemprop="dateModified" datetime="2026-03-03T14:27:06+08:00">2026-03-03</time>
+      <time title="Modified: 2026-03-09 17:02:09" itemprop="dateModified" datetime="2026-03-09T17:02:09+08:00">2026-03-09</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -395,7 +395,6 @@ flowchart TD
 <p>现在，我们换一个场景。假设 <code>feature/a</code> 上的 <code>c2</code> 是一个非常紧急的修复，需要立即上线，但 <code>c4</code> 还没开发完。这时就可以用 <code>cherry-pick</code>。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 切换到需要接收修复的主分支</span></span><br><span class="line">git checkout main</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 从 feature/a 分支拣选 c2 提交</span></span><br><span class="line">git cherry-pick c2</span><br></pre></td></tr></table></figure>
 <p>如图右侧所示，<code>main</code> 分支通过 <code>cherry-pick</code>，将 <code>feature/a</code> 上的 <code>c2</code> 提交“拣选”过来，生成了一个新的提交 <code>c5</code>。其他提交 (<code>c4</code>) 不会被带过来，完美满足了只需要部分功能/修复的场景。</p>
-<hr />
 <h2 id="三rebase-用法详解">🛠️ 三、rebase 用法详解</h2>
 <h3 id="基本用法">1. 基本用法</h3>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将当前分支变基到 &lt;目标分支&gt; 上</span></span><br><span class="line">git rebase &lt;目标分支&gt;</span><br></pre></td></tr></table></figure>
@@ -408,7 +407,6 @@ flowchart TD
 <li>rebase 会重写历史，<strong>永远不要对已经推送并被他人使用的公共分支（如 main）进行 rebase</strong>。</li>
 <li>rebase 过程遇到冲突需手动解决，解决后用 <code>git add .</code> 将文件标记为已解决，然后用 <code>git rebase --continue</code> 继续。</li>
 </ul>
-<hr />
 <h2 id="四cherry-pick-用法详解">🍒 四、cherry-pick 用法详解</h2>
 <h3 id="基本用法-1">1. 基本用法</h3>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git cherry-pick &lt;commit-hash&gt;</span><br></pre></td></tr></table></figure>
@@ -420,7 +418,6 @@ flowchart TD
 <li>cherry-pick 也可能遇到冲突，需手动解决并 <code>commit</code>。</li>
 <li>cherry-pick 会生成<strong>新的 commit id</strong>，因为它是在新的分支上下文中应用变更。</li>
 </ul>
-<hr />
 <h2 id="rebase-vs.-merge黄金准则与团队协作">👑 Rebase vs. Merge：黄金准则与团队协作</h2>
 <p>我们已经看到了 <code>rebase</code> 的强大之处，但它也是一把双刃剑，因为它会<strong>重写提交历史</strong>。这就引出了 Git 协作中一条最重要的准则：</p>
 <blockquote>
@@ -449,14 +446,12 @@ flowchart TD
 <li>团队成员进行代码审查，最终由维护者点击“Merge”按钮，将你的功能安全地汇入主线。</li>
 </ul></li>
 </ol>
-<hr />
 <h2 id="五实战小结">⚡ 五、实战小结</h2>
 <ul>
 <li><strong>rebase</strong>：核心用途是在<strong>个人开发分支</strong>上同步主干分支的变更，以保持提交历史的<strong>整洁和线性</strong>。它是合并到公共分支前的“自我修养”。</li>
 <li><strong>cherry-pick</strong>：核心用途是<strong>精确复制</strong>一个或多个提交到其他分支，适合跨分支应用热修复或挑选特定功能。</li>
 <li><strong>黄金准则</strong>：永远记住在私有分支上 rebase，在公共分支上 merge。</li>
 </ul>
-<hr />
 <h2 id="六实用建议">📝 六、实用建议</h2>
 <h3 id="分支命名规范">1. 分支命名规范</h3>
 <ul>
@@ -482,7 +477,6 @@ flowchart TD
 <li><strong>拥抱代码评审</strong>：充分利用 Pull Request 进行代码评审，这是保证代码质量和知识共享的最佳途径。</li>
 <li><strong>勤于观察状态</strong>：养成良好习惯，多用 <code>git status</code>、<code>git log --oneline --graph</code> 观察分支状态，做到心中有数。</li>
 </ul>
-<hr />
 <p>希望这些建议能帮助你和团队更高效地使用 Git，写出更优雅、可维护的代码历史！</p>
 
     </div>
@@ -546,7 +540,7 @@ flowchart TD
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">7:21</span>
+    <span title="Reading time total">7:20</span>
   </span>
 </div>
 <div class="busuanzi-count">
