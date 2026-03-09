@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="编译器是怎么把代码变成机器能懂的指令的？为什么 LLVM 能成为编译器基础设施的“瑞士军刀”？ 如果你想深入理解编译器，或者想写自己的编译器 Pass，LLVM IR 是绕不开的一关。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LLVM 入门：从编译流程到 IR 结构">
+<meta property="og:url" content="https://supermarkli.github.io/posts/18482fd9/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="编译器是怎么把代码变成机器能懂的指令的？为什么 LLVM 能成为编译器基础设施的“瑞士军刀”？ 如果你想深入理解编译器，或者想写自己的编译器 Pass，LLVM IR 是绕不开的一关。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-03-09T08:18:39.000Z">
+<meta property="article:modified_time" content="2026-03-09T08:21:19.827Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="LLVM">
+<meta property="article:tag" content="编译器">
+<meta property="article:tag" content="IR">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/18482fd9/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/18482fd9/","path":"posts/18482fd9/","title":"LLVM 入门：从编译流程到 IR 结构"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>LLVM 入门：从编译流程到 IR 结构 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#llvm-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 LLVM 核心概念速读</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-llvm"><span class="nav-number">2.</span> <span class="nav-text">1 🧩 什么是 LLVM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#llvm-%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">2 🔧 LLVM 编译流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#llvm-ir-%E7%BB%93%E6%9E%84"><span class="nav-number">4.</span> <span class="nav-text">3 📖 LLVM IR 结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84"><span class="nav-number">4.1.</span> <span class="nav-text">层级结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F"><span class="nav-number">4.2.</span> <span class="nav-text">类型系统</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ir-%E6%8C%87%E4%BB%A4%E5%9F%BA%E7%A1%80"><span class="nav-number">5.</span> <span class="nav-text">4 ⚡ IR 指令基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%9C%AF%E8%BF%90%E7%AE%97"><span class="nav-number">5.1.</span> <span class="nav-text">算术运算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E6%93%8D%E4%BD%9C"><span class="nav-number">5.2.</span> <span class="nav-text">内存操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AF%94%E8%BE%83%E6%8C%87%E4%BB%A4"><span class="nav-number">5.3.</span> <span class="nav-text">比较指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E6%B5%81"><span class="nav-number">5.4.</span> <span class="nav-text">控制流</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ssa-%E4%B8%8E%E5%8F%98%E9%87%8F"><span class="nav-number">6.</span> <span class="nav-text">5 🔄 SSA 与变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#phi-%E6%8C%87%E4%BB%A4"><span class="nav-number">7.</span> <span class="nav-text">6 🔀 phi 指令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%BE%AA%E7%8E%AF%E6%B1%82%E5%92%8C"><span class="nav-number">7.1.</span> <span class="nav-text">示例：循环求和</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A7%E5%88%B6%E6%B5%81%E5%9B%BE-cfg"><span class="nav-number">8.</span> <span class="nav-text">7 📊 控制流图 CFG</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%9D%97%E8%A7%84%E5%88%99"><span class="nav-number">8.1.</span> <span class="nav-text">基本块规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%88%E7%BB%93%E7%AC%A6%E6%8C%87%E4%BB%A4"><span class="nav-number">8.2.</span> <span class="nav-text">终结符指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96-cfg"><span class="nav-number">8.3.</span> <span class="nav-text">可视化 CFG</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dominator"><span class="nav-number">9.</span> <span class="nav-text">8 🌳 Dominator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">9.1.</span> <span class="nav-text">相关概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E9%80%94"><span class="nav-number">9.2.</span> <span class="nav-text">用途</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#llvm-pass"><span class="nav-number">10.</span> <span class="nav-text">9 🔩 LLVM Pass</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#pass-%E7%B1%BB%E5%9E%8B"><span class="nav-number">10.1.</span> <span class="nav-text">Pass 类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E4%BC%98%E5%8C%96-pass"><span class="nav-number">10.2.</span> <span class="nav-text">常用优化 Pass</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pass-%E7%AE%A1%E9%81%93"><span class="nav-number">10.3.</span> <span class="nav-text">Pass 管道</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#metadata"><span class="nav-number">11.</span> <span class="nav-text">10 🏷️ metadata</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95"><span class="nav-number">11.1.</span> <span class="nav-text">语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%94%A8%E9%80%94"><span class="nav-number">11.2.</span> <span class="nav-text">常见用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%BE%AA%E7%8E%AF%E4%BC%98%E5%8C%96%E6%8F%90%E7%A4%BA"><span class="nav-number">11.3.</span> <span class="nav-text">示例：循环优化提示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#llvm-%E5%B7%A5%E5%85%B7%E9%93%BE"><span class="nav-number">12.</span> <span class="nav-text">11 🛠️ LLVM 工具链</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5"><span class="nav-number">12.1.</span> <span class="nav-text">常用命令速查</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4-ir-%E7%A4%BA%E4%BE%8B"><span class="nav-number">13.</span> <span class="nav-text">12 📋 完整 IR 示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E5%90%8E-o2"><span class="nav-number">13.1.</span> <span class="nav-text">优化后（-O2）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">14.</span> <span class="nav-text">📋 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/cat2.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">49</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">125</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/18482fd9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cat2.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="LLVM 入门：从编译流程到 IR 结构 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LLVM 入门：从编译流程到 IR 结构
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-03-09 16:18:39 / Modified: 16:21:19" itemprop="dateCreated datePublished" datetime="2026-03-09T16:18:39+08:00">2026-03-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">编译原理</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>7.1k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>13 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>编译器是怎么把代码变成机器能懂的指令的？为什么 LLVM 能成为编译器基础设施的“瑞士军刀”？</p>
+<p>如果你想深入理解编译器，或者想写自己的编译器 Pass，LLVM IR 是绕不开的一关。</p>
+<span id="more"></span>
+<h2 id="llvm-核心概念速读">📚 LLVM 核心概念速读</h2>
+<table>
+<thead>
+<tr class="header">
+<th>概念</th>
+<th>说明</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LLVM</td>
+<td>Low Level Virtual Machine（原名），现为品牌名</td>
+<td>模块化编译器基础设施</td>
+</tr>
+<tr class="even">
+<td>IR</td>
+<td>Intermediate Representation</td>
+<td>编译器中间表示，连接前后端</td>
+</tr>
+<tr class="odd">
+<td>SSA</td>
+<td>Static Single Assignment</td>
+<td>每个变量只赋值一次</td>
+</tr>
+<tr class="even">
+<td>CFG</td>
+<td>Control Flow Graph</td>
+<td>控制流图，描述程序执行路径</td>
+</tr>
+<tr class="odd">
+<td>Pass</td>
+<td>编译优化/分析单元</td>
+<td>对 IR 进行变换的模块</td>
+</tr>
+<tr class="even">
+<td>Basic Block</td>
+<td>基本块</td>
+<td>顺序执行的指令序列，只有一个入口一个出口</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="什么是-llvm">1 🧩 什么是 LLVM</h2>
+<p>LLVM 不是某个具体编译器的名字，而是一套<strong>模块化的编译器基础设施</strong>。</p>
+<p>传统编译器（如 GCC）采用<strong>三段式设计</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Frontend → Optimizer → Backend</span><br><span class="line">  前端       优化器      后端</span><br></pre></td></tr></table></figure>
+<p>问题在于：各阶段耦合严重，想支持新语言要重写整套，想支持新架构也要改一堆。</p>
+<p>LLVM 的核心创新：<strong>统一的中间表示（IR）</strong></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Clang (C/C++)    ──→</span><br><span class="line">Swift            ──→</span><br><span class="line">Rust             ──→  LLVM IR  ──→  x86 / ARM / RISC-V ...</span><br><span class="line">Kotlin Native    ──→</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>省流</strong>：前端把源码翻译成 IR，后端把 IR 翻译成机器码，中间全是 IR，想加语言加前端，想加架构加后端。</p>
+</blockquote>
+<hr />
+<h2 id="llvm-编译流程">2 🔧 LLVM 编译流程</h2>
+<p>以 C 代码为例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译流程：</p>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    A[源码 .c] --&gt; B[预处理]
+    B --&gt; C[词法&#x2F;语法分析]
+    C --&gt; D[语义分析]
+    D --&gt; E[生成 IR]
+    E --&gt; F[IR 优化]
+    F --&gt; G[指令选择]
+    G --&gt; H[寄存器分配]
+    H --&gt; I[生成机器码 .s&#x2F;.o]
+</code>
+</pre>
+<p>对应命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看完整流程</span></span><br><span class="line">clang -emit-llvm -S add.c -o add.ll    <span class="comment"># 生成人类可读 IR</span></span><br><span class="line">clang -emit-llvm -c add.c -o add.bc    <span class="comment"># 生成 bitcode（二进制格式）</span></span><br><span class="line">llc add.bc -o add.s                     <span class="comment"># IR → 汇编</span></span><br><span class="line">clang add.s -o add                      <span class="comment"># 汇编 → 可执行文件</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>注意</strong>：<code>.ll</code> 是文本格式，<code>.bc</code> 是二进制格式，两者等价可互转。</p>
+</blockquote>
+<hr />
+<h2 id="llvm-ir-结构">3 📖 LLVM IR 结构</h2>
+<p>IR 文件由三部分组成：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">; 1. 模块级信息</span></span><br><span class="line"><span class="keyword">target</span> <span class="keyword">datalayout</span> <span class="operator">=</span> <span class="string">&quot;e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:64-n8:16:32:64-S128&quot;</span></span><br><span class="line"><span class="keyword">target</span> <span class="keyword">triple</span> <span class="operator">=</span> <span class="string">&quot;x86_64-pc-linux-gnu&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 2. 全局变量和函数声明</span></span><br><span class="line"><span class="title">@global_var</span> <span class="operator">=</span> <span class="keyword">global</span> <span class="type">i32</span> <span class="number">42</span></span><br><span class="line"><span class="keyword">declare</span> <span class="type">i32</span> <span class="title">@printf</span>(<span class="type">i8</span>*<span class="punctuation">,</span> ...)</span><br><span class="line"></span><br><span class="line"><span class="comment">; 3. 函数定义</span></span><br><span class="line"><span class="keyword">define</span> <span class="type">i32</span> <span class="title">@add</span>(<span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="type">i32</span> <span class="variable">%b</span>) &#123;</span><br><span class="line"><span class="symbol">entry:</span></span><br><span class="line">  <span class="variable">%sum</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span></span><br><span class="line">  <span class="keyword">ret</span> <span class="type">i32</span> <span class="variable">%sum</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="层级结构">层级结构</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Module（模块）</span><br><span class="line">  └── GlobalVariable（全局变量）</span><br><span class="line">  └── Function（函数）</span><br><span class="line">        └── BasicBlock（基本块）</span><br><span class="line">              └── Instruction（指令）</span><br></pre></td></tr></table></figure>
+<h3 id="类型系统">类型系统</h3>
+<table>
+<thead>
+<tr class="header">
+<th>类型</th>
+<th>示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>整数</td>
+<td><code>i1</code>, <code>i8</code>, <code>i32</code>, <code>i64</code></td>
+<td><code>i1</code> 是 bool</td>
+</tr>
+<tr class="even">
+<td>浮点</td>
+<td><code>float</code>, <code>double</code></td>
+<td>32/64 位浮点</td>
+</tr>
+<tr class="odd">
+<td>指针</td>
+<td><code>i32*</code>, <code>i8**</code></td>
+<td>指向某类型的指针</td>
+</tr>
+<tr class="even">
+<td>数组</td>
+<td><code>[10 x i32]</code></td>
+<td>固定大小数组</td>
+</tr>
+<tr class="odd">
+<td>结构体</td>
+<td><code>&#123;i32, float&#125;</code></td>
+<td>匿名结构体</td>
+</tr>
+<tr class="even">
+<td>向量</td>
+<td><code>&lt;4 x i32&gt;</code></td>
+<td>SIMD 向量类型</td>
+</tr>
+<tr class="odd">
+<td>函数</td>
+<td><code>i32 (i32, i32)*</code></td>
+<td>函数指针</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ir-指令基础">4 ⚡ IR 指令基础</h2>
+<h3 id="算术运算">算术运算</h3>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">%a</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%x</span><span class="punctuation">,</span> <span class="variable">%y</span>      <span class="comment">; 加法</span></span><br><span class="line"><span class="variable">%b</span> <span class="operator">=</span> <span class="keyword">sub</span> <span class="type">i32</span> <span class="variable">%x</span><span class="punctuation">,</span> <span class="variable">%y</span>      <span class="comment">; 减法</span></span><br><span class="line"><span class="variable">%c</span> <span class="operator">=</span> <span class="keyword">mul</span> <span class="type">i32</span> <span class="variable">%x</span><span class="punctuation">,</span> <span class="variable">%y</span>      <span class="comment">; 乘法</span></span><br><span class="line"><span class="variable">%d</span> <span class="operator">=</span> <span class="keyword">sdiv</span> <span class="type">i32</span> <span class="variable">%x</span><span class="punctuation">,</span> <span class="variable">%y</span>     <span class="comment">; 有符号除法</span></span><br><span class="line"><span class="variable">%e</span> <span class="operator">=</span> <span class="keyword">urem</span> <span class="type">i32</span> <span class="variable">%x</span><span class="punctuation">,</span> <span class="variable">%y</span>     <span class="comment">; 无符号取余</span></span><br><span class="line"><span class="variable">%f</span> <span class="operator">=</span> <span class="keyword">and</span> <span class="type">i1</span> <span class="variable">%p</span><span class="punctuation">,</span> <span class="variable">%q</span>       <span class="comment">; 按位与</span></span><br><span class="line"><span class="variable">%g</span> <span class="operator">=</span> <span class="keyword">or</span> <span class="type">i1</span> <span class="variable">%p</span><span class="punctuation">,</span> <span class="variable">%q</span>        <span class="comment">; 按位或</span></span><br><span class="line"><span class="variable">%h</span> <span class="operator">=</span> <span class="keyword">xor</span> <span class="type">i1</span> <span class="variable">%p</span><span class="punctuation">,</span> <span class="variable">%q</span>       <span class="comment">; 按位异或</span></span><br></pre></td></tr></table></figure>
+<h3 id="内存操作">内存操作</h3>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">; 分配栈空间</span></span><br><span class="line"><span class="variable">%ptr</span> <span class="operator">=</span> <span class="keyword">alloca</span> <span class="type">i32</span>              <span class="comment">; 分配 4 字节，返回 i32*</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 加载</span></span><br><span class="line"><span class="variable">%val</span> <span class="operator">=</span> <span class="keyword">load</span> <span class="type">i32</span><span class="punctuation">,</span> <span class="type">i32</span>* <span class="variable">%ptr</span>     <span class="comment">; 从地址加载 i32</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 存储</span></span><br><span class="line"><span class="keyword">store</span> <span class="type">i32</span> <span class="number">42</span><span class="punctuation">,</span> <span class="type">i32</span>* <span class="variable">%ptr</span>        <span class="comment">; 将 42 存入地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 获取元素指针（GEP）</span></span><br><span class="line"><span class="variable">%arr</span> <span class="operator">=</span> <span class="keyword">alloca</span> [<span class="number">10</span> <span class="keyword">x</span> <span class="type">i32</span>]</span><br><span class="line"><span class="variable">%elem</span> <span class="operator">=</span> <span class="keyword">getelementptr</span> [<span class="number">10</span> <span class="keyword">x</span> <span class="type">i32</span>]<span class="punctuation">,</span> [<span class="number">10</span> <span class="keyword">x</span> <span class="type">i32</span>]* <span class="variable">%arr</span><span class="punctuation">,</span> <span class="type">i64</span> <span class="number">0</span><span class="punctuation">,</span> <span class="type">i64</span> <span class="number">5</span></span><br><span class="line"><span class="comment">; 第 0 个数组，第 5 个元素</span></span><br></pre></td></tr></table></figure>
+<h3 id="比较指令">比较指令</h3>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">%cmp</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">eq</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span>      <span class="comment">; 相等</span></span><br><span class="line"><span class="variable">%cmp</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">slt</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span>     <span class="comment">; 有符号小于</span></span><br><span class="line"><span class="variable">%cmp</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">sgt</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span>     <span class="comment">; 有符号大于</span></span><br><span class="line"><span class="variable">%cmp</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">sle</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span>     <span class="comment">; 有符号小于等于</span></span><br><span class="line"><span class="variable">%cmp</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">ne</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span>      <span class="comment">; 不等</span></span><br></pre></td></tr></table></figure>
+<h3 id="控制流">控制流</h3>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">; 无条件跳转</span></span><br><span class="line"><span class="keyword">br</span> <span class="type">label</span> <span class="variable">%target</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 条件跳转</span></span><br><span class="line"><span class="keyword">br</span> <span class="type">i1</span> <span class="variable">%cond</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%if_true</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%if_false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 函数调用</span></span><br><span class="line"><span class="variable">%result</span> <span class="operator">=</span> <span class="keyword">call</span> <span class="type">i32</span> <span class="title">@func</span>(<span class="type">i32</span> <span class="variable">%arg1</span><span class="punctuation">,</span> <span class="type">i32</span> <span class="variable">%arg2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">; 返回</span></span><br><span class="line"><span class="keyword">ret</span> <span class="type">i32</span> <span class="variable">%result</span></span><br><span class="line"><span class="keyword">ret</span> <span class="type">void</span>                       <span class="comment">; 无返回值</span></span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="ssa-与变量">5 🔄 SSA 与变量</h2>
+<p>SSA（Static Single Assignment）是 LLVM IR 的核心特性。</p>
+<p><strong>规则</strong>：每个变量只能被赋值一次。</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">; ❌ 非 SSA 形式（不允许）</span></span><br><span class="line"><span class="variable">%x</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span></span><br><span class="line"><span class="variable">%x</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%x</span><span class="punctuation">,</span> <span class="variable">%c</span>   <span class="comment">; 错误！%x 不能再赋值</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; ✅ SSA 形式</span></span><br><span class="line"><span class="variable">%x1</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span></span><br><span class="line"><span class="variable">%x2</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%x1</span><span class="punctuation">,</span> <span class="variable">%c</span></span><br></pre></td></tr></table></figure>
+<p>这有什么好处？</p>
+<ul>
+<li>简化数据流分析</li>
+<li>便于检测未定义变量</li>
+<li>优化 Pass 更容易实现</li>
+</ul>
+<blockquote>
+<p><strong>比喻</strong>：SSA 就像“一次性的便签纸”，写完一张就换新的，不用擦掉重写。</p>
+</blockquote>
+<p>那循环怎么办？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// C 代码</span></span><br><span class="line"><span class="type">int</span> sum = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">    sum = sum + i;  <span class="comment">// sum 被多次赋值！</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>LLVM 用 <strong>phi 指令</strong> 解决这个问题。</p>
+<hr />
+<h2 id="phi-指令">6 🔀 phi 指令</h2>
+<p><code>phi</code> 指令根据<strong>控制流来源</strong>选择不同的值。</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">; phi 指令语法</span></span><br><span class="line"><span class="variable">%result</span> <span class="operator">=</span> <span class="keyword">phi</span> <span class="type">i32</span> [ <span class="variable">%val1</span><span class="punctuation">,</span> <span class="variable">%block1</span> ]<span class="punctuation">,</span> [ <span class="variable">%val2</span><span class="punctuation">,</span> <span class="variable">%block2</span> ]</span><br><span class="line"><span class="comment">; 如果从 block1 跳转过来，result = val1</span></span><br><span class="line"><span class="comment">; 如果从 block2 跳转过来，result = val2</span></span><br></pre></td></tr></table></figure>
+<h3 id="示例循环求和">示例：循环求和</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> sum = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">    sum += i;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对应的 IR：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">define</span> <span class="type">i32</span> <span class="title">@loop_sum</span>() &#123;</span><br><span class="line"><span class="symbol">entry:</span></span><br><span class="line">  <span class="keyword">br</span> <span class="type">label</span> <span class="variable">%loop</span></span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">loop:</span></span><br><span class="line">  <span class="variable">%i</span> <span class="operator">=</span> <span class="keyword">phi</span> <span class="type">i32</span> [ <span class="number">0</span><span class="punctuation">,</span> <span class="variable">%entry</span> ]<span class="punctuation">,</span> [ <span class="variable">%i.next</span><span class="punctuation">,</span> <span class="variable">%loop</span> ]</span><br><span class="line">  <span class="variable">%sum</span> <span class="operator">=</span> <span class="keyword">phi</span> <span class="type">i32</span> [ <span class="number">0</span><span class="punctuation">,</span> <span class="variable">%entry</span> ]<span class="punctuation">,</span> [ <span class="variable">%sum.next</span><span class="punctuation">,</span> <span class="variable">%loop</span> ]</span><br><span class="line"></span><br><span class="line">  <span class="variable">%sum.next</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%sum</span><span class="punctuation">,</span> <span class="variable">%i</span></span><br><span class="line">  <span class="variable">%i.next</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%i</span><span class="punctuation">,</span> <span class="number">1</span></span><br><span class="line">  <span class="variable">%cond</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">slt</span> <span class="type">i32</span> <span class="variable">%i.next</span><span class="punctuation">,</span> <span class="number">3</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">br</span> <span class="type">i1</span> <span class="variable">%cond</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%loop</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%exit</span></span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">exit:</span></span><br><span class="line">  <span class="keyword">ret</span> <span class="type">i32</span> <span class="variable">%sum.next</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">┌─────────┐</span><br><span class="line">│  entry  │</span><br><span class="line">└────┬────┘</span><br><span class="line">     ↓</span><br><span class="line">┌─────────────────────────────────────┐</span><br><span class="line">│  loop                               │</span><br><span class="line">│  %i = phi [0, entry], [%i.next, loop]   │</span><br><span class="line">│  %sum = phi [0, entry], [%sum.next, loop] │</span><br><span class="line">│  ...计算...                          │</span><br><span class="line">│  br %cond, loop, exit               │</span><br><span class="line">└────┬────────────────────────────────┘</span><br><span class="line">     ↓ (cond=false)</span><br><span class="line">┌─────────┐</span><br><span class="line">│  exit   │</span><br><span class="line">└─────────┘</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>省流</strong>：phi 就是个“多路选择器”，根据你是从哪个块跳过来的，决定用哪个值。</p>
+</blockquote>
+<hr />
+<h2 id="控制流图-cfg">7 📊 控制流图 CFG</h2>
+<p>CFG（Control Flow Graph）描述程序可能的执行路径。</p>
+<ul>
+<li><strong>节点</strong>：基本块（Basic Block）</li>
+<li><strong>边</strong>：可能的跳转</li>
+</ul>
+<h3 id="基本块规则">基本块规则</h3>
+<ol type="1">
+<li>只有一个<strong>入口</strong>（只能从开头进入）</li>
+<li>只有一个<strong>出口</strong>（最后一条指令是终结符）</li>
+<li>内部没有分支</li>
+</ol>
+<h3 id="终结符指令">终结符指令</h3>
+<table>
+<thead>
+<tr class="header">
+<th>指令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ret</code></td>
+<td>函数返回</td>
+</tr>
+<tr class="even">
+<td><code>br</code></td>
+<td>跳转（条件/无条件）</td>
+</tr>
+<tr class="odd">
+<td><code>switch</code></td>
+<td>多路分支</td>
+</tr>
+<tr class="even">
+<td><code>unreachable</code></td>
+<td>不可达代码</td>
+</tr>
+</tbody>
+</table>
+<h3 id="可视化-cfg">可视化 CFG</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成 CFG 图像</span></span><br><span class="line">opt -passes=dot-cfg add.ll -disable-output</span><br><span class="line"><span class="comment"># 生成 add.dot，用 graphviz 查看</span></span><br><span class="line">dot -Tpng add.dot -o add.png</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="dominator">8 🌳 Dominator</h2>
+<p>Dominator（支配）是控制流分析的核心概念。</p>
+<p><strong>定义</strong>：节点 A <strong>支配</strong> 节点 B，当且仅当从入口到 B 的<strong>所有路径</strong>都经过 A。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">entry</span><br><span class="line">  │</span><br><span class="line">  A</span><br><span class="line"> ╱ ╲</span><br><span class="line">B   C</span><br><span class="line"> ╲ ╱</span><br><span class="line">  D</span><br></pre></td></tr></table></figure>
+<ul>
+<li>A 支配 B、C、D</li>
+<li>B 不支配 D（可以从 C 走）</li>
+<li>D 支配 D 自己</li>
+</ul>
+<h3 id="相关概念">相关概念</h3>
+<table>
+<thead>
+<tr class="header">
+<th>概念</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>支配者（Dominator）</td>
+<td>所有到 B 的路径都经过 A，则 A dom B</td>
+</tr>
+<tr class="even">
+<td>直接支配者（IDom）</td>
+<td>最近的支配者</td>
+</tr>
+<tr class="odd">
+<td>支配树</td>
+<td>以 IDom 关系构建的树</td>
+</tr>
+<tr class="even">
+<td>支配边界</td>
+<td>A 支配但 A 的支配者不支配的节点集合</td>
+</tr>
+</tbody>
+</table>
+<h3 id="用途">用途</h3>
+<ul>
+<li><strong>SSA 构建</strong>：phi 指令插入位置由支配边界决定</li>
+<li><strong>循环分析</strong>：识别循环头和循环体</li>
+<li><strong>优化</strong>：代码移动、冗余删除</li>
+</ul>
+<hr />
+<h2 id="llvm-pass">9 🔩 LLVM Pass</h2>
+<p>Pass 是对 IR 进行变换或分析的基本单元。</p>
+<h3 id="pass-类型">Pass 类型</h3>
+<table>
+<thead>
+<tr class="header">
+<th>类型</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Analysis Pass</td>
+<td>分析 IR，不修改</td>
+<td>求支配树、活跃变量分析</td>
+</tr>
+<tr class="even">
+<td>Transform Pass</td>
+<td>修改 IR</td>
+<td>常量折叠、死代码删除</td>
+</tr>
+<tr class="odd">
+<td>Utility Pass</td>
+<td>工具性质</td>
+<td>验证 IR 正确性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="常用优化-pass">常用优化 Pass</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 运行所有优化</span></span><br><span class="line">opt -passes=default add.ll -S -o add_opt.ll</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行特定 Pass</span></span><br><span class="line">opt -passes=mem2reg add.ll -S -o add_opt.ll    <span class="comment"># 提升 alloca 到寄存器</span></span><br><span class="line">opt -passes=dce add.ll -S -o add_opt.ll        <span class="comment"># 死代码删除</span></span><br><span class="line">opt -passes=inline add.ll -S -o add_opt.ll     <span class="comment"># 函数内联</span></span><br></pre></td></tr></table></figure>
+<h3 id="pass-管道">Pass 管道</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 组合多个 Pass</span></span><br><span class="line">opt -passes=<span class="string">&#x27;mem2reg,dce,gvn&#x27;</span> add.ll -S -o add_opt.ll</span><br></pre></td></tr></table></figure>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    A[原始 IR] --&gt; B[mem2reg]
+    B --&gt; C[dce]
+    C --&gt; D[gvn]
+    D --&gt; E[优化后 IR]
+</code>
+</pre>
+<hr />
+<h2 id="metadata">10 🏷️ metadata</h2>
+<p>Metadata 是附加在 IR 上的<strong>额外信息</strong>，不影响程序语义，但能指导优化和代码生成。</p>
+<h3 id="语法">语法</h3>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">; 附加到函数</span></span><br><span class="line"><span class="keyword">define</span> <span class="type">void</span> <span class="title">@foo</span>() <span class="title">!dbg</span> <span class="title">!4</span> &#123;</span><br><span class="line">  <span class="comment">; 附加到指令</span></span><br><span class="line">  <span class="variable">%x</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i32</span> <span class="variable">%a</span><span class="punctuation">,</span> <span class="variable">%b</span><span class="punctuation">,</span> <span class="title">!dbg</span> <span class="title">!7</span></span><br><span class="line">  <span class="keyword">ret</span> <span class="type">void</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">; 定义 metadata</span></span><br><span class="line"><span class="title">!0</span> <span class="operator">=</span> <span class="title">!DIFile</span>(filename: <span class="string">&quot;test.c&quot;</span><span class="punctuation">,</span> directory: <span class="string">&quot;/home&quot;</span>)</span><br><span class="line"><span class="title">!1</span> <span class="operator">=</span> !&#123;<span class="title">!0</span>&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="常见用途">常见用途</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Metadata</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>!dbg</code></td>
+<td>调试信息</td>
+</tr>
+<tr class="even">
+<td><code>!tbaa</code></td>
+<td>类型别名分析</td>
+</tr>
+<tr class="odd">
+<td><code>!llvm.loop</code></td>
+<td>循环优化提示</td>
+</tr>
+<tr class="even">
+<td><code>!nontemporal</code></td>
+<td>非临时内存访问</td>
+</tr>
+</tbody>
+</table>
+<h3 id="示例循环优化提示">示例：循环优化提示</h3>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">for.body:</span><br><span class="line">  <span class="variable">%i</span> <span class="operator">=</span> <span class="keyword">phi</span> <span class="type">i64</span> [ <span class="number">0</span><span class="punctuation">,</span> <span class="variable">%entry</span> ]<span class="punctuation">,</span> [ <span class="variable">%inc</span><span class="punctuation">,</span> <span class="variable">%for.body</span> ]</span><br><span class="line">  <span class="comment">; ... 循环体 ...</span></span><br><span class="line">  <span class="variable">%inc</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="type">i64</span> <span class="variable">%i</span><span class="punctuation">,</span> <span class="number">1</span></span><br><span class="line">  <span class="variable">%cmp</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">ult</span> <span class="type">i64</span> <span class="variable">%inc</span><span class="punctuation">,</span> <span class="variable">%n</span></span><br><span class="line">  <span class="keyword">br</span> <span class="type">i1</span> <span class="variable">%cmp</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%for.body</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%for.end</span><span class="punctuation">,</span> <span class="title">!llvm.loop</span> <span class="title">!0</span></span><br><span class="line"></span><br><span class="line"><span class="title">!0</span> <span class="operator">=</span> !&#123;<span class="title">!0</span><span class="punctuation">,</span> <span class="title">!1</span>&#125;</span><br><span class="line"><span class="title">!1</span> <span class="operator">=</span> !&#123;!<span class="string">&quot;llvm.loop.unroll.count&quot;</span><span class="punctuation">,</span> <span class="type">i32</span> <span class="number">4</span>&#125;  <span class="comment">; 提示展开 4 次</span></span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="llvm-工具链">11 🛠️ LLVM 工具链</h2>
+<table>
+<thead>
+<tr class="header">
+<th>工具</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>clang</code></td>
+<td>C/C++ 编译器前端</td>
+</tr>
+<tr class="even">
+<td><code>opt</code></td>
+<td>IR 优化器</td>
+</tr>
+<tr class="odd">
+<td><code>llc</code></td>
+<td>IR → 汇编</td>
+</tr>
+<tr class="even">
+<td><code>llvm-as</code></td>
+<td>.ll → .bc（文本转二进制）</td>
+</tr>
+<tr class="odd">
+<td><code>llvm-dis</code></td>
+<td>.bc → .ll（二进制转文本）</td>
+</tr>
+<tr class="even">
+<td><code>llvm-link</code></td>
+<td>链接多个 bitcode</td>
+</tr>
+<tr class="odd">
+<td><code>lli</code></td>
+<td>解释执行 bitcode</td>
+</tr>
+<tr class="even">
+<td><code>llvm-config</code></td>
+<td>查询编译选项</td>
+</tr>
+</tbody>
+</table>
+<h3 id="常用命令速查">常用命令速查</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看优化级别对应的 Pass</span></span><br><span class="line">opt -passes=<span class="string">&#x27;default&lt;O2&gt;&#x27;</span> -debug-pass=Structure add.ll -o /dev/null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 反汇编 bitcode</span></span><br><span class="line">llvm-dis add.bc -o add.ll</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接多个 bitcode</span></span><br><span class="line">llvm-link a.bc b.bc -o combined.bc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 直接执行 IR</span></span><br><span class="line">lli add.bc</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看函数属性</span></span><br><span class="line">opt -passes=print-callgraph add.ll -disable-output</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="完整-ir-示例">12 📋 完整 IR 示例</h2>
+<p>C 源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// factorial.c</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">factorial</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> n * factorial(n - <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> factorial(<span class="number">5</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>生成并查看 IR：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -emit-llvm -S -O0 factorial.c -o factorial.ll</span><br></pre></td></tr></table></figure>
+<p>完整 IR：</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">; ModuleID = &#x27;factorial.c&#x27;</span></span><br><span class="line">source_filename <span class="operator">=</span> <span class="string">&quot;factorial.c&quot;</span></span><br><span class="line"><span class="keyword">target</span> <span class="keyword">datalayout</span> <span class="operator">=</span> <span class="string">&quot;e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:64-n8:16:32:64-S128&quot;</span></span><br><span class="line"><span class="keyword">target</span> <span class="keyword">triple</span> <span class="operator">=</span> <span class="string">&quot;x86_64-pc-linux-gnu&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">; 函数声明</span></span><br><span class="line"><span class="keyword">declare</span> <span class="type">i32</span> <span class="title">@printf</span>(<span class="type">i8</span>*<span class="punctuation">,</span> ...)</span><br><span class="line"></span><br><span class="line"><span class="comment">; factorial 函数</span></span><br><span class="line"><span class="keyword">define</span> <span class="type">i32</span> <span class="title">@factorial</span>(<span class="type">i32</span> <span class="variable">%n</span>) &#123;</span><br><span class="line"><span class="symbol">entry:</span></span><br><span class="line">  <span class="variable">%n.addr</span> <span class="operator">=</span> <span class="keyword">alloca</span> <span class="type">i32</span></span><br><span class="line">  <span class="keyword">store</span> <span class="type">i32</span> <span class="variable">%n</span><span class="punctuation">,</span> <span class="type">i32</span>* <span class="variable">%n.addr</span></span><br><span class="line"></span><br><span class="line">  <span class="variable">%0</span> <span class="operator">=</span> <span class="keyword">load</span> <span class="type">i32</span><span class="punctuation">,</span> <span class="type">i32</span>* <span class="variable">%n.addr</span></span><br><span class="line">  <span class="variable">%cmp</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">sle</span> <span class="type">i32</span> <span class="variable">%0</span><span class="punctuation">,</span> <span class="number">1</span></span><br><span class="line">  <span class="keyword">br</span> <span class="type">i1</span> <span class="variable">%cmp</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%if.then</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%if.else</span></span><br><span class="line"></span><br><span class="line">if.then:</span><br><span class="line">  <span class="keyword">br</span> <span class="type">label</span> <span class="variable">%return</span></span><br><span class="line"></span><br><span class="line">if.else:</span><br><span class="line">  <span class="variable">%1</span> <span class="operator">=</span> <span class="keyword">load</span> <span class="type">i32</span><span class="punctuation">,</span> <span class="type">i32</span>* <span class="variable">%n.addr</span></span><br><span class="line">  <span class="variable">%sub</span> <span class="operator">=</span> <span class="keyword">sub</span> <span class="keyword">nsw</span> <span class="type">i32</span> <span class="variable">%1</span><span class="punctuation">,</span> <span class="number">1</span></span><br><span class="line">  <span class="variable">%call</span> <span class="operator">=</span> <span class="keyword">call</span> <span class="type">i32</span> <span class="title">@factorial</span>(<span class="type">i32</span> <span class="variable">%sub</span>)</span><br><span class="line">  <span class="variable">%2</span> <span class="operator">=</span> <span class="keyword">load</span> <span class="type">i32</span><span class="punctuation">,</span> <span class="type">i32</span>* <span class="variable">%n.addr</span></span><br><span class="line">  <span class="variable">%mul</span> <span class="operator">=</span> <span class="keyword">mul</span> <span class="keyword">nsw</span> <span class="type">i32</span> <span class="variable">%2</span><span class="punctuation">,</span> <span class="variable">%call</span></span><br><span class="line">  <span class="keyword">br</span> <span class="type">label</span> <span class="variable">%return</span></span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">return:</span></span><br><span class="line">  <span class="variable">%retval.0</span> <span class="operator">=</span> <span class="keyword">phi</span> <span class="type">i32</span> [ <span class="number">1</span><span class="punctuation">,</span> <span class="variable">%if.then</span> ]<span class="punctuation">,</span> [ <span class="variable">%mul</span><span class="punctuation">,</span> <span class="variable">%if.else</span> ]</span><br><span class="line">  <span class="keyword">ret</span> <span class="type">i32</span> <span class="variable">%retval.0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">; main 函数</span></span><br><span class="line"><span class="keyword">define</span> <span class="type">i32</span> <span class="title">@main</span>() &#123;</span><br><span class="line"><span class="symbol">entry:</span></span><br><span class="line">  <span class="variable">%call</span> <span class="operator">=</span> <span class="keyword">call</span> <span class="type">i32</span> <span class="title">@factorial</span>(<span class="type">i32</span> <span class="number">5</span>)</span><br><span class="line">  <span class="keyword">ret</span> <span class="type">i32</span> <span class="variable">%call</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="优化后-o2">优化后（<code>-O2</code>）</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -emit-llvm -S -O2 factorial.c -o factorial_opt.ll</span><br></pre></td></tr></table></figure>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">define</span> <span class="type">i32</span> <span class="title">@factorial</span>(<span class="type">i32</span> <span class="variable">%n</span>) &#123;</span><br><span class="line"><span class="symbol">entry:</span></span><br><span class="line">  <span class="variable">%cmp</span> <span class="operator">=</span> <span class="keyword">icmp</span> <span class="keyword">sgt</span> <span class="type">i32</span> <span class="variable">%n</span><span class="punctuation">,</span> <span class="number">1</span></span><br><span class="line">  <span class="keyword">br</span> <span class="type">i1</span> <span class="variable">%cmp</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%if.else</span><span class="punctuation">,</span> <span class="type">label</span> <span class="variable">%return</span></span><br><span class="line"></span><br><span class="line">if.else:</span><br><span class="line">  <span class="variable">%sub</span> <span class="operator">=</span> <span class="keyword">add</span> <span class="keyword">nsw</span> <span class="type">i32</span> <span class="variable">%n</span><span class="punctuation">,</span> <span class="number">-1</span></span><br><span class="line">  <span class="variable">%call</span> <span class="operator">=</span> <span class="keyword">tail</span> <span class="keyword">call</span> <span class="type">i32</span> <span class="title">@factorial</span>(<span class="type">i32</span> <span class="variable">%sub</span>)</span><br><span class="line">  <span class="variable">%mul</span> <span class="operator">=</span> <span class="keyword">mul</span> <span class="keyword">nsw</span> <span class="type">i32</span> <span class="variable">%call</span><span class="punctuation">,</span> <span class="variable">%n</span></span><br><span class="line">  <span class="keyword">br</span> <span class="type">label</span> <span class="variable">%return</span></span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">return:</span></span><br><span class="line">  <span class="variable">%retval.0</span> <span class="operator">=</span> <span class="keyword">phi</span> <span class="type">i32</span> [ <span class="variable">%mul</span><span class="punctuation">,</span> <span class="variable">%if.else</span> ]<span class="punctuation">,</span> [ <span class="number">1</span><span class="punctuation">,</span> <span class="variable">%entry</span> ]</span><br><span class="line">  <span class="keyword">ret</span> <span class="type">i32</span> <span class="variable">%retval.0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">define</span> <span class="type">i32</span> <span class="title">@main</span>() &#123;</span><br><span class="line"><span class="symbol">entry:</span></span><br><span class="line">  <span class="keyword">ret</span> <span class="type">i32</span> <span class="number">120</span>  <span class="comment">; 编译期计算完成！</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>注意</strong>：<code>main()</code> 的返回值被编译期算出来了（5! = 120），这就是常量传播 + 函数内联的效果。</p>
+</blockquote>
+<hr />
+<h2 id="总结">📋 总结</h2>
+<table>
+<thead>
+<tr class="header">
+<th>主题</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LLVM 架构</td>
+<td>前端→IR→后端，IR 是核心</td>
+</tr>
+<tr class="even">
+<td>IR 结构</td>
+<td>Module → Function → BasicBlock → Instruction</td>
+</tr>
+<tr class="odd">
+<td>SSA</td>
+<td>每个变量只赋值一次，简化分析</td>
+</tr>
+<tr class="even">
+<td>phi</td>
+<td>根据控制流来源选择值，解决 SSA 的分支问题</td>
+</tr>
+<tr class="odd">
+<td>CFG</td>
+<td>基本块 + 跳转边，描述程序执行路径</td>
+</tr>
+<tr class="even">
+<td>Dominator</td>
+<td>支配关系，用于 SSA 构建和优化</td>
+</tr>
+<tr class="odd">
+<td>Pass</td>
+<td>IR 变换的基本单元</td>
+</tr>
+<tr class="even">
+<td>工具链</td>
+<td>clang、opt、llc、lli 等</td>
+</tr>
+</tbody>
+</table>
+<p>LLVM IR 看起来繁琐，但它为编译器提供了<strong>统一的表达</strong>。理解 IR，就拿到了编译器世界的“通用护照”。</p>
+<p>下一步？试试写一个 LLVM Pass，或者用 LLVM IR 实现一个简单的语言解释器！</p>
+<hr />
+<p><strong>参考资源</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/LangRef.html">LLVM Language Reference Manual</a></li>
+<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/WritingAnLLVMPass.html">LLVM Pass Infra</a></li>
+<li><a target="_blank" rel="noopener" href="https://llvm.org/docs/GettingStarted.html">Getting Started with LLVM</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/LLVM/" rel="tag"># LLVM</a>
+              <a href="/tags/%E7%BC%96%E8%AF%91%E5%99%A8/" rel="tag"># 编译器</a>
+              <a href="/tags/IR/" rel="tag"># IR</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/c1audecode/" rel="prev" title="VibeCoding 与 Claude Code">
+                  <i class="fa fa-angle-left"></i> VibeCoding 与 Claude Code
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">242k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:21</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
