@@ -2664,43 +2664,6 @@ flowchart TD
       </tags>
   </entry>
   <entry>
-    <title>DeepSeek本地部署</title>
-    <url>/posts/4f6ed32b/</url>
-    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
-<span id="more"></span>
-<h2 id="下载ollama">下载Ollama</h2>
-<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
-<p>下载地址：https://ollama.com/download/windows</p>
-<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
-<p>如下图所示</p>
-<p><img src="/assets/deepseek部署01.png" /></p>
-<blockquote>
-<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
-</blockquote>
-<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
-<p><img src="/assets/deepseek部署02.png" /></p>
-<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
-<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
-<h2 id="下载deepseek">下载DeepSeek</h2>
-<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
-<p><img src="/assets/deepseek部署03.png" /></p>
-<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
-<p>如下图所示：</p>
-<p><img src="/assets/deepseek部署04.png" /></p>
-<p>最终效果如下图所示：</p>
-<p><img src="/assets/deepseek部署05.png" /></p>
-]]></content>
-      <categories>
-        <category>软件开发</category>
-        <category>人工智能</category>
-      </categories>
-      <tags>
-        <tag>大语言模型</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Dotfiles</title>
     <url>/posts/e5afd7e1/</url>
     <content><![CDATA[<p>在 Linux 或 macOS 系统中，那些以点（<code>.</code>）开头的文件和文件夹，即 <code>dotfiles</code>（如 <code>.bashrc</code>, <code>.gitconfig</code>），是塑造我们数字环境的灵魂。它们记录了从终端提示符的美化，到编辑器（如 Vim/Neovim）的每一个快捷键，再到窗口管理器的布局规则。一个精心调教的 <code>dotfiles</code> 集合，是我们追求效率与个性的直接体现。</p>
@@ -2919,6 +2882,43 @@ LBD --&gt; DLQ[&quot;死信队列&lt;br&#x2F;&gt;(可选)&quot;]
         <tag>Serverless</tag>
         <tag>FaaS</tag>
         <tag>云原生</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DeepSeek本地部署</title>
+    <url>/posts/4f6ed32b/</url>
+    <content><![CDATA[<p>今天来尝试本地部署一下DeepSeek，看看效果如何。</p>
+<span id="more"></span>
+<h2 id="下载ollama">下载Ollama</h2>
+<p>Ollama是一个轻量级的AI模型运行平台，支持多种AI模型，包括LLM、Embedding、Chatbot等。</p>
+<p>下载地址：https://ollama.com/download/windows</p>
+<p>以管理员身份运行CMD，并定位到OllamaSetup.exe所在的目录，执行安装命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">OllamaSetup.exe /DIR=<span class="string">&quot;E:\tools\Ollama&quot;</span></span><br></pre></td></tr></table></figure>
+<p>如下图所示</p>
+<p><img src="/assets/deepseek部署01.png" /></p>
+<blockquote>
+<p>注意：安装完成后，Ollama默认为打开状态，此时我们先退出Ollama（鼠标右键点击任务栏的Ollama图标然后选择退出即可）。</p>
+</blockquote>
+<p>上述步骤完成后，我们可以打开CMD，输入ollama -v命令，如果出现如下图所示的内容就代表Ollama安装成功了：</p>
+<p><img src="/assets/deepseek部署02.png" /></p>
+<h2 id="修改大模型存储位置">修改大模型存储位置</h2>
+<p>打开环境变量，然后在用户变量中点击新建按钮，变量名为OLLAMA_MODELS，变量值为D:_Program_Ollama，其中的变量值就是大模型下载存储的目录位置，最后点击确定即可</p>
+<h2 id="下载deepseek">下载DeepSeek</h2>
+<p>打开Ollama官网，点击顶部的Models链接，找到deepseek-r1模型，点击deepseek-r1链接进去，此时我们会看到下拉框中有各个版本的大模型</p>
+<p><img src="/assets/deepseek部署03.png" /></p>
+<p>这里选择了7b，复制下载命令<code>ollama run deepseek-r1:7b</code>，然后打开CMD，执行下载命令：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:7b</span><br></pre></td></tr></table></figure>
+<p>如下图所示：</p>
+<p><img src="/assets/deepseek部署04.png" /></p>
+<p>最终效果如下图所示：</p>
+<p><img src="/assets/deepseek部署05.png" /></p>
+]]></content>
+      <categories>
+        <category>软件开发</category>
+        <category>人工智能</category>
+      </categories>
+      <tags>
+        <tag>大语言模型</tag>
       </tags>
   </entry>
   <entry>
@@ -4706,6 +4706,318 @@ flowchart TD
       </tags>
   </entry>
   <entry>
+    <title>SSH RemoteForward 踩坑：为什么 VS Code 自动转发会把本地代理绕死</title>
+    <url>/posts/48c29df2/</url>
+    <content><![CDATA[<p>昨天遇到一个奇怪的问题，我一连服务器，本地的代理就挂掉，国内的网站也进不去，一断开服务器，本地的网络就恢复正常。最后发现是端口转发出了问题。于是记录一下整个过程。 <span id="more"></span></p>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Port（端口）</strong></td>
+<td>操作系统给网络程序分配的逻辑入口编号。</td>
+<td>一台机器里不同网络服务的门牌号</td>
+</tr>
+<tr class="even">
+<td><strong>SSH</strong></td>
+<td>Secure Shell，远程登录与加密隧道工具。</td>
+<td>远程终端 + 隧道</td>
+</tr>
+<tr class="odd">
+<td><strong>RemoteForward</strong></td>
+<td>SSH 的远程端口转发，把远端某个端口的流量送回本地。</td>
+<td>让服务器“借用”你本机端口</td>
+</tr>
+<tr class="even">
+<td><strong>LocalForward</strong></td>
+<td>SSH 的本地端口转发，把本地某个端口送到远端。</td>
+<td>让本机访问远端服务</td>
+</tr>
+<tr class="odd">
+<td><strong>Proxy（代理）</strong></td>
+<td>代理服务，代替客户端向目标站点发请求。</td>
+<td>中间人转发流量</td>
+</tr>
+<tr class="even">
+<td><strong>VS Code Port Forwarding</strong></td>
+<td>VS Code Remote SSH 自动探测并映射端口的功能。</td>
+<td>帮你转发，但有时会帮倒忙</td>
+</tr>
+</tbody>
+</table>
+<p>如果用更白话的话说：</p>
+<ul>
+<li><code>SSH</code> 不只是远程登录工具，本质上还能顺手带一条加密管道</li>
+<li><code>RemoteForward</code> 是让远端机器“借用”当前客户端上的某个端口</li>
+<li><code>LocalForward</code> 是让本地机器“借道”去访问远端的某个端口</li>
+<li><code>Proxy</code> 不是目标服务本身，而是一个代你转发请求的中间层</li>
+<li><code>VS Code 自动端口转发</code> 则是在远端发现服务后，顺手帮你把访问入口搬回本机</li>
+</ul>
+<h3 id="程序program端口port套接字socket到底是什么关系">🧱 程序（program）、端口（port）、套接字（socket）到底是什么关系</h3>
+<ul>
+<li><strong>程序（program）</strong>：真正运行中的进程（process），比如 <code>Clash Verge</code>、<code>curl</code>、<code>npm dev</code>、<code>sshd</code></li>
+<li><strong>端口（port）</strong>：操作系统上的一个编号，比如 <code>7897</code>，可以理解成网络入口的门牌号</li>
+<li><strong>套接字（socket）</strong>：程序真正拿来监听（listen）或通信的对象，可以粗略理解成“某个程序占住了某个 IP:端口”之后形成的那个网络端点</li>
+</ul>
+<p>放到这次问题里看，会更容易理解：</p>
+<ul>
+<li>不是“端口自己在工作”，而是某个程序（program / process）创建了套接字（socket）并监听（listen）这个端口</li>
+<li>更准确地说，通常是同一个 <code>IP:端口</code> 组合的监听套接字，只能被一个程序成功持有，比如 <code>127.0.0.1:7897</code> 正常情况下只能有一个监听者</li>
+<li>所以看到 <code>7897</code> 在监听，只能说明“有程序占了这个门牌号”，不能直接说明是谁在处理流量</li>
+<li><code>lsof</code>、<code>ss</code>、<code>netstat</code> 这类命令的意义，就是帮你把“端口”反查回“哪个程序持有了对应套接字”</li>
+</ul>
+<p>这也是为什么排障时不能只盯着“端口号是不是一样”，而要盯着：</p>
+<ul>
+<li>当前到底是谁持有了这个 <code>IP:端口</code> 的监听套接字</li>
+<li>是不是本来该由 <code>Clash</code> 持有，后来却变成了 <code>VS Code</code> 或 <code>ssh</code> helper</li>
+</ul>
+<p>一旦监听者变了，流量路径就会跟着变。</p>
+<p>这也是为什么这次故障排查不能只看“<code>7897</code> 通不通”，还得看：</p>
+<ul>
+<li>是 <code>Clash</code> 持有本地 <code>7897</code></li>
+<li>还是 <code>VS Code</code> / <code>ssh</code> helper 持有本地 <code>7897</code></li>
+<li>或者两边是否在不同阶段都试图接管这个端口</li>
+</ul>
+<p>从这个角度说，<code>RemoteForward</code> 和 VS Code 自动端口转发，本质上都是在安排“由哪个程序持有哪个套接字，并把流量交给谁继续处理”。</p>
+<h3 id="网络拓扑到底长什么样">🧩 网络拓扑到底长什么样</h3>
+<p>我使用的设备如下：</p>
+<ul>
+<li>macbook pro 2020</li>
+<li>win xiaoxin 14pro 2021</li>
+<li>linux 实验室的高性能服务器 atlanta</li>
+</ul>
+<p>当时的 SSH 配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Host Atlanta</span><br><span class="line">  HostName 10.16.98.45</span><br><span class="line">  User lzh</span><br><span class="line">  RemoteForward 7897 127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<ul>
+<li>从 Win 或 Mac SSH 到 <code>atlanta</code></li>
+<li>SSH 连接建立后，会让 <code>atlanta</code> 打开一个本地监听端口 <code>7897</code></li>
+<li>任何打到 <code>atlanta:7897</code> 的流量，都会沿着 SSH 隧道回到当前客户端的 <code>127.0.0.1:7897</code></li>
+<li>而客户端本机的 <code>127.0.0.1:7897</code>，正好是 Clash Verge 的代理入口</li>
+</ul>
+<p>也就是说，<code>atlanta</code> 并没有真正部署代理，只是“借用了当前登录机器上的本地代理”。</p>
+<p>可以看这张链路拓扑图：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">+------------------------+    SSH 连接 / 隧道     +------------------------+</span><br><span class="line">| Win / Mac              | &lt;-------------------&gt; | atlanta                |</span><br><span class="line">|                        |                       |                        |</span><br><span class="line">| Clash Verge :7897      |                       | localhost:7897         |</span><br><span class="line">| 本地代理监听             |                       | RemoteForward 监听口    |</span><br><span class="line">+-----------+------------+                       +-----------+------------+</span><br><span class="line">            ^                                                |</span><br><span class="line">            | RemoteForward 把远端 7897 的请求送回本地          | 远端程序访问代理</span><br><span class="line">            |                                                v</span><br><span class="line">            +---------------------------------------- atlanta curl / npm</span><br><span class="line"></span><br><span class="line">Clash :7897</span><br><span class="line">  -&gt; 机场节点</span><br><span class="line">  -&gt; 目标网站 / API</span><br></pre></td></tr></table></figure>
+<h3 id="端口为什么会撞车">🔌 端口为什么会“撞车”</h3>
+<p>端口不是全局唯一的，它只在一台机器的网络命名空间里唯一。</p>
+<p>这意味着：</p>
+<ul>
+<li>你的 Win 本机可以有一个 <code>127.0.0.1:7897</code></li>
+<li><code>atlanta</code> 也可以有一个自己的 <code>127.0.0.1:7897</code></li>
+<li>SSH 的 <code>RemoteForward 7897 127.0.0.1:7897</code>，是在把这两个同号端口绑定成一条隧道</li>
+</ul>
+<p>问题在于，<strong>VS Code Remote SSH 还有一套自己的端口转发系统</strong>。它会自动扫描远端监听端口，并尝试把它们转发回本地，方便你在浏览器或本机工具里访问。</p>
+<p>如果它看到 <code>atlanta</code> 上有个 <code>7897</code> 在监听，它可能会再做一层类似这样的映射：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">本地 7897  &lt;---- VS Code 自动转发 ----  atlanta 7897</span><br></pre></td></tr></table></figure>
+<p>不过这里要注意一件事：<strong>这不是 VS Code 的默认必然行为</strong>。官方文档写得很明确，如果本地同号端口已经被占用，它通常会改绑到别的本地端口，而不是硬抢这个端口。也就是说，更常见的情况其实是：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">本地 4123  &lt;---- VS Code 自动转发 ----  atlanta 7897</span><br></pre></td></tr></table></figure>
+<p>而 <code>atlanta 7897</code> 本来又是：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">atlanta 7897  &lt;---- SSH RemoteForward ----  本地 127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<p>两层叠起来，就容易出现环路或自咬尾巴。</p>
+<h3 id="这次故障最可能的形成过程">🔄 这次故障最可能的形成过程</h3>
+<p>按当时的现象，最合理的解释是：</p>
+<ol type="1">
+<li>我在 Win 上通过 VS Code Remote SSH 连到 <code>atlanta</code></li>
+<li>SSH 按配置建立了 <code>RemoteForward</code>，使 <code>atlanta:7897 -&gt; Win本地:7897</code></li>
+<li>VS Code 又检测到远端 <code>7897</code> 正在监听，于是自动做了端口转发</li>
+<li>按 VS Code 的正常行为，如果 Win 本地 <code>7897</code> 已经被 Clash 占着，它本来应该改绑到别的本地端口，而不是继续占 <code>7897</code></li>
+<li>因此，真正危险的情况更像是：VS Code 因为恢复了旧的端口映射，或者因为启动时序问题，实际又拿到了 <strong>Win 本地 <code>7897</code></strong></li>
+<li>一旦这件事发生，“Win 本地 <code>7897</code>”就不再只是 Clash 的入口，还会被 VS Code 的转发链路卷进去</li>
+<li>最终结果就是：本地代理流量绕回 SSH，再绕回远端，再被转回来，形成回环或错误接管</li>
+</ol>
+<p>把这个过程单独画成“故障回环顺序图”，会更直观：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">① SSH 先建立 RemoteForward</span><br><span class="line"></span><br><span class="line">atlanta:7897</span><br><span class="line">  -&gt; SSH RemoteForward</span><br><span class="line">  -&gt; Win 本地 127.0.0.1:7897</span><br><span class="line">  -&gt; Clash Verge</span><br><span class="line"></span><br><span class="line">② VS Code 发现 atlanta:7897 在监听</span><br><span class="line"></span><br><span class="line">本地某端口</span><br><span class="line">  &lt;- VS Code 自动转发 -&gt;</span><br><span class="line">atlanta:7897</span><br><span class="line"></span><br><span class="line">③ 正常情况</span><br><span class="line"></span><br><span class="line">本地 4123</span><br><span class="line">  &lt;- VS Code 自动转发 -&gt;</span><br><span class="line">atlanta:7897</span><br><span class="line"></span><br><span class="line">Clash 继续独占本地 7897</span><br><span class="line"></span><br><span class="line">④ 危险情况：VS Code 因恢复旧映射或时序问题实际占回本地 7897</span><br><span class="line"></span><br><span class="line">本地 7897</span><br><span class="line">  &lt;- VS Code 自动转发 -&gt;</span><br><span class="line">atlanta:7897</span><br><span class="line">  -&gt; SSH RemoteForward</span><br><span class="line">  -&gt; 本地 7897</span><br><span class="line"></span><br><span class="line">结果：同一个端口同时处在“转发入口”和“代理出口”上，链路开始自绕</span><br></pre></td></tr></table></figure>
+<p>当时观察到的两个现象正好支持这个推断：</p>
+<ul>
+<li>只要断开 VS Code SSH，Win 本地网络立刻恢复</li>
+<li>只要删掉 VS Code 里自动转发的 <code>7897</code>，问题立刻消失</li>
+</ul>
+<h3 id="ssh-端口转发到底是怎么工作的">🛠️ SSH 端口转发到底是怎么工作的</h3>
+<h4 id="remoteforward">RemoteForward</h4>
+<p><code>RemoteForward A B:C</code></p>
+<p>意思是：</p>
+<ul>
+<li>在远端机器监听 <code>A</code></li>
+<li>收到连接后，通过 SSH 隧道送到本地的 <code>B:C</code></li>
+</ul>
+<p>这里的配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">RemoteForward 7897 127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<p>等价于：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">atlanta:7897  -&gt;  当前客户端:127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<p>这里很容易混淆的一点是：</p>
+<ul>
+<li><code>SSH 隧道</code> 本身是双向承载数据的</li>
+<li>但 <code>RemoteForward</code> 定义的入口方向并不是对等的</li>
+</ul>
+<p>它真正表达的是：</p>
+<ul>
+<li>由远端程序去连接 <code>atlanta:7897</code></li>
+<li>SSH 再把这条连接转交给当前客户端本机的 <code>127.0.0.1:7897</code></li>
+</ul>
+<p>所以更准确的理解应该是：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">atlanta 上的程序</span><br><span class="line">  -&gt; 连接 atlanta:7897</span><br><span class="line">  -&gt; SSH RemoteForward</span><br><span class="line">  -&gt; 当前客户端的 127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<p>这条连接一旦建立，请求和响应都会在同一条被转发的 TCP 连接里双向流动。也就是说：</p>
+<ul>
+<li><code>atlanta</code> 发给 <code>atlanta:7897</code> 的请求，会被送到当前客户端的 <code>7897</code></li>
+<li>当前客户端上的代理再去访问外网</li>
+<li>外网返回的数据，会沿着同一条连接再返回给 <code>atlanta</code></li>
+</ul>
+<p>但这不等于“当前客户端也能靠这条 <code>RemoteForward</code> 主动去访问 <code>atlanta:7897</code>”。<code>RemoteForward</code> 解决的是“让远端借用本地服务”，不是让两端在这个端口上获得对等的主动访问能力。</p>
+<p>因此，只要在 <code>atlanta</code> 上配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&#x27;http://127.0.0.1:7897&#x27;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&#x27;http://127.0.0.1:7897&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>流量其实并不是从 <code>atlanta</code> 直接出国，而是：</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">atlanta curl</span><br><span class="line">  -&gt; atlanta:7897</span><br><span class="line">  -&gt; SSH 隧道</span><br><span class="line">  -&gt; Win 本地 Clash:7897</span><br><span class="line">  -&gt; 机场节点</span><br><span class="line">  -&gt; 目标站点</span><br><span class="line">  &lt;- 响应原路返回</span><br></pre></td></tr></table></figure>
+<h4 id="vs-code-自动端口转发">VS Code 自动端口转发</h4>
+<p>VS Code Remote SSH 会做另一件事：</p>
+<ul>
+<li>发现远端某个端口在监听</li>
+<li>自动把它映射到本机</li>
+<li>让你本机直接访问远端服务</li>
+</ul>
+<p>这个功能本来是给 <code>3000</code>、<code>8080</code>、<code>8888</code> 这类开发服务准备的，比如远端起了 Web 服务，你本机浏览器可以直接打开。</p>
+<p>它的核心作用其实很朴素：<strong>让“明明跑在远端”的服务，用起来像“跑在本机”一样顺手</strong>。这样你就不用每次都自己记 SSH 隧道命令，也不用手工再开一层 <code>ssh -L</code>。</p>
+<p>典型应用场景一般有这些：</p>
+<ul>
+<li>远端跑了前端开发服务器，比如 Vite、Next.js、Storybook，本机浏览器直接开 <code>localhost</code></li>
+<li>远端起了 Jupyter、Gradio、Streamlit、TensorBoard 这类本地 Web 面板，本机可以直接点开预览</li>
+<li>远端临时起了一个调试 API、管理后台或文档站，不想专门手敲隧道命令</li>
+<li>容器、跳板机或云主机里的服务只监听 <code>127.0.0.1</code>，但你仍然想在本地 GUI 里访问它</li>
+</ul>
+<p>所以它最适合的是“开发服务”和“临时调试入口”。这类服务的共同特点是：</p>
+<ul>
+<li>端口是给人看的</li>
+<li>访问方向通常是“本机去看远端”</li>
+<li>即使换一个本地端口也无所谓，只要能打开就行</li>
+</ul>
+<p>它的探测方式，VS Code 团队在 issue 里解释过，主要有两类：</p>
+<ul>
+<li><code>process</code>：轮询远端 <code>/proc</code>，找哪些进程正在监听端口</li>
+<li><code>output</code>：扫描终端或调试输出里像 URL / 端口的内容</li>
+</ul>
+<p>另外，官方文档也说明了一个关键细节：如果本地同号端口已经被占用，VS Code 往往会换一个本地端口，比如把远端 <code>3000</code> 映射到本地 <code>4123</code>。</p>
+<p>所以对这次故障，更严谨的表述应该是：</p>
+<ul>
+<li>不是“VS Code 一看到远端 <code>7897</code> 就一定会再占本地 <code>7897</code>”</li>
+<li>而是“VS Code 会自动转发远端 <code>7897</code>；只有它因为恢复旧映射或时序问题真的落回本地 <code>7897</code> 时，才会和 <code>RemoteForward</code> 叠成自环”</li>
+</ul>
+<p>也正因为如此，<code>7897</code> 这种本来就参与 SSH 隧道的代理口，确实属于“不该自动转发的端口”。</p>
+<p>原因也不复杂：代理口和普通开发端口的角色完全不一样。</p>
+<ul>
+<li>开发端口通常是“给你打开页面用的”</li>
+<li>代理端口则是“给别的流量继续转发用的”</li>
+</ul>
+<p>前者被 VS Code 额外包一层映射，通常只是更方便；后者如果再被 IDE 接管，就可能改变原来的流量路径，甚至把链路绕回自己。</p>
+<h3 id="为什么这类问题特别隐蔽">⚠️ 为什么这类问题特别隐蔽</h3>
+<p>因为它会同时制造两种错觉：</p>
+<table>
+<thead>
+<tr class="header">
+<th>现象</th>
+<th>容易误判成什么</th>
+<th>实际更可能是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>atlanta curl</code> 无响应</td>
+<td>远端没网、机场挂了</td>
+<td>远端代理口被错误转发</td>
+</tr>
+<tr class="even">
+<td>Win 本地机场节点看起来正常</td>
+<td>机场没问题</td>
+<td>但本地代理出口发生环路</td>
+</tr>
+<tr class="odd">
+<td>断开 VS Code SSH 后马上恢复</td>
+<td>偶发网络波动</td>
+<td>SSH/VS Code 转发链路有问题</td>
+</tr>
+<tr class="even">
+<td>删除自动转发 <code>7897</code> 后恢复</td>
+<td>临时玄学</td>
+<td>端口冲突被解除</td>
+</tr>
+</tbody>
+</table>
+<p>根本原因是：<strong>表面上坏的是“网络”，实际上坏的是“流量路径”</strong>。</p>
+<h3 id="如何验证是不是端口回环">🧪 如何验证是不是端口回环</h3>
+<p>下次再遇到类似问题，可以按这个顺序排查。</p>
+<h4 id="在本机看-7897-到底谁在监听">在本机看 <code>7897</code> 到底谁在监听</h4>
+<p>Windows 可以看：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line">netstat <span class="literal">-ano</span> | findstr <span class="number">7897</span></span><br></pre></td></tr></table></figure>
+<p>macOS / Linux 可以看：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">lsof -i :7897</span><br><span class="line">ss -ltnp | grep 7897</span><br></pre></td></tr></table></figure>
+<p>重点不是只看“有没有监听”，而是看：</p>
+<ul>
+<li>是 Clash 在监听</li>
+<li>还是 VS Code helper / SSH client 在监听</li>
+<li>还是两边都试图占这个端口</li>
+</ul>
+<h4 id="在远端确认转发是否存在">在远端确认转发是否存在</h4>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ss -ltnp | grep 7897</span><br></pre></td></tr></table></figure>
+<p>如果 <code>atlanta</code> 上有 <code>127.0.0.1:7897</code> 的监听，很可能就是 SSH 建出来的 <code>RemoteForward</code>。</p>
+<h3 id="常见误区">🚫 常见误区</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mac 先连上，Win 就会“占不到同一个远端端口”</td>
+<td>不一定。<code>RemoteForward</code> 作用在具体 SSH 会话上，不能简单理解成一台机器上的全局唯一占坑。</td>
+</tr>
+<tr class="even">
+<td>看到节点正常，就说明代理没问题</td>
+<td>不对。节点健康只说明客户端到订阅/控制面的状态正常，不代表数据流量没有回环。</td>
+</tr>
+<tr class="odd">
+<td><code>curl</code> 没输出一定是目标网站挂了</td>
+<td>不对。端口回环、代理黑洞、DNS 被错误接管都可能表现成“卡死没输出”。</td>
+</tr>
+<tr class="even">
+<td>VS Code 自动转发一定是好事</td>
+<td>只对普通开发服务是好事，对代理口、隧道口、数据库口未必。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="总结">✅ 总结</h3>
+<blockquote>
+<p>这次问题的本质，不是机场挂了，也不是服务器断网，而是远端代理口既参与了 SSH 的 <code>RemoteForward</code>，又被 VS Code 自动纳入端口转发候选；一旦 VS Code 因恢复旧映射或启动时序异常实际占回本地同号端口，流量路径就会自我缠绕。</p>
+</blockquote>
+<p>如果你也在用 <code>RemoteForward</code> 让远端机器借用本地 Clash，最稳的策略就三条：</p>
+<ul>
+<li>禁掉 VS Code 对代理端口的自动转发</li>
+<li>让远端端口和本地代理端口不要同号</li>
+<li>把不同设备的远端代理端口编号分开</li>
+</ul>
+<p>这样下次再遇到“本地看起来在线，远端却完全没网”的诡异故障，第一反应就不该是换节点，而该先检查端口转发链路。</p>
+]]></content>
+      <categories>
+        <category>网络</category>
+        <category>开发环境</category>
+      </categories>
+      <tags>
+        <tag>SSH</tag>
+        <tag>VS Code</tag>
+        <tag>端口转发</tag>
+        <tag>Clash</tag>
+        <tag>Proxy</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TDX Note</title>
     <url>/posts/cbeff3a9/</url>
     <content><![CDATA[<h2 id="intel-tdx-demystified-a-top-down-approach">Intel TDX Demystified: A Top-Down Approach</h2>
@@ -5334,6 +5646,221 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
       </tags>
   </entry>
   <entry>
+    <title>终端与Shell：从入门到看懂，一篇就够</title>
+    <url>/posts/82543a5f/</url>
+    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
+<span id="more"></span>
+<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
+<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
+<h4 id="三层模型">1. 三层模型</h4>
+<p>命令行交互的世界可以被清晰地划分为三层：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
+<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
+<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
+<table>
+<thead>
+<tr class="header">
+<th>现实场景</th>
+<th>对应技术</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>你手机里的「外卖 App 界面」</td>
+<td><strong>终端 Terminal</strong></td>
+<td>显示菜单、字体、动画，本身不做饭</td>
+</tr>
+<tr class="even">
+<td>你选的「厨师」</td>
+<td><strong>Shell</strong></td>
+<td>读懂你的菜单（命令），指挥厨房做菜</td>
+</tr>
+<tr class="odd">
+<td>厨房里的「食材/灶具/电」</td>
+<td><strong>内核/程序</strong></td>
+<td>真正读写文件、启动进程、调用硬件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
+<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
+<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
+<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
+<ul>
+<li><p><strong>主要功能</strong>：</p>
+<ul>
+<li><strong>字符渲染</strong>：把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
+<li><strong>会话管理</strong>：提供多标签、多窗格、会话恢复等功能。</li>
+<li><strong>输入处理</strong>：捕获你的键盘输入，并发送给 Shell。</li>
+<li><strong>美化与配置</strong>：允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
+</ul></li>
+<li><p><strong>主流实现</strong>：</p>
+<ul>
+<li><strong>Windows</strong>：<code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
+<li><strong>macOS</strong>：<code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
+<li><strong>Linux</strong>：<code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
+</ul></li>
+</ul>
+<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
+<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
+<ul>
+<li><p><strong>主要功能</strong>：</p>
+<ul>
+<li><strong>命令解析</strong>：读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
+<li><strong>脚本编程</strong>：提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
+<li><strong>环境管理</strong>：通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
+<li><strong>管道与重定向</strong>：实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
+</ul></li>
+<li><p><strong>主流实现</strong>：</p>
+<ul>
+<li><strong>POSIX 家族</strong>：
+<ul>
+<li><code>bash</code>：最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
+<li><code>zsh</code>：功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
+<li><code>fish</code>：以“开箱即用”和“智能自动补全”著称。</li>
+</ul></li>
+<li><strong>Windows 家族</strong>：
+<ul>
+<li><code>cmd.exe</code>：传统的命令提示符，功能简单。</li>
+<li><code>PowerShell</code>：现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
+<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>属于哪一层</th>
+<th>简单一句话说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>cmd.exe</strong></td>
+<td>Shell</td>
+<td>Windows 最老的命令解释器，功能简单。</td>
+</tr>
+<tr class="even">
+<td><strong>PowerShell</strong></td>
+<td>Shell</td>
+<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
+</tr>
+<tr class="odd">
+<td><strong>bash</strong></td>
+<td>Shell</td>
+<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
+</tr>
+<tr class="even">
+<td><strong>zsh</strong></td>
+<td>Shell</td>
+<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
+</tr>
+<tr class="odd">
+<td><strong>Windows Terminal</strong></td>
+<td>终端</td>
+<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
+</tr>
+<tr class="even">
+<td><strong>iTerm2</strong></td>
+<td>终端</td>
+<td>macOS 平台功能最强大的终端之一。</td>
+</tr>
+<tr class="odd">
+<td><strong>WSL</strong></td>
+<td>系统兼容层</td>
+<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
+</tr>
+<tr class="even">
+<td><strong>Oh My Zsh</strong></td>
+<td>zsh 配置框架</td>
+<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
+</tr>
+<tr class="odd">
+<td><strong>Powerlevel10k</strong></td>
+<td>zsh 主题</td>
+<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
+<h4 id="windows-平台">1. Windows 平台</h4>
+<ul>
+<li><p><strong>现代组合</strong>：</p>
+<ul>
+<li><strong>终端</strong>：<code>Windows Terminal</code></li>
+<li><strong>Shell</strong>：<code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
+</ul></li>
+<li><p><strong>配置示例 (<code>settings.json</code>)</strong>：在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></p></li>
+</ul>
+<h4 id="macos-平台">2. macOS 平台</h4>
+<ul>
+<li><p><strong>主流组合</strong>：</p>
+<ul>
+<li><strong>终端</strong>：<code>iTerm2</code></li>
+<li><strong>Shell</strong>：<code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
+</ul></li>
+<li><p><strong>切换默认 Shell</strong>：如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</p></li>
+</ul>
+<h4 id="linux-平台">3. Linux 平台</h4>
+<ul>
+<li><p><strong>常见组合</strong>：</p>
+<ul>
+<li><strong>终端</strong>：<code>GNOME Terminal</code> 或 <code>Konsole</code></li>
+<li><strong>Shell</strong>：<code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
+</ul></li>
+<li><p><strong>安装 zsh</strong>：<code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</p></li>
+</ul>
+<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Windows Terminal 就是一个新的 Shell</td>
+<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
+</tr>
+<tr class="even">
+<td>Git Bash 是一个终端</td>
+<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
+</tr>
+<tr class="odd">
+<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
+<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="六终极总结">✅ 六、终极总结</h3>
+<blockquote>
+<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
+<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
+</blockquote>
+<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
+<p>Happy Hacking! 🎉</p>
+]]></content>
+      <categories>
+        <category>技术工具</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>Windows</tag>
+        <tag>Terminal</tag>
+        <tag>Shell</tag>
+        <tag>macOS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Tensor 基础：布局、算子与形状推导</title>
     <url>/posts/f1e2d3c4/</url>
     <content><![CDATA[<p>想看懂卷积、池化公式却老被 <code>NCHW</code>、<code>stride</code> 搞糊涂？本文聚焦 <strong>张量布局 → 常见算子 → 形状计算公式</strong>，用一篇梳理基础概念。</p>
@@ -5774,579 +6301,6 @@ PEF 通过对 IBM Power 指令集架构 (ISA) 的扩展来提供基于 VM 的 TE
         <tag>深度学习</tag>
         <tag>张量</tag>
         <tag>形状推导</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>终端与Shell：从入门到看懂，一篇就够</title>
-    <url>/posts/82543a5f/</url>
-    <content><![CDATA[<p>很多初学者都会被“终端”、“Shell”、“cmd”、“bash”、“zsh”、“PowerLevel10k”这些名词绕晕。本文旨在用“三层模型 + 一个比喻”帮你一次性理清它们的关系，并系统梳理其在 Windows、macOS、Linux 三大平台下的主流实现与配置方法，为你提供一份清晰、可随时查阅的技术指南。</p>
-<span id="more"></span>
-<h3 id="一核心框架三层模型与一个比喻">🧩 一、核心框架：三层模型与一个比喻</h3>
-<p>忘掉所有名词，先记住这个核心框架，之后的一切都将水到渠成。</p>
-<h4 id="三层模型">1. 三层模型</h4>
-<p>命令行交互的世界可以被清晰地划分为三层：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">┌──────────────────────────┐</span><br><span class="line">│  终端 (Terminal)         │  ← 你看到的窗口、标签、字体、颜色……</span><br><span class="line">│  (Windows Terminal,      │</span><br><span class="line">│   macOS Terminal, iTerm2)│  负责“显示”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (传递用户输入)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  解释器 (Shell)           │  ← 真正理解并执行你命令的“大脑”</span><br><span class="line">│  • bash / zsh / fish     │</span><br><span class="line">│  • cmd.exe / PowerShell  │  负责“执行”</span><br><span class="line">└────────────┬─────────────┘</span><br><span class="line">             │ (调用系统功能)</span><br><span class="line">┌────────────┴─────────────┐</span><br><span class="line">│  内核 &amp; 程序 (Kernel)     │  ← 操作系统和 `git`, `ls` 等具体程序</span><br><span class="line">│  (文件系统, 网络, 进程…)   │  负责“干活”</span><br><span class="line">└──────────────────────────┘</span><br></pre></td></tr></table></figure>
-<h4 id="点外卖比喻">2. “点外卖”比喻</h4>
-<p>如果还觉得抽象，这个比喻能帮你彻底理解：</p>
-<table>
-<thead>
-<tr class="header">
-<th>现实场景</th>
-<th>对应技术</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>你手机里的「外卖 App 界面」</td>
-<td><strong>终端 Terminal</strong></td>
-<td>显示菜单、字体、动画，本身不做饭</td>
-</tr>
-<tr class="even">
-<td>你选的「厨师」</td>
-<td><strong>Shell</strong></td>
-<td>读懂你的菜单（命令），指挥厨房做菜</td>
-</tr>
-<tr class="odd">
-<td>厨房里的「食材/灶具/电」</td>
-<td><strong>内核/程序</strong></td>
-<td>真正读写文件、启动进程、调用硬件</td>
-</tr>
-</tbody>
-</table>
-<p><strong>一句话小结</strong>：<strong>终端是显示器，Shell 是翻译官。</strong> 你在显示器上打字，翻译官读懂后告诉系统去执行。</p>
-<h3 id="二分层详解终端与-shell-的职责">🛠️ 二、分层详解：终端与 Shell 的职责</h3>
-<h4 id="终端-terminal你看到的那个窗口">1. 终端 (Terminal)：你看到的那个“窗口”</h4>
-<p>终端的核心职责是<strong>显示</strong>和<strong>交互</strong>，它本身不理解命令。</p>
-<ul>
-<li><p><strong>主要功能</strong>：</p>
-<ul>
-<li><strong>字符渲染</strong>：把程序输出的字节流（比如 <code>ls</code> 的结果）变成你肉眼可见的文字、颜色和符号。</li>
-<li><strong>会话管理</strong>：提供多标签、多窗格、会话恢复等功能。</li>
-<li><strong>输入处理</strong>：捕获你的键盘输入，并发送给 Shell。</li>
-<li><strong>美化与配置</strong>：允许你自定义字体、配色方案、背景模糊等视觉效果。要显示特殊图标（如 Powerlevel10k 中的小图标），通常需要安装 <strong>Nerd Fonts</strong> 字体。</li>
-</ul></li>
-<li><p><strong>主流实现</strong>：</p>
-<ul>
-<li><strong>Windows</strong>：<code>Windows Terminal</code>, <code>ConEmu</code>, <code>Fluent Terminal</code></li>
-<li><strong>macOS</strong>：<code>Terminal.app</code> (系统自带), <code>iTerm2</code> (功能更强)</li>
-<li><strong>Linux</strong>：<code>GNOME Terminal</code>, <code>Konsole</code>, <code>Alacritty</code>, <code>kitty</code></li>
-</ul></li>
-</ul>
-<h4 id="shell那个解析命令的大脑">2. Shell：那个解析命令的“大脑”</h4>
-<p>Shell 的核心职责是<strong>解释</strong>和<strong>执行</strong>。它是连接你和操作系统内核的桥梁。</p>
-<ul>
-<li><p><strong>主要功能</strong>：</p>
-<ul>
-<li><strong>命令解析</strong>：读取你输入的字符串（如 <code>ls -la</code>），理解其含义。</li>
-<li><strong>脚本编程</strong>：提供变量、循环、判断等语法，让你能编写自动化脚本（<code>.sh</code>, <code>.ps1</code> 文件）。</li>
-<li><strong>环境管理</strong>：通过 <strong>配置文件</strong> (如 <code>~/.bashrc</code>, <code>~/.zshrc</code>, <code>profile.ps1</code>) 管理环境变量、别名（alias）、启动任务等。</li>
-<li><strong>管道与重定向</strong>：实现 <code>|</code>, <code>&gt;</code>, <code>&lt;</code> 等强大的数据流控制。</li>
-</ul></li>
-<li><p><strong>主流实现</strong>：</p>
-<ul>
-<li><strong>POSIX 家族</strong>：
-<ul>
-<li><code>bash</code>：最普及的 Shell，几乎所有 Linux 发行版和早期 macOS 的默认选择。</li>
-<li><code>zsh</code>：功能更强，交互体验更好，是当前 macOS 的默认 Shell。常与 <code>Oh My Zsh</code> 框架搭配使用。</li>
-<li><code>fish</code>：以“开箱即用”和“智能自动补全”著称。</li>
-</ul></li>
-<li><strong>Windows 家族</strong>：
-<ul>
-<li><code>cmd.exe</code>：传统的命令提示符，功能简单。</li>
-<li><code>PowerShell</code>：现代化的 Shell，基于 .NET，语法强大，跨平台。</li>
-</ul></li>
-</ul></li>
-</ul>
-<h3 id="三常见选手速查表">📖 三、常见“选手”速查表</h3>
-<p>有了上面的概念，我们再来看这些名词就非常清晰了。</p>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>属于哪一层</th>
-<th>简单一句话说明</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>cmd.exe</strong></td>
-<td>Shell</td>
-<td>Windows 最老的命令解释器，功能简单。</td>
-</tr>
-<tr class="even">
-<td><strong>PowerShell</strong></td>
-<td>Shell</td>
-<td>Windows 现代命令+脚本环境，面向对象，强大。</td>
-</tr>
-<tr class="odd">
-<td><strong>bash</strong></td>
-<td>Shell</td>
-<td>Linux/macOS 最常用的 Shell，兼容性好。</td>
-</tr>
-<tr class="even">
-<td><strong>zsh</strong></td>
-<td>Shell</td>
-<td>bash 的功能超集，因 Oh My Zsh 框架而流行。</td>
-</tr>
-<tr class="odd">
-<td><strong>Windows Terminal</strong></td>
-<td>终端</td>
-<td>微软官方终端，可托管 cmd, PowerShell, WSL 等多种 Shell。</td>
-</tr>
-<tr class="even">
-<td><strong>iTerm2</strong></td>
-<td>终端</td>
-<td>macOS 平台功能最强大的终端之一。</td>
-</tr>
-<tr class="odd">
-<td><strong>WSL</strong></td>
-<td>系统兼容层</td>
-<td>在 Windows 里无缝运行一个真正的 Linux 系统，默认 Shell 通常是 bash。</td>
-</tr>
-<tr class="even">
-<td><strong>Oh My Zsh</strong></td>
-<td>zsh 配置框架</td>
-<td><strong>不是 Shell</strong>！它是一个管理 zsh 主题和插件的工具，让 zsh 更好看、更好用。</td>
-</tr>
-<tr class="odd">
-<td><strong>Powerlevel10k</strong></td>
-<td>zsh 主题</td>
-<td><strong>不是 Shell</strong>！它是一个 zsh 的主题，负责美化提示符，需要 Nerd Font 支持。</td>
-</tr>
-</tbody>
-</table>
-<h3 id="四实战组合三大平台配置指南">🚀 四、实战组合：三大平台配置指南</h3>
-<h4 id="windows-平台">1. Windows 平台</h4>
-<ul>
-<li><p><strong>现代组合</strong>：</p>
-<ul>
-<li><strong>终端</strong>：<code>Windows Terminal</code></li>
-<li><strong>Shell</strong>：<code>PowerShell</code> (或在 WSL 中使用 <code>zsh</code>)</li>
-</ul></li>
-<li><p><strong>配置示例 (<code>settings.json</code>)</strong>：在 Windows Terminal 中添加一个启动 WSL 并使用 zsh 的配置。 <figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;profiles&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;guid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...some-guid...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ubuntu (Zsh)&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;commandline&quot;</span><span class="punctuation">:</span> <span class="string">&quot;wsl.exe -d Ubuntu ~ -e zsh&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;font&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;face&quot;</span><span class="punctuation">:</span> <span class="string">&quot;DejaVu Sans Mono Nerd Font&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></p></li>
-</ul>
-<h4 id="macos-平台">2. macOS 平台</h4>
-<ul>
-<li><p><strong>主流组合</strong>：</p>
-<ul>
-<li><strong>终端</strong>：<code>iTerm2</code></li>
-<li><strong>Shell</strong>：<code>zsh</code> (系统默认) + <code>Oh My Zsh</code> + <code>Powerlevel10k</code></li>
-</ul></li>
-<li><p><strong>切换默认 Shell</strong>：如果你的默认 Shell 不是 zsh，可以执行 <code>chsh -s /bin/zsh</code> 来切换。</p></li>
-</ul>
-<h4 id="linux-平台">3. Linux 平台</h4>
-<ul>
-<li><p><strong>常见组合</strong>：</p>
-<ul>
-<li><strong>终端</strong>：<code>GNOME Terminal</code> 或 <code>Konsole</code></li>
-<li><strong>Shell</strong>：<code>bash</code> (多数发行版默认)，或自行安装 <code>zsh</code> / <code>fish</code>。</li>
-</ul></li>
-<li><p><strong>安装 zsh</strong>：<code>sudo apt update &amp;&amp; sudo apt install zsh</code> (Debian/Ubuntu)</p></li>
-</ul>
-<h3 id="五常见误区澄清">🧐 五、常见误区澄清</h3>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>误区</th>
-<th>正解</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Windows Terminal 就是一个新的 Shell</td>
-<td>错。它是 <strong>终端</strong>，一个窗口程序，可以托管 PowerShell, cmd, WSL 等不同 Shell。</td>
-</tr>
-<tr class="even">
-<td>Git Bash 是一个终端</td>
-<td>不完全对。它是一个软件包，包含了 <code>mintty</code> (一个终端) + <code>bash</code> (一个 Shell) 以及一些 Git 工具。</td>
-</tr>
-<tr class="odd">
-<td><code>Oh My Zsh</code> 就是 <code>zsh</code></td>
-<td>错。<code>zsh</code> 是 Shell (厨师)，<code>Oh My Zsh</code> 是给厨师的智能厨具和漂亮工服，能提升效率和美观度。</td>
-</tr>
-</tbody>
-</table>
-<h3 id="六终极总结">✅ 六、终极总结</h3>
-<blockquote>
-<p><strong>终端 = App 界面；Shell = App 的后端逻辑。</strong></p>
-<p><strong><code>cmd</code>、<code>bash</code>、<code>zsh</code> 都是不同品牌的“后端逻辑”，而 <code>Windows Terminal</code>、<code>iTerm2</code> 都是不同品牌的“App 界面”。<code>Oh My Zsh</code> 只是给 <code>zsh</code> 这个后端逻辑加的皮肤和插件。</strong></p>
-</blockquote>
-<p>现在，当再看到任何命令行相关的“黑框”工具时，你只需问自己：<strong>“它到底是负责显示的‘界面’，还是负责执行的‘逻辑’？”</strong>，便不会再迷茫。</p>
-<p>Happy Hacking! 🎉</p>
-]]></content>
-      <categories>
-        <category>技术工具</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>Windows</tag>
-        <tag>Terminal</tag>
-        <tag>Shell</tag>
-        <tag>macOS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Clash 与网络代理详解</title>
-    <url>/posts/755f751e/</url>
-    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
-<span id="more"></span>
-<h3 id="基本概念速读">📚 基本概念速读</h3>
-<table>
-<thead>
-<tr class="header">
-<th>名称</th>
-<th>定义</th>
-<th>省流</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>VPN</strong></td>
-<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
-<td>秘密隧道</td>
-</tr>
-<tr class="even">
-<td><strong>Proxy</strong></td>
-<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
-<td>传话筒</td>
-</tr>
-<tr class="odd">
-<td><strong>Clash</strong></td>
-<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
-<td>智能调度员</td>
-</tr>
-<tr class="even">
-<td><strong>Rule</strong></td>
-<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
-<td>分流路牌</td>
-</tr>
-<tr class="odd">
-<td><strong>TUN</strong></td>
-<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
-<td>虚拟网卡</td>
-</tr>
-<tr class="even">
-<td><strong>Mixin</strong></td>
-<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
-<td>补丁包</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
-<table>
-<thead>
-<tr class="header">
-<th>特性</th>
-<th>VPN</th>
-<th>代理 (Proxy)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>工作层级</strong></td>
-<td>操作系统层 (OSI L3 网络层)</td>
-<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
-</tr>
-<tr class="even">
-<td><strong>接管范围</strong></td>
-<td>全局接管（通常），所有软件流量都走隧道</td>
-<td>仅接管支持代理设置的软件 (如浏览器)</td>
-</tr>
-<tr class="odd">
-<td><strong>加密程度</strong></td>
-<td>全程加密，强调安全性</td>
-<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
-</tr>
-<tr class="even">
-<td><strong>灵活性</strong></td>
-<td>较差，通常“全走”或“全不走”</td>
-<td>极高，可按域名/进程分流</td>
-</tr>
-<tr class="odd">
-<td><strong>典型协议</strong></td>
-<td>WireGuard, OpenVPN, IPSec</td>
-<td>HTTP, Socks5, Shadowsocks, VMess</td>
-</tr>
-</tbody>
-</table>
-</blockquote>
-<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
-<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
-<h4 id="global-全局模式">1. Global 全局模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
-<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
-<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
-</ul>
-<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
-<ul>
-<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
-<li><strong>流程</strong>：
-<ol type="1">
-<li>拦截请求。</li>
-<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
-<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
-</ol></li>
-<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
-</ul>
-<h4 id="direct-直连模式">3. Direct 直连模式</h4>
-<ul>
-<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
-<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
-</ul>
-<h4 id="script-脚本模式">4. Script 脚本模式</h4>
-<ul>
-<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
-<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
-</ul>
-<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
-<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
-<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
-<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
-<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
-<pre>
-<code class="mermaid">
-
-graph TD;
-    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
-    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
-    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
-    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
-    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
-</code>
-</pre>
-<ol type="1">
-<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
-<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
-<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
-<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
-</ol>
-<blockquote>
-<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
-</blockquote>
-<blockquote>
-<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
-<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
-<ul>
-<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
-<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
-</ul>
-<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
-</blockquote>
-<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
-<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
-<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
-<ul>
-<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
-<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
-<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
-<li><strong>主要作用</strong>：
-<ol type="1">
-<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
-<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
-<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
-</ol></li>
-</ul>
-<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
-<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
-<h4 id="核心结构">核心结构</h4>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
-<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
-<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
-<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
-<ul>
-<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
-<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
-<li><strong>用途</strong>：
-<ul>
-<li>强制开启 TUN 模式。</li>
-<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
-<li>添加个人的局域网 IP 直连规则。</li>
-</ul></li>
-</ul>
-<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
-</blockquote>
-<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
-<ol type="1">
-<li><strong>“开了全局模式就是最安全的”</strong>
-<ul>
-<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
-</ul></li>
-<li><strong>“Ping 值低网速就快”</strong>
-<ul>
-<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
-</ul></li>
-<li><strong>“TUN 模式会影响打游戏吗？”</strong>
-<ul>
-<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
-</ul></li>
-<li><strong>Clash 是 VPN 吗？</strong>
-<ul>
-<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
-<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
-</ul></li>
-</ol>
-]]></content>
-      <categories>
-        <category>网络工具</category>
-      </categories>
-      <tags>
-        <tag>Clash</tag>
-        <tag>Network</tag>
-        <tag>VPN</tag>
-        <tag>代理</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CMake 入门</title>
-    <url>/posts/233853f2/</url>
-    <content><![CDATA[<p>不论你是写 C/C++、CUDA，还是要同时照顾 Linux/Windows/macOS，当项目走出“玩具”阶段，构建就会成为最大的摩擦源：不同编译器、不同 IDE、不同参数、不同依赖的发现与链接。如果还靠手写 <code>Makefile</code> 或分别维护 VS/Xcode 工程，成本会直线上升。</p>
-<p>这正是 CMake 出现的原因：用一份跨平台的构建脚本，生成各平台各 IDE 需要的工程与命令。 <span id="more"></span></p>
-<h3 id="cmake-解决了哪些痛点精简版">CMake 解决了哪些痛点（精简版）</h3>
-<ul>
-<li><p><strong>跨平台</strong>：一份 <code>CMakeLists.txt</code>，到处生成工程（Ninja/Makefiles、Visual Studio、Xcode）。</p></li>
-<li><p><strong>少折腾</strong>：自动管理头文件目录、编译选项、链接依赖，不用手拼长命令。</p></li>
-<li><p><strong>更清爽</strong>：源代码与构建产物分离，目录不再被临时文件污染。</p></li>
-</ul>
-<h3 id="一图速懂它到底做了什么">一图速懂：它到底做了什么</h3>
-<pre>
-<code class="mermaid">
-
-graph TD;
-  A[&quot;写 CMakeLists.txt&quot;] --&gt; B[&quot;cmake -S 源码 -B 构建&quot;];
-  B --&gt; C[&quot;构建：cmake --build 构建目录&quot;];
-  C --&gt; D[&quot;运行：.&#x2F;build&#x2F;hello（或 IDE 里运行）&quot;];
-  B --&gt; E[&quot;按平台生成合适的工程&#x2F;构建文件&quot;];
-</code>
-</pre>
-<h4 id="为什么在-b-分叉">为什么在 B 分叉</h4>
-<ul>
-<li>B 是“配置/生成”阶段，产生两种后续选择：</li>
-<li>走 C：继续用 <code>cmake --build</code> 统一构建（CMake 调用本机构建器编译/链接）。</li>
-<li>走 E：直接使用已生成的本机构建文件（Makefile、Ninja、Visual Studio、Xcode 工程）在命令行或 IDE 中构建。</li>
-<li>二者本质等价，通常二选一即可；团队混用也没问题。</li>
-</ul>
-<h4 id="配置阶段b的产物">配置阶段（B）的产物</h4>
-<ul>
-<li>本机构建文件：<code>Makefile</code>、<code>build.ninja</code>、VS <code>.sln/.vcxproj</code>、Xcode <code>.xcodeproj</code>（由生成器决定）。</li>
-<li>CMake 缓存与元数据：<code>CMakeCache.txt</code>、<code>CMakeFiles/</code>、平台/编译器/特性探测结果。</li>
-<li>可选辅助：<code>compile_commands.json</code>（<code>-DCMAKE_EXPORT_COMPILE_COMMANDS=ON</code>）、通过 <code>configure_file()</code> 生成的配置头/源文件。</li>
-<li>位置：全部写入 <code>-B</code> 指定的构建目录。</li>
-</ul>
-<h4 id="构建阶段c的产物">构建阶段（C）的产物</h4>
-<ul>
-<li>可执行文件：如 <code>build/hello</code>（Windows 为 <code>build/hello.exe</code>）。</li>
-<li>库文件：静态库（<code>.a</code>/<code>.lib</code>）、共享库（<code>.so</code>/<code>.dll</code>/<code>.dylib</code>）。</li>
-<li>中间文件：目标文件（<code>*.o</code>/<code>*.obj</code>）、依赖/缓存等，位于构建目录。</li>
-<li>自定义输出：可用 <code>CMAKE_RUNTIME_OUTPUT_DIRECTORY</code>、<code>CMAKE_LIBRARY_OUTPUT_DIRECTORY</code>、<code>CMAKE_ARCHIVE_OUTPUT_DIRECTORY</code> 调整位置。</li>
-</ul>
-<h3 id="分钟上手">5 分钟上手</h3>
-<p>目录结构：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">your_project/</span><br><span class="line">  CMakeLists.txt</span><br><span class="line">  src/main.cpp</span><br></pre></td></tr></table></figure>
-<p><code>CMakeLists.txt</code>：</p>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(hello LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(hello src/main.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(hello PRIVATE cxx_std_17)</span><br></pre></td></tr></table></figure>
-<p><code>src/main.cpp</code>：</p>
-<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Hello, CMake!&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>构建与运行：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br><span class="line">./build/hello</span><br></pre></td></tr></table></figure>
-<h3 id="cmake-改变了什么一个对比例子">CMake 改变了什么：一个对比例子</h3>
-<p>场景：两个源文件 <code>src/main.cpp</code>、<code>src/util.cpp</code>，需要 C++17，并在 Linux 与 Windows 上都能构建。</p>
-<ul>
-<li><p>没有 CMake（每个平台都要记不同命令）</p></li>
-<li><p>Linux（GCC/Clang）：</p></li>
-</ul>
-<pre><code><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure></code></pre>
-<ul>
-<li>Windows（MSVC）：</li>
-</ul>
-<pre><code><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cl /std:c++17 /O2 src\main.cpp src\util.cpp /I include /Fe:app.exe</span><br></pre></td></tr></table></figure></code></pre>
-<ul>
-<li><p>维护代价：命令不通用，IDE 工程（VS/Xcode）还要各自维护一份。</p></li>
-<li><p>有 CMake（一份脚本到处用）</p></li>
-</ul>
-<p><code>CMakeLists.txt</code>：</p>
-<p><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure></p>
-<p>构建命令（所有平台一致）：</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br></pre></td></tr></table></figure></p>
-<p>效果：不用关心底层是 Make 还是 Ninja、GCC 还是 MSVC，也不用为 VS/Xcode 手工维护工程；需要 IDE 时让 CMake 直接生成即可。诸如 <code>-lm</code>、异常/运行时等平台差异，交给生成器与工具链处理。</p>
-<h4 id="g-命令解析在没有-cmake-时">g++ 命令解析（在没有 CMake 时）</h4>
-<p>以 Linux 的命令为例：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>g++</strong>：调用 GNU C++ 编译器。</p></li>
-<li><p><strong>-std=c++17</strong>：启用 C++17 标准（在 MSVC 下等价为 <code>/std:c++17</code>）。</p></li>
-<li><p><strong>-O2</strong>：开启二级优化（体积与速度的折中）。</p></li>
-<li><p><strong>src/main.cpp src/util.cpp</strong>：要编译并参与链接的源文件。</p></li>
-<li><p><strong>-Iinclude</strong>：增加头文件搜索目录 <code>include</code>。</p></li>
-<li><p><strong>-o app</strong>：输出可执行文件名为 <code>app</code>。</p></li>
-</ul>
-<p>在实际项目中，这条命令会迅速膨胀：再加多目录、宏定义、库搜索路径（<code>-L</code>）、链接库（<code>-lxxx</code>）、平台差异参数，就会变得又长又难复用。这正是 CMake 希望你“声明语义、自动映射细节”的原因。</p>
-<h3 id="工作原理">工作原理</h3>
-<pre>
-<code class="mermaid">
-
-graph TD;
-  A[&quot;CMakeLists.txt：声明要什么&quot;] --&gt; B[&quot;配置阶段：检测平台&#x2F;编译器&#x2F;特性&quot;];
-  B --&gt; C[&quot;选择生成器：Ninja&#x2F;Makefiles&#x2F;VS&#x2F;Xcode&quot;];
-  C --&gt; D[&quot;生成本机构建文件（规则&#x2F;工程）&quot;];
-  D --&gt; E[&quot;cmake --build：调用本机构建器编译&#x2F;链接&quot;];
-</code>
-</pre>
-<p>一句话：你只写“意图”，CMake 按“环境”翻译成正确做法。</p>
-<h3 id="这几行背后发生了什么">这几行背后发生了什么</h3>
-<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><p><strong>cmake_minimum_required(VERSION 3.20)</strong>：锁定最低版本，启用对应语法与行为，避免旧版差异。</p></li>
-<li><p><strong>project(app LANGUAGES CXX)</strong>：确定工程名与语言；CMake 会探测可用的 C++ 编译器与平台特性。</p></li>
-<li><p><strong>add_executable(app …)</strong>：声明目标 <code>app</code>；CMake 为它建立依赖图，并在生成阶段把它翻译成本机的规则/工程项。</p></li>
-<li><p><strong>target_compile_features(app PRIVATE cxx_std_17)</strong>：声明“需要 C++17”，CMake 按编译器映射成正确开关：</p>
-<ul>
-<li><p>GCC/Clang：<code>-std=c++17</code></p></li>
-<li><p>MSVC：<code>/std:c++17</code></p></li>
-</ul></li>
-<li><p><strong>target_include_directories(app PRIVATE include)</strong>：声明头文件目录，按平台生成参数：</p>
-<ul>
-<li><p>GCC/Clang：<code>-I include</code></p></li>
-<li><p>MSVC：<code>/I include</code></p></li>
-</ul></li>
-</ul>
-<p>这就是“一份脚本到处用”的核心：写语义，不写平台细节；由生成器与工具链适配差异。</p>
-<h3 id="cmake-支持哪些语言">CMake 支持哪些语言？</h3>
-<p>首要用户群是 <strong>C/C++</strong>，但并不止于此。常见支持包括：</p>
-<ul>
-<li><p><strong>C、C++</strong>：最成熟、生态最广。</p></li>
-<li><p><strong>CUDA、HIP</strong>：GPU 相关项目常用。</p></li>
-<li><p><strong>Fortran</strong>：在科学计算/数值领域仍然重要。</p></li>
-<li><p><strong>Objective-C/Swift（通过外部集成）</strong>：在 Apple 平台工程生成方面配合 Xcode。</p></li>
-<li><p><strong>ASM、ISPC 等</strong>：低层或专用场景。</p></li>
-</ul>
-<p>此外，CMake 也常被当作“元构建工具”，去驱动其他语言/工具链（如生成外部工具命令、打包脚本）。原则是：若目标/命令能被描述成“配置+构建”的过程，CMake 往往能充当胶水把它们组织起来，但其强项仍然是 C/C++ 及其周边。</p>
-<h3 id="就这么记住">就这么记住</h3>
-<ul>
-<li><p><strong>写清“要什么”</strong>：目标、源文件、需要的标准或库。</p></li>
-<li><p><strong>总在源码外构建</strong>：<code>-S</code> 指源码，<code>-B</code> 指构建目录。</p></li>
-<li><p><strong>统一的构建命令</strong>：<code>cmake --build</code>，不用关心底层是 Make 还是 Ninja。</p></li>
-</ul>
-<h3 id="结语">结语</h3>
-<p>先用这套最小流程把程序跑起来，再根据需要逐步增加依赖与选项；当你不想再重复为不同平台维护多套工程时，CMake 就是省心的那一个。</p>
-]]></content>
-      <categories>
-        <category>开发工具</category>
-      </categories>
-      <tags>
-        <tag>CMake</tag>
-        <tag>构建系统</tag>
-        <tag>C/C++</tag>
       </tags>
   </entry>
   <entry>
@@ -7036,6 +6990,364 @@ graph TD;
         <tag>Linux</tag>
         <tag>操作系统</tag>
         <tag>内核</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Clash 与网络代理详解</title>
+    <url>/posts/755f751e/</url>
+    <content><![CDATA[<p>想彻底搞懂“翻墙”背后的技术原理？从 VPN 到 TUN 模式，带你硬核拆解网络数据的“隐形隧道”。</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>VPN</strong></td>
+<td>Virtual Private Network，虚拟专用网络，在公网上建立加密通道。</td>
+<td>秘密隧道</td>
+</tr>
+<tr class="even">
+<td><strong>Proxy</strong></td>
+<td>代理服务器，充当客户端和服务器之间的“中介”。</td>
+<td>传话筒</td>
+</tr>
+<tr class="odd">
+<td><strong>Clash</strong></td>
+<td>一个基于 Go 语言开发的多平台代理客户端核心。</td>
+<td>智能调度员</td>
+</tr>
+<tr class="even">
+<td><strong>Rule</strong></td>
+<td>根据域名、IP、地理位置决定流量走代理还是直连的规则。</td>
+<td>分流路牌</td>
+</tr>
+<tr class="odd">
+<td><strong>TUN</strong></td>
+<td>操作系统层的虚拟网络接口，用于接管系统级流量。</td>
+<td>虚拟网卡</td>
+</tr>
+<tr class="even">
+<td><strong>Mixin</strong></td>
+<td>混合配置，在不修改订阅文件的前提下，注入自定义配置。</td>
+<td>补丁包</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>VPN vs 代理 (Proxy) 简要对比：</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>特性</th>
+<th>VPN</th>
+<th>代理 (Proxy)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>工作层级</strong></td>
+<td>操作系统层 (OSI L3 网络层)</td>
+<td>应用程序层 (OSI L4/L7 传输/应用层)</td>
+</tr>
+<tr class="even">
+<td><strong>接管范围</strong></td>
+<td>全局接管（通常），所有软件流量都走隧道</td>
+<td>仅接管支持代理设置的软件 (如浏览器)</td>
+</tr>
+<tr class="odd">
+<td><strong>加密程度</strong></td>
+<td>全程加密，强调安全性</td>
+<td>视协议而定 (HTTP不加密, HTTPS/Socks5加密)</td>
+</tr>
+<tr class="even">
+<td><strong>灵活性</strong></td>
+<td>较差，通常“全走”或“全不走”</td>
+<td>极高，可按域名/进程分流</td>
+</tr>
+<tr class="odd">
+<td><strong>典型协议</strong></td>
+<td>WireGuard, OpenVPN, IPSec</td>
+<td>HTTP, Socks5, Shadowsocks, VMess</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<h3 id="代理模式流量的指挥棒">⚡ 代理模式：流量的指挥棒</h3>
+<p>Clash 最核心的功能就是决定“这个请求该走哪条路”。</p>
+<h4 id="global-全局模式">1. Global 全局模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量一视同仁，强制通过代理服务器转发。</li>
+<li><strong>场景</strong>：访问完全被封锁的网络环境，或者需要隐藏真实 IP 的所有活动。</li>
+<li><strong>缺点</strong>：访问国内网站（如 B站、淘宝）会绕路国外，速度慢且浪费流量。</li>
+</ul>
+<h4 id="rule-规则模式-最常用">2. Rule 规则模式 (最常用)</h4>
+<ul>
+<li><strong>原理</strong>：根据预设的规则列表（Rule List）智能判断。</li>
+<li><strong>流程</strong>：
+<ol type="1">
+<li>拦截请求。</li>
+<li>匹配规则（是 Google? 走 US 节点；是 Baidu? 走直连 Direct）。</li>
+<li>未匹配到的请求走“漏网之鱼”策略（Final）。</li>
+</ol></li>
+<li><strong>优势</strong>：国内直连快，国外代理通，自动分流。</li>
+</ul>
+<h4 id="direct-直连模式">3. Direct 直连模式</h4>
+<ul>
+<li><strong>原理</strong>：所有流量都不走代理，直接发送。</li>
+<li><strong>场景</strong>：暂时不需要代理，或者代理服务器挂了的时候。</li>
+</ul>
+<h4 id="script-脚本模式">4. Script 脚本模式</h4>
+<ul>
+<li><strong>原理</strong>：使用 JavaScript 编写复杂的路由逻辑。</li>
+<li><strong>场景</strong>：极客玩家，需要根据特定时间段、网络延迟动态调整路由。</li>
+</ul>
+<h3 id="进阶黑科技tun-模式">🧠 进阶黑科技：TUN 模式</h3>
+<p>很多小白用户会发现：<strong>“为什么我开了 Clash，浏览器能上 Google，但终端 (Terminal) 或 游戏 还是连不上？”</strong></p>
+<p>这是因为传统的 Clash 工作在 <strong>应用层 (Layer 7)</strong>，它会在本地开启 HTTP/Socks5 端口（如 7890）。只有主动去连接这个端口的软件（如设置了系统代理的浏览器）才会被代理。而游戏、命令行工具默认是不走系统代理配置的。</p>
+<p><strong>TUN (Network Tunnel) 模式</strong> 就是为了解决这个问题。</p>
+<h4 id="tun-的工作原理">🛡️ TUN 的工作原理</h4>
+<pre>
+<code class="mermaid">
+
+graph TD;
+    A[&quot;应用程序 (App&#x2F;Game)&quot;] -- &quot;1. 发送数据包&quot; --&gt; B[&quot;操作系统网络栈&quot;];
+    B -- &quot;2. 路由表指向虚拟网卡&quot; --&gt; C[&quot;TUN 虚拟网卡 (utun&#x2F;tun0)&quot;];
+    C -- &quot;3. 拦截数据 (Layer 3 IP包)&quot; --&gt; D[&quot;Clash 内核&quot;];
+    D -- &quot;4. 重新封装&#x2F;加密&quot; --&gt; E[&quot;物理网卡 (Wi-Fi&#x2F;Ethernet)&quot;];
+    E -- &quot;5. 发送至公网&quot; --&gt; F[&quot;代理服务器&quot;];
+</code>
+</pre>
+<ol type="1">
+<li><strong>创建虚拟网卡</strong>：Clash 在系统中创建一个名为 <code>utun</code> 或 <code>tun0</code> 的虚拟网卡。</li>
+<li><strong>修改路由表</strong>：修改系统的默认网关，将所有流量“骗”进这个虚拟网卡。</li>
+<li><strong>三层接管</strong>：因为 TUN 工作在网络层 (Layer 3)，它处理的是 IP 数据包。这意味着<strong>所有</strong>软件（无论是否支持代理）发出的流量都会经过它。</li>
+<li><strong>用户态处理</strong>：Clash 读取 TUN 设备的数据，进行拆包、分析目标地址、匹配规则，然后转发。</li>
+</ol>
+<blockquote>
+<p><strong>总结</strong>：开启 TUN 模式后，Clash 就变成了一个“类 VPN”，能够接管系统级的所有流量，实现“真·全局接管”。</p>
+</blockquote>
+<blockquote>
+<p><strong>TUN 模式 vs 规则模式：它们如何协同工作？</strong></p>
+<p>这是一个核心问题：<strong>TUN 模式负责“拦截”，而规则模式负责“分流”</strong>。</p>
+<ul>
+<li><strong>TUN 模式</strong>：作为<strong>流量入口</strong>，它只决定 Clash 能处理哪些应用的流量。开启后，它会接管<strong>所有</strong>应用的数据包，然后交给 Clash 核心。</li>
+<li><strong>规则/全局/直连模式</strong>：作为<strong>调度中心</strong>，它决定被拦截进来的流量的<strong>最终去向</strong>。</li>
+</ul>
+<p><strong>结论</strong>：开启 TUN 模式并选择<strong>规则模式</strong>，意味着 “拦截所有应用的流量，然后根据规则智能判断走代理还是直连”，并<strong>不会</strong>变成全局代理。</p>
+</blockquote>
+<h3 id="service-mode-服务模式">🛠️ Service Mode 服务模式</h3>
+<p>在 Windows/macOS 上开启 TUN 模式通常需要<strong>管理员权限</strong>，因为涉及到创建网卡和修改路由表。</p>
+<p>为了避免每次启动都要输密码，或者为了更稳定的后台运行，Clash 引入了 <strong>Service Mode</strong>。</p>
+<ul>
+<li><strong>守护进程</strong>：Service Mode 会安装一个后台系统服务（Daemon）。</li>
+<li><strong>权限隔离</strong>：这个服务以高权限（System/Root）运行，专门负责处理底层的网络操作（DNS 劫持、TUN 路由）。</li>
+<li><strong>UI 分离</strong>：Clash 的图形界面（UI）只需要以普通权限运行，通过 IPC 接口指挥后台服务干活。</li>
+<li><strong>主要作用</strong>：
+<ol type="1">
+<li><strong>无感启动 TUN</strong>：不需要每次弹窗提权。</li>
+<li><strong>系统级抗杀</strong>：UI 关闭了，后台代理服务依然可以在线。</li>
+<li><strong>重启自愈</strong>：系统重启后服务自动拉起。</li>
+</ol></li>
+</ul>
+<h3 id="配置文件结构与-mixin">🧱 配置文件结构与 Mixin</h3>
+<p>Clash 的配置文件（通常是 <code>.yaml</code>）是它的灵魂。</p>
+<h4 id="核心结构">核心结构</h4>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">port:</span> <span class="number">7890</span>               <span class="comment"># HTTP 代理端口</span></span><br><span class="line"><span class="attr">socks-port:</span> <span class="number">7891</span>         <span class="comment"># SOCKS5 代理端口</span></span><br><span class="line"><span class="attr">mode:</span> <span class="string">rule</span>               <span class="comment"># 默认模式</span></span><br><span class="line"><span class="attr">log-level:</span> <span class="string">info</span>          <span class="comment"># 日志等级</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 代理节点池 (Proxies)</span></span><br><span class="line"><span class="attr">proxies:</span></span><br><span class="line">  <span class="bullet">-</span> &#123; <span class="attr">name:</span> <span class="string">&quot;HK Server&quot;</span>, <span class="attr">type:</span> <span class="string">ss</span>, <span class="attr">server:</span> <span class="number">1.2</span><span class="number">.3</span><span class="number">.4</span>, <span class="string">...</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 策略组 (Proxy Groups)</span></span><br><span class="line"><span class="attr">proxy-groups:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">&quot;自动选择&quot;</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">url-test</span>       <span class="comment"># 自动测速选择最快的</span></span><br><span class="line">    <span class="attr">proxies:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;HK Server&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;US Server&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 规则 (Rules) - 从上到下匹配，命中即止</span></span><br><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,google.com,Proxy</span>  <span class="comment"># Google 域名走代理</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">DOMAIN-SUFFIX,bilibili.com,Direct</span> <span class="comment"># B站直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">GEOIP,CN,Direct</span>                 <span class="comment"># 中国 IP 直连</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">MATCH,Proxy</span>                     <span class="comment"># 剩下的全走代理</span></span><br></pre></td></tr></table></figure>
+<h4 id="mixin-混合配置">🌪️ Mixin (混合配置)</h4>
+<p>很多时候我们使用机场提供的订阅链接，这个 URL 下载下来的配置文件是只读的，每次更新都会覆盖。如果你想<strong>永久</strong>修改某些配置（比如开启 TUN，或者添加自定义规则），直接改下载的文件是没用的。</p>
+<p><strong>Mixin (混合/覆写)</strong> 机制应运而生：</p>
+<ul>
+<li><strong>原理</strong>：Clash 启动时，会先读取订阅的配置文件，然后读取本地的 Mixin 配置，将两者<strong>合并</strong>。</li>
+<li><strong>优先级</strong>：Mixin 配置 &gt; 订阅配置。</li>
+<li><strong>用途</strong>：
+<ul>
+<li>强制开启 TUN 模式。</li>
+<li>注入自定义的 DNS 服务器（防止 DNS 污染）。</li>
+<li>添加个人的局域网 IP 直连规则。</li>
+</ul></li>
+</ul>
+<p><strong>Mixin 示例 (开启 TUN 和 DNS劫持):</strong></p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">mixin:</span> <span class="comment"># 注意：不同客户端写法可能不同，原理一致</span></span><br><span class="line">  <span class="attr">dns:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">listen:</span> <span class="string">:53</span></span><br><span class="line">    <span class="attr">enhanced-mode:</span> <span class="string">fake-ip</span>  <span class="comment"># 配合 TUN 使用的核心模式</span></span><br><span class="line">    <span class="attr">nameserver:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">114.114</span><span class="number">.114</span><span class="number">.114</span></span><br><span class="line">  <span class="attr">tun:</span></span><br><span class="line">    <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">stack:</span> <span class="string">system</span>          <span class="comment"># 网络栈类型</span></span><br><span class="line">    <span class="attr">dns-hijack:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">any:53</span>             <span class="comment"># 劫持所有 DNS 查询</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>Fake-IP 模式是什么？</strong> 当开启 TUN 模式时，为了避免频繁的 DNS 解析请求导致延迟，Clash 会立即返回一个“假 IP”（Fake-IP，如 <code>198.18.0.1</code>）给浏览器。 浏览器以为拿到了真实 IP，向这个假 IP 发送请求。Clash 拦截到发往假 IP 的包，根据映射表找到原始域名，再在远端代理服务器进行真正的解析和连接。这能极大地提高响应速度。</p>
+</blockquote>
+<h3 id="常见误区纠正">⚠️ 常见误区纠正</h3>
+<ol type="1">
+<li><strong>“开了全局模式就是最安全的”</strong>
+<ul>
+<li><strong>错</strong>。全局模式只是将所有流量转发给代理服务器。如果你的代理协议（如 HTTP）是明文的，或者机场本身记录日志，你的隐私依然不安全。</li>
+</ul></li>
+<li><strong>“Ping 值低网速就快”</strong>
+<ul>
+<li><strong>不一定</strong>。Clash 面板上的 Ping 通常是 <code>TCP Handshake</code> 时间，只代表你到代理服务器的延迟。实际网速还取决于代理服务器的带宽拥塞程度和线路质量（CN2/GIA 等）。</li>
+</ul></li>
+<li><strong>“TUN 模式会影响打游戏吗？”</strong>
+<ul>
+<li><strong>正面影响</strong>。大多数外服游戏基于 UDP 协议，普通代理模式无法代理 UDP，必须开启 TUN 模式才能让游戏流量走代理加速。</li>
+</ul></li>
+<li><strong>Clash 是 VPN 吗？</strong>
+<ul>
+<li>从<strong>技术实现</strong>上看：Clash 只是一个代理客户端。</li>
+<li>从<strong>用户体验</strong>上看：开启 TUN 模式后的 Clash，表现得和 VPN 几乎一致（接管全系统流量）。</li>
+</ul></li>
+</ol>
+]]></content>
+      <categories>
+        <category>网络工具</category>
+      </categories>
+      <tags>
+        <tag>Clash</tag>
+        <tag>Network</tag>
+        <tag>VPN</tag>
+        <tag>代理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CMake 入门</title>
+    <url>/posts/233853f2/</url>
+    <content><![CDATA[<p>不论你是写 C/C++、CUDA，还是要同时照顾 Linux/Windows/macOS，当项目走出“玩具”阶段，构建就会成为最大的摩擦源：不同编译器、不同 IDE、不同参数、不同依赖的发现与链接。如果还靠手写 <code>Makefile</code> 或分别维护 VS/Xcode 工程，成本会直线上升。</p>
+<p>这正是 CMake 出现的原因：用一份跨平台的构建脚本，生成各平台各 IDE 需要的工程与命令。 <span id="more"></span></p>
+<h3 id="cmake-解决了哪些痛点精简版">CMake 解决了哪些痛点（精简版）</h3>
+<ul>
+<li><p><strong>跨平台</strong>：一份 <code>CMakeLists.txt</code>，到处生成工程（Ninja/Makefiles、Visual Studio、Xcode）。</p></li>
+<li><p><strong>少折腾</strong>：自动管理头文件目录、编译选项、链接依赖，不用手拼长命令。</p></li>
+<li><p><strong>更清爽</strong>：源代码与构建产物分离，目录不再被临时文件污染。</p></li>
+</ul>
+<h3 id="一图速懂它到底做了什么">一图速懂：它到底做了什么</h3>
+<pre>
+<code class="mermaid">
+
+graph TD;
+  A[&quot;写 CMakeLists.txt&quot;] --&gt; B[&quot;cmake -S 源码 -B 构建&quot;];
+  B --&gt; C[&quot;构建：cmake --build 构建目录&quot;];
+  C --&gt; D[&quot;运行：.&#x2F;build&#x2F;hello（或 IDE 里运行）&quot;];
+  B --&gt; E[&quot;按平台生成合适的工程&#x2F;构建文件&quot;];
+</code>
+</pre>
+<h4 id="为什么在-b-分叉">为什么在 B 分叉</h4>
+<ul>
+<li>B 是“配置/生成”阶段，产生两种后续选择：</li>
+<li>走 C：继续用 <code>cmake --build</code> 统一构建（CMake 调用本机构建器编译/链接）。</li>
+<li>走 E：直接使用已生成的本机构建文件（Makefile、Ninja、Visual Studio、Xcode 工程）在命令行或 IDE 中构建。</li>
+<li>二者本质等价，通常二选一即可；团队混用也没问题。</li>
+</ul>
+<h4 id="配置阶段b的产物">配置阶段（B）的产物</h4>
+<ul>
+<li>本机构建文件：<code>Makefile</code>、<code>build.ninja</code>、VS <code>.sln/.vcxproj</code>、Xcode <code>.xcodeproj</code>（由生成器决定）。</li>
+<li>CMake 缓存与元数据：<code>CMakeCache.txt</code>、<code>CMakeFiles/</code>、平台/编译器/特性探测结果。</li>
+<li>可选辅助：<code>compile_commands.json</code>（<code>-DCMAKE_EXPORT_COMPILE_COMMANDS=ON</code>）、通过 <code>configure_file()</code> 生成的配置头/源文件。</li>
+<li>位置：全部写入 <code>-B</code> 指定的构建目录。</li>
+</ul>
+<h4 id="构建阶段c的产物">构建阶段（C）的产物</h4>
+<ul>
+<li>可执行文件：如 <code>build/hello</code>（Windows 为 <code>build/hello.exe</code>）。</li>
+<li>库文件：静态库（<code>.a</code>/<code>.lib</code>）、共享库（<code>.so</code>/<code>.dll</code>/<code>.dylib</code>）。</li>
+<li>中间文件：目标文件（<code>*.o</code>/<code>*.obj</code>）、依赖/缓存等，位于构建目录。</li>
+<li>自定义输出：可用 <code>CMAKE_RUNTIME_OUTPUT_DIRECTORY</code>、<code>CMAKE_LIBRARY_OUTPUT_DIRECTORY</code>、<code>CMAKE_ARCHIVE_OUTPUT_DIRECTORY</code> 调整位置。</li>
+</ul>
+<h3 id="分钟上手">5 分钟上手</h3>
+<p>目录结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">your_project/</span><br><span class="line">  CMakeLists.txt</span><br><span class="line">  src/main.cpp</span><br></pre></td></tr></table></figure>
+<p><code>CMakeLists.txt</code>：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(hello LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(hello src/main.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(hello PRIVATE cxx_std_17)</span><br></pre></td></tr></table></figure>
+<p><code>src/main.cpp</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  std::cout &lt;&lt; <span class="string">&quot;Hello, CMake!&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>构建与运行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br><span class="line">./build/hello</span><br></pre></td></tr></table></figure>
+<h3 id="cmake-改变了什么一个对比例子">CMake 改变了什么：一个对比例子</h3>
+<p>场景：两个源文件 <code>src/main.cpp</code>、<code>src/util.cpp</code>，需要 C++17，并在 Linux 与 Windows 上都能构建。</p>
+<ul>
+<li><p>没有 CMake（每个平台都要记不同命令）</p></li>
+<li><p>Linux（GCC/Clang）：</p></li>
+</ul>
+<pre><code><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure></code></pre>
+<ul>
+<li>Windows（MSVC）：</li>
+</ul>
+<pre><code><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cl /std:c++17 /O2 src\main.cpp src\util.cpp /I include /Fe:app.exe</span><br></pre></td></tr></table></figure></code></pre>
+<ul>
+<li><p>维护代价：命令不通用，IDE 工程（VS/Xcode）还要各自维护一份。</p></li>
+<li><p>有 CMake（一份脚本到处用）</p></li>
+</ul>
+<p><code>CMakeLists.txt</code>：</p>
+<p><figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure></p>
+<p>构建命令（所有平台一致）：</p>
+<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br></pre></td></tr></table></figure></p>
+<p>效果：不用关心底层是 Make 还是 Ninja、GCC 还是 MSVC，也不用为 VS/Xcode 手工维护工程；需要 IDE 时让 CMake 直接生成即可。诸如 <code>-lm</code>、异常/运行时等平台差异，交给生成器与工具链处理。</p>
+<h4 id="g-命令解析在没有-cmake-时">g++ 命令解析（在没有 CMake 时）</h4>
+<p>以 Linux 的命令为例：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">g++ -std=c++17 -O2 src/main.cpp src/util.cpp -Iinclude -o app</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>g++</strong>：调用 GNU C++ 编译器。</p></li>
+<li><p><strong>-std=c++17</strong>：启用 C++17 标准（在 MSVC 下等价为 <code>/std:c++17</code>）。</p></li>
+<li><p><strong>-O2</strong>：开启二级优化（体积与速度的折中）。</p></li>
+<li><p><strong>src/main.cpp src/util.cpp</strong>：要编译并参与链接的源文件。</p></li>
+<li><p><strong>-Iinclude</strong>：增加头文件搜索目录 <code>include</code>。</p></li>
+<li><p><strong>-o app</strong>：输出可执行文件名为 <code>app</code>。</p></li>
+</ul>
+<p>在实际项目中，这条命令会迅速膨胀：再加多目录、宏定义、库搜索路径（<code>-L</code>）、链接库（<code>-lxxx</code>）、平台差异参数，就会变得又长又难复用。这正是 CMake 希望你“声明语义、自动映射细节”的原因。</p>
+<h3 id="工作原理">工作原理</h3>
+<pre>
+<code class="mermaid">
+
+graph TD;
+  A[&quot;CMakeLists.txt：声明要什么&quot;] --&gt; B[&quot;配置阶段：检测平台&#x2F;编译器&#x2F;特性&quot;];
+  B --&gt; C[&quot;选择生成器：Ninja&#x2F;Makefiles&#x2F;VS&#x2F;Xcode&quot;];
+  C --&gt; D[&quot;生成本机构建文件（规则&#x2F;工程）&quot;];
+  D --&gt; E[&quot;cmake --build：调用本机构建器编译&#x2F;链接&quot;];
+</code>
+</pre>
+<p>一句话：你只写“意图”，CMake 按“环境”翻译成正确做法。</p>
+<h3 id="这几行背后发生了什么">这几行背后发生了什么</h3>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">3.20</span>)</span><br><span class="line"><span class="keyword">project</span>(app LANGUAGES CXX)</span><br><span class="line"><span class="keyword">add_executable</span>(app src/main.cpp src/util.cpp)</span><br><span class="line"><span class="keyword">target_compile_features</span>(app PRIVATE cxx_std_17)</span><br><span class="line"><span class="keyword">target_include_directories</span>(app PRIVATE <span class="keyword">include</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><strong>cmake_minimum_required(VERSION 3.20)</strong>：锁定最低版本，启用对应语法与行为，避免旧版差异。</p></li>
+<li><p><strong>project(app LANGUAGES CXX)</strong>：确定工程名与语言；CMake 会探测可用的 C++ 编译器与平台特性。</p></li>
+<li><p><strong>add_executable(app …)</strong>：声明目标 <code>app</code>；CMake 为它建立依赖图，并在生成阶段把它翻译成本机的规则/工程项。</p></li>
+<li><p><strong>target_compile_features(app PRIVATE cxx_std_17)</strong>：声明“需要 C++17”，CMake 按编译器映射成正确开关：</p>
+<ul>
+<li><p>GCC/Clang：<code>-std=c++17</code></p></li>
+<li><p>MSVC：<code>/std:c++17</code></p></li>
+</ul></li>
+<li><p><strong>target_include_directories(app PRIVATE include)</strong>：声明头文件目录，按平台生成参数：</p>
+<ul>
+<li><p>GCC/Clang：<code>-I include</code></p></li>
+<li><p>MSVC：<code>/I include</code></p></li>
+</ul></li>
+</ul>
+<p>这就是“一份脚本到处用”的核心：写语义，不写平台细节；由生成器与工具链适配差异。</p>
+<h3 id="cmake-支持哪些语言">CMake 支持哪些语言？</h3>
+<p>首要用户群是 <strong>C/C++</strong>，但并不止于此。常见支持包括：</p>
+<ul>
+<li><p><strong>C、C++</strong>：最成熟、生态最广。</p></li>
+<li><p><strong>CUDA、HIP</strong>：GPU 相关项目常用。</p></li>
+<li><p><strong>Fortran</strong>：在科学计算/数值领域仍然重要。</p></li>
+<li><p><strong>Objective-C/Swift（通过外部集成）</strong>：在 Apple 平台工程生成方面配合 Xcode。</p></li>
+<li><p><strong>ASM、ISPC 等</strong>：低层或专用场景。</p></li>
+</ul>
+<p>此外，CMake 也常被当作“元构建工具”，去驱动其他语言/工具链（如生成外部工具命令、打包脚本）。原则是：若目标/命令能被描述成“配置+构建”的过程，CMake 往往能充当胶水把它们组织起来，但其强项仍然是 C/C++ 及其周边。</p>
+<h3 id="就这么记住">就这么记住</h3>
+<ul>
+<li><p><strong>写清“要什么”</strong>：目标、源文件、需要的标准或库。</p></li>
+<li><p><strong>总在源码外构建</strong>：<code>-S</code> 指源码，<code>-B</code> 指构建目录。</p></li>
+<li><p><strong>统一的构建命令</strong>：<code>cmake --build</code>，不用关心底层是 Make 还是 Ninja。</p></li>
+</ul>
+<h3 id="结语">结语</h3>
+<p>先用这套最小流程把程序跑起来，再根据需要逐步增加依赖与选项；当你不想再重复为不同平台维护多套工程时，CMake 就是省心的那一个。</p>
+]]></content>
+      <categories>
+        <category>开发工具</category>
+      </categories>
+      <tags>
+        <tag>CMake</tag>
+        <tag>构建系统</tag>
+        <tag>C/C++</tag>
       </tags>
   </entry>
   <entry>
@@ -9692,6 +10004,148 @@ graph TD
       </tags>
   </entry>
   <entry>
+    <title>大模型百词</title>
+    <url>/posts/8c9ab17b/</url>
+    <content><![CDATA[<p>当下，大模型（Large Model）无疑是科技领域最炙手可热的话题。从 ChatGPT 的惊艳亮相到各类 AIGC 应用的层出不穷，我们每天都会接触到海量的新名词和新概念。为了帮助大家更好地理解这个日新月异的领域，本文梳理了一系列核心术语，希望能为你构建一个清晰的知识地图。</p>
+<span id="more"></span>
+<h2 id="基本概念">基本概念</h2>
+<ol type="1">
+<li><strong>函数 (Function)</strong>：通过一个或多个输入得到对应输出的关系，万物皆函数</li>
+<li><strong>符号主义 (Symbolism)</strong>：找出精确函数以试图解释一切原理，但存在瓶颈</li>
+<li><strong>联结主义 (Connectionism)</strong>：不进行预设，通过复杂函数计算出的预测值与真实值的误差，对函数中的未知参数进行不断调整</li>
+<li><strong>模型 (Model)</strong>：联结主义思想所使用的复杂函数</li>
+<li><strong>权重 (Weights)</strong>：模型中需要调整的参数</li>
+<li><strong>大模型 (Large Model)</strong>：需要调整参数较多的模型</li>
+<li><strong>大语言模型 (Large Language Model, LLM)</strong>：用于自然语言处理的模型</li>
+<li><strong>生成式AI (Generative AI)</strong>：根据输入内容持续计算并自动生成新内容的人工智能系统</li>
+<li><strong>通用人工智能 (Artificial General Intelligence, AGI)</strong>：是指能够在各种领域执行复杂认知任务的人工智能系统</li>
+<li><strong>Token</strong>：将文字、图像、声音、视频分割成的最小粒度</li>
+<li><strong>上下文 (Context)</strong>：对话时给到大模型的所有信息</li>
+<li><strong>提示词 (Prompt)</strong>：用于指导模型的回答流程与风格，与上下文含义类似</li>
+<li><strong>提示词工程师 (Prompt Engineer)</strong>：研究如何与大模型对话以达到更优反馈的职位</li>
+</ol>
+<h2 id="训练与推理">训练与推理</h2>
+<ol type="1">
+<li><strong>训练 (Training)</strong>：对模型中的参数进行调整</li>
+<li><strong>预训练 (Pre-training)</strong>：在大量数据上训练基础模型以学习通用特征</li>
+<li><strong>微调 (Fine-tuning)</strong>：在预训练模型基础上对特定方向任务进行训练</li>
+<li><strong>推理 (Inference)</strong>：参数调整完成后，根据函数的输入计算输出结果的过程</li>
+<li><strong>涌现 (Emergence)</strong>：模型参数量显著增长后，推理能力得到大幅提升的现象</li>
+<li><strong>随机性 (Randomness)</strong>：对大模型固定输出的内容进行调整，使其并不是总取概率最高</li>
+<li><strong>温度 (Temperature)</strong>：控制随机性的参数</li>
+<li><strong>Top-K</strong>：控制输出中选择出前K个最大或最小的元素的操作</li>
+<li><strong>幻觉 (Hallucination)</strong>：随机性过高或过低导致输出结果存在事实性错误或虚假信息的情况</li>
+<li><strong>联网 (Web Browsing)</strong>：通过互联网获取相关信息，结合相关信息进行输出，以减少幻觉的方法</li>
+</ol>
+<h2 id="模型与产品">模型与产品</h2>
+<ol type="1">
+<li><strong>ChatGPT</strong>：2023年爆火的用于聊天的产品</li>
+<li><strong>GPT (Generative Pre-trained Transformer, 生成式预训练变换器)</strong>：为大语言模型的一种系列</li>
+<li><strong>OpenAI</strong>：开发ChatGPT的公司，产品为闭源</li>
+<li><strong>Claude</strong>：Anthropic发布的大语言模型</li>
+<li><strong>Gemini</strong>：Google DeepMind发布的AI</li>
+<li><strong>DeepSeek</strong>：深度求索公司发布的AI</li>
+<li><strong>豆包 (Doubao)</strong>：字节跳动公司基于云雀模型开发的AI</li>
+<li><strong>通义千问 (Qwen)</strong>：阿里云发布的AI</li>
+<li><strong>腾讯元宝 (Tencent Yuanbao)</strong>：腾讯发布的基于自研混元大模型开发的C端AI</li>
+<li><strong>Midjourney</strong>：闭源的AI图像生成器（中国实验室版名为悠船）</li>
+<li><strong>Stable Diffusion</strong>：Stability AI推出的开源AI图像生成器</li>
+<li><strong>Sora</strong>：OpenAI发布的人工智能文生视频大模型</li>
+<li><strong>可灵 (Kling)</strong>：快手AI团队发布的视频生成大模型</li>
+<li><strong>即梦 (Jmeng)</strong>：字节跳动旗下剪映团队研发的AI创作平台</li>
+</ol>
+<h2 id="模型分类与部署">模型分类与部署</h2>
+<ol type="1">
+<li><strong>闭源模型 (Closed-source Model)</strong>：不开放源代码与权重，只提供最终服务的模型（如ChatGPT、Claude、Gemini）</li>
+<li><strong>开放权重模型 (Open-weight Model)</strong>：可本地部署的，开放权重以供调整的模型（不开放训练代码与数据，如DeepSeek、LLaMA）</li>
+<li><strong>完全开源模型 (Fully Open-source Model)</strong>：开放训练代码、数据、权重的模型（如‌Mistral）</li>
+<li><strong>私有化部署 (Private Deployment)</strong>：不依托其他服务，将模型下载到本地进行使用的过程</li>
+<li><strong>云桌面 (Cloud Desktop)</strong>：搭载好了所需环境的，高性能的，可远程网络控制的一种服务</li>
+<li><strong>镜像 (Image)</strong>：用于特定开发所需的打包好的环境和软件</li>
+</ol>
+<h2 id="技术与应用">技术与应用</h2>
+<ol type="1">
+<li><strong>多模态 (Multimodality)</strong>：能处理图像、声音、视频多种内容的能力</li>
+<li><strong>检索增强生成 (Retrieval-Augmented Generation, RAG)</strong>：在私有数据库中进行搜索以获取信息的方法</li>
+<li><strong>知识库 (Knowledge Base)</strong>：用于大模型查询所用的私有数据库</li>
+<li><strong>向量数据库 (Vector Database)</strong>：特化模型与知识库语义匹配，以向量形式存储的数据库</li>
+<li><strong>词嵌入 (Word Embedding)</strong>：把文字转换为词向量的方式，用于捕捉词间语义关系</li>
+<li><strong>向量检索 (Vector Retrieval)</strong>：对比词向量相似度，以在知识库中找到相关问题答案的方式</li>
+<li><strong>数字人 (Digital Human)</strong>：运用数字技术创造出来的、与人类形象接近的数字化人物形象</li>
+<li><strong>工作流 (Workflow)</strong>：多次使用大模型能力，将工作内容分为多个步骤分别处理并整合为一个流程的能力</li>
+<li><strong>智能体 (Agent)</strong>：按工作流封装大模型与工具集以实现自动完成复杂任务的程序</li>
+<li><strong>多智能体 (Multi-Agent)</strong>：多个智能体协作完成更复杂任务的程序</li>
+<li><strong>插件 (Plugins)</strong>：ChatGPT 的附加组件系统（智能体）</li>
+<li><strong>AutoGPT</strong>：GPT模型驱动的智能体系统</li>
+<li><strong>Manus</strong>：具备从规划到执行全流程自主完成任务能力的智能体</li>
+<li><strong>MCP (Model-graded Controllable Preference)</strong>：Anthropic提出的，用于AI操作外部世界的协议</li>
+<li><strong>A2A (Agent-to-Agent)</strong>：Google提出的用于智能体与智能体间通信的协议</li>
+</ol>
+<h2 id="优化与进阶">优化与进阶</h2>
+<ol type="1">
+<li><strong>模型压缩 (Model Compression)</strong>：由于模型大小与能力出现边际收益递减，以减少成本与方便个人的减小模型大小的方法</li>
+<li><strong>量化 (Quantization)</strong>：把模型中的浮点数用更低精度表示以减少显存与计算的方法</li>
+<li><strong>蒸馏 (Distillation)</strong>：用参数量较大的大模型指导参数量较小的小模型的方法</li>
+<li><strong>剪枝 (Pruning)</strong>：删除模型中不重要神经元，让模型更稀疏以提升速度的方法</li>
+<li><strong>低秩适应 (Low-Rank Adaptation, LoRA)</strong>：用更低成本改善微调方式的方法</li>
+<li><strong>思维链 (Chain-of-Thought, CoT)</strong>：从推理能力方向增强模型能力的方法</li>
+<li><strong>人类反馈强化学习 (Reinforcement Learning from Human Feedback, RLHF)</strong>：让模型输出更符合人类心意的方法</li>
+</ol>
+<h2 id="生态与行业">生态与行业</h2>
+<ol type="1">
+<li><strong>专业生产内容 (Professional Generated Content, PGC)</strong></li>
+<li><strong>用户生产内容 (User Generated Content, UGC)</strong></li>
+<li><strong>人工智能生成内容 (AI Generated Content, AIGC)</strong></li>
+<li><strong>炸裂体 (“Explosive” Style)</strong>：媒体与互联网对AI类产品进行描述与介绍时使用的一种强调或夸大性语气</li>
+<li><strong>套壳 (Wrapping)</strong>：封装大模型对应接口提供服务</li>
+<li><strong>卖铲子 (Selling Shovels)</strong>：提供工具或服务、教程等帮助他人在AI中淘金的赚钱方式</li>
+<li><strong>Hugging Face</strong>：AI开源平台及社区</li>
+</ol>
+<h2 id="硬件与框架">硬件与框架</h2>
+<ol type="1">
+<li><strong>GPU (Graphics Processing Unit, 图形处理单元)</strong>:NVIDIA公司的产品</li>
+<li><strong>CUDA (Compute Unified Device Architecture)</strong>：NVIDIA推出的AI开发框架</li>
+<li><strong>TPU (Tensor Processing Unit, 张量处理单元)</strong>：专用与大规模神经网络训练与推理的处理器</li>
+<li><strong>NPU (Neural Processing Unit, 神经网络处理单元)</strong>：专用于终端设备加速推理的处理器</li>
+<li><strong>Python</strong>：适合AI开发的编程语言</li>
+<li><strong>PyTorch</strong>：Python提供的针对AI编程的库</li>
+<li><strong>TensorFlow</strong>：由 Google Brain 团队开发的深度学习框架</li>
+<li><strong>Ollama</strong>：大模型本地运行工具</li>
+<li><strong>vLLM</strong>：提升大语言模型推理速度的推理引擎</li>
+<li><strong>ComfyUI</strong>：构建在 Stable Diffusion 之上的基于节点的绘画工作流软件（B站:秋葉aaaki 大佬制作了很多相关整合包）</li>
+<li><strong>扣子 (Coze)</strong>：在网页端编排工作流的一款工具</li>
+<li><strong>LangChain</strong>：以代码方式编排工具流的方式</li>
+<li><strong>Cursor</strong>：Anysphere开发的人工智能编程助手</li>
+<li><strong>GitHub Copilot</strong>：微软与OpenAI共同推出的AI编程工具</li>
+</ol>
+<h2 id="神经网络基础">神经网络基础</h2>
+<ol type="1">
+<li><strong>数学 (Mathematics)</strong>：AI基石，包括线性代数、微积分、概率论等</li>
+<li><strong>自然语言处理 (Natural Language Processing, NLP)</strong>：人工智能的一大分支领域，其主要目的是让机器理解人类的语言文字，从而执行一系列任务</li>
+<li><strong>计算机视觉 (Computer Vision, CV)</strong>：与图片高度相关</li>
+<li><strong>神经网络 (Neural Network)</strong>：模仿生物神经系统结构和功能的计算模型</li>
+<li><strong>损失函数 (Loss Function)</strong>：估量模型的预测值f(x)与真实值Y的不一致程度的函数</li>
+<li><strong>反向传播 (Backpropagation)</strong>：计算损失函数关于网络参数的梯度来更新参数</li>
+<li><strong>多层感知机 (Multilayer Perceptron, MLP)</strong>：将输入的多个数据集映射到单一的输出的数据集，是一种人工神经网络模型</li>
+<li><strong>卷积神经网络 (Convolutional Neural Network, CNN)</strong>：包含卷积计算且具有深度结构的神经网络</li>
+<li><strong>循环神经网络 (Recurrent Neural Network, RNN)</strong>：适合于处理序列数据的神经网络</li>
+<li><strong>注意力机制 (Attention Mechanism)</strong>：模拟人类选择性注意机制，提升信息处理效率</li>
+<li><strong>Transformer</strong>：一种基于注意力机制的神经网络结构</li>
+<li><strong>文本转语音 (Text To Speech, TTS)</strong></li>
+<li><strong>语音转文字 (Automatic Speech Recognition, ASR)</strong></li>
+</ol>
+]]></content>
+      <categories>
+        <category>AI</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>LLM</tag>
+        <tag>术语</tag>
+        <tag>大模型</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>实模式（Real Mode）</title>
     <url>/posts/b08764f6/</url>
     <content><![CDATA[<p>本文主要介绍实模式（Real Mode）的基本概念、主要特性，以及其在x86架构启动流程中的作用。通过理解实模式，可以帮助大家更好地理解现代操作系统为何要经历“实模式→保护模式→长模式”等阶段，以及16位、20位寻址等历史遗留问题的成因。</p>
@@ -10131,148 +10585,6 @@ graph LR
         <tag>x86</tag>
         <tag>启动</tag>
         <tag>实模式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>大模型百词</title>
-    <url>/posts/8c9ab17b/</url>
-    <content><![CDATA[<p>当下，大模型（Large Model）无疑是科技领域最炙手可热的话题。从 ChatGPT 的惊艳亮相到各类 AIGC 应用的层出不穷，我们每天都会接触到海量的新名词和新概念。为了帮助大家更好地理解这个日新月异的领域，本文梳理了一系列核心术语，希望能为你构建一个清晰的知识地图。</p>
-<span id="more"></span>
-<h2 id="基本概念">基本概念</h2>
-<ol type="1">
-<li><strong>函数 (Function)</strong>：通过一个或多个输入得到对应输出的关系，万物皆函数</li>
-<li><strong>符号主义 (Symbolism)</strong>：找出精确函数以试图解释一切原理，但存在瓶颈</li>
-<li><strong>联结主义 (Connectionism)</strong>：不进行预设，通过复杂函数计算出的预测值与真实值的误差，对函数中的未知参数进行不断调整</li>
-<li><strong>模型 (Model)</strong>：联结主义思想所使用的复杂函数</li>
-<li><strong>权重 (Weights)</strong>：模型中需要调整的参数</li>
-<li><strong>大模型 (Large Model)</strong>：需要调整参数较多的模型</li>
-<li><strong>大语言模型 (Large Language Model, LLM)</strong>：用于自然语言处理的模型</li>
-<li><strong>生成式AI (Generative AI)</strong>：根据输入内容持续计算并自动生成新内容的人工智能系统</li>
-<li><strong>通用人工智能 (Artificial General Intelligence, AGI)</strong>：是指能够在各种领域执行复杂认知任务的人工智能系统</li>
-<li><strong>Token</strong>：将文字、图像、声音、视频分割成的最小粒度</li>
-<li><strong>上下文 (Context)</strong>：对话时给到大模型的所有信息</li>
-<li><strong>提示词 (Prompt)</strong>：用于指导模型的回答流程与风格，与上下文含义类似</li>
-<li><strong>提示词工程师 (Prompt Engineer)</strong>：研究如何与大模型对话以达到更优反馈的职位</li>
-</ol>
-<h2 id="训练与推理">训练与推理</h2>
-<ol type="1">
-<li><strong>训练 (Training)</strong>：对模型中的参数进行调整</li>
-<li><strong>预训练 (Pre-training)</strong>：在大量数据上训练基础模型以学习通用特征</li>
-<li><strong>微调 (Fine-tuning)</strong>：在预训练模型基础上对特定方向任务进行训练</li>
-<li><strong>推理 (Inference)</strong>：参数调整完成后，根据函数的输入计算输出结果的过程</li>
-<li><strong>涌现 (Emergence)</strong>：模型参数量显著增长后，推理能力得到大幅提升的现象</li>
-<li><strong>随机性 (Randomness)</strong>：对大模型固定输出的内容进行调整，使其并不是总取概率最高</li>
-<li><strong>温度 (Temperature)</strong>：控制随机性的参数</li>
-<li><strong>Top-K</strong>：控制输出中选择出前K个最大或最小的元素的操作</li>
-<li><strong>幻觉 (Hallucination)</strong>：随机性过高或过低导致输出结果存在事实性错误或虚假信息的情况</li>
-<li><strong>联网 (Web Browsing)</strong>：通过互联网获取相关信息，结合相关信息进行输出，以减少幻觉的方法</li>
-</ol>
-<h2 id="模型与产品">模型与产品</h2>
-<ol type="1">
-<li><strong>ChatGPT</strong>：2023年爆火的用于聊天的产品</li>
-<li><strong>GPT (Generative Pre-trained Transformer, 生成式预训练变换器)</strong>：为大语言模型的一种系列</li>
-<li><strong>OpenAI</strong>：开发ChatGPT的公司，产品为闭源</li>
-<li><strong>Claude</strong>：Anthropic发布的大语言模型</li>
-<li><strong>Gemini</strong>：Google DeepMind发布的AI</li>
-<li><strong>DeepSeek</strong>：深度求索公司发布的AI</li>
-<li><strong>豆包 (Doubao)</strong>：字节跳动公司基于云雀模型开发的AI</li>
-<li><strong>通义千问 (Qwen)</strong>：阿里云发布的AI</li>
-<li><strong>腾讯元宝 (Tencent Yuanbao)</strong>：腾讯发布的基于自研混元大模型开发的C端AI</li>
-<li><strong>Midjourney</strong>：闭源的AI图像生成器（中国实验室版名为悠船）</li>
-<li><strong>Stable Diffusion</strong>：Stability AI推出的开源AI图像生成器</li>
-<li><strong>Sora</strong>：OpenAI发布的人工智能文生视频大模型</li>
-<li><strong>可灵 (Kling)</strong>：快手AI团队发布的视频生成大模型</li>
-<li><strong>即梦 (Jmeng)</strong>：字节跳动旗下剪映团队研发的AI创作平台</li>
-</ol>
-<h2 id="模型分类与部署">模型分类与部署</h2>
-<ol type="1">
-<li><strong>闭源模型 (Closed-source Model)</strong>：不开放源代码与权重，只提供最终服务的模型（如ChatGPT、Claude、Gemini）</li>
-<li><strong>开放权重模型 (Open-weight Model)</strong>：可本地部署的，开放权重以供调整的模型（不开放训练代码与数据，如DeepSeek、LLaMA）</li>
-<li><strong>完全开源模型 (Fully Open-source Model)</strong>：开放训练代码、数据、权重的模型（如‌Mistral）</li>
-<li><strong>私有化部署 (Private Deployment)</strong>：不依托其他服务，将模型下载到本地进行使用的过程</li>
-<li><strong>云桌面 (Cloud Desktop)</strong>：搭载好了所需环境的，高性能的，可远程网络控制的一种服务</li>
-<li><strong>镜像 (Image)</strong>：用于特定开发所需的打包好的环境和软件</li>
-</ol>
-<h2 id="技术与应用">技术与应用</h2>
-<ol type="1">
-<li><strong>多模态 (Multimodality)</strong>：能处理图像、声音、视频多种内容的能力</li>
-<li><strong>检索增强生成 (Retrieval-Augmented Generation, RAG)</strong>：在私有数据库中进行搜索以获取信息的方法</li>
-<li><strong>知识库 (Knowledge Base)</strong>：用于大模型查询所用的私有数据库</li>
-<li><strong>向量数据库 (Vector Database)</strong>：特化模型与知识库语义匹配，以向量形式存储的数据库</li>
-<li><strong>词嵌入 (Word Embedding)</strong>：把文字转换为词向量的方式，用于捕捉词间语义关系</li>
-<li><strong>向量检索 (Vector Retrieval)</strong>：对比词向量相似度，以在知识库中找到相关问题答案的方式</li>
-<li><strong>数字人 (Digital Human)</strong>：运用数字技术创造出来的、与人类形象接近的数字化人物形象</li>
-<li><strong>工作流 (Workflow)</strong>：多次使用大模型能力，将工作内容分为多个步骤分别处理并整合为一个流程的能力</li>
-<li><strong>智能体 (Agent)</strong>：按工作流封装大模型与工具集以实现自动完成复杂任务的程序</li>
-<li><strong>多智能体 (Multi-Agent)</strong>：多个智能体协作完成更复杂任务的程序</li>
-<li><strong>插件 (Plugins)</strong>：ChatGPT 的附加组件系统（智能体）</li>
-<li><strong>AutoGPT</strong>：GPT模型驱动的智能体系统</li>
-<li><strong>Manus</strong>：具备从规划到执行全流程自主完成任务能力的智能体</li>
-<li><strong>MCP (Model-graded Controllable Preference)</strong>：Anthropic提出的，用于AI操作外部世界的协议</li>
-<li><strong>A2A (Agent-to-Agent)</strong>：Google提出的用于智能体与智能体间通信的协议</li>
-</ol>
-<h2 id="优化与进阶">优化与进阶</h2>
-<ol type="1">
-<li><strong>模型压缩 (Model Compression)</strong>：由于模型大小与能力出现边际收益递减，以减少成本与方便个人的减小模型大小的方法</li>
-<li><strong>量化 (Quantization)</strong>：把模型中的浮点数用更低精度表示以减少显存与计算的方法</li>
-<li><strong>蒸馏 (Distillation)</strong>：用参数量较大的大模型指导参数量较小的小模型的方法</li>
-<li><strong>剪枝 (Pruning)</strong>：删除模型中不重要神经元，让模型更稀疏以提升速度的方法</li>
-<li><strong>低秩适应 (Low-Rank Adaptation, LoRA)</strong>：用更低成本改善微调方式的方法</li>
-<li><strong>思维链 (Chain-of-Thought, CoT)</strong>：从推理能力方向增强模型能力的方法</li>
-<li><strong>人类反馈强化学习 (Reinforcement Learning from Human Feedback, RLHF)</strong>：让模型输出更符合人类心意的方法</li>
-</ol>
-<h2 id="生态与行业">生态与行业</h2>
-<ol type="1">
-<li><strong>专业生产内容 (Professional Generated Content, PGC)</strong></li>
-<li><strong>用户生产内容 (User Generated Content, UGC)</strong></li>
-<li><strong>人工智能生成内容 (AI Generated Content, AIGC)</strong></li>
-<li><strong>炸裂体 (“Explosive” Style)</strong>：媒体与互联网对AI类产品进行描述与介绍时使用的一种强调或夸大性语气</li>
-<li><strong>套壳 (Wrapping)</strong>：封装大模型对应接口提供服务</li>
-<li><strong>卖铲子 (Selling Shovels)</strong>：提供工具或服务、教程等帮助他人在AI中淘金的赚钱方式</li>
-<li><strong>Hugging Face</strong>：AI开源平台及社区</li>
-</ol>
-<h2 id="硬件与框架">硬件与框架</h2>
-<ol type="1">
-<li><strong>GPU (Graphics Processing Unit, 图形处理单元)</strong>:NVIDIA公司的产品</li>
-<li><strong>CUDA (Compute Unified Device Architecture)</strong>：NVIDIA推出的AI开发框架</li>
-<li><strong>TPU (Tensor Processing Unit, 张量处理单元)</strong>：专用与大规模神经网络训练与推理的处理器</li>
-<li><strong>NPU (Neural Processing Unit, 神经网络处理单元)</strong>：专用于终端设备加速推理的处理器</li>
-<li><strong>Python</strong>：适合AI开发的编程语言</li>
-<li><strong>PyTorch</strong>：Python提供的针对AI编程的库</li>
-<li><strong>TensorFlow</strong>：由 Google Brain 团队开发的深度学习框架</li>
-<li><strong>Ollama</strong>：大模型本地运行工具</li>
-<li><strong>vLLM</strong>：提升大语言模型推理速度的推理引擎</li>
-<li><strong>ComfyUI</strong>：构建在 Stable Diffusion 之上的基于节点的绘画工作流软件（B站:秋葉aaaki 大佬制作了很多相关整合包）</li>
-<li><strong>扣子 (Coze)</strong>：在网页端编排工作流的一款工具</li>
-<li><strong>LangChain</strong>：以代码方式编排工具流的方式</li>
-<li><strong>Cursor</strong>：Anysphere开发的人工智能编程助手</li>
-<li><strong>GitHub Copilot</strong>：微软与OpenAI共同推出的AI编程工具</li>
-</ol>
-<h2 id="神经网络基础">神经网络基础</h2>
-<ol type="1">
-<li><strong>数学 (Mathematics)</strong>：AI基石，包括线性代数、微积分、概率论等</li>
-<li><strong>自然语言处理 (Natural Language Processing, NLP)</strong>：人工智能的一大分支领域，其主要目的是让机器理解人类的语言文字，从而执行一系列任务</li>
-<li><strong>计算机视觉 (Computer Vision, CV)</strong>：与图片高度相关</li>
-<li><strong>神经网络 (Neural Network)</strong>：模仿生物神经系统结构和功能的计算模型</li>
-<li><strong>损失函数 (Loss Function)</strong>：估量模型的预测值f(x)与真实值Y的不一致程度的函数</li>
-<li><strong>反向传播 (Backpropagation)</strong>：计算损失函数关于网络参数的梯度来更新参数</li>
-<li><strong>多层感知机 (Multilayer Perceptron, MLP)</strong>：将输入的多个数据集映射到单一的输出的数据集，是一种人工神经网络模型</li>
-<li><strong>卷积神经网络 (Convolutional Neural Network, CNN)</strong>：包含卷积计算且具有深度结构的神经网络</li>
-<li><strong>循环神经网络 (Recurrent Neural Network, RNN)</strong>：适合于处理序列数据的神经网络</li>
-<li><strong>注意力机制 (Attention Mechanism)</strong>：模拟人类选择性注意机制，提升信息处理效率</li>
-<li><strong>Transformer</strong>：一种基于注意力机制的神经网络结构</li>
-<li><strong>文本转语音 (Text To Speech, TTS)</strong></li>
-<li><strong>语音转文字 (Automatic Speech Recognition, ASR)</strong></li>
-</ol>
-]]></content>
-      <categories>
-        <category>AI</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-        <tag>LLM</tag>
-        <tag>术语</tag>
-        <tag>大模型</tag>
       </tags>
   </entry>
   <entry>

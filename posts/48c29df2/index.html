@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="昨天遇到一个奇怪的问题，我一连服务器，本地的代理就挂掉，国内的网站也进不去，一断开服务器，本地的网络就恢复正常。最后发现是端口转发出了问题。于是记录一下整个过程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSH RemoteForward 踩坑：为什么 VS Code 自动转发会把本地代理绕死">
+<meta property="og:url" content="https://supermarkli.github.io/posts/48c29df2/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="昨天遇到一个奇怪的问题，我一连服务器，本地的代理就挂掉，国内的网站也进不去，一断开服务器，本地的网络就恢复正常。最后发现是端口转发出了问题。于是记录一下整个过程。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-03-11T11:44:57.000Z">
+<meta property="article:modified_time" content="2026-03-12T01:12:34.972Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="SSH">
+<meta property="article:tag" content="VS Code">
+<meta property="article:tag" content="端口转发">
+<meta property="article:tag" content="Clash">
+<meta property="article:tag" content="Proxy">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/48c29df2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/48c29df2/","path":"posts/48c29df2/","title":"SSH RemoteForward 踩坑：为什么 VS Code 自动转发会把本地代理绕死"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SSH RemoteForward 踩坑：为什么 VS Code 自动转发会把本地代理绕死 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 基本概念速读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8Fprogram%E7%AB%AF%E5%8F%A3port%E5%A5%97%E6%8E%A5%E5%AD%97socket%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB"><span class="nav-number">2.</span> <span class="nav-text">🧱 程序（program）、端口（port）、套接字（socket）到底是什么关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E6%8B%93%E6%89%91%E5%88%B0%E5%BA%95%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7"><span class="nav-number">3.</span> <span class="nav-text">🧩 网络拓扑到底长什么样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%92%9E%E8%BD%A6"><span class="nav-number">4.</span> <span class="nav-text">🔌 端口为什么会“撞车”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%99%E6%AC%A1%E6%95%85%E9%9A%9C%E6%9C%80%E5%8F%AF%E8%83%BD%E7%9A%84%E5%BD%A2%E6%88%90%E8%BF%87%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">🔄 这次故障最可能的形成过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ssh-%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%88%B0%E5%BA%95%E6%98%AF%E6%80%8E%E4%B9%88%E5%B7%A5%E4%BD%9C%E7%9A%84"><span class="nav-number">6.</span> <span class="nav-text">🛠️ SSH 端口转发到底是怎么工作的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#remoteforward"><span class="nav-number">6.1.</span> <span class="nav-text">RemoteForward</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#vs-code-%E8%87%AA%E5%8A%A8%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="nav-number">6.2.</span> <span class="nav-text">VS Code 自动端口转发</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E7%B1%BB%E9%97%AE%E9%A2%98%E7%89%B9%E5%88%AB%E9%9A%90%E8%94%BD"><span class="nav-number">7.</span> <span class="nav-text">⚠️ 为什么这类问题特别隐蔽</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%AA%8C%E8%AF%81%E6%98%AF%E4%B8%8D%E6%98%AF%E7%AB%AF%E5%8F%A3%E5%9B%9E%E7%8E%AF"><span class="nav-number">8.</span> <span class="nav-text">🧪 如何验证是不是端口回环</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%A8%E6%9C%AC%E6%9C%BA%E7%9C%8B-7897-%E5%88%B0%E5%BA%95%E8%B0%81%E5%9C%A8%E7%9B%91%E5%90%AC"><span class="nav-number">8.1.</span> <span class="nav-text">在本机看 7897 到底谁在监听</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%A8%E8%BF%9C%E7%AB%AF%E7%A1%AE%E8%AE%A4%E8%BD%AC%E5%8F%91%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8"><span class="nav-number">8.2.</span> <span class="nav-text">在远端确认转发是否存在</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="nav-number">9.</span> <span class="nav-text">🚫 常见误区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">10.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/cat2.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">50</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">129</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/48c29df2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cat2.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SSH RemoteForward 踩坑：为什么 VS Code 自动转发会把本地代理绕死 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SSH RemoteForward 踩坑：为什么 VS Code 自动转发会把本地代理绕死
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-03-11 19:44:57" itemprop="dateCreated datePublished" datetime="2026-03-11T19:44:57+08:00">2026-03-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-03-12 09:12:34" itemprop="dateModified" datetime="2026-03-12T09:12:34+08:00">2026-03-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BD%91%E7%BB%9C/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/" itemprop="url" rel="index"><span itemprop="name">开发环境</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>6.1k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>11 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>昨天遇到一个奇怪的问题，我一连服务器，本地的代理就挂掉，国内的网站也进不去，一断开服务器，本地的网络就恢复正常。最后发现是端口转发出了问题。于是记录一下整个过程。 <span id="more"></span></p>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Port（端口）</strong></td>
+<td>操作系统给网络程序分配的逻辑入口编号。</td>
+<td>一台机器里不同网络服务的门牌号</td>
+</tr>
+<tr class="even">
+<td><strong>SSH</strong></td>
+<td>Secure Shell，远程登录与加密隧道工具。</td>
+<td>远程终端 + 隧道</td>
+</tr>
+<tr class="odd">
+<td><strong>RemoteForward</strong></td>
+<td>SSH 的远程端口转发，把远端某个端口的流量送回本地。</td>
+<td>让服务器“借用”你本机端口</td>
+</tr>
+<tr class="even">
+<td><strong>LocalForward</strong></td>
+<td>SSH 的本地端口转发，把本地某个端口送到远端。</td>
+<td>让本机访问远端服务</td>
+</tr>
+<tr class="odd">
+<td><strong>Proxy（代理）</strong></td>
+<td>代理服务，代替客户端向目标站点发请求。</td>
+<td>中间人转发流量</td>
+</tr>
+<tr class="even">
+<td><strong>VS Code Port Forwarding</strong></td>
+<td>VS Code Remote SSH 自动探测并映射端口的功能。</td>
+<td>帮你转发，但有时会帮倒忙</td>
+</tr>
+</tbody>
+</table>
+<p>如果用更白话的话说：</p>
+<ul>
+<li><code>SSH</code> 不只是远程登录工具，本质上还能顺手带一条加密管道</li>
+<li><code>RemoteForward</code> 是让远端机器“借用”当前客户端上的某个端口</li>
+<li><code>LocalForward</code> 是让本地机器“借道”去访问远端的某个端口</li>
+<li><code>Proxy</code> 不是目标服务本身，而是一个代你转发请求的中间层</li>
+<li><code>VS Code 自动端口转发</code> 则是在远端发现服务后，顺手帮你把访问入口搬回本机</li>
+</ul>
+<h3 id="程序program端口port套接字socket到底是什么关系">🧱 程序（program）、端口（port）、套接字（socket）到底是什么关系</h3>
+<ul>
+<li><strong>程序（program）</strong>：真正运行中的进程（process），比如 <code>Clash Verge</code>、<code>curl</code>、<code>npm dev</code>、<code>sshd</code></li>
+<li><strong>端口（port）</strong>：操作系统上的一个编号，比如 <code>7897</code>，可以理解成网络入口的门牌号</li>
+<li><strong>套接字（socket）</strong>：程序真正拿来监听（listen）或通信的对象，可以粗略理解成“某个程序占住了某个 IP:端口”之后形成的那个网络端点</li>
+</ul>
+<p>放到这次问题里看，会更容易理解：</p>
+<ul>
+<li>不是“端口自己在工作”，而是某个程序（program / process）创建了套接字（socket）并监听（listen）这个端口</li>
+<li>更准确地说，通常是同一个 <code>IP:端口</code> 组合的监听套接字，只能被一个程序成功持有，比如 <code>127.0.0.1:7897</code> 正常情况下只能有一个监听者</li>
+<li>所以看到 <code>7897</code> 在监听，只能说明“有程序占了这个门牌号”，不能直接说明是谁在处理流量</li>
+<li><code>lsof</code>、<code>ss</code>、<code>netstat</code> 这类命令的意义，就是帮你把“端口”反查回“哪个程序持有了对应套接字”</li>
+</ul>
+<p>这也是为什么排障时不能只盯着“端口号是不是一样”，而要盯着：</p>
+<ul>
+<li>当前到底是谁持有了这个 <code>IP:端口</code> 的监听套接字</li>
+<li>是不是本来该由 <code>Clash</code> 持有，后来却变成了 <code>VS Code</code> 或 <code>ssh</code> helper</li>
+</ul>
+<p>一旦监听者变了，流量路径就会跟着变。</p>
+<p>这也是为什么这次故障排查不能只看“<code>7897</code> 通不通”，还得看：</p>
+<ul>
+<li>是 <code>Clash</code> 持有本地 <code>7897</code></li>
+<li>还是 <code>VS Code</code> / <code>ssh</code> helper 持有本地 <code>7897</code></li>
+<li>或者两边是否在不同阶段都试图接管这个端口</li>
+</ul>
+<p>从这个角度说，<code>RemoteForward</code> 和 VS Code 自动端口转发，本质上都是在安排“由哪个程序持有哪个套接字，并把流量交给谁继续处理”。</p>
+<h3 id="网络拓扑到底长什么样">🧩 网络拓扑到底长什么样</h3>
+<p>我使用的设备如下：</p>
+<ul>
+<li>macbook pro 2020</li>
+<li>win xiaoxin 14pro 2021</li>
+<li>linux 实验室的高性能服务器 atlanta</li>
+</ul>
+<p>当时的 SSH 配置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Host Atlanta</span><br><span class="line">  HostName 10.16.98.45</span><br><span class="line">  User lzh</span><br><span class="line">  RemoteForward 7897 127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<ul>
+<li>从 Win 或 Mac SSH 到 <code>atlanta</code></li>
+<li>SSH 连接建立后，会让 <code>atlanta</code> 打开一个本地监听端口 <code>7897</code></li>
+<li>任何打到 <code>atlanta:7897</code> 的流量，都会沿着 SSH 隧道回到当前客户端的 <code>127.0.0.1:7897</code></li>
+<li>而客户端本机的 <code>127.0.0.1:7897</code>，正好是 Clash Verge 的代理入口</li>
+</ul>
+<p>也就是说，<code>atlanta</code> 并没有真正部署代理，只是“借用了当前登录机器上的本地代理”。</p>
+<p>可以看这张链路拓扑图：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">+------------------------+    SSH 连接 / 隧道     +------------------------+</span><br><span class="line">| Win / Mac              | &lt;-------------------&gt; | atlanta                |</span><br><span class="line">|                        |                       |                        |</span><br><span class="line">| Clash Verge :7897      |                       | localhost:7897         |</span><br><span class="line">| 本地代理监听             |                       | RemoteForward 监听口    |</span><br><span class="line">+-----------+------------+                       +-----------+------------+</span><br><span class="line">            ^                                                |</span><br><span class="line">            | RemoteForward 把远端 7897 的请求送回本地          | 远端程序访问代理</span><br><span class="line">            |                                                v</span><br><span class="line">            +---------------------------------------- atlanta curl / npm</span><br><span class="line"></span><br><span class="line">Clash :7897</span><br><span class="line">  -&gt; 机场节点</span><br><span class="line">  -&gt; 目标网站 / API</span><br></pre></td></tr></table></figure>
+<h3 id="端口为什么会撞车">🔌 端口为什么会“撞车”</h3>
+<p>端口不是全局唯一的，它只在一台机器的网络命名空间里唯一。</p>
+<p>这意味着：</p>
+<ul>
+<li>你的 Win 本机可以有一个 <code>127.0.0.1:7897</code></li>
+<li><code>atlanta</code> 也可以有一个自己的 <code>127.0.0.1:7897</code></li>
+<li>SSH 的 <code>RemoteForward 7897 127.0.0.1:7897</code>，是在把这两个同号端口绑定成一条隧道</li>
+</ul>
+<p>问题在于，<strong>VS Code Remote SSH 还有一套自己的端口转发系统</strong>。它会自动扫描远端监听端口，并尝试把它们转发回本地，方便你在浏览器或本机工具里访问。</p>
+<p>如果它看到 <code>atlanta</code> 上有个 <code>7897</code> 在监听，它可能会再做一层类似这样的映射：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">本地 7897  &lt;---- VS Code 自动转发 ----  atlanta 7897</span><br></pre></td></tr></table></figure>
+<p>不过这里要注意一件事：<strong>这不是 VS Code 的默认必然行为</strong>。官方文档写得很明确，如果本地同号端口已经被占用，它通常会改绑到别的本地端口，而不是硬抢这个端口。也就是说，更常见的情况其实是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">本地 4123  &lt;---- VS Code 自动转发 ----  atlanta 7897</span><br></pre></td></tr></table></figure>
+<p>而 <code>atlanta 7897</code> 本来又是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">atlanta 7897  &lt;---- SSH RemoteForward ----  本地 127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<p>两层叠起来，就容易出现环路或自咬尾巴。</p>
+<h3 id="这次故障最可能的形成过程">🔄 这次故障最可能的形成过程</h3>
+<p>按当时的现象，最合理的解释是：</p>
+<ol type="1">
+<li>我在 Win 上通过 VS Code Remote SSH 连到 <code>atlanta</code></li>
+<li>SSH 按配置建立了 <code>RemoteForward</code>，使 <code>atlanta:7897 -&gt; Win本地:7897</code></li>
+<li>VS Code 又检测到远端 <code>7897</code> 正在监听，于是自动做了端口转发</li>
+<li>按 VS Code 的正常行为，如果 Win 本地 <code>7897</code> 已经被 Clash 占着，它本来应该改绑到别的本地端口，而不是继续占 <code>7897</code></li>
+<li>因此，真正危险的情况更像是：VS Code 因为恢复了旧的端口映射，或者因为启动时序问题，实际又拿到了 <strong>Win 本地 <code>7897</code></strong></li>
+<li>一旦这件事发生，“Win 本地 <code>7897</code>”就不再只是 Clash 的入口，还会被 VS Code 的转发链路卷进去</li>
+<li>最终结果就是：本地代理流量绕回 SSH，再绕回远端，再被转回来，形成回环或错误接管</li>
+</ol>
+<p>把这个过程单独画成“故障回环顺序图”，会更直观：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">① SSH 先建立 RemoteForward</span><br><span class="line"></span><br><span class="line">atlanta:7897</span><br><span class="line">  -&gt; SSH RemoteForward</span><br><span class="line">  -&gt; Win 本地 127.0.0.1:7897</span><br><span class="line">  -&gt; Clash Verge</span><br><span class="line"></span><br><span class="line">② VS Code 发现 atlanta:7897 在监听</span><br><span class="line"></span><br><span class="line">本地某端口</span><br><span class="line">  &lt;- VS Code 自动转发 -&gt;</span><br><span class="line">atlanta:7897</span><br><span class="line"></span><br><span class="line">③ 正常情况</span><br><span class="line"></span><br><span class="line">本地 4123</span><br><span class="line">  &lt;- VS Code 自动转发 -&gt;</span><br><span class="line">atlanta:7897</span><br><span class="line"></span><br><span class="line">Clash 继续独占本地 7897</span><br><span class="line"></span><br><span class="line">④ 危险情况：VS Code 因恢复旧映射或时序问题实际占回本地 7897</span><br><span class="line"></span><br><span class="line">本地 7897</span><br><span class="line">  &lt;- VS Code 自动转发 -&gt;</span><br><span class="line">atlanta:7897</span><br><span class="line">  -&gt; SSH RemoteForward</span><br><span class="line">  -&gt; 本地 7897</span><br><span class="line"></span><br><span class="line">结果：同一个端口同时处在“转发入口”和“代理出口”上，链路开始自绕</span><br></pre></td></tr></table></figure>
+<p>当时观察到的两个现象正好支持这个推断：</p>
+<ul>
+<li>只要断开 VS Code SSH，Win 本地网络立刻恢复</li>
+<li>只要删掉 VS Code 里自动转发的 <code>7897</code>，问题立刻消失</li>
+</ul>
+<h3 id="ssh-端口转发到底是怎么工作的">🛠️ SSH 端口转发到底是怎么工作的</h3>
+<h4 id="remoteforward">RemoteForward</h4>
+<p><code>RemoteForward A B:C</code></p>
+<p>意思是：</p>
+<ul>
+<li>在远端机器监听 <code>A</code></li>
+<li>收到连接后，通过 SSH 隧道送到本地的 <code>B:C</code></li>
+</ul>
+<p>这里的配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RemoteForward 7897 127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<p>等价于：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">atlanta:7897  -&gt;  当前客户端:127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<p>这里很容易混淆的一点是：</p>
+<ul>
+<li><code>SSH 隧道</code> 本身是双向承载数据的</li>
+<li>但 <code>RemoteForward</code> 定义的入口方向并不是对等的</li>
+</ul>
+<p>它真正表达的是：</p>
+<ul>
+<li>由远端程序去连接 <code>atlanta:7897</code></li>
+<li>SSH 再把这条连接转交给当前客户端本机的 <code>127.0.0.1:7897</code></li>
+</ul>
+<p>所以更准确的理解应该是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">atlanta 上的程序</span><br><span class="line">  -&gt; 连接 atlanta:7897</span><br><span class="line">  -&gt; SSH RemoteForward</span><br><span class="line">  -&gt; 当前客户端的 127.0.0.1:7897</span><br></pre></td></tr></table></figure>
+<p>这条连接一旦建立，请求和响应都会在同一条被转发的 TCP 连接里双向流动。也就是说：</p>
+<ul>
+<li><code>atlanta</code> 发给 <code>atlanta:7897</code> 的请求，会被送到当前客户端的 <code>7897</code></li>
+<li>当前客户端上的代理再去访问外网</li>
+<li>外网返回的数据，会沿着同一条连接再返回给 <code>atlanta</code></li>
+</ul>
+<p>但这不等于“当前客户端也能靠这条 <code>RemoteForward</code> 主动去访问 <code>atlanta:7897</code>”。<code>RemoteForward</code> 解决的是“让远端借用本地服务”，不是让两端在这个端口上获得对等的主动访问能力。</p>
+<p>因此，只要在 <code>atlanta</code> 上配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&#x27;http://127.0.0.1:7897&#x27;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&#x27;http://127.0.0.1:7897&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>流量其实并不是从 <code>atlanta</code> 直接出国，而是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">atlanta curl</span><br><span class="line">  -&gt; atlanta:7897</span><br><span class="line">  -&gt; SSH 隧道</span><br><span class="line">  -&gt; Win 本地 Clash:7897</span><br><span class="line">  -&gt; 机场节点</span><br><span class="line">  -&gt; 目标站点</span><br><span class="line">  &lt;- 响应原路返回</span><br></pre></td></tr></table></figure>
+<h4 id="vs-code-自动端口转发">VS Code 自动端口转发</h4>
+<p>VS Code Remote SSH 会做另一件事：</p>
+<ul>
+<li>发现远端某个端口在监听</li>
+<li>自动把它映射到本机</li>
+<li>让你本机直接访问远端服务</li>
+</ul>
+<p>这个功能本来是给 <code>3000</code>、<code>8080</code>、<code>8888</code> 这类开发服务准备的，比如远端起了 Web 服务，你本机浏览器可以直接打开。</p>
+<p>它的核心作用其实很朴素：<strong>让“明明跑在远端”的服务，用起来像“跑在本机”一样顺手</strong>。这样你就不用每次都自己记 SSH 隧道命令，也不用手工再开一层 <code>ssh -L</code>。</p>
+<p>典型应用场景一般有这些：</p>
+<ul>
+<li>远端跑了前端开发服务器，比如 Vite、Next.js、Storybook，本机浏览器直接开 <code>localhost</code></li>
+<li>远端起了 Jupyter、Gradio、Streamlit、TensorBoard 这类本地 Web 面板，本机可以直接点开预览</li>
+<li>远端临时起了一个调试 API、管理后台或文档站，不想专门手敲隧道命令</li>
+<li>容器、跳板机或云主机里的服务只监听 <code>127.0.0.1</code>，但你仍然想在本地 GUI 里访问它</li>
+</ul>
+<p>所以它最适合的是“开发服务”和“临时调试入口”。这类服务的共同特点是：</p>
+<ul>
+<li>端口是给人看的</li>
+<li>访问方向通常是“本机去看远端”</li>
+<li>即使换一个本地端口也无所谓，只要能打开就行</li>
+</ul>
+<p>它的探测方式，VS Code 团队在 issue 里解释过，主要有两类：</p>
+<ul>
+<li><code>process</code>：轮询远端 <code>/proc</code>，找哪些进程正在监听端口</li>
+<li><code>output</code>：扫描终端或调试输出里像 URL / 端口的内容</li>
+</ul>
+<p>另外，官方文档也说明了一个关键细节：如果本地同号端口已经被占用，VS Code 往往会换一个本地端口，比如把远端 <code>3000</code> 映射到本地 <code>4123</code>。</p>
+<p>所以对这次故障，更严谨的表述应该是：</p>
+<ul>
+<li>不是“VS Code 一看到远端 <code>7897</code> 就一定会再占本地 <code>7897</code>”</li>
+<li>而是“VS Code 会自动转发远端 <code>7897</code>；只有它因为恢复旧映射或时序问题真的落回本地 <code>7897</code> 时，才会和 <code>RemoteForward</code> 叠成自环”</li>
+</ul>
+<p>也正因为如此，<code>7897</code> 这种本来就参与 SSH 隧道的代理口，确实属于“不该自动转发的端口”。</p>
+<p>原因也不复杂：代理口和普通开发端口的角色完全不一样。</p>
+<ul>
+<li>开发端口通常是“给你打开页面用的”</li>
+<li>代理端口则是“给别的流量继续转发用的”</li>
+</ul>
+<p>前者被 VS Code 额外包一层映射，通常只是更方便；后者如果再被 IDE 接管，就可能改变原来的流量路径，甚至把链路绕回自己。</p>
+<h3 id="为什么这类问题特别隐蔽">⚠️ 为什么这类问题特别隐蔽</h3>
+<p>因为它会同时制造两种错觉：</p>
+<table>
+<thead>
+<tr class="header">
+<th>现象</th>
+<th>容易误判成什么</th>
+<th>实际更可能是什么</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>atlanta curl</code> 无响应</td>
+<td>远端没网、机场挂了</td>
+<td>远端代理口被错误转发</td>
+</tr>
+<tr class="even">
+<td>Win 本地机场节点看起来正常</td>
+<td>机场没问题</td>
+<td>但本地代理出口发生环路</td>
+</tr>
+<tr class="odd">
+<td>断开 VS Code SSH 后马上恢复</td>
+<td>偶发网络波动</td>
+<td>SSH/VS Code 转发链路有问题</td>
+</tr>
+<tr class="even">
+<td>删除自动转发 <code>7897</code> 后恢复</td>
+<td>临时玄学</td>
+<td>端口冲突被解除</td>
+</tr>
+</tbody>
+</table>
+<p>根本原因是：<strong>表面上坏的是“网络”，实际上坏的是“流量路径”</strong>。</p>
+<h3 id="如何验证是不是端口回环">🧪 如何验证是不是端口回环</h3>
+<p>下次再遇到类似问题，可以按这个顺序排查。</p>
+<h4 id="在本机看-7897-到底谁在监听">在本机看 <code>7897</code> 到底谁在监听</h4>
+<p>Windows 可以看：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat <span class="literal">-ano</span> | findstr <span class="number">7897</span></span><br></pre></td></tr></table></figure>
+<p>macOS / Linux 可以看：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">lsof -i :7897</span><br><span class="line">ss -ltnp | grep 7897</span><br></pre></td></tr></table></figure>
+<p>重点不是只看“有没有监听”，而是看：</p>
+<ul>
+<li>是 Clash 在监听</li>
+<li>还是 VS Code helper / SSH client 在监听</li>
+<li>还是两边都试图占这个端口</li>
+</ul>
+<h4 id="在远端确认转发是否存在">在远端确认转发是否存在</h4>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ss -ltnp | grep 7897</span><br></pre></td></tr></table></figure>
+<p>如果 <code>atlanta</code> 上有 <code>127.0.0.1:7897</code> 的监听，很可能就是 SSH 建出来的 <code>RemoteForward</code>。</p>
+<h3 id="常见误区">🚫 常见误区</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mac 先连上，Win 就会“占不到同一个远端端口”</td>
+<td>不一定。<code>RemoteForward</code> 作用在具体 SSH 会话上，不能简单理解成一台机器上的全局唯一占坑。</td>
+</tr>
+<tr class="even">
+<td>看到节点正常，就说明代理没问题</td>
+<td>不对。节点健康只说明客户端到订阅/控制面的状态正常，不代表数据流量没有回环。</td>
+</tr>
+<tr class="odd">
+<td><code>curl</code> 没输出一定是目标网站挂了</td>
+<td>不对。端口回环、代理黑洞、DNS 被错误接管都可能表现成“卡死没输出”。</td>
+</tr>
+<tr class="even">
+<td>VS Code 自动转发一定是好事</td>
+<td>只对普通开发服务是好事，对代理口、隧道口、数据库口未必。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="总结">✅ 总结</h3>
+<blockquote>
+<p>这次问题的本质，不是机场挂了，也不是服务器断网，而是远端代理口既参与了 SSH 的 <code>RemoteForward</code>，又被 VS Code 自动纳入端口转发候选；一旦 VS Code 因恢复旧映射或启动时序异常实际占回本地同号端口，流量路径就会自我缠绕。</p>
+</blockquote>
+<p>如果你也在用 <code>RemoteForward</code> 让远端机器借用本地 Clash，最稳的策略就三条：</p>
+<ul>
+<li>禁掉 VS Code 对代理端口的自动转发</li>
+<li>让远端端口和本地代理端口不要同号</li>
+<li>把不同设备的远端代理端口编号分开</li>
+</ul>
+<p>这样下次再遇到“本地看起来在线，远端却完全没网”的诡异故障，第一反应就不该是换节点，而该先检查端口转发链路。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SSH/" rel="tag"># SSH</a>
+              <a href="/tags/VS-Code/" rel="tag"># VS Code</a>
+              <a href="/tags/%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/" rel="tag"># 端口转发</a>
+              <a href="/tags/Clash/" rel="tag"># Clash</a>
+              <a href="/tags/Proxy/" rel="tag"># Proxy</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/18482fd9/" rel="prev" title="LLVM 入门：从编译流程到 IR 结构">
+                  <i class="fa fa-angle-left"></i> LLVM 入门：从编译流程到 IR 结构
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">248k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:31</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
