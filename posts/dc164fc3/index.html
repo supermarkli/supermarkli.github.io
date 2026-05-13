@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="本文尝试用一张图把 CUDA 从“硬件→内核→用户态驱动→工具包→深度学习框架”的完整链路讲清楚，并解释常见的版本不匹配问题与定位思路。即便没有 CUDA 基础，也可以按文中的检查顺序逐步排查。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CUDA 软件栈">
+<meta property="og:url" content="https://supermarkli.github.io/posts/dc164fc3/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="本文尝试用一张图把 CUDA 从“硬件→内核→用户态驱动→工具包→深度学习框架”的完整链路讲清楚，并解释常见的版本不匹配问题与定位思路。即便没有 CUDA 基础，也可以按文中的检查顺序逐步排查。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-09-19T10:36:21.000Z">
+<meta property="article:modified_time" content="2026-05-13T01:25:14.208Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="CUDA">
+<meta property="article:tag" content="GPU">
+<meta property="article:tag" content="NVIDIA">
+<meta property="article:tag" content="驱动">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/dc164fc3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/dc164fc3/","path":"posts/dc164fc3/","title":"CUDA 软件栈"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CUDA 软件栈 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E5%85%A8%E6%99%AF%E5%9B%BE%E4%BB%8E%E7%A1%AC%E4%BB%B6%E5%88%B0%E6%A1%86%E6%9E%B6%E7%9A%84%E8%B0%83%E7%94%A8%E9%93%BE"><span class="nav-number">1.</span> <span class="nav-text">一、全景图（从硬件到框架的调用链）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E5%86%85%E6%A0%B8%E9%A9%B1%E5%8A%A8%E7%89%88%E6%9C%AC-%E7%94%A8%E6%88%B7%E6%80%81%E9%A9%B1%E5%8A%A8%E7%89%88%E6%9C%AC"><span class="nav-number">2.</span> <span class="nav-text">二、为什么“内核驱动版本 &#x3D;
+用户态驱动版本”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89pytorch-%E5%A6%82%E4%BD%95%E5%86%B3%E5%AE%9A%E7%94%A8%E5%93%AA%E4%BB%BD%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">三、PyTorch 如何决定用哪份库？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E6%A6%82%E5%BF%B5%E8%A1%A5%E5%85%85"><span class="nav-number">4.</span> <span class="nav-text">四、概念补充</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%94%E5%85%B8%E5%9E%8B%E5%86%B2%E7%AA%81%E4%B8%8E%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95"><span class="nav-number">5.</span> <span class="nav-text">五、典型冲突与调试方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E5%AE%9E%E7%94%A8%E6%8E%92%E6%9F%A5%E6%B8%85%E5%8D%95%E6%8C%89%E9%A1%BA%E5%BA%8F"><span class="nav-number">6.</span> <span class="nav-text">六、实用排查清单（按顺序）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%84%E5%BD%95%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8C%96%E7%9A%84%E9%A9%B1%E5%8A%A8%E6%A0%88%E6%A8%A1%E5%9E%8B%E7%A4%BA%E4%BE%8B"><span class="nav-number">8.</span> <span class="nav-text">附录：一个简化的驱动栈模型示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E9%9B%B6%E5%B1%82%E9%80%9A%E4%BF%A1%E5%A5%91%E7%BA%A6-simple_gpu.h"><span class="nav-number">8.1.</span> <span class="nav-text">第零层：通信契约
+(simple_gpu.h)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E5%B1%82%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97-simple_gpu.c"><span class="nav-number">8.2.</span> <span class="nav-text">第一层：内核模块
+(simple_gpu.c)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%E7%94%A8%E6%88%B7%E6%80%81%E9%A9%B1%E5%8A%A8%E5%BA%93-libsimple_cuda.so"><span class="nav-number">8.3.</span> <span class="nav-text">第二层：用户态驱动库
+(libsimple_cuda.so)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E5%B1%82%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F-main.c"><span class="nav-number">8.4.</span> <span class="nav-text">第三层：应用程序
+(main.c)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E4%B8%8E%E8%BF%90%E8%A1%8C"><span class="nav-number">8.5.</span> <span class="nav-text">构建与运行</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/cat2.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/dc164fc3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cat2.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CUDA 软件栈 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CUDA 软件栈
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-09-19 18:36:21" itemprop="dateCreated datePublished" datetime="2025-09-19T18:36:21+08:00">2025-09-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-05-13 09:25:14" itemprop="dateModified" datetime="2026-05-13T09:25:14+08:00">2026-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CUDA/" itemprop="url" rel="index"><span itemprop="name">CUDA</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>9.3k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>17 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>本文尝试用一张图把 CUDA
+从“硬件→内核→用户态驱动→工具包→深度学习框架”的完整链路讲清楚，并解释常见的版本不匹配问题与定位思路。即便没有
+CUDA 基础，也可以按文中的检查顺序逐步排查。</p>
+<span id="more"></span>
+<h3
+id="一全景图从硬件到框架的调用链">一、全景图（从硬件到框架的调用链）</h3>
+<pre>
+<code class="mermaid">
+
+graph TD;
+  HW[&quot;GPU 硬件 (SM &#x2F; CUDA Core, NVLink &#x2F; PCIe)&quot;] --&gt;|&quot;① 硬件接口 (PCIe, MMIO, DMA)&quot;| KMOD[&quot;内核空间: nvidia.ko, nvidia_uvm.ko, nvidia_drm.ko&lt;br&#x2F;&gt;(版本: 570.133.20)&quot;];
+  KMOD --&gt;|&quot;② 系统调用 (syscall &#x2F; ioctl)&quot;| UDRV[&quot;用户空间-驱动: libcuda.so, libnvidia-ml.so&lt;br&#x2F;&gt;(版本需与内核驱动完全一致)&quot;];
+  UDRV --&gt;|&quot;③ 动态链接&quot;| TOOL[&quot;用户空间-工具包: libcudart.so, libcublas.so, libcudnn.so&lt;br&#x2F;&gt;(版本可高于驱动)&quot;];
+  TOOL --&gt;|&quot;④ Python C++ 扩展 (dlopen)&quot;| FW[&quot;框架层: PyTorch, TensorFlow, Paddle&quot;];
+</code>
+</pre>
+<p>解析：</p>
+<ul>
+<li><p><strong>硬件层</strong>: GPU 上的 SM（Streaming
+Multiprocessor）里有很多 CUDA Core，负责并行数值运算；NVLink / PCIe 是与
+CPU/主机交换数据的总线。</p></li>
+<li><p><strong>内核空间 (驱动层)</strong>: GPU 通过 PCIe
+总线与系统连接。内核模块（<code>nvidia.ko</code>,
+<code>nvidia_uvm.ko</code>,
+<code>nvidia_drm.ko</code>）被加载后，作为驱动程序接管硬件。它们通过内存映射
+I/O (MMIO) 读写 GPU 寄存器、通过中断 (Interrupts)
+响应事件，并利用直接内存访问 (DMA)
+高效传输数据。这组模块来自同一个驱动包，版本号必须统一（例如
+<code>570.133.20</code>），其中 <code>nvidia.ko</code>
+负责核心功能，<code>nvidia_uvm.ko</code>
+管理统一内存，<code>nvidia_drm.ko</code> 关联显示。</p></li>
+<li><p><strong>用户空间 - 驱动</strong>: 用户态驱动库（如
+<code>libcuda.so.*</code>, <code>libnvidia-ml.so.*</code>）位于系统或
+Conda 的库目录。它们是用户程序与内核模块沟通的桥梁，通过
+<code>ioctl</code>
+系统调用发送指令。因此，其版本必须与内核模块完全匹配，以保证通信接口（ABI）的一致性。</p></li>
+</ul>
+<blockquote>
+<p><code>ioctl</code> (Input/Output Control) 是 Linux
+提供的一种系统调用，允许用户态程序直接向设备驱动（内核模块）发送控制命令。这些命令通常是设备专属的，超出了标准
+<code>read</code>/<code>write</code> 的范畴。NVIDIA 驱动就广泛使用
+<code>ioctl</code> 来提交计算任务、查询设备状态等。</p>
+</blockquote>
+<ul>
+<li><p><strong>用户空间 - 工具包</strong>: CUDA Toolkit
+是一系列面向开发者的库（如 <code>libcudart.so</code>,
+<code>libcublas.so</code>,
+<code>libcudnn.so</code>）。它依赖于用户态驱动，版本可以比驱动新，但不能低于驱动所要求的最低兼容版本。</p></li>
+<li><p><strong>框架层</strong>: PyTorch、TensorFlow 等深度学习框架通过
+Python C++
+扩展，在运行时动态加载（<code>dlopen()</code>）上述驱动和工具包库。具体加载哪个库文件，会受到环境变量（如
+<code>LD_LIBRARY_PATH</code>）和搜索路径优先级的影响。</p></li>
+</ul>
+<h3 id="二为什么内核驱动版本-用户态驱动版本">二、为什么“内核驱动版本 =
+用户态驱动版本”？</h3>
+<p>NVML、<code>libcuda.so</code> 等用户态驱动库通过 ioctl
+与内核模块交互，两端必须使用完全一致的结构体布局、ioctl 号与 ABI
+协议。如果版本不匹配（例如 570.172 ↔︎ 570.133），典型现象是：</p>
+<ul>
+<li><code>nvmlInit_v2()</code> 返回
+<code>NVML_ERROR_LIB_RM_VERSION_MISMATCH (18)</code>；</li>
+<li>CUDA Runtime 报 <code>cudaErrorUnknown</code>；</li>
+<li>PyTorch 内部会 <code>TORCH_CHECK</code>
+失败并直接抛出断言错误。</li>
+</ul>
+<p>结论：</p>
+<ul>
+<li>必须保证“内核驱动模块”与“用户态驱动库（<code>libcuda.so</code> /
+<code>libnvidia-ml.so</code> 等）”版本严格一致；</li>
+<li>上层 “CUDA
+Toolkit（<code>libcudart.so</code>、<code>libcublas.so</code>、<code>libcudnn.so</code>
+…）” 可以更高，但需满足对当前驱动的最低兼容要求。</li>
+</ul>
+<h3 id="三pytorch-如何决定用哪份库">三、PyTorch 如何决定用哪份库？</h3>
+<ol type="1">
+<li><p>解释器路径：<code>which python</code> 决定用系统 Python 还是
+Conda Python。</p></li>
+<li><p><code>LD_LIBRARY_PATH</code> 顺序：进程启动后会按路径顺序
+<code>dlopen</code> 所需 <code>.so</code>；Conda 环境的
+<code>…/envs/&lt;name&gt;/lib</code> 往往排在 <code>/usr/lib</code>
+前面。</p></li>
+<li><p>结果：如果 Conda 自带完整 CUDA Toolkit（含
+NVML），就会优先加载它；否则回落到系统
+<code>/usr/lib</code>。只要首个被找到的 <code>libnvidia-ml.so.1</code>
+与内核驱动版本不一致，就会出现 “Driver/library version
+mismatch”。</p></li>
+</ol>
+<h3 id="四概念补充">四、概念补充</h3>
+<ul>
+<li><p>SM / CUDA Core：SM 是 GPU 的并行计算引擎，内部包含若干 CUDA
+Core；可以把 CUDA Core 理解为做浮点/整数运算的“工位”。</p></li>
+<li><p>ioctl：用户态程序向内核模块发送带结构体参数的“命令”的方式，要求两端对
+ABI（应用二进制接口）理解一致。</p></li>
+<li><p>驱动
+vs. 工具包：<code>libcuda.so</code>/<code>libnvidia-ml.so</code>
+属于“用户态驱动”，与内核模块一一对应；<code>libcudart.so</code>/<code>libcublas.so</code>/<code>libcudnn.so</code>
+属于 CUDA Toolkit，用于开发与加速库调用。</p></li>
+<li><p><strong>SONAME 与共享库版本</strong>：<code>.so</code>
+文件名后的数字是 Linux 管理库版本与 ABI (应用二进制接口)
+兼容性的核心机制。它遵循“三级文件名”约定：</p>
+<ul>
+<li><strong>真实名 (Real Name)</strong>：包含实际代码的文件，如
+<code>libcuda.so.570.133.20</code>，版本号最全。</li>
+<li><strong>SONAME (Shared Object
+Name)</strong>：程序运行时查找的接口名，如
+<code>libcuda.so.1</code>。主版本号 <code>1</code> 保证了 ABI
+的向后兼容性。它通常是指向真实名的符号链接。</li>
+<li><strong>链接名 (Linker Name)</strong>：编译时使用的名字，如
+<code>libcuda.so</code>。它不带版本号，通常指向 SONAME。
+简而言之，编译时链接 <code>libcuda.so</code>，运行时系统通过
+<code>libcuda.so.1</code> 这个 SONAME 找到具体的
+<code>libcuda.so.570.133.20</code> 文件。</li>
+</ul></li>
+<li><p><strong>动态链接 (Dynamic Linking) vs. 静态链接 (Static
+Linking)</strong>：</p>
+<ul>
+<li><strong>动态链接</strong>：程序在 <strong>运行时</strong>
+才由系统加载器（如
+<code>ld-linux.so.2</code>）去查找并链接共享库（<code>.so</code>
+文件），这个过程受 <code>LD_LIBRARY_PATH</code>
+环境变量影响。可执行文件只记录了依赖的库名，因此体积小、便于共享和独立更新库。CUDA
+软件栈中的各层库（<code>libcuda.so</code>, <code>libcudart.so</code>
+等）均通过此方式协同工作。</li>
+<li><strong>静态链接</strong>：程序在 <strong>编译时</strong>
+就将库的完整代码复制进最终的可执行文件。文件体积大，但无需外部依赖即可运行。</li>
+</ul></li>
+</ul>
+<h3 id="五典型冲突与调试方法">五、典型冲突与调试方法</h3>
+<p>以下命令均为“查看/定位”之用，按需在你的 Shell
+中执行。每条命令前后给出用途与参数含义，便于复制排查。</p>
+<ol type="1">
+<li>系统用户态包被自动升级（apt 升级到 570.172，但 DKMS 内核模块仍是
+570.133）</li>
+</ol>
+<ul>
+<li><p>现象：<code>nvidia-smi</code> 报 “Failed to initialize NVML:
+Driver/library version mismatch”。</p></li>
+<li><p>查看内核模块版本：</p></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">modinfo -F version nvidia | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>含义：<code>modinfo</code>
+读取已加载或可用的内核模块元数据，<code>-F version</code>
+仅输出版本字段，<code>| cat</code> 避免分页器干扰。</p>
+<ul>
+<li>查看系统能找到的 NVML 动态库：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldconfig -p | grep -E <span class="string">&quot;nvidia-ml|libcuda&quot;</span></span><br></pre></td></tr></table></figure>
+<p>含义：<code>ldconfig -p</code> 输出动态链接器缓存中的库条目；通过
+<code>grep</code> 过滤 NVML 与 CUDA Driver
+库，便于核对路径与版本来源（系统或 Conda）。</p>
+<ol start="2" type="1">
+<li>Conda Toolkit 抢到更高优先级（Conda 带了一份 570.172 的 NVML）</li>
+</ol>
+<ul>
+<li>临时让系统库优先：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:<span class="variable">$LD_LIBRARY_PATH</span></span><br></pre></td></tr></table></figure>
+<p>含义：将系统库目录前置到
+<code>LD_LIBRARY_PATH</code>，使运行时优先从系统位置加载
+<code>libnvidia-ml.so.1</code> / <code>libcuda.so.1</code>。仅影响当前
+Shell 及其子进程。</p>
+<ul>
+<li>检查 Python/Conda 路径：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">which</span> python &amp;&amp; python -c <span class="string">&quot;import sys; print(sys.executable)&quot;</span></span><br></pre></td></tr></table></figure>
+<p>含义：确认实际使用的解释器路径，避免“你以为在系统 Python，其实在
+Conda 环境”的错觉。</p>
+<ol start="3" type="1">
+<li>只调整用户态库、不动系统驱动（实验/无管理员权限场景）</li>
+</ol>
+<ul>
+<li>解包与内核匹配版本的用户态库到家目录，并优先加载：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="string">&quot;<span class="variable">$HOME</span>/nvidia_570.133.20/lib:<span class="variable">$LD_LIBRARY_PATH</span>&quot;</span> &amp;&amp; python your_script.py</span><br></pre></td></tr></table></figure>
+<p>含义：在家目录放一份与内核版本一致的 <code>libcuda.so.*</code> /
+<code>libnvidia-ml.so.*</code>，通过前置 <code>LD_LIBRARY_PATH</code>
+覆盖 Conda 或系统中不匹配的库。</p>
+<h3 id="六实用排查清单按顺序">六、实用排查清单（按顺序）</h3>
+<ol type="1">
+<li><p>核对内核模块版本：执行
+<code>modinfo -F version nvidia</code>。</p></li>
+<li><p>核对首个被找到的 NVML/Driver 库来自哪里：执行
+<code>ldconfig -p | grep -E "nvidia-ml|libcuda"</code>；如在 Conda
+下，检查 <code>…/envs/&lt;name&gt;/lib</code> 是否排到最前。</p></li>
+<li><p>以系统库优先重试：临时设置
+<code>export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH</code>
+后再次运行程序。</p></li>
+<li><p>框架自检：</p></li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">python - &lt;&lt; <span class="string">&#x27;PY&#x27;</span></span><br><span class="line">import sys, os</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;python:&#x27;</span>, sys.executable)</span><br><span class="line">try:</span><br><span class="line">    import torch</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;torch:&#x27;</span>, torch.__version__, <span class="string">&#x27;cuda:&#x27;</span>, getattr(torch.version, <span class="string">&#x27;cuda&#x27;</span>, None))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;is_available:&#x27;</span>, torch.cuda.is_available())</span><br><span class="line">except Exception as e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;torch import err:&#x27;</span>, e)</span><br><span class="line">try:</span><br><span class="line">    import pynvml</span><br><span class="line">    pynvml.nvmlInit()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;NVML ok&#x27;</span>)</span><br><span class="line">except Exception as e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;NVML err:&#x27;</span>, e)</span><br><span class="line">PY</span><br></pre></td></tr></table></figure>
+<p>含义：快速查看当前 Python、PyTorch CUDA 版本标记，以及 NVML
+是否初始化成功。</p>
+<h3 id="小结">小结</h3>
+<ul>
+<li><p>驱动栈 = “内核模块” + “用户态驱动库” + “Toolkit 库” +
+“框架”。</p></li>
+<li><p>第一阶（内核 ↔︎ 用户态驱动）必须同版本；第二阶（Toolkit ↔︎
+驱动）只需满足最低兼容。</p></li>
+<li><p>大多数 PyTorch 断言本质是 NVML 初始化失败，根因常见于“路径优先级
++ 版本不配套”。按清单逐步核对，通常即可定位并修复。</p></li>
+</ul>
+<h3
+id="附录一个简化的驱动栈模型示例">附录：一个简化的驱动栈模型示例</h3>
+<p>为了将前述抽象概念具象化，这里提供一个高度简化的驱动栈模型。它包含了内核模块、用户态驱动库和应用程序三个核心层次，完整地展示了
+<code>ioctl</code> 通信的全过程。</p>
+<h4 id="第零层通信契约-simple_gpu.h">第零层：通信契约
+(<code>simple_gpu.h</code>)</h4>
+<p>该头文件定义了内核与用户态通信所用的 <code>ioctl</code>
+命令号和数据结构，必须被双方共同包含。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> SIMPLE_GPU_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SIMPLE_GPU_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/ioctl.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个用于数据交换的结构体</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> a;</span><br><span class="line">    <span class="type">int</span> b;</span><br><span class="line">    <span class="type">int</span> result;</span><br><span class="line">&#125; simple_gpu_op;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义 ioctl 命令</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IOCTL_COMPUTE_ADD _IOWR(<span class="string">&#x27;k&#x27;</span>, 1, simple_gpu_op)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<h4 id="第一层内核模块-simple_gpu.c">第一层：内核模块
+(<code>simple_gpu.c</code>)</h4>
+<p>此模块创建 <code>/dev/simple_gpu</code> 设备，并实现
+<code>ioctl</code> 接口来模拟硬件计算（加法）。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/init.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/module.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/fs.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;linux/uaccess.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;simple_gpu.h&quot;</span></span></span><br><span class="line"></span><br><span class="line">MODULE_LICENSE(<span class="string">&quot;GPL&quot;</span>);</span><br><span class="line">MODULE_AUTHOR(<span class="string">&quot;lzh&quot;</span>);</span><br><span class="line">MODULE_DESCRIPTION(<span class="string">&quot;A simple conceptual GPU driver.&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> DEVICE_NAME <span class="string">&quot;simple_gpu&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> MAJOR_NUM 100</span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">long</span> <span class="title function_">simple_gpu_ioctl</span><span class="params">(<span class="keyword">struct</span> file *file, <span class="type">unsigned</span> <span class="type">int</span> cmd, <span class="type">unsigned</span> <span class="type">long</span> arg)</span> &#123;</span><br><span class="line">    simple_gpu_op op;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (cmd) &#123;</span><br><span class="line">        <span class="keyword">case</span> IOCTL_COMPUTE_ADD:</span><br><span class="line">            <span class="keyword">if</span> (copy_from_user(&amp;op, (simple_gpu_op *)arg, <span class="keyword">sizeof</span>(op))) <span class="keyword">return</span> -EFAULT;</span><br><span class="line">            </span><br><span class="line">            pr_info(<span class="string">&quot;simple_gpu: Computing %d + %d\n&quot;</span>, op.a, op.b);</span><br><span class="line">            op.result = op.a + op.b; <span class="comment">// 模拟硬件计算</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (copy_to_user((simple_gpu_op *)arg, &amp;op, <span class="keyword">sizeof</span>(op))) <span class="keyword">return</span> -EFAULT;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">return</span> -ENOTTY;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="class"><span class="keyword">struct</span> <span class="title">file_operations</span> <span class="title">fops</span> =</span> &#123; .unlocked_ioctl = simple_gpu_ioctl &#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> __init <span class="title function_">simple_gpu_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (register_chrdev(MAJOR_NUM, DEVICE_NAME, &amp;fops) &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        pr_alert(<span class="string">&quot;simple_gpu: failed to register a major number\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    pr_info(<span class="string">&quot;simple_gpu: driver loaded with major number %d\n&quot;</span>, MAJOR_NUM);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> __exit <span class="title function_">simple_gpu_exit</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    unregister_chrdev(MAJOR_NUM, DEVICE_NAME);</span><br><span class="line">    pr_info(<span class="string">&quot;simple_gpu: driver unloaded\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module_init(simple_gpu_init);</span><br><span class="line">module_exit(simple_gpu_exit);</span><br></pre></td></tr></table></figure>
+<h4 id="第二层用户态驱动库-libsimple_cuda.so">第二层：用户态驱动库
+(<code>libsimple_cuda.so</code>)</h4>
+<p>这个共享库封装了 <code>ioctl</code> 调用细节，为上层应用提供简洁的
+API。</p>
+<p><strong><code>libsimple_cuda.h</code></strong> (API 头文件)
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> LIBSIMPLE_CUDA_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LIBSIMPLE_CUDA_H</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_init</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">simple_cuda_shutdown</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> *result)</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure></p>
+<p><strong><code>libsimple_cuda.c</code></strong> (库实现)
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/ioctl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;simple_gpu.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;libsimple_cuda.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">int</span> dev_fd = <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_init</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    dev_fd = open(<span class="string">&quot;/dev/simple_gpu&quot;</span>, O_RDWR);</span><br><span class="line">    <span class="keyword">if</span> (dev_fd &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;Failed to open /dev/simple_gpu&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">simple_cuda_shutdown</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (dev_fd != <span class="number">-1</span>) close(dev_fd);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">simple_cuda_add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b, <span class="type">int</span> *result)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (dev_fd &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line"></span><br><span class="line">    simple_gpu_op op = &#123; .a = a, .b = b &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (ioctl(dev_fd, IOCTL_COMPUTE_ADD, &amp;op) != <span class="number">0</span>) &#123;</span><br><span class="line">        perror(<span class="string">&quot;ioctl failed&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    *result = op.result;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="第三层应用程序-main.c">第三层：应用程序
+(<code>main.c</code>)</h4>
+<p>最终的应用程序只依赖 <code>libsimple_cuda.h</code> 定义的 API。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;libsimple_cuda.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (simple_cuda_init() != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Failed to initialize simple CUDA driver.\n&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> a = <span class="number">10</span>, b = <span class="number">32</span>, result;</span><br><span class="line">    <span class="keyword">if</span> (simple_cuda_add(a, b, &amp;result) == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Result of %d + %d is %d\n&quot;</span>, a, b, result);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Computation failed.\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    simple_cuda_shutdown();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="构建与运行">构建与运行</h4>
+<p><strong><code>Makefile</code></strong> <figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用于构建内核模块</span></span><br><span class="line">obj-m += simple_gpu.o</span><br><span class="line"></span><br><span class="line"><span class="section">all: app</span></span><br><span class="line"></span><br><span class="line"><span class="section">app: main.c libsimple_cuda.so</span></span><br><span class="line">	gcc main.c -o app -L. -lsimple_cuda</span><br><span class="line"></span><br><span class="line"><span class="section">libsimple_cuda.so: libsimple_cuda.c simple_gpu.h</span></span><br><span class="line">	gcc -shared -fPIC libsimple_cuda.c -o libsimple_cuda.so</span><br><span class="line"></span><br><span class="line"><span class="section">modules:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"></span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean</span><br><span class="line">	rm -f app libsimple_cuda.so</span><br></pre></td></tr></table></figure></p>
+<p><strong>执行步骤</strong> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 编译所有组件</span></span><br><span class="line">make modules</span><br><span class="line">make app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 加载内核模块并创建设备文件</span></span><br><span class="line"><span class="built_in">sudo</span> insmod simple_gpu.ko</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">mknod</span> /dev/simple_gpu c 100 0</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> 666 /dev/simple_gpu</span><br><span class="line"></span><br><span class="line">&gt; **命令解析**:</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> insmod simple_gpu.ko`: **加载内核模块**。`insmod` 命令将驱动代码 (`.ko`) 加载到内核。驱动内的 `init` 函数会执行，并向内核注册一个主设备号 (本例中为 100)。</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> <span class="built_in">mknod</span> /dev/simple_gpu c 100 0`: **创建设备文件**。`<span class="built_in">mknod</span>` 在 `/dev` 目录下创建一个特殊的文件节点，它通过主设备号 `100` 与我们的驱动关联起来，成为用户态程序与驱动通信的入口。</span><br><span class="line">&gt; - `<span class="built_in">sudo</span> <span class="built_in">chmod</span> 666 /dev/simple_gpu`: **赋予权限**。`<span class="built_in">chmod</span>` 允许所有用户读写该设备文件，否则普通用户的应用程序会因权限不足而无法打开它。</span><br><span class="line">&gt;</span><br><span class="line">&gt; **关于主设备号 `100`**: 在本例中，`100` 是我们在驱动代码 (`simple_gpu.c`) 中硬编码的一个约定数字，`<span class="built_in">mknod</span>` 命令必须使用与之相同的值。在真实世界的驱动中，硬编码有冲突风险，因此通常采用 **动态分配**：驱动向内核申请一个 **任意** 可用的主设备号，内核分配后，由 `udev` 等现代化服务自动在 `/dev` 目录下创建对应的设备文件，无需手动执行 `<span class="built_in">mknod</span>`。</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 运行应用程序</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=.</span><br><span class="line">./app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 查看内核日志</span></span><br><span class="line">dmesg | <span class="built_in">tail</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 卸载模块并清理</span></span><br><span class="line"><span class="built_in">sudo</span> rmmod simple_gpu</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">rm</span> /dev/simple_gpu</span><br></pre></td></tr></table></figure></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CUDA/" rel="tag"># CUDA</a>
+              <a href="/tags/GPU/" rel="tag"># GPU</a>
+              <a href="/tags/NVIDIA/" rel="tag"># NVIDIA</a>
+              <a href="/tags/%E9%A9%B1%E5%8A%A8/" rel="tag"># 驱动</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/a9c3e7b1/" rel="prev" title="eBPF 入门：原理、程序类型与上手实践">
+                  <i class="fa fa-angle-left"></i> eBPF 入门：原理、程序类型与上手实践
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/5f1831aa/" rel="next" title="pytorch入门">
+                  pytorch入门 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">261k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:54</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

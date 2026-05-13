@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="一台电脑为什么会有多个网卡？为什么 Wi-Fi 能上网，但以太网不行？VPN 又是怎么“插进”系统网络里的？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从 ipconfig 出发，彻底搞懂 Windows 网络栈、网卡、路由、DNS 和 Tailscale">
+<meta property="og:url" content="https://supermarkli.github.io/posts/7b5d2e9a/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="一台电脑为什么会有多个网卡？为什么 Wi-Fi 能上网，但以太网不行？VPN 又是怎么“插进”系统网络里的？">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-03-25T03:45:32.000Z">
+<meta property="article:modified_time" content="2026-05-13T01:25:14.220Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="网络">
+<meta property="article:tag" content="路由">
+<meta property="article:tag" content="DNS">
+<meta property="article:tag" content="Tailscale">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/7b5d2e9a/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/7b5d2e9a/","path":"posts/7b5d2e9a/","title":"从 ipconfig 出发，彻底搞懂 Windows 网络栈、网卡、路由、DNS 和 Tailscale"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>从 ipconfig 出发，彻底搞懂 Windows 网络栈、网卡、路由、DNS 和 Tailscale | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 基本概念速读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E4%B8%80%E4%B8%AA%E7%9C%9F%E5%AE%9E%E9%97%AE%E9%A2%98%E5%BC%80%E5%A7%8B"><span class="nav-number">2.</span> <span class="nav-text">🌍 从一个真实问题开始</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E6%9C%80%E5%B0%8F%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">🧠 网络最小模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#windows-%E7%BD%91%E7%BB%9C%E6%A0%88%E5%88%B0%E5%BA%95%E5%9C%A8%E5%81%9A%E4%BB%80%E4%B9%88"><span class="nav-number">4.</span> <span class="nav-text">🧱 Windows 网络栈到底在做什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E5%8D%A1%E6%98%AF%E4%BB%80%E4%B9%88%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89%E8%BF%99%E4%B9%88%E5%A4%9A"><span class="nav-number">5.</span> <span class="nav-text">🔌 网卡是什么，为什么会有这么多</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#wi-fi%E6%9C%80%E5%B8%B8%E8%A7%81%E7%9A%84%E7%89%A9%E7%90%86%E7%BD%91%E5%8D%A1"><span class="nav-number">5.1.</span> <span class="nav-text">Wi-Fi：最常见的物理网卡</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ethernet%E4%B9%9F%E6%98%AF%E7%89%A9%E7%90%86%E7%BD%91%E5%8D%A1%E5%8F%AA%E6%98%AF%E8%BF%99%E6%AC%A1%E7%8A%B6%E6%80%81%E5%BC%82%E5%B8%B8"><span class="nav-number">5.2.</span> <span class="nav-text">Ethernet：也是物理网卡，只是这次状态异常</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tailscalevpn-%E8%BD%AF%E4%BB%B6%E6%8F%92%E8%BF%9B%E7%B3%BB%E7%BB%9F%E7%9A%84%E4%B8%80%E5%BC%A0%E8%99%9A%E6%8B%9F%E7%BD%91%E5%8D%A1"><span class="nav-number">5.3.</span> <span class="nav-text">Tailscale：VPN
+软件插进系统的一张虚拟网卡</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#wsl%E5%AE%BF%E4%B8%BB%E6%9C%BA%E5%92%8C-linux-%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B9%8B%E9%97%B4%E7%9A%84%E8%99%9A%E6%8B%9F%E7%BD%91%E7%BB%9C%E6%8E%A5%E5%8F%A3"><span class="nav-number">5.4.</span> <span class="nav-text">WSL：宿主机和 Linux
+子系统之间的虚拟网络接口</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%AF%E7%94%B1%E8%A1%A8%E6%89%8D%E6%98%AF%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%AF%BC%E8%88%AA%E7%B3%BB%E7%BB%9F"><span class="nav-number">6.</span> <span class="nav-text">🚦 路由表才是真正的导航系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E9%95%BF%E5%89%8D%E7%BC%80%E5%8C%B9%E9%85%8D%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D"><span class="nav-number">6.1.</span> <span class="nav-text">最长前缀匹配是什么意思</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%BB%98%E8%AE%A4%E7%BD%91%E5%85%B3%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">7.</span> <span class="nav-text">🚪 默认网关到底是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dhcpip%E7%BD%91%E5%85%B3dns-%E6%98%AF%E6%80%8E%E4%B9%88%E6%9D%A5%E7%9A%84"><span class="nav-number">8.</span> <span class="nav-text">📡 DHCP：IP、网关、DNS 是怎么来的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-169.254.x.x-%E5%9F%BA%E6%9C%AC%E7%AD%89%E4%BA%8E%E4%B8%8A%E4%B8%8D%E4%BA%86%E7%BD%91"><span class="nav-number">9.</span> <span class="nav-text">🚨 为什么 169.254.x.x
+基本等于上不了网</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dns%E5%9F%9F%E5%90%8D%E4%B8%8D%E6%98%AF%E7%BD%91%E7%BB%9C%E7%9A%84%E8%B5%B7%E7%82%B9%E5%8F%AA%E6%98%AF%E7%BF%BB%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">10.</span> <span class="nav-text">🌐
+DNS：域名不是网络的起点，只是翻译过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tailscale-%E5%88%B0%E5%BA%95%E6%98%AF%E6%80%8E%E4%B9%88%E6%8F%92%E8%BF%9B%E7%B3%BB%E7%BB%9F%E7%BD%91%E7%BB%9C%E7%9A%84"><span class="nav-number">11.</span> <span class="nav-text">🧩 Tailscale
+到底是怎么插进系统网络的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9E%E5%88%B0%E6%88%91%E7%9A%84%E7%9C%9F%E5%AE%9E%E6%A1%88%E4%BE%8B"><span class="nav-number">12.</span> <span class="nav-text">🔍 回到我的真实案例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#wi-fi%E6%AD%A3%E5%B8%B8"><span class="nav-number">12.1.</span> <span class="nav-text">Wi-Fi：正常</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ethernet%E5%BC%82%E5%B8%B8"><span class="nav-number">12.2.</span> <span class="nav-text">Ethernet：异常</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tailscale%E6%AD%A3%E5%B8%B8"><span class="nav-number">12.3.</span> <span class="nav-text">Tailscale：正常</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E4%BB%A5%E5%A4%AA%E7%BD%91%E6%8B%BF%E5%88%B0-169.254.x.x%E5%BA%94%E8%AF%A5%E6%80%8E%E4%B9%88%E6%8E%92%E6%9F%A5"><span class="nav-number">13.</span> <span class="nav-text">🧪 如果以太网拿到
+169.254.x.x，应该怎么排查</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%88%E7%94%A8%E4%B8%80%E4%B8%AA%E6%9C%80%E5%B0%8F%E5%88%A4%E6%96%AD%E6%A0%91%E5%88%87%E8%B4%A3%E4%BB%BB%E5%9F%9F"><span class="nav-number">13.1.</span> <span class="nav-text">先用一个最小判断树切责任域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E5%B1%82%E5%85%88%E7%9C%8B%E6%98%AF%E4%B8%8D%E6%98%AF%E9%93%BE%E8%B7%AF%E6%9C%AC%E8%BA%AB%E6%9C%89%E9%97%AE%E9%A2%98"><span class="nav-number">13.2.</span> <span class="nav-text">第一层：先看是不是链路本身有问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%E7%A1%AE%E8%AE%A4%E6%98%AF%E4%B8%8D%E6%98%AF%E5%8F%AA%E6%9C%89%E8%BF%99%E5%8F%B0%E6%9C%BA%E5%99%A8%E6%9C%89%E9%97%AE%E9%A2%98"><span class="nav-number">13.3.</span> <span class="nav-text">第二层：确认是不是只有这台机器有问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E5%B1%82%E7%9C%8B%E6%9C%AC%E6%9C%BA%E6%9C%89%E6%B2%A1%E6%9C%89%E6%AD%A3%E5%B8%B8%E5%8F%91%E8%B5%B7%E9%87%8D%E6%96%B0%E8%8E%B7%E5%8F%96%E9%85%8D%E7%BD%AE"><span class="nav-number">13.4.</span> <span class="nav-text">第三层：看本机有没有正常发起重新获取配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E5%B1%82%E7%A1%AE%E8%AE%A4-dhcp-client-%E5%92%8C%E7%BD%91%E5%8D%A1%E9%A9%B1%E5%8A%A8%E7%8A%B6%E6%80%81"><span class="nav-number">13.5.</span> <span class="nav-text">第四层：确认 DHCP Client
+和网卡驱动状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%94%E5%B1%82%E6%80%80%E7%96%91%E6%8E%A5%E5%85%A5%E7%BD%91%E7%BB%9C%E7%AD%96%E7%95%A5%E8%80%8C%E4%B8%8D%E5%8F%AA%E6%98%AF%E6%80%80%E7%96%91-dhcp-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">13.6.</span> <span class="nav-text">第五层：怀疑接入网络策略，而不只是怀疑
+DHCP 服务器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E8%AE%A9%E6%88%91%E6%8C%89%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84%E6%8E%92"><span class="nav-number">13.7.</span> <span class="nav-text">如果让我按最短路径排</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">14.</span> <span class="nav-text">✅ 总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8E%E7%BB%AD%E8%BF%98%E8%83%BD%E7%BB%A7%E7%BB%AD%E6%8C%96%E4%BB%80%E4%B9%88"><span class="nav-number">15.</span> <span class="nav-text">🚀 后续还能继续挖什么</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/cat2.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/7b5d2e9a/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cat2.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="从 ipconfig 出发，彻底搞懂 Windows 网络栈、网卡、路由、DNS 和 Tailscale | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从 ipconfig 出发，彻底搞懂 Windows 网络栈、网卡、路由、DNS 和 Tailscale
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-03-25 11:45:32" itemprop="dateCreated datePublished" datetime="2026-03-25T11:45:32+08:00">2026-03-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-05-13 09:25:14" itemprop="dateModified" datetime="2026-05-13T09:25:14+08:00">2026-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/Windows/" itemprop="url" rel="index"><span itemprop="name">Windows</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>6.3k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>11 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>一台电脑为什么会有多个网卡？为什么 Wi-Fi 能上网，但以太网不行？VPN
+又是怎么“插进”系统网络里的？</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>网卡（NIC）</td>
+<td>电脑连接网络的接口</td>
+<td>负责把数据发出去、收回来</td>
+</tr>
+<tr class="even">
+<td>IP 地址</td>
+<td>主机在网络中的地址</td>
+<td>“我是谁”</td>
+</tr>
+<tr class="odd">
+<td>路由表</td>
+<td>决定数据包走哪条路的规则集合</td>
+<td>“我怎么去”</td>
+</tr>
+<tr class="even">
+<td>默认网关</td>
+<td>离开当前局域网时的下一跳</td>
+<td>“出小区的门”</td>
+</tr>
+<tr class="odd">
+<td>DHCP</td>
+<td>自动分配网络参数的协议</td>
+<td>自动分配 IP、网关、DNS</td>
+</tr>
+<tr class="even">
+<td>DNS</td>
+<td>把域名翻译成 IP 的系统</td>
+<td><code>google.com</code> 先变成 IP 才能访问</td>
+</tr>
+<tr class="odd">
+<td>Tailscale</td>
+<td>基于 WireGuard 的组网工具</td>
+<td>给系统加了一张虚拟网卡和一套路由</td>
+</tr>
+</tbody>
+</table>
+<p>最近我把工作机从自己的笔记本换到实验室主机，过程中碰到了一些网络问题。我顺着以太网故障，把
+Windows 网络栈、多网卡、路由、DNS 和 Tailscale 重新梳理了一遍。</p>
+<h3 id="从一个真实问题开始">🌍 从一个真实问题开始</h3>
+<p>我机器上的网络状态大致是这样的：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Wi-Fi:       192.168.5.40   ✅ 正常上网</span><br><span class="line">Ethernet:    169.254.x.x    ❌ 不能上网</span><br><span class="line">Tailscale:   100.72.x.x     ✅ VPN 网络</span><br><span class="line">WSL:         172.27.x.x     🧪 虚拟环境</span><br></pre></td></tr></table></figure>
+<p>当时我主要在看两个问题：</p>
+<blockquote>
+<p>以太网不能上网？ 电脑有多个网卡，系统怎么决定流量该走哪一条？</p>
+</blockquote>
+<h3 id="网络最小模型">🧠 网络最小模型</h3>
+<p>排障时抓三个问题：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 我是谁       → 本机 IP 地址</span><br><span class="line">2. 我要去哪     → 目标 IP 或域名</span><br><span class="line">3. 我怎么去     → 路由表决定出口</span><br></pre></td></tr></table></figure>
+<p>很多网络问题，最后都能收敛到这三件事上。</p>
+<h3 id="windows-网络栈到底在做什么">🧱 Windows 网络栈到底在做什么</h3>
+<p>在 Windows 里，一个请求从应用发出去，大致会经过下面这条链路：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────┐</span><br><span class="line">│   应用程序    │  浏览器 / curl / App</span><br><span class="line">└──────┬───────┘</span><br><span class="line">       │ Winsock</span><br><span class="line">┌──────▼───────┐</span><br><span class="line">│   TCP / UDP  │</span><br><span class="line">└──────┬───────┘</span><br><span class="line">       │</span><br><span class="line">┌──────▼───────┐</span><br><span class="line">│      IP      │</span><br><span class="line">└──────┬───────┘</span><br><span class="line">       │</span><br><span class="line">┌──────▼───────┐</span><br><span class="line">│ NDIS/网卡驱动 │</span><br><span class="line">└──────┬───────┘</span><br><span class="line">       │</span><br><span class="line">┌──────▼───────┐</span><br><span class="line">│     网卡      │</span><br><span class="line">└──────────────┘</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>NDIS</code> 可以先理解成 Windows
+网络栈和网卡驱动之间的标准接口层。</p>
+<h3 id="网卡是什么为什么会有这么多">🔌 网卡是什么，为什么会有这么多</h3>
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 18%" />
+<col style="width: 27%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>网卡</th>
+<th>IP</th>
+<th>类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Wi-Fi</td>
+<td>192.168.5.40</td>
+<td>物理网卡</td>
+<td>正常连接家庭或办公网络</td>
+</tr>
+<tr class="even">
+<td>Ethernet</td>
+<td>169.254.x.x</td>
+<td>物理网卡</td>
+<td>当前异常，没正常拿到配置</td>
+</tr>
+<tr class="odd">
+<td>Tailscale</td>
+<td>100.72.x.x</td>
+<td>虚拟网卡</td>
+<td>VPN / Overlay 网络</td>
+</tr>
+<tr class="even">
+<td>WSL</td>
+<td>172.27.x.x</td>
+<td>虚拟网卡</td>
+<td>Windows 宿主机与 Linux 子系统之间的虚拟网络接口</td>
+</tr>
+</tbody>
+</table>
+<p>这里有一点需要先明确：</p>
+<blockquote>
+<p>在操作系统眼里，这些网卡是平等的。</p>
+</blockquote>
+<p>系统不会因为名字叫 <code>Wi-Fi</code>
+就天然优先使用它。真正决定流量出口的是路由表。</p>
+<p>不过，“平等”只表示它们都会作为一个网络接口出现在系统里，不表示它们承担的是同一种工作。可以先把它们分成两类：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">物理网卡：真的连着硬件，负责把数据送到现实世界的网络里</span><br><span class="line">虚拟网卡：由系统、虚拟化或 VPN 软件创建，负责接管或转发特定流量</span><br></pre></td></tr></table></figure>
+<h4 id="wi-fi最常见的物理网卡">Wi-Fi：最常见的物理网卡</h4>
+<p><code>Wi-Fi</code>
+对应的是无线网卡，直接连接家里或办公室的无线路由器。它的特点是：</p>
+<ul>
+<li>它真的连着一块硬件，出口是现实里的无线局域网。</li>
+<li>它通常会从路由器的 DHCP 拿到 <code>IP</code>、默认网关和
+<code>DNS</code>。</li>
+<li>如果路由表里的默认路由指向它，大多数普通互联网流量都会从这里出去。</li>
+</ul>
+<p>你现在看到的 <code>192.168.5.40</code>
+就是一个很典型的家庭或办公网私网地址，说明这张卡已经正常接入了局域网。</p>
+<h4
+id="ethernet也是物理网卡只是这次状态异常">Ethernet：也是物理网卡，只是这次状态异常</h4>
+<p><code>Ethernet</code> 对应有线网卡，和 <code>Wi-Fi</code>
+一样，也是系统眼里的“真实出口”。区别只在于它走的是网线，不走无线电。</p>
+<p>正常情况下，它也应该像 <code>Wi-Fi</code>
+一样拿到一套完整配置，比如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IP 地址</span><br><span class="line">子网掩码</span><br><span class="line">默认网关</span><br><span class="line">DNS 服务器</span><br></pre></td></tr></table></figure>
+<p>但你这里拿到的是
+<code>169.254.x.x</code>，这不是正常的局域网分配地址，而是 DHCP
+失败后系统自己兜底生成的 APIPA 地址。它说明的是：</p>
+<ul>
+<li>网卡硬件未必坏了，链路可能已经插上。</li>
+<li>但它没有成功从上游网络拿到正式配置。</li>
+<li>没有默认网关和 DNS 时，它通常就不能作为正常的互联网出口。</li>
+</ul>
+<p>所以 <code>Ethernet</code> 和 <code>Wi-Fi</code>
+的本质区别不是“一个高级一个低级”，而是这次一个配置成功，一个配置失败。</p>
+<h4 id="tailscalevpn-软件插进系统的一张虚拟网卡">Tailscale：VPN
+软件插进系统的一张虚拟网卡</h4>
+<p><code>Tailscale</code> 不对应你机器里额外插了一块实体网卡，而是
+Tailscale
+安装后在系统里创建出来的一张虚拟网卡。它的作用不是直接连家里路由器，而是承接
+Tailscale 网络里的流量。</p>
+<p>它和物理网卡最大的区别在于：</p>
+<ul>
+<li>物理网卡负责把包送到真实二层网络，比如 Wi-Fi 或交换机。</li>
+<li>Tailscale 虚拟网卡负责把“该进 VPN 的包”先接住。</li>
+<li>后续这些包会被 Tailscale
+进程加密、封装，再借助底下真正能联网的物理网卡发出去。</li>
+</ul>
+<p>所以从系统视角看，<code>100.72.x.x</code>
+是一张“可用接口”；但从实现视角看，它自己并不是最终出公网的那条物理链路，而是一个
+Overlay 网络入口。</p>
+<h4 id="wsl宿主机和-linux-子系统之间的虚拟网络接口">WSL：宿主机和 Linux
+子系统之间的虚拟网络接口</h4>
+<p><code>WSL</code> 这类 <code>172.27.x.x</code> 地址，通常来自 Windows
+为 Linux 子系统准备的虚拟网络。你可以把它理解成宿主机和 WSL
+环境之间的连接点。</p>
+<p>这类接口的特点是：</p>
+<ul>
+<li>它首先服务于 Windows 宿主机和 WSL
+之间通信，不是直接面向你家路由器。</li>
+<li>它往往由 Windows 的虚拟交换、NAT 或 Hyper-V 风格机制管理。</li>
+<li>你在 WSL 里访问外网时，流量通常还会再经过 Windows
+宿主机转发，而不是直接从这张虚拟卡“裸奔”出去。</li>
+</ul>
+<p>所以 <code>WSL</code> 网卡更像是“宿主机和子系统之间的桥梁 +
+出网前的中转接口”，而不是一张独立的外部联网设备。</p>
+<h3 id="路由表才是真正的导航系统">🚦 路由表才是真正的导航系统</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">route <span class="built_in">print</span></span><br></pre></td></tr></table></figure>
+<p>通常能看到类似这样的条目：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Network Destination        Gateway        Interface</span><br><span class="line">0.0.0.0/0                192.168.5.1     Wi-Fi</span><br><span class="line">100.x.x.x                On-link         Tailscale</span><br></pre></td></tr></table></figure>
+<p>路由表的决策逻辑可以压成两条：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. 最长前缀匹配</span><br><span class="line">2. metric 更小者优先</span><br></pre></td></tr></table></figure>
+<h4 id="最长前缀匹配是什么意思">最长前缀匹配是什么意思</h4>
+<p>假设我访问：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">google.com → 142.x.x.x</span><br></pre></td></tr></table></figure>
+<p>路由表里没有针对 <code>142.x.x.x</code>
+的更具体路由，于是系统会落到默认路由：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.0.0.0/0 → Wi-Fi</span><br></pre></td></tr></table></figure>
+<p>所以这类普通互联网流量会走 Wi-Fi。</p>
+<p>但如果我访问的是 Tailscale 网络里的设备，比如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">100.99.x.x</span><br></pre></td></tr></table></figure>
+<p>系统会发现有更具体的路由：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">100.x.x.x → Tailscale</span><br></pre></td></tr></table></figure>
+<p>于是它会优先走 Tailscale 虚拟网卡，而不是继续走默认的 Wi-Fi
+出口。</p>
+<h3 id="默认网关到底是什么">🚪 默认网关到底是什么</h3>
+<p>在 <code>ipconfig</code> 里经常会看到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Default Gateway: 192.168.5.1</span><br></pre></td></tr></table></figure>
+<p>我对网关的理解是：</p>
+<blockquote>
+<p>当目标地址不在本地局域网里时，帮我把流量转发出去的下一跳。</p>
+</blockquote>
+<p>比如我自己的 IP 是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.5.40</span><br></pre></td></tr></table></figure>
+<p>我要访问 Google：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">142.x.x.x</span><br></pre></td></tr></table></figure>
+<p>这两个地址显然不在同一个局域网里。我不可能直接把数据包发给
+Google，所以只能先把它交给网关：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我 → 默认网关 → Internet</span><br></pre></td></tr></table></figure>
+<h3 id="dhcpip网关dns-是怎么来的">📡 DHCP：IP、网关、DNS 是怎么来的</h3>
+<p>大多数时候，这些网络参数不是我手动填写的，而是 DHCP 自动分配的。</p>
+<p>标准流程大致是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[客户端] → Discover</span><br><span class="line">[DHCP服务器] → Offer</span><br><span class="line">[客户端] → Request</span><br><span class="line">[DHCP服务器] → ACK</span><br></pre></td></tr></table></figure>
+<p>DHCP 通常会一次性下发四样关键配置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">IP 地址</span><br><span class="line">子网掩码</span><br><span class="line">默认网关</span><br><span class="line">DNS 服务器</span><br></pre></td></tr></table></figure>
+<p>所以一台电脑能不能正常上网，往往不只是看有没有
+IP，而是看这整套配置有没有完整拿到。</p>
+<h3 id="为什么-169.254.x.x-基本等于上不了网">🚨 为什么 169.254.x.x
+基本等于上不了网</h3>
+<p>这次最明显的异常是以太网拿到了这样一个地址：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">169.254.255.214</span><br></pre></td></tr></table></figure>
+<p>这类地址叫 APIPA，也就是 Automatic Private IP Addressing，通常意味着
+DHCP 失败了，系统没拿到正式配置，只能先给自己生成一个临时地址。</p>
+<p>结果就是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">❌ 没正确拿到网关</span><br><span class="line">❌ 没正确拿到 DNS</span><br><span class="line">❌ 只能在非常有限的链路本地场景里通信</span><br><span class="line">❌ 基本无法正常访问互联网</span><br></pre></td></tr></table></figure>
+<p>所以 <code>169.254.x.x</code>
+不是“网络还行，只是地址有点怪”，而是比较明确的故障信号，不是一套真正可用的正式网络配置。</p>
+<h3 id="dns域名不是网络的起点只是翻译过程">🌐
+DNS：域名不是网络的起点，只是翻译过程</h3>
+<p>访问域名时，中间还有一步翻译。</p>
+<p>系统先要查 DNS：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">google.com → DNS 解析 → 142.x.x.x</span><br></pre></td></tr></table></figure>
+<p>拿到 IP 之后，才会进入真正的路由和传输过程。</p>
+<p>所以 DNS 本身也是一次网络请求。如果 DNS
+出了问题，通常会出现这样的现象：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ping 8.8.8.8 能通</span><br><span class="line">ping google.com 不通</span><br></pre></td></tr></table></figure>
+<p>这说明链路本身还在，但“名字翻译”这一步挂了。</p>
+<h3 id="tailscale-到底是怎么插进系统网络的">🧩 Tailscale
+到底是怎么插进系统网络的</h3>
+<p>Tailscale 看起来像“多出来一张网卡”，本质上是因为它做了三件事：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 创建虚拟网卡</span><br><span class="line">2. 写入针对 tailnet 的路由</span><br><span class="line">3. 在需要时接管 DNS</span><br></pre></td></tr></table></figure>
+<p>可以画成这样：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">                 普通互联网流量</span><br><span class="line">应用程序 ───────────────→ Wi-Fi → 路由器 → Internet</span><br><span class="line">    │</span><br><span class="line">    │ 访问 100.x.x.x / tailnet 设备</span><br><span class="line">    └──────────────→ Tailscale 虚拟网卡 → 加密隧道 → 对端设备</span><br></pre></td></tr></table></figure>
+<p>如果是 Split Tunnel 模式，那么数据路径可以压成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">普通流量      → 仍然走 Wi-Fi</span><br><span class="line">Tailscale流量 → 只走 Tailscale</span><br></pre></td></tr></table></figure>
+<p>我这台机器当前更接近这种工作方式。</p>
+<p>如果开启了 Tailscale 的 DNS 管理，那么 DNS 请求也可能改成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DNS 查询 → Tailscale → 上游解析器</span><br></pre></td></tr></table></figure>
+<p>如果没有接管，DNS
+仍然会走本地网络里的原始解析器，通常就是路由器或手动配置的 DNS。</p>
+<p>MagicDNS 则是在这个基础上提供一个更好记的名字，例如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">device.tailnet.ts.net</span><br></pre></td></tr></table></figure>
+<p>这样我就不用硬记 <code>100.x.x.x</code> 这种地址。</p>
+<h3 id="回到我的真实案例">🔍 回到我的真实案例</h3>
+<p>现在再把前面的概念带回我的机器，结论就比较清楚了。</p>
+<h4 id="wi-fi正常">Wi-Fi：正常</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IP:       192.168.5.40</span><br><span class="line">Gateway:  192.168.5.1</span><br></pre></td></tr></table></figure>
+<p>这说明它成功拿到了完整的 DHCP 配置，所以能正常上网。</p>
+<h4 id="ethernet异常">Ethernet：异常</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IP:       169.254.x.x</span><br><span class="line">Gateway:  无</span><br></pre></td></tr></table></figure>
+<p>这个状态基本可以直接下结论：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DHCP 失败 → 没拿到正式网络配置 → 无法正常上网</span><br></pre></td></tr></table></figure>
+<p>问题大概率不在浏览器，也不在整个系统协议栈，而在以太网这条链路本身。</p>
+<h4 id="tailscale正常">Tailscale：正常</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IP:   100.72.x.x</span><br><span class="line">路由：100.x.x.x → Tailscale</span><br></pre></td></tr></table></figure>
+<p>这说明 Tailscale
+的虚拟网卡和相关路由是正常的。它不是导致以太网故障的直接原因，而是系统中的另一条独立网络路径。</p>
+<h3 id="如果以太网拿到-169.254.x.x应该怎么排查">🧪 如果以太网拿到
+169.254.x.x，应该怎么排查</h3>
+<p>如果只看现象，我现在最合理的判断是：</p>
+<blockquote>
+<p>不是“浏览器坏了”，而是以太网接口没能完成从 DHCP
+获取正式网络配置的流程。</p>
+</blockquote>
+<p>这个流程压缩一下就是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">网卡链路建立</span><br><span class="line">   ↓</span><br><span class="line">客户端发 DHCP Discover</span><br><span class="line">   ↓</span><br><span class="line">DHCP 服务器回 Offer</span><br><span class="line">   ↓</span><br><span class="line">客户端发 Request</span><br><span class="line">   ↓</span><br><span class="line">DHCP 服务器回 ACK</span><br><span class="line">   ↓</span><br><span class="line">拿到 IP / 网关 / DNS</span><br></pre></td></tr></table></figure>
+<p>而 <code>169.254.x.x</code>
+往往意味着这条链路中间断掉了，系统只能退回 APIPA 自分配地址。</p>
+<h4 id="先用一个最小判断树切责任域">先用一个最小判断树切责任域</h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">以太网 = 169.254.x.x</span><br><span class="line">        ↓</span><br><span class="line">DHCP 没成功</span><br><span class="line">        ↓</span><br><span class="line">┌───────────────────────────────┐</span><br><span class="line">│ 1. 物理链路没通？              │</span><br><span class="line">│ 2. Discover 没到 DHCP 服务器？ │</span><br><span class="line">│ 3. DHCP 回包没回来？           │</span><br><span class="line">│ 4. 本机没正确接收或应用配置？   │</span><br><span class="line">└───────────────────────────────┘</span><br></pre></td></tr></table></figure>
+<p>这四类问题基本就覆盖了大多数排障场景。</p>
+<h4
+id="第一层先看是不是链路本身有问题">第一层：先看是不是链路本身有问题</h4>
+<p>先确认最底层是不是通的：</p>
+<ul>
+<li>网口灯是否正常亮起或闪烁</li>
+<li>换一根网线</li>
+<li>换一个交换机端口</li>
+<li>如果用了扩展坞、USB 网卡或转接器，先怀疑它</li>
+</ul>
+<p>如果连链路协商都没成功，那么 DHCP
+广播根本发不出去，后面所有排查都没有意义。</p>
+<h4
+id="第二层确认是不是只有这台机器有问题">第二层：确认是不是只有这台机器有问题</h4>
+<p>最快的做法不是先深挖协议，而是做交叉测试：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">同一根网线 + 别的机器</span><br><span class="line">同一台机器 + 别的网线 / 别的端口</span><br></pre></td></tr></table></figure>
+<p>结果通常能直接把责任域切开：</p>
+<ul>
+<li>别的机器也拿不到地址：更像网络侧问题</li>
+<li>只有这台机器拿不到地址：更像本机网卡、驱动或系统问题</li>
+</ul>
+<p>这一步的价值很高，因为它能避免我一开始就在错误方向上死磕。</p>
+<h4
+id="第三层看本机有没有正常发起重新获取配置">第三层：看本机有没有正常发起重新获取配置</h4>
+<p>在 Windows 上，我通常会先看：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ipconfig /all</span><br><span class="line">ipconfig /release</span><br><span class="line">ipconfig /renew</span><br></pre></td></tr></table></figure>
+<p>关注几个信号：</p>
+<ul>
+<li>以太网是否显示 <code>Media disconnected</code></li>
+<li>有没有默认网关</li>
+<li><code>renew</code> 时是否直接报错</li>
+</ul>
+<p>如果 <code>renew</code> 就失败，说明问题通常还在 DHCP
+获取链路前半段，而不是浏览器、DNS 这些更上层的组件。</p>
+<h4 id="第四层确认-dhcp-client-和网卡驱动状态">第四层：确认 DHCP Client
+和网卡驱动状态</h4>
+<p>再往上，就要排除是不是本机服务或驱动异常：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Get-Service</span> Dhcp</span><br><span class="line"><span class="built_in">Get-NetAdapter</span></span><br></pre></td></tr></table></figure>
+<p>这里主要看：</p>
+<ul>
+<li><code>Dhcp</code> 服务是否处于 <code>Running</code></li>
+<li>网卡是否被禁用</li>
+<li>网卡是否显示异常状态或速率异常</li>
+</ul>
+<p>如果设备管理器里网卡有黄色感叹号，或者禁用再启用后状态明显变化，就要优先怀疑驱动、转接器或者网卡本身。</p>
+<h4
+id="第五层怀疑接入网络策略而不只是怀疑-dhcp-服务器">第五层：怀疑接入网络策略，而不只是怀疑
+DHCP 服务器</h4>
+<p>很多时候问题不在“DHCP
+服务器挂了”，而在于包根本没走到它那里。比如：</p>
+<ul>
+<li>交换机端口 VLAN 配置不对</li>
+<li>端口认证没有通过</li>
+<li>实验室或办公网络限制了未知设备接入</li>
+<li>中间网络设备把广播或回包拦住了</li>
+</ul>
+<p>所以更准确的说法不是“我连不上 DHCP 服务器”，而是：</p>
+<blockquote>
+<p>我的以太网接口没有成功完成 DHCP 配置获取这条链路。</p>
+</blockquote>
+<p>这句话更稳，因为它覆盖了链路、交换网络、DHCP
+服务、本机驱动和系统服务几类可能性。</p>
+<h4 id="如果让我按最短路径排">如果让我按最短路径排</h4>
+<p>我会优先按下面这个顺序来：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 看网口灯 / 换网线 / 换端口</span><br><span class="line">2. 同网线换别的机器</span><br><span class="line">3. 本机执行 ipconfig /renew</span><br><span class="line">4. 检查 Dhcp 服务和网卡状态</span><br><span class="line">5. 再怀疑 VLAN、端口认证或交换机侧策略</span><br></pre></td></tr></table></figure>
+<p>这样做的原因很简单：越靠前的步骤成本越低，而且最能快速切分“问题在机器上，还是在网络环境里”。</p>
+<h3 id="总结">✅ 总结</h3>
+<p>把整件事压到最核心，就是：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">       ┌──────────┐</span><br><span class="line">       │   应用    │</span><br><span class="line">       └────┬─────┘</span><br><span class="line">            │</span><br><span class="line">       ┌────▼─────┐</span><br><span class="line">       │  路由表   │  ← 决定流量走哪</span><br><span class="line">       └────┬─────┘</span><br><span class="line">  ┌─────────┼─────────┐</span><br><span class="line">  │         │         │</span><br><span class="line">Wi-Fi   Ethernet   Tailscale</span><br></pre></td></tr></table></figure>
+<p>网络不是“连上 Wi-Fi 就结束了”。</p>
+<p>真正决定数据能不能走通的，是下面这些因素共同作用的结果：</p>
+<ul>
+<li>网卡是否正常工作</li>
+<li>DHCP 是否成功发放参数</li>
+<li>默认网关是否存在</li>
+<li>路由表是否把流量送对地方</li>
+<li>DNS 是否能把域名翻成 IP</li>
+<li>VPN 是否插入了额外路由和解析逻辑</li>
+</ul>
+<p>最后可以把它总结成一句话：</p>
+<blockquote>
+<p>网络不是“连上就完事”，而是网卡、路由、DNS
+和协议栈共同构成的数据流系统。</p>
+</blockquote>
+<h3 id="后续还能继续挖什么">🚀 后续还能继续挖什么</h3>
+<p>如果我想把这篇继续扩成系列，后面可以接这些主题：</p>
+<ul>
+<li>ARP：电脑怎么找到默认网关的 MAC 地址</li>
+<li>DNS 递归解析：域名到底怎么一步步查出来</li>
+<li>WireGuard / Tailscale 原理：隧道和密钥是怎么工作的</li>
+<li>Windows WFP：安全软件和 VPN 如何拦截流量</li>
+<li>多网卡策略路由：为什么有时“连着两个网却更容易出问题”</li>
+</ul>
+<p>如果我想要的不只是“会用网络”，而是“看懂系统为什么会这样决策”，那么这条理解路径是有用的。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"># 网络</a>
+              <a href="/tags/%E8%B7%AF%E7%94%B1/" rel="tag"># 路由</a>
+              <a href="/tags/DNS/" rel="tag"># DNS</a>
+              <a href="/tags/Tailscale/" rel="tag"># Tailscale</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/48c29df2/" rel="prev" title="SSH RemoteForward 踩坑：为什么 VS Code 自动转发会把本地代理绕死">
+                  <i class="fa fa-angle-left"></i> SSH RemoteForward 踩坑：为什么 VS Code 自动转发会把本地代理绕死
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/18f02423/" rel="next" title="CUDA 异步报错：为什么调用栈总是不在真正出错处">
+                  CUDA 异步报错：为什么调用栈总是不在真正出错处 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">261k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:54</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

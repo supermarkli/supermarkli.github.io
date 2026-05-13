@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="想把 CUDA 程序里的“越界读写、未初始化、数据竞争、Barrier 不匹配”这类顽固 Bug 一网打尽？Compute Sanitizer（前身 cuda-memcheck）就是你的第一生产力工具。本文以“能上手能排错”为目标，按难度循序渐进，从最小示例、常见报错，到命令参数与协同工具给出一份“即插即用”的参考。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Compute Sanitizer 实用指南：从 0 到熟练">
+<meta property="og:url" content="https://supermarkli.github.io/posts/a1b2c3d4/index.html">
+<meta property="og:site_name" content="吃糠咽菜">
+<meta property="og:description" content="想把 CUDA 程序里的“越界读写、未初始化、数据竞争、Barrier 不匹配”这类顽固 Bug 一网打尽？Compute Sanitizer（前身 cuda-memcheck）就是你的第一生产力工具。本文以“能上手能排错”为目标，按难度循序渐进，从最小示例、常见报错，到命令参数与协同工具给出一份“即插即用”的参考。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-08-14T08:23:58.000Z">
+<meta property="article:modified_time" content="2026-05-13T01:25:14.210Z">
+<meta property="article:author" content="吃糠咽菜">
+<meta property="article:tag" content="CUDA">
+<meta property="article:tag" content="GPU">
+<meta property="article:tag" content="调试">
+<meta property="article:tag" content="工具">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/a1b2c3d4/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/a1b2c3d4/","path":"posts/a1b2c3d4/","title":"Compute Sanitizer 实用指南：从 0 到熟练"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Compute Sanitizer 实用指南：从 0 到熟练 | 吃糠咽菜</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="吃糠咽菜" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">吃糠咽菜</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E5%9C%B0%E5%9B%BE%E7%94%B1%E6%B5%85%E5%85%A5%E6%B7%B1%E5%8F%AF%E8%BE%B9%E5%AD%A6%E8%BE%B9%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">学习地图（由浅入深，可边学边用）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cuda-%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%E6%9C%80%E5%B0%8F%E5%8F%AF%E8%BF%90%E8%A1%8C%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">CUDA
+基础语法（最小可运行示例）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%B1%82%E7%BA%A7%E4%B8%8E%E5%90%8C%E6%AD%A5%E5%8E%9F%E8%AF%AD"><span class="nav-number">3.</span> <span class="nav-text">线程层级与同步原语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gpu-%E5%86%85%E5%AD%98%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84"><span class="nav-number">4.</span> <span class="nav-text">GPU 内存层次结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81-gpu-bug-%E7%B1%BB%E5%9E%8Bsanitizer-%E9%87%8D%E7%82%B9%E8%A6%86%E7%9B%96"><span class="nav-number">5.</span> <span class="nav-text">常见 GPU Bug
+类型（Sanitizer 重点覆盖）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B6%8A%E7%95%8C%E8%AF%BB%E5%86%99out-of-bounds"><span class="nav-number">5.1.</span> <span class="nav-text">4.1 越界读写（Out-of-Bounds）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96%E8%AF%BBuninitialized-read"><span class="nav-number">5.2.</span> <span class="nav-text">4.2 未初始化读（Uninitialized
+Read）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%AB%9E%E4%BA%89data-race"><span class="nav-number">5.3.</span> <span class="nav-text">4.3 数据竞争（Data Race）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#barrier-%E4%B8%8D%E5%8C%B9%E9%85%8Dbarrier-divergence"><span class="nav-number">5.4.</span> <span class="nav-text">4.4 Barrier 不匹配（Barrier
+Divergence）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nvcc-%E7%BC%96%E8%AF%91%E9%80%89%E9%A1%B9%E7%BB%99%E6%8A%A5%E5%91%8A%E5%96%82%E8%B6%B3%E4%BF%A1%E6%81%AF"><span class="nav-number">6.</span> <span class="nav-text">nvcc
+编译选项：给报告”喂”足信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#compute-sanitizer%E5%91%BD%E4%BB%A4%E8%A1%8C%E9%80%9F%E6%9F%A5"><span class="nav-number">7.</span> <span class="nav-text">Compute Sanitizer：命令行速查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%A5%E5%91%8A%E9%98%85%E8%AF%BB%E4%B8%8E%E5%AE%9A%E4%BD%8D%E6%8A%80%E5%B7%A7"><span class="nav-number">8.</span> <span class="nav-text">报告阅读与定位技巧</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E5%BC%80%E9%94%80%E4%B8%8E%E8%B0%83%E4%BC%98"><span class="nav-number">9.</span> <span class="nav-text">性能开销与调优</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E5%85%B6%E4%BB%96%E8%B0%83%E8%AF%95-%E6%80%A7%E8%83%BD%E5%B7%A5%E5%85%B7%E5%8D%8F%E5%90%8C"><span class="nav-number">10.</span> <span class="nav-text">与其他调试 &amp; 性能工具协同</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%B1%E5%8A%A8-cuda-%E7%89%88%E6%9C%AC%E5%85%BC%E5%AE%B9"><span class="nav-number">11.</span> <span class="nav-text">🔟 驱动 &#x2F; CUDA 版本兼容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%88%98%E6%B8%85%E5%8D%95%E6%8B%BF%E6%9D%A5%E5%B0%B1%E7%94%A8"><span class="nav-number">12.</span> <span class="nav-text">✅ 实战清单（拿来就用）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">13.</span> <span class="nav-text">📝 小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="吃糠咽菜"
+      src="/images/cat2.png">
+  <p class="site-author-name" itemprop="name">吃糠咽菜</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">52</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">131</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/a1b2c3d4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cat2.png">
+      <meta itemprop="name" content="吃糠咽菜">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="吃糠咽菜">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Compute Sanitizer 实用指南：从 0 到熟练 | 吃糠咽菜">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Compute Sanitizer 实用指南：从 0 到熟练
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-08-14 16:23:58" itemprop="dateCreated datePublished" datetime="2025-08-14T16:23:58+08:00">2025-08-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-05-13 09:25:14" itemprop="dateModified" datetime="2026-05-13T09:25:14+08:00">2026-05-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CUDA/" itemprop="url" rel="index"><span itemprop="name">CUDA</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/CUDA/%E8%B0%83%E8%AF%95%E4%B8%8E%E6%80%A7%E8%83%BD/" itemprop="url" rel="index"><span itemprop="name">调试与性能</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>7.4k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>13 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>想把 CUDA 程序里的“越界读写、未初始化、数据竞争、Barrier
+不匹配”这类顽固 Bug 一网打尽？Compute Sanitizer（前身
+<code>cuda-memcheck</code>）就是你的第一生产力工具。本文以“能上手能排错”为目标，按难度循序渐进，从最小示例、常见报错，到命令参数与协同工具给出一份“即插即用”的参考。</p>
+<span id="more"></span>
+<h2
+id="学习地图由浅入深可边学边用">学习地图（由浅入深，可边学边用）</h2>
+<ul>
+<li><strong>CUDA 基础语法</strong>：能写/编译最简单的
+<code>kernel</code>，理解
+<code>&lt;&lt;&lt;grid, block&gt;&gt;&gt;</code>、<code>__global__</code>/<code>__device__</code>。</li>
+<li><strong>GPU 线程层级与同步</strong>：Warp / Block /
+Grid，<code>__syncthreads()</code>、<code>atomic*</code>、<code>cudaDeviceSynchronize()</code>
+的作用与限制。</li>
+<li><strong>GPU 内存层次</strong>：Global / Shared / Local / Constant /
+Texture 的用途、可见性、对齐与带宽差异。</li>
+<li><strong>常见 GPU Bug
+类型</strong>：越界、未初始化、数据竞争、Barrier 不匹配等（Sanitizer
+就是为它们报警）。</li>
+<li><strong><code>nvcc</code>
+编译选项</strong>：<code>-G</code>、<code>-g</code>、<code>-lineinfo</code>、<code>-rdc=true</code>
+等，为报告提供更友好的源码回溯。</li>
+<li><strong>Compute Sanitizer
+命令行</strong>：<code>--tool</code>、<code>--print-limit</code>、<code>--kernel-regex</code>、<code>--log-file</code>、<code>--launch-count</code>
+等高频旗标。</li>
+<li><strong>报告阅读与定位</strong>：看懂
+<code>Invalid __global__ read of size 4 at myKernel+0x280</code>
+并回溯到源码行与线程坐标。</li>
+<li><strong>性能开销与调优</strong>：理解检查为什么会变慢，以及用小数据集、<code>--launch-count</code>
+等手段控时。</li>
+<li><strong>与其他工具协同</strong>：<code>nsys</code> 找热点 →
+Sanitizer 精查；结合 <code>cuda-gdb</code> / Nsight
+工具链提升效率。</li>
+<li><strong>驱动/CUDA 版本兼容</strong>：避免”工具新版 +
+驱动旧版”导致的报错或缺失功能。</li>
+</ul>
+<h2 id="cuda-基础语法最小可运行示例">CUDA
+基础语法（最小可运行示例）</h2>
+<p>下面是一个最小示例：把数组里的每个元素都加 1。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// file: add_one.cu</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;cstdio&gt;</span></span></span><br><span class="line"></span><br><span class="line">__global__ <span class="type">void</span> <span class="title function_">add_one</span><span class="params">(<span class="type">int</span>* data, <span class="type">int</span> n)</span> &#123;</span><br><span class="line">    <span class="type">int</span> tid = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (tid &lt; n) data[tid] += <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">const</span> <span class="type">int</span> n = <span class="number">16</span>;</span><br><span class="line">    <span class="type">int</span> h[n] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="type">int</span> *d = nullptr;</span><br><span class="line">    cudaMalloc(&amp;d, n * <span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    cudaMemcpy(d, h, n * <span class="keyword">sizeof</span>(<span class="type">int</span>), cudaMemcpyHostToDevice);</span><br><span class="line"></span><br><span class="line">    dim3 <span class="title function_">block</span><span class="params">(<span class="number">8</span>)</span>, <span class="title function_">grid</span><span class="params">((n + block.x - <span class="number">1</span>) / block.x)</span>;</span><br><span class="line">    add_one&lt;&lt;&lt;grid, block&gt;&gt;&gt;(d, n);</span><br><span class="line">    cudaDeviceSynchronize();</span><br><span class="line"></span><br><span class="line">    cudaMemcpy(h, d, n * <span class="keyword">sizeof</span>(<span class="type">int</span>), cudaMemcpyDeviceToHost);</span><br><span class="line">    cudaFree(d);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; ++i) <span class="built_in">printf</span>(<span class="string">&quot;%d &quot;</span>, h[i]);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译（带调试信息与行号，便于报告映射回源码）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nvcc -g -G -lineinfo add_one.cu -o add_one</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>&lt;&lt;&lt;grid, block&gt;&gt;&gt;</code></strong>：设定网格与线程块维度；<code>threadIdx</code>/<code>blockIdx</code>
+提供线程坐标。</li>
+<li><strong><code>__global__</code></strong>：从主机端调用、在设备端执行的函数（即
+kernel）。</li>
+<li><strong><code>__device__</code></strong>：仅在设备端调用/执行的函数。</li>
+</ul>
+<h2 id="线程层级与同步原语">线程层级与同步原语</h2>
+<ul>
+<li><strong>执行模型</strong>：
+<ul>
+<li><strong>Warp</strong>：通常 32 线程的执行束，同步粒度最细。</li>
+<li><strong>Block</strong>：多个 warp 组成；可用
+<code>__syncthreads()</code> 在同一 Block 内屏障同步。</li>
+<li><strong>Grid</strong>：由多个 Block 组成；不同 Block 之间不可用
+<code>__syncthreads()</code> 同步。</li>
+</ul></li>
+<li><strong>同步与原子</strong>：
+<ul>
+<li><code>__syncthreads()</code>：只作用于 Block
+内；如果有条件分支导致并非所有线程执行，可能引发 Barrier 不匹配。</li>
+<li><code>atomicAdd/atomicExch/...</code>：在共享全局状态时消除数据竞争，但会降低并发度。</li>
+<li><code>cudaDeviceSynchronize()</code>：在主机端等待所有之前发起的
+kernel 完成，常用于调试阶段确保报错及时显现。</li>
+</ul></li>
+</ul>
+<h2 id="gpu-内存层次结构">GPU 内存层次结构</h2>
+<ul>
+<li><strong>Global
+Memory</strong>：容量大、延迟高、全设备可见；注意对齐与合并访问（coalescing）。</li>
+<li><strong>Shared Memory</strong>：Block 内共享、低延迟、高带宽；需留意
+Bank 冲突与对齐。</li>
+<li><strong>Local
+Memory</strong>：线程私有，寄存器溢出或大对象会落在这里，实质上也是从全局内存取，延迟高。</li>
+<li><strong>Constant/Texture</strong>：只读、缓存友好（广播/2D
+局部性场景）。</li>
+</ul>
+<p>理解这些有助于你判断”这个地址是否可见/越界”，从而更快看懂 Sanitizer
+的报错。</p>
+<h2 id="常见-gpu-bug-类型sanitizer-重点覆盖">常见 GPU Bug
+类型（Sanitizer 重点覆盖）</h2>
+<ul>
+<li><strong>越界读写</strong>：访问数组下标 &lt;0 或 ≥N。</li>
+<li><strong>未初始化读</strong>：读到了未写入的内存内容。</li>
+<li><strong>数据竞争 (race)</strong>：多个线程无序写同一地址。</li>
+<li><strong>Barrier 不匹配</strong>：同一 Block 内，有些线程执行了
+<code>__syncthreads()</code>，有些没执行。</li>
+</ul>
+<p>下面分别给出“可运行的最小示例 → 如何触发 → 典型报文（示意） →
+修复方式”。</p>
+<h3 id="越界读写out-of-bounds">4.1 越界读写（Out-of-Bounds）</h3>
+<p>最常见，也最好修。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// oob.cu</span><br><span class="line">__global__ void oob(int* a, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    // 故意漏掉边界判断</span><br><span class="line">    a[i] = 42;  // 当 i &gt;= n 时越界写</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译与运行（调试构建）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvcc -g -G -lineinfo oob.cu -o oob</span><br><span class="line">compute-sanitizer --tool memcheck ./oob | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>典型报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">========= Invalid __global__ write of size 4</span><br><span class="line">=========     at oob(int*, int):oob.cu:5: oob+0x30</span><br><span class="line">=========     by thread (15,0,0) in block (1,0,0)</span><br><span class="line">=========     Address 0x7f2c38010040 is out of bounds</span><br></pre></td></tr></table></figure>
+<p>如何修：补边界条件；或在 launch 侧收紧
+<code>grid</code>/<code>block</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">__global__ void oob_fix(int* a, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; n) a[i] = 42;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="未初始化读uninitialized-read">4.2 未初始化读（Uninitialized
+Read）</h3>
+<p>读到了从未写入的值，往往来源于遗漏初始化或越界导致的脏数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// uninit.cu</span><br><span class="line">__global__ void use_before_set(int* out, const int* src, int n) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; n) &#123;</span><br><span class="line">        // src 未初始化就被读取</span><br><span class="line">        out[i] = src[i] + 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>主机侧若只分配未写入：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> *d_src=<span class="literal">nullptr</span>, *d_out=<span class="literal">nullptr</span>;</span><br><span class="line"><span class="built_in">cudaMalloc</span>(&amp;d_src, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="built_in">cudaMalloc</span>(&amp;d_out, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="comment">// 故意不 cudaMemset/cudaMemcpy d_src</span></span><br><span class="line">use_before_set&lt;&lt;&lt;grid, block&gt;&gt;&gt;(d_out, d_src, n);</span><br></pre></td></tr></table></figure>
+<p>检查：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvcc -g -G -lineinfo uninit.cu -o uninit</span><br><span class="line">compute-sanitizer --tool memcheck ./uninit | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">========= Uninitialized __global__ memory read of size 4</span><br><span class="line">=========     at use_before_set(int*, int const*, int):uninit.cu:6</span><br></pre></td></tr></table></figure>
+<p>如何修：在设备内或拷贝前初始化。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cudaMemset</span>(d_src, <span class="number">0</span>, n*<span class="built_in">sizeof</span>(<span class="type">int</span>));</span><br><span class="line"><span class="comment">// 或者先在主机填充，再 cudaMemcpy 到设备</span></span><br></pre></td></tr></table></figure>
+<h3 id="数据竞争data-race">4.3 数据竞争（Data Race）</h3>
+<p>多个线程对同一地址进行未同步的读/写，导致结果随机。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// race.cu</span><br><span class="line">__global__ void sum_naive(int* out) &#123;</span><br><span class="line">    // 让所有线程把 1 加到同一个位置</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; 1024) &#123;</span><br><span class="line">        // 非原子写：存在数据竞争</span><br><span class="line">        *out += 1;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>检查：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvcc -g -G -lineinfo race.cu -o race</span><br><span class="line">compute-sanitizer --tool racecheck ./race | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">========= Race reported between Write and Write</span><br><span class="line">=========     Location: 0x7f2c38000000 in global memory</span><br><span class="line">=========     by thread (t*,b*) at sum_naive:race.cu:7</span><br></pre></td></tr></table></figure>
+<p>如何修：使用原子操作或重构并行归约。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">__global__ void sum_atomic(int* out) &#123;</span><br><span class="line">    int i = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">    if (i &lt; 1024) atomicAdd(out, 1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>更高性能的做法是先在 Block 内用共享内存做局部和，再用一次原子把每个
+Block 的结果汇总到全局。</p>
+<h3 id="barrier-不匹配barrier-divergence">4.4 Barrier 不匹配（Barrier
+Divergence）</h3>
+<p>同一 Block 内不是所有线程都在同一控制流路径调用
+<code>__syncthreads()</code>，会导致死锁或未定义行为。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// barrier.cu</span></span><br><span class="line"><span class="function">__global__ <span class="type">void</span> <span class="title">bad_barrier</span><span class="params">(<span class="type">int</span>* a)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> tid = threadIdx.x;</span><br><span class="line">    <span class="keyword">if</span> (tid % <span class="number">2</span> == <span class="number">0</span>) &#123;</span><br><span class="line">        __syncthreads();  <span class="comment">// 只有偶数线程到达屏障</span></span><br><span class="line">        a[tid] = <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        a[tid] = <span class="number">2</span>;</span><br><span class="line">        <span class="comment">// 缺少同步</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>检查：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nvcc -g -G -lineinfo barrier.cu -o barrier</span><br><span class="line">compute-sanitizer --tool synccheck ./barrier | <span class="built_in">cat</span></span><br></pre></td></tr></table></figure>
+<p>报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">========= Barrier error detected. Divergent thread(s) in block.</span><br><span class="line">=========     at __syncthreads(): barrier.cu:5</span><br></pre></td></tr></table></figure>
+<p>如何修：确保同一 Block
+内所有线程对屏障的到达一致（要么都到，要么都不到），或将屏障搬出分支，或重写算法避免需要屏障。</p>
+<h2 id="nvcc-编译选项给报告喂足信息"><code>nvcc</code>
+编译选项：给报告”喂”足信息</h2>
+<ul>
+<li><strong><code>-g -G</code></strong>：生成设备端调试符号（注意：会显著降低性能，调试用；性能测试请移除
+<code>-G</code>）。</li>
+<li><strong><code>-lineinfo</code></strong>：保留源码行号信息，Sanitizer
+可将 PC 偏移映射回源文件行。</li>
+<li><strong><code>-rdc=true</code></strong>：启用设备端链接，跨文件/库的设备函数能正确回溯。</li>
+<li>可选：<code>-Xcompiler -fno-omit-frame-pointer</code>
+便于栈回溯；<code>-O0</code> 降低优化避免行号漂移。</li>
+</ul>
+<p>推荐调试构建与发布构建分离：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Debug（用于 Sanitizer）</span></span><br><span class="line">nvcc -g -G -lineinfo -rdc=<span class="literal">true</span> -O0 app.cu -o app_dbg</span><br><span class="line"></span><br><span class="line"><span class="comment"># Release（性能评测）</span></span><br><span class="line">nvcc -O3 app.cu -o app_rel</span><br></pre></td></tr></table></figure>
+<h2 id="compute-sanitizer命令行速查">Compute Sanitizer：命令行速查</h2>
+<p>基本用法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">compute-sanitizer --tool memcheck ./app_dbg</span><br></pre></td></tr></table></figure>
+<p>常用工具（<code>--tool</code>）：</p>
+<ul>
+<li><code>memcheck</code>：越界、未初始化、非法地址等内存问题。</li>
+<li><code>racecheck</code>：数据竞争（全局/共享内存的读写冲突）。</li>
+<li><code>initcheck</code>：检测未初始化的全局内存使用。</li>
+<li><code>synccheck</code>：屏障不匹配、死锁相关问题。</li>
+</ul>
+<p>高频旗标：</p>
+<ul>
+<li><code>--print-limit &lt;N&gt;</code>：每类问题最多打印 N
+条，控制噪音。</li>
+<li><code>--kernel-regex &lt;regex&gt;</code>：只检查匹配名称的
+kernel，聚焦问题。</li>
+<li><code>--launch-count &lt;N&gt;</code>：只检查前 N 次 kernel
+启动，快速抽样。</li>
+<li><code>--log-file &lt;path&gt;</code>：将报告写入文件，便于后续解析与分享。</li>
+<li><code>--target-processes all|application-only</code>：当程序会派生子进程时很有用。</li>
+</ul>
+<p>示例：只检查 <code>oob</code> 这个 kernel
+的前两次启动，并把日志保存到 <code>cs.log</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">compute-sanitizer \</span><br><span class="line">  --tool memcheck \</span><br><span class="line">  --kernel-regex <span class="string">&quot;^oob$&quot;</span> \</span><br><span class="line">  --launch-count 2 \</span><br><span class="line">  --print-limit 20 \</span><br><span class="line">  --log-file cs.log \</span><br><span class="line">  ./app_dbg --small-input</span><br></pre></td></tr></table></figure>
+<h2 id="报告阅读与定位技巧">报告阅读与定位技巧</h2>
+<p>典型报文（示意）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">========= Invalid __global__ write of size 4</span><br><span class="line">=========     at oob(int*, int):oob.cu:6: oob+0x40</span><br><span class="line">=========     by thread (15,0,0) in block (1,0,0)</span><br><span class="line">=========     Address 0x7f2c38010040 is out of bounds</span><br></pre></td></tr></table></figure>
+<p>如何快速定位：</p>
+<ul>
+<li><strong>看标题</strong>：<code>Invalid __global__ write of size 4</code>
+→ 非法全局写、长度 4 字节。</li>
+<li><strong>看符号/行号</strong>：<code>oob.cu:6</code> 需要
+<code>-lineinfo</code>/<code>-G</code> 支持。</li>
+<li><strong>看线程坐标</strong>：<code>thread (15,0,0) in block (1,0,0)</code>
+帮助你还原分支条件与边界判断。</li>
+<li><strong>回源代码</strong>：
+<ul>
+<li>确认是否缺少 <code>if (i &lt; n)</code> 之类的边界保护；</li>
+<li>若为竞争，检查是否需要 <code>atomic*</code>
+或者按块分配私有缓冲；</li>
+<li>若为 Barrier，不要将 <code>__syncthreads()</code>
+放在分支内（除非分支路径对所有线程一致）。</li>
+</ul></li>
+</ul>
+<p>调一类警告时，善用 <code>--kernel-regex</code>
+与最小复现输入，可大幅缩短迭代时间。</p>
+<h2 id="性能开销与调优">性能开销与调优</h2>
+<p>Sanitizer
+会“显著变慢”（有时数十倍），属于正常现象。降低成本的常用手段：</p>
+<ul>
+<li><strong>缩小输入规模</strong>：提供 <code>--small-input</code>
+模式或环境变量开关。</li>
+<li><strong>限制检查范围</strong>：用 <code>--kernel-regex</code>
+锁定怀疑的 kernel。</li>
+<li><strong>限制次数</strong>：用 <code>--launch-count</code>
+只审前几次启动。</li>
+<li><strong>分阶段检查</strong>：先 <code>memcheck</code>，再
+<code>racecheck</code>/<code>synccheck</code> 针对性检查。</li>
+<li><strong>仅 Debug 构建检查</strong>：<code>-G</code>
+只在调试构建开启，Release 保持性能纯净。</li>
+</ul>
+<h2 id="与其他调试-性能工具协同">与其他调试 &amp; 性能工具协同</h2>
+<ul>
+<li><strong>nsys profile → sanitizer 精查</strong>：
+<ul>
+<li>用 <code>nsys profile -o run ./app_rel</code> 找到耗时热点与可疑
+kernel 名称；</li>
+<li>针对热点 kernel 用 <code>--kernel-regex</code> + Sanitizer
+精准排错。</li>
+</ul></li>
+<li><strong>cuda-gdb</strong>：遇到崩溃或需要单步设备端代码时使用；Sanitizer
+报出可疑位置后，转到 gdb 做细粒度验证。</li>
+<li><strong>Nsight Compute/Systems</strong>：前者做单 kernel
+的性能属性分析（访存、SM 利用）；后者看系统级时间线。二者与 Sanitizer
+互补：先“无错再快”。</li>
+<li><strong>日志解析/IDE 高亮</strong>：将 <code>--log-file</code>
+输出的文本导入 IDE（或自写脚本解析），按 <code>file:line</code>
+生成可点击的诊断列表，提高修复效率。</li>
+</ul>
+<h2 id="驱动-cuda-版本兼容">🔟 驱动 / CUDA 版本兼容</h2>
+<ul>
+<li>尽量保持：<strong>Driver 版本 ≥ CUDA Toolkit
+要求的最低版本</strong>；工具链与驱动的主次版本差距大时，可能出现“工具不可用/功能缺失/报错异常”。</li>
+<li>快速自检：
+<ul>
+<li><code>nvidia-smi</code> 查看驱动版本；</li>
+<li><code>nvcc --version</code> /
+<code>compute-sanitizer --version</code> 查看工具链版本；</li>
+<li>优先使用”同一套 Toolkit 内的工具 + 匹配的驱动”。</li>
+</ul></li>
+</ul>
+<h2 id="实战清单拿来就用">✅ 实战清单（拿来就用）</h2>
+<ol type="1">
+<li>准备 Debug 构建：<code>-g -G -lineinfo [-rdc=true]</code>。</li>
+<li>缩小输入：加入 <code>--small-input</code> 选项或测试数据集。</li>
+<li>先跑内存：<code>compute-sanitizer --tool memcheck --print-limit 50 ./app_dbg ...</code>。</li>
+<li>聚焦可疑 kernel：<code>--kernel-regex</code> +
+<code>--launch-count</code>。</li>
+<li>若提示竞争：切到 <code>--tool racecheck</code>，确认是否需要
+<code>atomic*</code> 或重构写入模式。</li>
+<li>若提示 Barrier：检查 <code>__syncthreads()</code>
+的分支一致性与循环内位置。</li>
+<li>通过后再回 Release 构建做性能评测（<code>nsys</code>/Nsight）。</li>
+</ol>
+<h2 id="小结">📝 小结</h2>
+<ul>
+<li><strong>核心心法</strong>：先保证正确性（Sanitizer
+清零告警），再谈性能（Nsight/<code>nsys</code> 优化）。</li>
+<li><strong>高频技巧</strong>：<code>-lineinfo</code>
+给行号、<code>--kernel-regex</code> 聚焦、<code>--launch-count</code>
+抽样、日志落盘便于追踪。</li>
+<li><strong>避坑要点</strong>：Barrier
+一致性、越界/未初始化、跨文件设备函数需 <code>-rdc=true</code>。</li>
+</ul>
+<p>把以上套路串起来，基本就能“熟练驾驭 Compute Sanitizer”：遇到可疑
+kernel，开 Debug 构建 + 小输入，定位报文 → 回溯源码 → 修复 →
+复查通过，再做性能迭代。祝你早日实现“无错再快”的理想状态 🚀</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CUDA/" rel="tag"># CUDA</a>
+              <a href="/tags/GPU/" rel="tag"># GPU</a>
+              <a href="/tags/%E8%B0%83%E8%AF%95/" rel="tag"># 调试</a>
+              <a href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag"># 工具</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/f1e2d3c4/" rel="prev" title="Tensor 基础：布局、算子与形状推导">
+                  <i class="fa fa-angle-left"></i> Tensor 基础：布局、算子与形状推导
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/d4c3b2a1/" rel="next" title="NVBit 插桩：从 0 到可用">
+                  NVBit 插桩：从 0 到可用 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">吃糠咽菜</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">261k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">7:54</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
