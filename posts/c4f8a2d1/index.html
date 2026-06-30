@@ -22,15 +22,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="最近想系统补一下计算机基础，从 c&#x2F;c++ 开始吧">
+    <meta name="description" content="最近想系统补一下计算机基础，从 c&#x2F;c++ 开始吧。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="C&#x2F;C++ 入门：从编译环境到 HelloWorld">
 <meta property="og:url" content="https://supermarkli.github.io/posts/c4f8a2d1/index.html">
 <meta property="og:site_name" content="Zihao Li">
-<meta property="og:description" content="最近想系统补一下计算机基础，从 c&#x2F;c++ 开始吧">
+<meta property="og:description" content="最近想系统补一下计算机基础，从 c&#x2F;c++ 开始吧。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2026-06-29T16:00:00.000Z">
-<meta property="article:modified_time" content="2026-06-30T02:55:13.637Z">
+<meta property="article:modified_time" content="2026-06-30T03:07:32.529Z">
 <meta property="article:author" content="Zihao Li">
 <meta property="article:tag" content="C">
 <meta property="article:tag" content="C++">
@@ -266,7 +266,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2026-06-30 00:00:00 / Modified: 10:55:13" itemprop="dateCreated datePublished" datetime="2026-06-30T00:00:00+08:00">2026-06-30</time>
+      <time title="Created: 2026-06-30 00:00:00 / Modified: 11:07:32" itemprop="dateCreated datePublished" datetime="2026-06-30T00:00:00+08:00">2026-06-30</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -313,7 +313,7 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><p>最近想系统补一下计算机基础，从 c/c++ 开始吧</p>
+    <div class="post-body" itemprop="articleBody"><p>最近想系统补一下计算机基础，从 c/c++ 开始吧。</p>
 <span id="more"></span>
 <h3 id="基本概念速读">📚 基本概念速读</h3>
 <table>
@@ -380,7 +380,14 @@
 <h4 id="源码机器码可执行程序">源码、机器码、可执行程序</h4>
 <p>源码是给人看的，机器码是给 CPU 执行的。C/C++ 程序不能直接把
 <code>.cpp</code> 文件丢给操作系统运行，中间必须经过编译工具链处理。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">+----------------+</span><br><span class="line">|  hello.cpp     |</span><br><span class="line">|  源码          |</span><br><span class="line">+-------+--------+</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">+----------------+</span><br><span class="line">|  hello.o       |</span><br><span class="line">|  目标文件      |</span><br><span class="line">+-------+--------+</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">+----------------+</span><br><span class="line">|  hello         |</span><br><span class="line">|  可执行程序    |</span><br><span class="line">+----------------+</span><br></pre></td></tr></table></figure>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    A[源码 hello.cpp] --&gt; B[目标文件 hello.o]
+    B --&gt; C[可执行程序 hello]
+</code>
+</pre>
 <p>操作系统真正启动的是可执行程序，不是源码文件。</p>
 <h4 id="编程语言分类">编程语言分类</h4>
 <p>常见分类不是绝对边界，但有助于理解 C/C++ 的位置。</p>
@@ -703,7 +710,31 @@ C++98、C++11、C++14、C++17、C++20、C++23。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ hello.cpp -std=c++17 -Wall -Wextra -g -o hello</span><br></pre></td></tr></table></figure>
 <h3 id="程序完整运行流程">⚙️ 程序完整运行流程</h3>
 <p>从源码到运行，C/C++ 一般经历四个构建阶段：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+-------------+      +-------------+      +-------------+      +-------------+</span><br><span class="line">|  预处理      | ---&gt; |  编译        | ---&gt; |  汇编        | ---&gt; |  链接        |</span><br><span class="line">|  .cpp -&gt; .i |      |  .i -&gt; .s   |      |  .s -&gt; .o   |      |  .o -&gt; 可执行 |</span><br><span class="line">+-------------+      +-------------+      +-------------+      +-------------+</span><br></pre></td></tr></table></figure>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    A[源码 .cpp] --&gt; B[预处理 .i]
+    B --&gt; C[编译 .s]
+    C --&gt; D[汇编 .o]
+    D --&gt; E[链接 可执行程序]
+</code>
+</pre>
+<p>如果把“编译”这一步继续拆开，编译器内部大致会经历下面的流程：</p>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    A[源码 .cpp] --&gt; B[预处理]
+    B --&gt; C[词法&#x2F;语法分析]
+    C --&gt; D[语义分析]
+    D --&gt; E[生成 IR]
+    E --&gt; F[IR 优化]
+    F --&gt; G[指令选择]
+    G --&gt; H[寄存器分配]
+    H --&gt; I[生成汇编&#x2F;目标文件 .s&#x2F;.o]
+</code>
+</pre>
 <h4 id="预处理">预处理</h4>
 <p>预处理器处理
 <code>#include</code>、<code>#define</code>、条件编译等内容。</p>
@@ -911,7 +942,16 @@ id="cout-hello-world-endl"><code>cout &lt;&lt; "Hello World!" &lt;&lt; endl;</co
 <p>用同一个 <code>hello.cpp</code>，可以手动观察中间产物：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 预处理：生成 hello.i</span></span><br><span class="line">g++ -E hello.cpp -o hello.i</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译：生成 hello.s</span></span><br><span class="line">g++ -S hello.cpp -o hello.s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 汇编：生成 hello.o</span></span><br><span class="line">g++ -c hello.cpp -o hello.o</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接：生成 hello</span></span><br><span class="line">g++ hello.o -o hello</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行</span></span><br><span class="line">./hello</span><br></pre></td></tr></table></figure>
 <p>这些文件的关系是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">hello.cpp  源码</span><br><span class="line">   |</span><br><span class="line">   v</span><br><span class="line">hello.i    预处理结果</span><br><span class="line">   |</span><br><span class="line">   v</span><br><span class="line">hello.s    汇编代码</span><br><span class="line">   |</span><br><span class="line">   v</span><br><span class="line">hello.o    目标文件</span><br><span class="line">   |</span><br><span class="line">   v</span><br><span class="line">hello      可执行程序</span><br></pre></td></tr></table></figure>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    A[hello.cpp 源码] --&gt; B[hello.i 预处理结果]
+    B --&gt; C[hello.s 汇编代码]
+    C --&gt; D[hello.o 目标文件]
+    D --&gt; E[hello 可执行程序]
+</code>
+</pre>
 <h3 id="常见误区">⚠️ 常见误区</h3>
 <table>
 <colgroup>
