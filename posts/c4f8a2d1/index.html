@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="最近想系统补一下计算机基础，从 c&#x2F;c++ 开始吧">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C&#x2F;C++ 入门：从编译环境到 HelloWorld">
+<meta property="og:url" content="https://supermarkli.github.io/posts/c4f8a2d1/index.html">
+<meta property="og:site_name" content="Zihao Li">
+<meta property="og:description" content="最近想系统补一下计算机基础，从 c&#x2F;c++ 开始吧">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-30T02:55:13.637Z">
+<meta property="article:author" content="Zihao Li">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="编译器">
+<meta property="article:tag" content="HelloWorld">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/c4f8a2d1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/c4f8a2d1/","path":"posts/c4f8a2d1/","title":"C/C++ 入门：从编译环境到 HelloWorld"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C/C++ 入门：从编译环境到 HelloWorld | Zihao Li</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Zihao Li" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zihao Li</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 基本概念速读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">🧩 核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E6%9C%BA%E5%99%A8%E7%A0%81%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.1.</span> <span class="nav-text">源码、机器码、可执行程序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E5%88%86%E7%B1%BB"><span class="nav-number">2.2.</span> <span class="nav-text">编程语言分类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83"><span class="nav-number">3.</span> <span class="nav-text">🛠️ 编译环境</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%BC%96%E8%AF%91%E5%99%A8"><span class="nav-number">3.1.</span> <span class="nav-text">常见编译器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E7%BC%96%E8%AF%91%E5%91%BD%E4%BB%A4"><span class="nav-number">3.2.</span> <span class="nav-text">最小编译命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0"><span class="nav-number">3.3.</span> <span class="nav-text">常见编译参数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E5%AE%8C%E6%95%B4%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">⚙️ 程序完整运行流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">4.1.</span> <span class="nav-text">预处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%AF%91"><span class="nav-number">4.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B1%87%E7%BC%96"><span class="nav-number">4.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5"><span class="nav-number">4.4.</span> <span class="nav-text">链接</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#helloworldc-%E7%89%88%E6%9C%AC"><span class="nav-number">5.</span> <span class="nav-text">🚀 HelloWorld：C++ 版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#helloworld-%E9%80%90%E8%A1%8C%E6%8B%86%E8%A7%A3"><span class="nav-number">6.</span> <span class="nav-text">🔍 HelloWorld 逐行拆解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#include-iostream"><span class="nav-number">6.1.</span> <span class="nav-text">#include &lt;iostream&gt;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#using-namespace-std"><span class="nav-number">6.2.</span> <span class="nav-text">using namespace std;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#int-main"><span class="nav-number">6.3.</span> <span class="nav-text">int main()</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#section"><span class="nav-number">6.4.</span> <span class="nav-text">{ }</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cout-hello-world-endl"><span class="nav-number">6.5.</span> <span class="nav-text">cout &lt;&lt; &quot;Hello World!&quot; &lt;&lt; endl;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#return-0"><span class="nav-number">6.6.</span> <span class="nav-text">return 0;</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%8A%E5%9B%9B%E4%B8%AA%E9%98%B6%E6%AE%B5%E8%B7%91%E4%B8%80%E9%81%8D"><span class="nav-number">7.</span> <span class="nav-text">🧪 把四个阶段跑一遍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="nav-number">8.</span> <span class="nav-text">⚠️ 常见误区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zihao Li"
+      src="/images/tkd.jpg">
+  <p class="site-author-name" itemprop="name">Zihao Li</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">134</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/c4f8a2d1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/tkd.jpg">
+      <meta itemprop="name" content="Zihao Li">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zihao Li">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C&#x2F;C++ 入门：从编译环境到 HelloWorld | Zihao Li">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C/C++ 入门：从编译环境到 HelloWorld
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-06-30 00:00:00 / Modified: 10:55:13" itemprop="dateCreated datePublished" datetime="2026-06-30T00:00:00+08:00">2026-06-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>6.3k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>11 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>最近想系统补一下计算机基础，从 c/c++ 开始吧</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>源码</td>
+<td>程序员写的文本代码，比如 <code>.c</code>、<code>.cpp</code>
+文件</td>
+<td>人能读</td>
+</tr>
+<tr class="even">
+<td>机器码</td>
+<td>CPU 能直接执行的二进制指令</td>
+<td>机器能跑</td>
+</tr>
+<tr class="odd">
+<td>目标文件</td>
+<td>源码经过编译和汇编后得到的中间文件，比如
+<code>.o</code>、<code>.obj</code></td>
+<td>还不能独立运行</td>
+</tr>
+<tr class="even">
+<td>可执行程序</td>
+<td>链接完成后的最终程序，比如 Linux 下的 <code>a.out</code>、Windows
+下的 <code>.exe</code></td>
+<td>可以运行</td>
+</tr>
+<tr class="odd">
+<td>编译器</td>
+<td>把高级语言翻译成更低层表示的工具</td>
+<td>负责翻译</td>
+</tr>
+<tr class="even">
+<td>链接器</td>
+<td>把多个目标文件和库组合成可执行程序的工具</td>
+<td>负责拼装</td>
+</tr>
+<tr class="odd">
+<td>标准库</td>
+<td>语言自带的一组常用功能，比如输入输出、字符串、容器</td>
+<td>省掉重复造轮子</td>
+</tr>
+<tr class="even">
+<td>头文件</td>
+<td>通常保存声明的文件，比如
+<code>iostream</code>、<code>.h</code>、<code>.hpp</code></td>
+<td>告诉编译器有什么</td>
+</tr>
+</tbody>
+</table>
+<h3 id="核心概念">🧩 核心概念</h3>
+<h4 id="源码机器码可执行程序">源码、机器码、可执行程序</h4>
+<p>源码是给人看的，机器码是给 CPU 执行的。C/C++ 程序不能直接把
+<code>.cpp</code> 文件丢给操作系统运行，中间必须经过编译工具链处理。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">+----------------+</span><br><span class="line">|  hello.cpp     |</span><br><span class="line">|  源码          |</span><br><span class="line">+-------+--------+</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">+----------------+</span><br><span class="line">|  hello.o       |</span><br><span class="line">|  目标文件      |</span><br><span class="line">+-------+--------+</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">+----------------+</span><br><span class="line">|  hello         |</span><br><span class="line">|  可执行程序    |</span><br><span class="line">+----------------+</span><br></pre></td></tr></table></figure>
+<p>操作系统真正启动的是可执行程序，不是源码文件。</p>
+<h4 id="编程语言分类">编程语言分类</h4>
+<p>常见分类不是绝对边界，但有助于理解 C/C++ 的位置。</p>
+<table>
+<thead>
+<tr class="header">
+<th>分类</th>
+<th>代表语言</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>编译型语言</td>
+<td>C、C++、Rust、Go</td>
+<td>通常先生成可执行文件，再运行</td>
+</tr>
+<tr class="even">
+<td>解释型语言</td>
+<td>Python、JavaScript</td>
+<td>通常由解释器边解释边执行</td>
+</tr>
+<tr class="odd">
+<td>字节码语言</td>
+<td>Java、C#</td>
+<td>先编译成字节码，再由虚拟机运行</td>
+</tr>
+<tr class="even">
+<td>低级语言</td>
+<td>汇编语言</td>
+<td>接近 CPU 指令，可移植性较弱</td>
+</tr>
+<tr class="odd">
+<td>高级语言</td>
+<td>C++、Python、Java</td>
+<td>更接近人的思考方式</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>C 和 C++
+通常被归到编译型语言。它们离硬件更近，性能和控制力强，但也要求程序员理解更多底层细节。</p>
+</blockquote>
+<h3 id="编译环境">🛠️ 编译环境</h3>
+<h4 id="常见编译器">常见编译器</h4>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 29%" />
+<col style="width: 29%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>编译器</th>
+<th>常用命令</th>
+<th>常见平台</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GCC</td>
+<td><code>gcc</code>、<code>g++</code></td>
+<td>Linux、macOS、Windows MinGW</td>
+<td>GNU 编译器集合</td>
+</tr>
+<tr class="even">
+<td>Clang</td>
+<td><code>clang</code>、<code>clang++</code></td>
+<td>Linux、macOS、Windows</td>
+<td>LLVM 项目的前端编译器</td>
+</tr>
+<tr class="odd">
+<td>MSVC</td>
+<td><code>cl</code></td>
+<td>Windows</td>
+<td>Visual Studio 自带编译器</td>
+</tr>
+</tbody>
+</table>
+<p>C++ 代码建议使用 <code>g++</code>、<code>clang++</code> 或
+<code>cl</code> 编译。虽然 <code>gcc</code> 也能参与 C++
+编译，但它默认更偏 C 语言入口，链接 C++ 标准库时容易让初学者困惑。</p>
+<p>简单理解三者：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 25%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>工具链</th>
+<th>特点</th>
+<th>适合场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GCC</td>
+<td>历史久、生态成熟、Linux 上非常常见</td>
+<td>Linux 开发、开源项目、竞赛和课程环境</td>
+</tr>
+<tr class="even">
+<td>Clang</td>
+<td>错误提示清晰、模块化设计好、和 LLVM 生态绑定紧密</td>
+<td>macOS、现代 C++ 项目、静态分析和编译器相关工具</td>
+</tr>
+<tr class="odd">
+<td>MSVC</td>
+<td>和 Visual Studio、Windows SDK 集成紧密</td>
+<td>Windows 原生开发、Visual Studio 工程</td>
+</tr>
+</tbody>
+</table>
+<p>GNU 是一个自由软件项目，GCC 是 GNU
+生态里最重要的编译器工具链之一。Linux 发行版里常见的
+<code>gcc</code>、<code>g++</code>、<code>ld</code>、<code>make</code>
+等工具，很多都来自 GNU 生态。</p>
+<p>LLVM 更像一套可复用的编译器基础设施。Clang 负责解析 C/C++/Objective-C
+源码，LLVM 负责中间表示、优化和后端代码生成。很多现代工具都会复用
+LLVM，例如静态分析器、格式化工具、语言服务器和新的语言编译器。</p>
+<p>怎么选：</p>
+<table>
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linux 初学</td>
+<td><code>g++</code>，资料最多，环境最常见</td>
+</tr>
+<tr class="even">
+<td>macOS 初学</td>
+<td><code>clang++</code>，系统工具链默认就是 Clang</td>
+</tr>
+<tr class="odd">
+<td>Windows + Visual Studio</td>
+<td><code>cl</code>，和 IDE、调试器、SDK 配合最好</td>
+</tr>
+<tr class="even">
+<td>Windows + 命令行练习</td>
+<td>MinGW 的 <code>g++</code> 或 LLVM 的 <code>clang++</code>
+都可以</td>
+</tr>
+<tr class="odd">
+<td>课程、OJ、竞赛</td>
+<td>优先使用平台指定的编译器和标准版本</td>
+</tr>
+</tbody>
+</table>
+<h4 id="最小编译命令">最小编译命令</h4>
+<p>假设文件名是 <code>hello.cpp</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用 g++ 编译 C++ 源码，并生成名为 hello 的可执行程序</span></span><br><span class="line">g++ hello.cpp -o hello</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行程序</span></span><br><span class="line">./hello</span><br></pre></td></tr></table></figure>
+<p>在 Windows 的 PowerShell 中，使用 MinGW 或 MSVC
+时，运行方式通常是：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 运行当前目录下的 hello.exe</span></span><br><span class="line">.\hello.exe</span><br></pre></td></tr></table></figure>
+<h4 id="常见编译参数">常见编译参数</h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>示例</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>-o</code></td>
+<td><code>g++ hello.cpp -o hello</code></td>
+<td>指定输出文件名</td>
+</tr>
+<tr class="even">
+<td><code>-Wall</code></td>
+<td><code>g++ hello.cpp -Wall -o hello</code></td>
+<td>打开常见警告</td>
+</tr>
+<tr class="odd">
+<td><code>-Wextra</code></td>
+<td><code>g++ hello.cpp -Wall -Wextra -o hello</code></td>
+<td>打开更多警告</td>
+</tr>
+<tr class="even">
+<td><code>-std=c++17</code></td>
+<td><code>g++ hello.cpp -std=c++17 -o hello</code></td>
+<td>指定 C++ 标准版本</td>
+</tr>
+<tr class="odd">
+<td><code>-g</code></td>
+<td><code>g++ hello.cpp -g -o hello</code></td>
+<td>生成调试信息</td>
+</tr>
+<tr class="even">
+<td><code>-O2</code></td>
+<td><code>g++ hello.cpp -O2 -o hello</code></td>
+<td>开启较常用的优化级别</td>
+</tr>
+<tr class="odd">
+<td><code>-E</code></td>
+<td><code>g++ -E hello.cpp -o hello.i</code></td>
+<td>只做预处理</td>
+</tr>
+<tr class="even">
+<td><code>-S</code></td>
+<td><code>g++ -S hello.cpp -o hello.s</code></td>
+<td>生成汇编代码</td>
+</tr>
+<tr class="odd">
+<td><code>-c</code></td>
+<td><code>g++ -c hello.cpp -o hello.o</code></td>
+<td>只生成目标文件，不链接</td>
+</tr>
+</tbody>
+</table>
+<p><code>-std=c++17</code> 的意思是：让编译器按照 C++17
+标准理解这份代码。C++ 语言会不断演进，常见标准包括
+C++98、C++11、C++14、C++17、C++20、C++23。</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 38%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>标准</th>
+<th>简单印象</th>
+<th>选择建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C++11</td>
+<td>现代 C++ 的起点，引入 <code>auto</code>、lambda、智能指针等</td>
+<td>维护旧项目时常见</td>
+</tr>
+<tr class="even">
+<td>C++14</td>
+<td>对 C++11 做了小幅增强</td>
+<td>老项目可能使用</td>
+</tr>
+<tr class="odd">
+<td>C++17</td>
+<td>稳定、普及度高，很多课程和工程仍在使用</td>
+<td>初学和普通项目的稳妥选择</td>
+</tr>
+<tr class="even">
+<td>C++20</td>
+<td>引入 concepts、ranges、coroutines 等较大特性</td>
+<td>新项目可考虑，但要看编译器支持</td>
+</tr>
+<tr class="odd">
+<td>C++23</td>
+<td>更新，生态仍在跟进</td>
+<td>学习新特性或特定项目需要时使用</td>
+</tr>
+</tbody>
+</table>
+<p>初学阶段建议从 <code>-std=c++17</code>
+开始：资料多、编译器支持成熟，也不会一开始就被 C++20/23
+的新特性分散注意力。如果课程或项目明确要求某个版本，以课程或项目为准。</p>
+<p><code>-O2</code>
+是优化选项，告诉编译器在不明显拉长编译时间的前提下，尽量生成运行更快的机器码。常见优化级别有：</p>
+<table>
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>含义</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>-O0</code></td>
+<td>不优化，默认通常接近这个级别</td>
+<td>调试最友好</td>
+</tr>
+<tr class="even">
+<td><code>-O1</code></td>
+<td>开启基础优化</td>
+<td>较少手动使用</td>
+</tr>
+<tr class="odd">
+<td><code>-O2</code></td>
+<td>开启多数稳妥优化</td>
+<td>发布版本常用</td>
+</tr>
+<tr class="even">
+<td><code>-O3</code></td>
+<td>更激进优化，可能增大代码体积</td>
+<td>计算密集型程序可测试</td>
+</tr>
+<tr class="odd">
+<td><code>-Os</code></td>
+<td>优化体积</td>
+<td>嵌入式或体积敏感场景</td>
+</tr>
+<tr class="even">
+<td><code>-Og</code></td>
+<td>兼顾调试体验和部分优化</td>
+<td>调试优化相关问题</td>
+</tr>
+</tbody>
+</table>
+<p>优化可能做的事情包括：删除无用代码、减少重复计算、内联小函数、调整循环、改善寄存器使用。它不改变语言语义，但如果程序本身有未定义行为，比如数组越界、使用未初始化变量，优化后问题可能更明显。</p>
+<p>调试时优先用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ hello.cpp -std=c++17 -Wall -Wextra -g -O0 -o hello</span><br></pre></td></tr></table></figure>
+<p>发布或性能测试时再考虑：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ hello.cpp -std=c++17 -Wall -Wextra -O2 -o hello</span><br></pre></td></tr></table></figure>
+<p>初学阶段推荐命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ hello.cpp -std=c++17 -Wall -Wextra -g -o hello</span><br></pre></td></tr></table></figure>
+<h3 id="程序完整运行流程">⚙️ 程序完整运行流程</h3>
+<p>从源码到运行，C/C++ 一般经历四个构建阶段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+-------------+      +-------------+      +-------------+      +-------------+</span><br><span class="line">|  预处理      | ---&gt; |  编译        | ---&gt; |  汇编        | ---&gt; |  链接        |</span><br><span class="line">|  .cpp -&gt; .i |      |  .i -&gt; .s   |      |  .s -&gt; .o   |      |  .o -&gt; 可执行 |</span><br><span class="line">+-------------+      +-------------+      +-------------+      +-------------+</span><br></pre></td></tr></table></figure>
+<h4 id="预处理">预处理</h4>
+<p>预处理器处理
+<code>#include</code>、<code>#define</code>、条件编译等内容。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -E hello.cpp -o hello.i</span><br></pre></td></tr></table></figure>
+<p><code>#include &lt;iostream&gt;</code>
+会在这个阶段展开相关声明。可以粗略理解为：把编译所需的接口信息带进来，让后续阶段知道
+<code>cout</code>、<code>endl</code> 等名字是什么。</p>
+<p>常见头文件：</p>
+<table>
+<thead>
+<tr class="header">
+<th>头文件</th>
+<th>作用</th>
+<th>常见内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&lt;iostream&gt;</code></td>
+<td>标准输入输出</td>
+<td><code>cin</code>、<code>cout</code>、<code>cerr</code>、<code>endl</code></td>
+</tr>
+<tr class="even">
+<td><code>&lt;string&gt;</code></td>
+<td>字符串</td>
+<td><code>std::string</code></td>
+</tr>
+<tr class="odd">
+<td><code>&lt;vector&gt;</code></td>
+<td>动态数组</td>
+<td><code>std::vector</code></td>
+</tr>
+<tr class="even">
+<td><code>&lt;array&gt;</code></td>
+<td>固定长度数组封装</td>
+<td><code>std::array</code></td>
+</tr>
+<tr class="odd">
+<td><code>&lt;algorithm&gt;</code></td>
+<td>常用算法</td>
+<td><code>sort</code>、<code>find</code>、<code>max</code>、<code>min</code></td>
+</tr>
+<tr class="even">
+<td><code>&lt;cmath&gt;</code></td>
+<td>数学函数</td>
+<td><code>sqrt</code>、<code>pow</code>、<code>sin</code>、<code>cos</code></td>
+</tr>
+<tr class="odd">
+<td><code>&lt;cstdlib&gt;</code></td>
+<td>通用工具</td>
+<td><code>exit</code>、<code>abs</code>、随机数相关旧接口</td>
+</tr>
+<tr class="even">
+<td><code>&lt;cstdio&gt;</code></td>
+<td>C 风格输入输出</td>
+<td><code>printf</code>、<code>scanf</code></td>
+</tr>
+<tr class="odd">
+<td><code>&lt;fstream&gt;</code></td>
+<td>文件输入输出</td>
+<td><code>ifstream</code>、<code>ofstream</code></td>
+</tr>
+<tr class="even">
+<td><code>&lt;unordered_map&gt;</code></td>
+<td>哈希表</td>
+<td><code>std::unordered_map</code></td>
+</tr>
+</tbody>
+</table>
+<p>C++ 标准库头文件通常写成
+<code>&lt;iostream&gt;</code>、<code>&lt;vector&gt;</code>
+这种形式；自己写的头文件通常写成 <code>"my_header.h"</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span>      <span class="comment">// 标准库头文件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;my_header.h&quot;</span>   <span class="comment">// 当前项目里的头文件</span></span></span><br></pre></td></tr></table></figure>
+<p>两种写法的主要区别是搜索路径不同：</p>
+<table>
+<thead>
+<tr class="header">
+<th>写法</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>#include &lt;...&gt;</code></td>
+<td>标准库或系统/第三方库头文件</td>
+</tr>
+<tr class="even">
+<td><code>#include "..."</code></td>
+<td>当前项目自己的头文件</td>
+</tr>
+</tbody>
+</table>
+<p>头文件不等于库本体。头文件通常提供声明，让编译器知道“有什么函数、类、变量”；真正的实现可能在源码文件里，也可能在已经编译好的库文件里，最后由链接阶段接上。</p>
+<p>预处理阶段还会处理宏：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> PI 3.1415926</span></span><br></pre></td></tr></table></figure>
+<p>以及条件编译：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifdef</span> DEBUG</span></span><br><span class="line">cout &lt;&lt; <span class="string">&quot;debug mode&quot;</span> &lt;&lt; endl;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>这些内容会在正式编译前先被展开、替换或裁剪。</p>
+<h4 id="编译">编译</h4>
+<p>编译器把预处理后的代码翻译成汇编代码，并做语法检查、类型检查和优化。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -S hello.cpp -o hello.s</span><br></pre></td></tr></table></figure>
+<p>如果少写分号、类型不匹配、函数调用不合法，通常会在这个阶段报错。</p>
+<h4 id="汇编">汇编</h4>
+<p>汇编器把汇编代码转换为目标文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ -c hello.cpp -o hello.o</span><br></pre></td></tr></table></figure>
+<p>目标文件里已经有机器指令，但它通常还缺少一些外部符号，比如标准库函数的最终地址。</p>
+<h4 id="链接">链接</h4>
+<p>链接器把目标文件、启动代码、标准库和其他库拼起来，生成可执行程序。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">g++ hello.o -o hello</span><br></pre></td></tr></table></figure>
+<p>常见的链接错误包括：</p>
+<table>
+<thead>
+<tr class="header">
+<th>错误类型</th>
+<th>常见原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>undefined reference</code></td>
+<td>声明了函数，但没有提供实现，或链接时漏了库</td>
+</tr>
+<tr class="even">
+<td><code>multiple definition</code></td>
+<td>同一个函数或全局变量被重复定义</td>
+</tr>
+<tr class="odd">
+<td>找不到库</td>
+<td><code>-l</code> 或 <code>-L</code> 参数不正确，或库没有安装</td>
+</tr>
+</tbody>
+</table>
+<h3 id="helloworldc-版本">🚀 HelloWorld：C++ 版本</h3>
+<p>完整示例代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 引入标准输入输出头文件</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 标准命名空间，简化 std::cin/std::cout 书写</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 程序入口函数：所有 C/C++ 程序从 main 开始执行，唯一入口</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 控制台输出文字</span></span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Hello World!&quot;</span> &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回 0，表示程序正常结束</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">g++ hello.cpp -std=c++17 -Wall -Wextra -o hello</span><br><span class="line">./hello</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hello World!</span><br></pre></td></tr></table></figure>
+<h3 id="helloworld-逐行拆解">🔍 HelloWorld 逐行拆解</h3>
+<h4 id="include-iostream"><code>#include &lt;iostream&gt;</code></h4>
+<p><code>include</code> 是预处理指令，用来引入头文件。</p>
+<p><code>iostream</code> 是 C++ 标准库里的输入输出头文件，里面提供了
+<code>cin</code>、<code>cout</code>、<code>cerr</code>、<code>endl</code>
+等常用对象和工具。</p>
+<p>注意：<code>#include</code>
+不是在运行时加载模块，而是在编译前的预处理阶段让编译器看到相关声明。</p>
+<h4 id="using-namespace-std"><code>using namespace std;</code></h4>
+<p><code>std</code> 是 C++ 标准库使用的命名空间。<code>cout</code>
+的完整名字其实是 <code>std::cout</code>，<code>endl</code> 的完整名字是
+<code>std::endl</code>。</p>
+<p>写了：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br></pre></td></tr></table></figure>
+<p>就可以简写：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cout &lt;&lt; <span class="string">&quot;Hello World!&quot;</span> &lt;&lt; endl;</span><br></pre></td></tr></table></figure>
+<p>如果不写 <code>using namespace std;</code>，推荐写成：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std::cout &lt;&lt; <span class="string">&quot;Hello World!&quot;</span> &lt;&lt; std::endl;</span><br></pre></td></tr></table></figure>
+<p>初学时使用 <code>using namespace std;</code>
+可以减少干扰；项目代码里更推荐显式写
+<code>std::</code>，避免名字冲突。</p>
+<h4 id="int-main"><code>int main()</code></h4>
+<p><code>main</code> 是程序入口函数。操作系统启动程序后，C/C++
+运行时会调用 <code>main</code>，程序从这里开始执行。</p>
+<p><code>int</code>
+表示这个函数会返回一个整数。这个整数会作为进程退出码交给操作系统。</p>
+<h4 id="section"><code>&#123; &#125;</code></h4>
+<p>花括号表示函数体。<code>main</code> 里面的语句会按顺序执行。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 这里是函数体</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4
+id="cout-hello-world-endl"><code>cout &lt;&lt; "Hello World!" &lt;&lt; endl;</code></h4>
+<p><code>cout</code> 是标准输出对象，通常对应控制台。</p>
+<p><code>&lt;&lt;</code>
+是输出运算符，可以把右侧内容送到左侧输出流。</p>
+<p><code>"Hello World!"</code> 是字符串字面量。</p>
+<p><code>endl</code> 表示换行，并刷新输出缓冲区。日常输出换行也可以使用
+<code>'\n'</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cout &lt;&lt; <span class="string">&quot;Hello World!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="return-0"><code>return 0;</code></h4>
+<p><code>return 0;</code> 表示 <code>main</code> 正常结束，并把退出码
+<code>0</code> 返回给操作系统。</p>
+<p>常见约定：</p>
+<table>
+<thead>
+<tr class="header">
+<th>返回码</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>0</code></td>
+<td>程序正常结束</td>
+</tr>
+<tr class="even">
+<td>非 <code>0</code></td>
+<td>程序异常结束或表示某种错误状态</td>
+</tr>
+</tbody>
+</table>
+<p>在 Linux/macOS Shell 中，可以用下面的命令查看上一个程序的返回码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> $?</span><br></pre></td></tr></table></figure>
+<p>在 Windows PowerShell 中，可以查看：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$LASTEXITCODE</span></span><br></pre></td></tr></table></figure>
+<h3 id="把四个阶段跑一遍">🧪 把四个阶段跑一遍</h3>
+<p>用同一个 <code>hello.cpp</code>，可以手动观察中间产物：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 预处理：生成 hello.i</span></span><br><span class="line">g++ -E hello.cpp -o hello.i</span><br><span class="line"></span><br><span class="line"><span class="comment"># 编译：生成 hello.s</span></span><br><span class="line">g++ -S hello.cpp -o hello.s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 汇编：生成 hello.o</span></span><br><span class="line">g++ -c hello.cpp -o hello.o</span><br><span class="line"></span><br><span class="line"><span class="comment"># 链接：生成 hello</span></span><br><span class="line">g++ hello.o -o hello</span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行</span></span><br><span class="line">./hello</span><br></pre></td></tr></table></figure>
+<p>这些文件的关系是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">hello.cpp  源码</span><br><span class="line">   |</span><br><span class="line">   v</span><br><span class="line">hello.i    预处理结果</span><br><span class="line">   |</span><br><span class="line">   v</span><br><span class="line">hello.s    汇编代码</span><br><span class="line">   |</span><br><span class="line">   v</span><br><span class="line">hello.o    目标文件</span><br><span class="line">   |</span><br><span class="line">   v</span><br><span class="line">hello      可执行程序</span><br></pre></td></tr></table></figure>
+<h3 id="常见误区">⚠️ 常见误区</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C 和 C++ 是同一种语言</td>
+<td>C++ 兼容大量 C 语法，但它们是两门语言</td>
+</tr>
+<tr class="even">
+<td><code>.cpp</code> 文件可以直接运行</td>
+<td>源码必须先编译链接成可执行程序</td>
+</tr>
+<tr class="odd">
+<td><code>#include</code> 会把库代码全部复制进来</td>
+<td>更准确地说，它让编译器看到声明；真正库代码通常在链接阶段接入</td>
+</tr>
+<tr class="even">
+<td><code>using namespace std;</code> 必须写</td>
+<td>不是必须，也可以写 <code>std::cout</code></td>
+</tr>
+<tr class="odd">
+<td><code>return 0;</code> 是给用户看的</td>
+<td>它主要是返回给操作系统或调用者看的退出码</td>
+</tr>
+<tr class="even">
+<td>编译成功就一定没有问题</td>
+<td>编译通过只代表语法和链接基本通过，不代表逻辑正确</td>
+</tr>
+</tbody>
+</table>
+<h3 id="总结">✅ 总结</h3>
+<blockquote>
+<p>C/C++
+入门的主线是：人写源码，编译器生成目标文件，链接器生成可执行程序，操作系统加载后从
+<code>main</code> 开始运行。</p>
+</blockquote>
+<p>后续学习可以沿着三条线继续：语法基础、内存模型、工程构建工具。先把
+<code>g++ hello.cpp -o hello</code>
+背后的流程弄清楚，后面学指针、类、CMake 和调试器都会轻松很多。</p>
+<p>Happy Hacking! 🎉</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E7%BC%96%E8%AF%91%E5%99%A8/" rel="tag"># 编译器</a>
+              <a href="/tags/HelloWorld/" rel="tag"># HelloWorld</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/18f02423/" rel="prev" title="CUDA 异步报错：为什么调用栈总是不在真正出错处">
+                  <i class="fa fa-angle-left"></i> CUDA 异步报错：为什么调用栈总是不在真正出错处
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zihao Li</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">267k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">8:06</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
