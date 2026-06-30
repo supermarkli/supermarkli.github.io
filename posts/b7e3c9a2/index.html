@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="学完 HelloWorld 之后，下一步把变量、类型、运算符、输入输出、分支和循环这条主线连起来。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C&#x2F;C++ 入门：基础语法">
+<meta property="og:url" content="https://supermarkli.github.io/posts/b7e3c9a2/index.html">
+<meta property="og:site_name" content="Zihao Li">
+<meta property="og:description" content="学完 HelloWorld 之后，下一步把变量、类型、运算符、输入输出、分支和循环这条主线连起来。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-30T03:30:11.061Z">
+<meta property="article:author" content="Zihao Li">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="基础语法">
+<meta property="article:tag" content="编程入门">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/b7e3c9a2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/b7e3c9a2/","path":"posts/b7e3c9a2/","title":"C/C++ 入门：基础语法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C/C++ 入门：基础语法 | Zihao Li</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Zihao Li" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zihao Li</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 基本概念速读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%E6%80%BB%E8%A7%88"><span class="nav-number">2.</span> <span class="nav-text">🧩 基础语法总览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F"><span class="nav-number">3.</span> <span class="nav-text">🧱 变量与常量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text">变量定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-number">3.3.</span> <span class="nav-text">作用域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#const"><span class="nav-number">3.4.</span> <span class="nav-text">const</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">🔢 基本类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E5%9E%8B"><span class="nav-number">4.1.</span> <span class="nav-text">整型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%AE%E7%82%B9%E5%9E%8B"><span class="nav-number">4.2.</span> <span class="nav-text">浮点型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%97%E9%9D%A2%E9%87%8F%E5%90%8E%E7%BC%80"><span class="nav-number">4.3.</span> <span class="nav-text">字面量后缀</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6"><span class="nav-number">4.4.</span> <span class="nav-text">字符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%83%E5%B0%94"><span class="nav-number">4.5.</span> <span class="nav-text">布尔</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2"><span class="nav-number">4.6.</span> <span class="nav-text">类型转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9A%90%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-number">4.7.</span> <span class="nav-text">隐式转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%98%BE%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-number">4.8.</span> <span class="nav-text">显式转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AA%84%E5%8C%96%E8%BD%AC%E6%8D%A2"><span class="nav-number">4.9.</span> <span class="nav-text">窄化转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E6%95%B0%E9%99%A4%E6%B3%95"><span class="nav-number">4.10.</span> <span class="nav-text">整数除法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-number">5.</span> <span class="nav-text">🧮 运算符</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%9C%AF%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-number">5.1.</span> <span class="nav-text">算术运算符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-number">5.2.</span> <span class="nav-text">关系运算符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-number">5.3.</span> <span class="nav-text">逻辑运算符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B5%8B%E5%80%BC%E8%BF%90%E7%AE%97%E7%AC%A6"><span class="nav-number">5.4.</span> <span class="nav-text">赋值运算符</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E5%A2%9E%E8%87%AA%E5%87%8F"><span class="nav-number">5.5.</span> <span class="nav-text">自增自减</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA"><span class="nav-number">6.</span> <span class="nav-text">🖥️ 输入输出</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#cout"><span class="nav-number">6.1.</span> <span class="nav-text">cout</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cin"><span class="nav-number">6.2.</span> <span class="nav-text">cin</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%87%BA%E5%85%A5%E9%97%A8"><span class="nav-number">6.3.</span> <span class="nav-text">格式化输出入门</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%94%AF%E7%BB%93%E6%9E%84"><span class="nav-number">7.</span> <span class="nav-text">🌿 分支结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ifelse"><span class="nav-number">7.1.</span> <span class="nav-text">if&#x2F;else</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#switch"><span class="nav-number">7.2.</span> <span class="nav-text">switch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9D%A1%E4%BB%B6%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">7.3.</span> <span class="nav-text">条件表达式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9E%84"><span class="nav-number">8.</span> <span class="nav-text">🔁 循环结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#for"><span class="nav-number">8.1.</span> <span class="nav-text">for</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#while"><span class="nav-number">8.2.</span> <span class="nav-text">while</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#do-while"><span class="nav-number">8.3.</span> <span class="nav-text">do while</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#break"><span class="nav-number">8.4.</span> <span class="nav-text">break</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#continue"><span class="nav-number">8.5.</span> <span class="nav-text">continue</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="nav-number">9.</span> <span class="nav-text">⚠️ 常见误区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">10.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zihao Li"
+      src="/images/tkd.jpg">
+  <p class="site-author-name" itemprop="name">Zihao Li</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">136</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/b7e3c9a2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/tkd.jpg">
+      <meta itemprop="name" content="Zihao Li">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zihao Li">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C&#x2F;C++ 入门：基础语法 | Zihao Li">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C/C++ 入门：基础语法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-06-30 00:00:00 / Modified: 11:30:11" itemprop="dateCreated datePublished" datetime="2026-06-30T00:00:00+08:00">2026-06-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>7.5k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>14 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>学完 HelloWorld
+之后，下一步把变量、类型、运算符、输入输出、分支和循环这条主线连起来。</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>变量</td>
+<td>有名字、可读写的一块数据</td>
+<td>会变的值</td>
+</tr>
+<tr class="even">
+<td>常量</td>
+<td>初始化后不应该再修改的值</td>
+<td>固定的值</td>
+</tr>
+<tr class="odd">
+<td>类型</td>
+<td>规定数据怎么存、能做什么操作</td>
+<td>数据的形状</td>
+</tr>
+<tr class="even">
+<td>表达式</td>
+<td>由变量、常量、运算符组成，能算出一个值</td>
+<td>一段计算</td>
+</tr>
+<tr class="odd">
+<td>语句</td>
+<td>程序执行的基本单位，通常以分号结尾</td>
+<td>一步动作</td>
+</tr>
+<tr class="even">
+<td>作用域</td>
+<td>名字能被访问的代码范围</td>
+<td>名字的有效范围</td>
+</tr>
+<tr class="odd">
+<td>控制流</td>
+<td>程序语句的执行顺序</td>
+<td>程序怎么走</td>
+</tr>
+</tbody>
+</table>
+<h3 id="基础语法总览">🧩 基础语法总览</h3>
+<p>C++ 基础语法可以按“数据从哪里来、怎么计算、程序怎么走”来理解。</p>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    A[变量与常量] --&gt; B[基本类型]
+    B --&gt; C[运算符]
+    C --&gt; D[输入输出]
+    D --&gt; E[分支结构]
+    E --&gt; F[循环结构]
+</code>
+</pre>
+<p>最小心智模型：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> score = <span class="number">90</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (score &gt;= <span class="number">60</span>) &#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;pass&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里已经同时出现了变量、类型、初始化、关系运算、分支、输出和返回码。</p>
+<h3 id="变量与常量">🧱 变量与常量</h3>
+<h4 id="变量定义">变量定义</h4>
+<p>变量定义的一般形式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">类型 变量名 = 初始值;</span><br></pre></td></tr></table></figure>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> age = <span class="number">18</span>;</span><br><span class="line"><span class="type">double</span> height = <span class="number">1.75</span>;</span><br><span class="line"><span class="type">char</span> grade = <span class="string">&#x27;A&#x27;</span>;</span><br><span class="line"><span class="type">bool</span> passed = <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+<p><code>int age = 18;</code> 的意思是：创建一个名为 <code>age</code>
+的整型变量，并把初始值设为 <code>18</code>。</p>
+<h4 id="初始化">初始化</h4>
+<p>初始化就是变量创建时给它一个确定的值。初学阶段建议：<strong>变量定义时尽量立刻初始化</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">10</span>;      <span class="comment">// 推荐：有明确初始值</span></span><br><span class="line"><span class="type">int</span> b&#123;&#125;;         <span class="comment">// 推荐：值初始化，int 会变成 0</span></span><br><span class="line"><span class="type">int</span> c;           <span class="comment">// 不推荐：局部变量未初始化，值不确定</span></span><br></pre></td></tr></table></figure>
+<p><code>int a = 10;</code> 和 <code>int b&#123;&#125;;</code>
+都是在初始化，但含义不完全一样。</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>写法</th>
+<th>名称</th>
+<th>含义</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int a = 10;</code></td>
+<td>复制初始化</td>
+<td>用右边的 <code>10</code> 初始化 <code>a</code></td>
+<td><code>a</code> 的值是 <code>10</code></td>
+</tr>
+<tr class="even">
+<td><code>int b&#123;&#125;;</code></td>
+<td>列表初始化/值初始化</td>
+<td>没写具体值，用该类型的默认零值初始化</td>
+<td><code>b</code> 的值是 <code>0</code></td>
+</tr>
+<tr class="odd">
+<td><code>int c;</code></td>
+<td>默认初始化</td>
+<td>对局部基础类型来说，不会自动清零</td>
+<td><code>c</code> 的值不确定</td>
+</tr>
+</tbody>
+</table>
+<p><code>int a = 10;</code> 适合你已经知道变量应该是什么值的情况：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> score = <span class="number">90</span>;</span><br><span class="line"><span class="type">int</span> count = <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+<p><code>int b&#123;&#125;;</code>
+适合你暂时还没有具体值，但希望它处于一个安全的初始状态：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> sum&#123;&#125;;      <span class="comment">// 0</span></span><br><span class="line"><span class="type">double</span> avg&#123;&#125;;   <span class="comment">// 0.0</span></span><br><span class="line"><span class="type">bool</span> ok&#123;&#125;;      <span class="comment">// false</span></span><br><span class="line"><span class="type">char</span> ch&#123;&#125;;      <span class="comment">// &#x27;\0&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>这种 <code>&#123;&#125;</code>
+写法还有一个好处：它能阻止一些可能丢失信息的窄化转换。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">3.14</span>;   <span class="comment">// 允许，但 x 会变成 3</span></span><br><span class="line"><span class="comment">// int y&#123;3.14&#125;; // 错误：列表初始化会阻止这种窄化转换</span></span><br></pre></td></tr></table></figure>
+<p>所以初学阶段可以先记住：</p>
+<table>
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>推荐写法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>有明确初始值</td>
+<td><code>int a = 10;</code></td>
+</tr>
+<tr class="even">
+<td>只是想先清零</td>
+<td><code>int b&#123;&#125;;</code></td>
+</tr>
+<tr class="odd">
+<td>局部基础类型</td>
+<td>不要写 <code>int c;</code> 后直接使用</td>
+</tr>
+</tbody>
+</table>
+<p>未初始化局部变量是 C/C++ 初学里非常常见的坑。</p>
+<h4 id="作用域">作用域</h4>
+<p>作用域决定一个名字在哪里可见。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> outer = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">int</span> inner = <span class="number">2</span>;</span><br><span class="line">        cout &lt;&lt; outer &lt;&lt; endl;  <span class="comment">// 可以访问</span></span><br><span class="line">        cout &lt;&lt; inner &lt;&lt; endl;  <span class="comment">// 可以访问</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; outer &lt;&lt; endl;      <span class="comment">// 可以访问</span></span><br><span class="line">    <span class="comment">// cout &lt;&lt; inner &lt;&lt; endl;   // 错误：inner 已经离开作用域</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>花括号 <code>&#123;&#125;</code> 会形成一个新的块作用域。</p>
+<h4 id="const"><code>const</code></h4>
+<p><code>const</code> 表示这个变量初始化后不应该再被修改。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">double</span> PI = <span class="number">3.1415926</span>;</span><br><span class="line"><span class="type">const</span> <span class="type">int</span> MAX_SCORE = <span class="number">100</span>;</span><br></pre></td></tr></table></figure>
+<p>如果后面写：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PI = 3.14;  // 错误：const 变量不能被重新赋值</span></span><br></pre></td></tr></table></figure>
+<p>编译器会报错。初学阶段可以把 <code>const</code>
+理解成“给不会变的值加一层保护”。</p>
+<h3 id="基本类型">🔢 基本类型</h3>
+<h4 id="整型">整型</h4>
+<p>整型用来表示整数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> count = <span class="number">10</span>;</span><br><span class="line"><span class="type">long</span> <span class="type">long</span> bigNumber = <span class="number">10000000000LL</span>;</span><br></pre></td></tr></table></figure>
+<p><code>10000000000LL</code> 末尾的 <code>LL</code>
+是整数后缀，表示这个整数字面量的类型是
+<code>long long</code>。如果不写后缀，编译器会根据数值大小和规则推导类型；写上
+<code>LL</code> 可以明确告诉编译器“这是一个长整型整数”。</p>
+<p>常用选择：</p>
+<table>
+<thead>
+<tr class="header">
+<th>类型</th>
+<th>说明</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int</code></td>
+<td>常用整数类型</td>
+<td>普通计数、下标、分数</td>
+</tr>
+<tr class="even">
+<td><code>long long</code></td>
+<td>更大范围整数</td>
+<td>大数计数、算法题</td>
+</tr>
+<tr class="odd">
+<td><code>unsigned int</code></td>
+<td>非负整数</td>
+<td>位运算、底层接口较常见</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注意：<code>unsigned</code> 不是“更大的
+int”这么简单，它不表示负数，混用有时会产生反直觉结果。</p>
+</blockquote>
+<h4 id="浮点型">浮点型</h4>
+<p>浮点型用来表示小数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> x = <span class="number">1.5f</span>;</span><br><span class="line"><span class="type">double</span> y = <span class="number">3.1415926</span>;</span><br></pre></td></tr></table></figure>
+<p>日常优先用 <code>double</code>。<code>float</code>
+占用空间更小，但精度更低，常见于图形、深度学习、嵌入式等场景。</p>
+<h4 id="字面量后缀">字面量后缀</h4>
+<p>代码里的 <code>10</code>、<code>1.5</code>、<code>'A'</code>
+这种直接写出来的值叫
+<strong>字面量</strong>。有些字面量可以加后缀，用来明确它的类型。</p>
+<p>常见整数后缀：</p>
+<table>
+<thead>
+<tr class="header">
+<th>后缀</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>L</code></td>
+<td><code>long</code></td>
+<td><code>100L</code></td>
+</tr>
+<tr class="even">
+<td><code>LL</code></td>
+<td><code>long long</code></td>
+<td><code>10000000000LL</code></td>
+</tr>
+<tr class="odd">
+<td><code>U</code></td>
+<td><code>unsigned</code></td>
+<td><code>10U</code></td>
+</tr>
+<tr class="even">
+<td><code>ULL</code></td>
+<td><code>unsigned long long</code></td>
+<td><code>100ULL</code></td>
+</tr>
+</tbody>
+</table>
+<p>常见浮点后缀：</p>
+<table>
+<thead>
+<tr class="header">
+<th>后缀</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>f</code> 或 <code>F</code></td>
+<td><code>float</code></td>
+<td><code>1.5f</code></td>
+</tr>
+<tr class="even">
+<td>无后缀</td>
+<td><code>double</code></td>
+<td><code>1.5</code></td>
+</tr>
+<tr class="odd">
+<td><code>l</code> 或 <code>L</code></td>
+<td><code>long double</code></td>
+<td><code>1.5L</code></td>
+</tr>
+</tbody>
+</table>
+<p>所以：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">float</span> a = <span class="number">1.5f</span>;     <span class="comment">// 1.5f 是 float</span></span><br><span class="line"><span class="type">double</span> b = <span class="number">1.5</span>;     <span class="comment">// 1.5 默认是 double</span></span><br><span class="line"><span class="type">long</span> <span class="type">long</span> c = <span class="number">10LL</span>; <span class="comment">// 10LL 是 long long</span></span><br></pre></td></tr></table></figure>
+<p>初学阶段不用背全，只要记住两个常见规则：</p>
+<table>
+<thead>
+<tr class="header">
+<th>写法</th>
+<th>什么时候用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>LL</code></td>
+<td>整数很大，或者明确要 <code>long long</code></td>
+</tr>
+<tr class="even">
+<td><code>f</code></td>
+<td>明确要 <code>float</code>，避免默认按 <code>double</code> 处理</td>
+</tr>
+</tbody>
+</table>
+<h4 id="字符">字符</h4>
+<p><code>char</code>
+表示单个字符，字符字面量使用<strong>单引号</strong>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> ch = <span class="string">&#x27;A&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<p>注意区分：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> a = <span class="string">&#x27;A&#x27;</span>;      <span class="comment">// 字符</span></span><br><span class="line"><span class="comment">// char b = &quot;A&quot;;   // 错误：&quot;A&quot; 是字符串字面量</span></span><br></pre></td></tr></table></figure>
+<h4 id="布尔">布尔</h4>
+<p><code>bool</code> 只有两个值：<code>true</code> 和
+<code>false</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">bool</span> isReady = <span class="literal">true</span>;</span><br><span class="line"><span class="type">bool</span> isEmpty = <span class="literal">false</span>;</span><br></pre></td></tr></table></figure>
+<p>它常用于条件判断：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (isReady) &#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;ready&quot;</span> &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="类型转换">类型转换</h4>
+<p>类型转换就是把一种类型的值变成另一种类型的值。入门阶段先掌握三件事：<strong>隐式转换</strong>、<strong>显式转换</strong>、<strong>窄化转换</strong>。</p>
+<h4 id="隐式转换">隐式转换</h4>
+<p>隐式转换是编译器自动帮你转。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"><span class="type">double</span> b = a;       <span class="comment">// 隐式转换：int -&gt; double</span></span><br></pre></td></tr></table></figure>
+<p><code>int</code> 转成 <code>double</code> 通常安全，因为整数
+<code>10</code> 可以自然表示成小数 <code>10.0</code>。</p>
+<p>常见隐式转换：</p>
+<table>
+<thead>
+<tr class="header">
+<th>例子</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int -&gt; double</code></td>
+<td>整数转小数</td>
+</tr>
+<tr class="even">
+<td><code>char -&gt; int</code></td>
+<td>字符按编码值转整数</td>
+</tr>
+<tr class="odd">
+<td><code>bool -&gt; int</code></td>
+<td><code>false</code> 转 <code>0</code>，<code>true</code> 转
+<code>1</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="显式转换">显式转换</h4>
+<p>显式转换是你主动告诉编译器“我知道这里要转类型”。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> x = <span class="number">3.8</span>;</span><br><span class="line"><span class="type">int</span> y = <span class="built_in">static_cast</span>&lt;<span class="type">int</span>&gt;(x);  <span class="comment">// 显式转换：结果是 3</span></span><br></pre></td></tr></table></figure>
+<p><code>static_cast&lt;int&gt;(x)</code> 会把 <code>double</code> 转成
+<code>int</code>。小数部分会被直接截掉，不是四舍五入。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> x = <span class="number">3.8</span>;</span><br><span class="line"><span class="type">double</span> y = <span class="number">-3.8</span>;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; <span class="built_in">static_cast</span>&lt;<span class="type">int</span>&gt;(x) &lt;&lt; endl;  <span class="comment">// 3</span></span><br><span class="line">cout &lt;&lt; <span class="built_in">static_cast</span>&lt;<span class="type">int</span>&gt;(y) &lt;&lt; endl;  <span class="comment">// -3</span></span><br></pre></td></tr></table></figure>
+<p>初学阶段优先用
+<code>static_cast&lt;目标类型&gt;(值)</code>，不要急着用 C
+风格强转：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="built_in">static_cast</span>&lt;<span class="type">int</span>&gt;(<span class="number">3.8</span>); <span class="comment">// 推荐：意图更明确</span></span><br><span class="line"><span class="type">int</span> b = (<span class="type">int</span>)<span class="number">3.8</span>;             <span class="comment">// 不推荐作为初学主写法</span></span><br></pre></td></tr></table></figure>
+<h4 id="窄化转换">窄化转换</h4>
+<p>窄化转换指“目标类型装不下原来的信息”，比如小数转整数、大范围整数转小范围整数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">3.14</span>;       <span class="comment">// a 变成 3，小数部分丢失</span></span><br><span class="line"><span class="comment">// int b&#123;3.14&#125;;     // 错误：列表初始化会阻止窄化转换</span></span><br></pre></td></tr></table></figure>
+<p>这和前面讲的 <code>int b&#123;&#125;;</code> 属于同一类 <code>&#123;&#125;</code>
+初始化规则：列表初始化更严格，能帮你挡住一些容易出错的转换。</p>
+<h4 id="整数除法">整数除法</h4>
+<p>整数除法是类型转换里最常见的坑：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cout &lt;&lt; <span class="number">5</span> / <span class="number">2</span> &lt;&lt; endl;        <span class="comment">// 输出 2</span></span><br><span class="line">cout &lt;&lt; <span class="number">5.0</span> / <span class="number">2</span> &lt;&lt; endl;      <span class="comment">// 输出 2.5</span></span><br></pre></td></tr></table></figure>
+<p>如果两个操作数都是整数，<code>/</code> 会先执行整数除法，结果已经是
+<code>2</code>。就算你把结果赋给 <code>double</code>，也不会变回
+<code>2.5</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">double</span> a = <span class="number">5</span> / <span class="number">2</span>;    <span class="comment">// 2.0</span></span><br><span class="line"><span class="type">double</span> b = <span class="number">5.0</span> / <span class="number">2</span>;  <span class="comment">// 2.5</span></span><br><span class="line"><span class="type">double</span> c = <span class="built_in">static_cast</span>&lt;<span class="type">double</span>&gt;(<span class="number">5</span>) / <span class="number">2</span>; <span class="comment">// 2.5</span></span><br></pre></td></tr></table></figure>
+<p>判断规则很简单：</p>
+<table>
+<colgroup>
+<col style="width: 57%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>表达式</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>5 / 2</code></td>
+<td>整数除法，结果 <code>2</code></td>
+</tr>
+<tr class="even">
+<td><code>5.0 / 2</code></td>
+<td>浮点除法，结果 <code>2.5</code></td>
+</tr>
+<tr class="odd">
+<td><code>static_cast&lt;double&gt;(5) / 2</code></td>
+<td>先把一个操作数转成 <code>double</code>，结果 <code>2.5</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="运算符">🧮 运算符</h3>
+<h4 id="算术运算符">算术运算符</h4>
+<table>
+<thead>
+<tr class="header">
+<th>运算符</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>+</code></td>
+<td>加法</td>
+<td><code>a + b</code></td>
+</tr>
+<tr class="even">
+<td><code>-</code></td>
+<td>减法</td>
+<td><code>a - b</code></td>
+</tr>
+<tr class="odd">
+<td><code>*</code></td>
+<td>乘法</td>
+<td><code>a * b</code></td>
+</tr>
+<tr class="even">
+<td><code>/</code></td>
+<td>除法</td>
+<td><code>a / b</code></td>
+</tr>
+<tr class="odd">
+<td><code>%</code></td>
+<td>取余</td>
+<td><code>a % b</code></td>
+</tr>
+</tbody>
+</table>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">7</span>;</span><br><span class="line"><span class="type">int</span> b = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; a + b &lt;&lt; endl;  <span class="comment">// 10</span></span><br><span class="line">cout &lt;&lt; a / b &lt;&lt; endl;  <span class="comment">// 2</span></span><br><span class="line">cout &lt;&lt; a % b &lt;&lt; endl;  <span class="comment">// 1</span></span><br></pre></td></tr></table></figure>
+<p><code>%</code> 只能用于整数，不能直接用于浮点数。</p>
+<h4 id="关系运算符">关系运算符</h4>
+<p>关系运算符的结果是 <code>bool</code>。</p>
+<table>
+<thead>
+<tr class="header">
+<th>运算符</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>==</code></td>
+<td>等于</td>
+</tr>
+<tr class="even">
+<td><code>!=</code></td>
+<td>不等于</td>
+</tr>
+<tr class="odd">
+<td><code>&gt;</code></td>
+<td>大于</td>
+</tr>
+<tr class="even">
+<td><code>&lt;</code></td>
+<td>小于</td>
+</tr>
+<tr class="odd">
+<td><code>&gt;=</code></td>
+<td>大于等于</td>
+</tr>
+<tr class="even">
+<td><code>&lt;=</code></td>
+<td>小于等于</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> score = <span class="number">85</span>;</span><br><span class="line">cout &lt;&lt; (score &gt;= <span class="number">60</span>) &lt;&lt; endl;  <span class="comment">// true 通常输出为 1</span></span><br></pre></td></tr></table></figure>
+<h4 id="逻辑运算符">逻辑运算符</h4>
+<table>
+<thead>
+<tr class="header">
+<th>运算符</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>&amp;&amp;</code></td>
+<td>且</td>
+<td><code>a &gt; 0 &amp;&amp; a &lt; 10</code></td>
+</tr>
+<tr class="even">
+<td><code>||</code></td>
+<td>或</td>
+<td><code>a == 0 || a == 1</code></td>
+</tr>
+<tr class="odd">
+<td><code>!</code></td>
+<td>非</td>
+<td><code>!ok</code></td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> age = <span class="number">20</span>;</span><br><span class="line"><span class="type">bool</span> hasTicket = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (age &gt;= <span class="number">18</span> &amp;&amp; hasTicket) &#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;enter&quot;</span> &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="赋值运算符">赋值运算符</h4>
+<p>赋值是把右边的值写入左边变量。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line">x = <span class="number">20</span>;</span><br><span class="line">x += <span class="number">5</span>;   <span class="comment">// 等价于 x = x + 5</span></span><br><span class="line">x *= <span class="number">2</span>;   <span class="comment">// 等价于 x = x * 2</span></span><br></pre></td></tr></table></figure>
+<p>常见复合赋值：</p>
+<table>
+<thead>
+<tr class="header">
+<th>运算符</th>
+<th>等价写法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>+=</code></td>
+<td><code>x = x + value</code></td>
+</tr>
+<tr class="even">
+<td><code>-=</code></td>
+<td><code>x = x - value</code></td>
+</tr>
+<tr class="odd">
+<td><code>*=</code></td>
+<td><code>x = x * value</code></td>
+</tr>
+<tr class="even">
+<td><code>/=</code></td>
+<td><code>x = x / value</code></td>
+</tr>
+<tr class="odd">
+<td><code>%=</code></td>
+<td><code>x = x % value</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="自增自减">自增自减</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">i++;  <span class="comment">// i 变成 1</span></span><br><span class="line">+i;  <span class="comment">// i 变成 2</span></span><br><span class="line">i--;  <span class="comment">// i 变成 1</span></span><br><span class="line">--i;  <span class="comment">// i 变成 0</span></span><br></pre></td></tr></table></figure>
+<p>单独作为一条语句时，<code>i++</code> 和 <code>++i</code>
+效果一样。放在复杂表达式里时有区别，初学阶段不建议写这种代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> i = <span class="number">0</span>;</span><br><span class="line">cout &lt;&lt; i++ &lt;&lt; endl;  <span class="comment">// 先使用 i，再自增</span></span><br><span class="line">cout &lt;&lt; ++i &lt;&lt; endl;  <span class="comment">// 先自增，再使用 i</span></span><br></pre></td></tr></table></figure>
+<h3 id="输入输出">🖥️ 输入输出</h3>
+<h4 id="cout"><code>cout</code></h4>
+<p><code>cout</code> 用于向标准输出写内容。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> age = <span class="number">18</span>;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;age = &quot;</span> &lt;&lt; age &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>endl</code> 表示换行并刷新缓冲区。普通换行也可以用
+<code>'\n'</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cout &lt;&lt; <span class="string">&quot;Hello\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="cin"><code>cin</code></h4>
+<p><code>cin</code> 用于从标准输入读取内容。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> age&#123;&#125;;</span><br><span class="line">    cin &gt;&gt; age;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;age = &quot;</span> &lt;&lt; age &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>读取多个值：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a&#123;&#125;;</span><br><span class="line"><span class="type">int</span> b&#123;&#125;;</span><br><span class="line">cin &gt;&gt; a &gt;&gt; b;</span><br><span class="line">cout &lt;&lt; a + b &lt;&lt; endl;</span><br></pre></td></tr></table></figure>
+<p><code>cin</code> 默认按空白字符分隔输入，空格、换行、Tab
+都可以作为分隔。</p>
+<h4 id="格式化输出入门">格式化输出入门</h4>
+<p>格式化输出常用 <code>&lt;iomanip&gt;</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iomanip&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">double</span> pi = <span class="number">3.1415926</span>;</span><br><span class="line">    cout &lt;&lt; fixed &lt;&lt; <span class="built_in">setprecision</span>(<span class="number">2</span>) &lt;&lt; pi &lt;&lt; endl;  <span class="comment">// 3.14</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>常见工具：</p>
+<table>
+<thead>
+<tr class="header">
+<th>工具</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fixed</code></td>
+<td>使用定点小数形式输出</td>
+</tr>
+<tr class="even">
+<td><code>setprecision(n)</code></td>
+<td>控制精度</td>
+</tr>
+<tr class="odd">
+<td><code>setw(n)</code></td>
+<td>设置输出宽度</td>
+</tr>
+</tbody>
+</table>
+<h3 id="分支结构">🌿 分支结构</h3>
+<h4 id="ifelse"><code>if/else</code></h4>
+<p><code>if/else</code> 用于根据条件选择不同路径。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> score = <span class="number">75</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (score &gt;= <span class="number">90</span>) &#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;A&quot;</span> &lt;&lt; endl;</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (score &gt;= <span class="number">60</span>) &#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;pass&quot;</span> &lt;&lt; endl;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;fail&quot;</span> &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行逻辑：</p>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    A[开始判断] --&gt; B{score &gt;&#x3D; 90}
+    B --&gt;|是| C[输出 A]
+    B --&gt;|否| D{score &gt;&#x3D; 60}
+    D --&gt;|是| E[输出 pass]
+    D --&gt;|否| F[输出 fail]
+</code>
+</pre>
+<h4 id="switch"><code>switch</code></h4>
+<p><code>switch</code>
+适合处理一个整数或枚举值对应多个固定分支的场景。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> day = <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">switch</span> (day) &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Monday&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Tuesday&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Wednesday&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;unknown&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>break</code> 用来跳出
+<code>switch</code>。如果漏写，程序会继续执行后面的
+<code>case</code>，这叫 fallthrough。</p>
+<h4 id="条件表达式">条件表达式</h4>
+<p>条件表达式也叫三目运算符：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">条件 ? 条件为真时的值 : 条件为假时的值</span><br></pre></td></tr></table></figure>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> score = <span class="number">80</span>;</span><br><span class="line">string result = score &gt;= <span class="number">60</span> ? <span class="string">&quot;pass&quot;</span> : <span class="string">&quot;fail&quot;</span>;</span><br><span class="line">cout &lt;&lt; result &lt;&lt; endl;</span><br></pre></td></tr></table></figure>
+<p>适合简单选择，不适合塞进复杂逻辑。</p>
+<h3 id="循环结构">🔁 循环结构</h3>
+<h4 id="for"><code>for</code></h4>
+<p><code>for</code> 适合循环次数比较明确的场景。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">    cout &lt;&lt; i &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结构：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (初始化; 条件; 更新) &#123;</span><br><span class="line">    循环体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行顺序：</p>
+<pre>
+<code class="mermaid">
+
+flowchart TD
+    A[初始化] --&gt; B{条件是否成立}
+    B --&gt;|是| C[执行循环体]
+    C --&gt; D[更新]
+    D --&gt; B
+    B --&gt;|否| E[结束循环]
+</code>
+</pre>
+<h4 id="while"><code>while</code></h4>
+<p><code>while</code> 适合循环次数不固定，但继续条件明确的场景。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> n = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (n &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    cout &lt;&lt; n &lt;&lt; endl;</span><br><span class="line">    n--;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>while</code> 是先判断，再执行。</p>
+<h4 id="do-while"><code>do while</code></h4>
+<p><code>do while</code> 是先执行一次，再判断。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> n = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    cout &lt;&lt; n &lt;&lt; endl;</span><br><span class="line">    n++;</span><br><span class="line">&#125; <span class="keyword">while</span> (n &lt; <span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>即使条件一开始就是假，循环体也会至少执行一次。</p>
+<h4 id="break"><code>break</code></h4>
+<p><code>break</code> 用于提前结束整个循环。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (i == <span class="number">3</span>) &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; i &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">0</span><br><span class="line">1</span><br><span class="line">2</span><br></pre></td></tr></table></figure>
+<h4 id="continue"><code>continue</code></h4>
+<p><code>continue</code> 用于跳过本轮循环剩余语句，进入下一轮。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (i == <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; i &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0</span><br><span class="line">1</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td></tr></table></figure>
+<h3 id="常见误区">⚠️ 常见误区</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>局部变量不初始化也能安全使用</td>
+<td>未初始化局部变量的值不确定，先初始化</td>
+</tr>
+<tr class="even">
+<td><code>5 / 2</code> 会得到 <code>2.5</code></td>
+<td>两个整数相除得到整数，结果是 <code>2</code></td>
+</tr>
+<tr class="odd">
+<td><code>=</code> 和 <code>==</code> 可以混用</td>
+<td><code>=</code> 是赋值，<code>==</code> 是比较</td>
+</tr>
+<tr class="even">
+<td><code>cin</code> 可以自动处理所有错误输入</td>
+<td>输入类型不匹配时，<code>cin</code> 会进入失败状态</td>
+</tr>
+<tr class="odd">
+<td><code>break</code> 和 <code>continue</code> 一样</td>
+<td><code>break</code> 结束循环，<code>continue</code> 跳到下一轮</td>
+</tr>
+<tr class="even">
+<td><code>switch</code> 的 <code>break</code> 可写可不写</td>
+<td>不写可能继续执行后续 <code>case</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="总结">✅ 总结</h3>
+<blockquote>
+<p>基础语法的核心不是记住每个符号，而是理解：数据用变量和类型表示，计算靠表达式和运算符，程序路径由分支和循环控制。</p>
+</blockquote>
+<p>下一步可以继续学函数、数组、字符串和指针。它们会把“单段代码”组织成更完整的程序。</p>
+<p>Happy Hacking! 🎉</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95/" rel="tag"># 基础语法</a>
+              <a href="/tags/%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/" rel="tag"># 编程入门</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/18f02423/" rel="prev" title="CUDA 异步报错：为什么调用栈总是不在真正出错处">
+                  <i class="fa fa-angle-left"></i> CUDA 异步报错：为什么调用栈总是不在真正出错处
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/c4f8a2d1/" rel="next" title="C&#x2F;C++ 入门：从编译环境到 HelloWorld">
+                  C/C++ 入门：从编译环境到 HelloWorld <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zihao Li</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">275k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">8:19</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
