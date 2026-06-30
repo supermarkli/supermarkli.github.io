@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="指针难，不是因为语法多，而是因为它要求你开始从“变量的值”进一步看到“变量在内存里的位置”。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C&#x2F;C++ 入门：指针">
+<meta property="og:url" content="https://supermarkli.github.io/posts/c8d4f2a9/index.html">
+<meta property="og:site_name" content="Zihao Li">
+<meta property="og:description" content="指针难，不是因为语法多，而是因为它要求你开始从“变量的值”进一步看到“变量在内存里的位置”。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-30T07:46:18.000Z">
+<meta property="article:modified_time" content="2026-06-30T07:47:51.387Z">
+<meta property="article:author" content="Zihao Li">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="编程入门">
+<meta property="article:tag" content="指针">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/c8d4f2a9/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/c8d4f2a9/","path":"posts/c8d4f2a9/","title":"C/C++ 入门：指针"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C/C++ 入门：指针 | Zihao Li</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Zihao Li" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zihao Li</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 基本概念速读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E5%86%85%E5%AD%98%E5%88%86%E5%8C%BA%E6%9E%81%E7%AE%80%E8%AE%A4%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">🧩 程序内存分区极简认识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88%E5%86%85%E5%AD%98"><span class="nav-number">3.</span> <span class="nav-text">📦 栈内存</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">3.1.</span> <span class="nav-text">局部变量生命周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E7%BB%93%E6%9D%9F%E8%87%AA%E5%8A%A8%E9%94%80%E6%AF%81"><span class="nav-number">3.2.</span> <span class="nav-text">函数结束自动销毁</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E5%86%85%E5%AD%98"><span class="nav-number">4.</span> <span class="nav-text">🧱 堆内存</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%8B%E5%8A%A8%E5%88%86%E9%85%8D"><span class="nav-number">4.1.</span> <span class="nav-text">手动分配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%B8%8D%E5%8F%97%E5%87%BD%E6%95%B0%E9%99%90%E5%88%B6"><span class="nav-number">4.2.</span> <span class="nav-text">生命周期不受函数限制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80%E5%8F%96%E5%9C%B0%E5%9D%80%E4%B8%8E%E8%A7%A3%E5%BC%95%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">📍 地址、取地址与解引用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%B0%E5%9D%80"><span class="nav-number">5.1.</span> <span class="nav-text">地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E5%8F%98%E9%87%8F"><span class="nav-number">5.2.</span> <span class="nav-text">指针变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%BC%95%E7%94%A8"><span class="nav-number">5.3.</span> <span class="nav-text">解引用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%B8%B8%E8%A7%81%E5%90%AB%E4%B9%89"><span class="nav-number">5.4.</span> <span class="nav-text">* 的两个常见含义</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#nullptr"><span class="nav-number">6.</span> <span class="nav-text">🕳️ nullptr</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E6%8C%87%E9%92%88"><span class="nav-number">6.1.</span> <span class="nav-text">空指针</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%A4%E7%A9%BA"><span class="nav-number">6.2.</span> <span class="nav-text">判空</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E5%92%8C-null-%E6%B7%B7%E7%94%A8"><span class="nav-number">6.3.</span> <span class="nav-text">避免和 NULL 混用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E5%81%9A%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0"><span class="nav-number">7.</span> <span class="nav-text">🔧 指针做函数参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E5%A4%96%E9%83%A8%E5%8F%98%E9%87%8F"><span class="nav-number">7.1.</span> <span class="nav-text">修改外部变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%A0%E6%95%B0%E7%BB%84"><span class="nav-number">7.2.</span> <span class="nav-text">传数组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%A0%E7%BC%93%E5%86%B2%E5%8C%BA"><span class="nav-number">7.3.</span> <span class="nav-text">传缓冲区</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E4%B8%8E%E6%95%B0%E7%BB%84"><span class="nav-number">8.</span> <span class="nav-text">🧮 指针与数组</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E7%BB%84%E5%90%8D%E9%80%80%E5%8C%96"><span class="nav-number">8.1.</span> <span class="nav-text">数组名退化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E9%81%8D%E5%8E%86%E6%95%B0%E7%BB%84"><span class="nav-number">8.2.</span> <span class="nav-text">指针遍历数组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B6%8A%E7%95%8C%E9%A3%8E%E9%99%A9"><span class="nav-number">8.3.</span> <span class="nav-text">越界风险</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84%E5%AD%97%E7%AC%A6%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88"><span class="nav-number">9.</span> <span class="nav-text">🧷 指针数组、字符指针、数组指针</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84"><span class="nav-number">9.1.</span> <span class="nav-text">指针数组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E6%8C%87%E9%92%88"><span class="nav-number">9.2.</span> <span class="nav-text">字符指针</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88"><span class="nav-number">9.3.</span> <span class="nav-text">数组指针</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8E%E6%8C%87%E9%92%88%E4%B8%8E%E6%82%AC%E7%A9%BA%E6%8C%87%E9%92%88"><span class="nav-number">10.</span> <span class="nav-text">⚠️ 野指针与悬空指针</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%AA%E5%88%9D%E5%A7%8B%E5%8C%96%E6%8C%87%E9%92%88"><span class="nav-number">10.1.</span> <span class="nav-text">未初始化指针</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8A%E6%94%BE%E5%90%8E%E7%BB%A7%E7%BB%AD%E4%BD%BF%E7%94%A8"><span class="nav-number">10.2.</span> <span class="nav-text">释放后继续使用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%88%E5%86%85%E5%AD%98%E9%94%80%E6%AF%81%E5%90%8E%E6%8C%87%E9%92%88%E6%AE%8B%E7%95%99"><span class="nav-number">10.3.</span> <span class="nav-text">栈内存销毁后指针残留</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E5%8D%B1%E9%99%A9%E6%80%BB%E7%BB%93"><span class="nav-number">10.4.</span> <span class="nav-text">常见危险总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E4%BD%BF%E7%94%A8%E6%9C%80%E5%B0%8F%E5%87%86%E5%88%99"><span class="nav-number">11.</span> <span class="nav-text">✅ 指针使用最小准则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">12.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zihao Li"
+      src="/images/tkd.jpg">
+  <p class="site-author-name" itemprop="name">Zihao Li</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">138</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/c8d4f2a9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/tkd.jpg">
+      <meta itemprop="name" content="Zihao Li">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zihao Li">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C&#x2F;C++ 入门：指针 | Zihao Li">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C/C++ 入门：指针
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-06-30 15:46:18 / Modified: 15:47:51" itemprop="dateCreated datePublished" datetime="2026-06-30T15:46:18+08:00">2026-06-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>5.5k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>10 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>指针难，不是因为语法多，而是因为它要求你开始从“变量的值”进一步看到“变量在内存里的位置”。</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>地址</td>
+<td>变量在内存中的位置编号</td>
+<td>住址</td>
+</tr>
+<tr class="even">
+<td>指针</td>
+<td>保存地址的变量</td>
+<td>存地址</td>
+</tr>
+<tr class="odd">
+<td>取地址</td>
+<td>用 <code>&amp;</code> 得到变量地址</td>
+<td>问住址</td>
+</tr>
+<tr class="even">
+<td>解引用</td>
+<td>用 <code>*</code> 通过地址访问目标值</td>
+<td>按地址找值</td>
+</tr>
+<tr class="odd">
+<td>栈</td>
+<td>自动管理的函数调用内存区域</td>
+<td>自动生灭</td>
+</tr>
+<tr class="even">
+<td>堆</td>
+<td>手动申请、手动释放的内存区域</td>
+<td>手动管理</td>
+</tr>
+<tr class="odd">
+<td>空指针</td>
+<td>不指向任何有效对象的指针</td>
+<td>指向空</td>
+</tr>
+<tr class="even">
+<td>野指针</td>
+<td>指向未知或无效位置的指针</td>
+<td>危险地址</td>
+</tr>
+<tr class="odd">
+<td>悬空指针</td>
+<td>原对象已失效但指针还留着</td>
+<td>地址过期</td>
+</tr>
+</tbody>
+</table>
+<h3 id="程序内存分区极简认识">🧩 程序内存分区极简认识</h3>
+<p>程序运行时，内存不是一整块随便用，而是可以粗略分成几个区域。初学阶段不需要记所有细节，先建立心智模型。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">+----------------------+</span><br><span class="line">|  代码区              |  程序指令</span><br><span class="line">+----------------------+</span><br><span class="line">|  常量区              |  字符串字面量、只读常量</span><br><span class="line">+----------------------+</span><br><span class="line">|  全局区              |  全局变量、静态变量</span><br><span class="line">+----------------------+</span><br><span class="line">|  堆                  |  手动申请、手动释放</span><br><span class="line">+----------------------+</span><br><span class="line">|  栈                  |  局部变量、函数调用现场</span><br><span class="line">+----------------------+</span><br></pre></td></tr></table></figure>
+<p>更简单地说：</p>
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>区域</th>
+<th>放什么</th>
+<th>谁管理</th>
+<th>常见特点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>栈</td>
+<td>局部变量、函数参数</td>
+<td>编译器和运行时自动管理</td>
+<td>快，函数结束自动释放</td>
+</tr>
+<tr class="even">
+<td>堆</td>
+<td>手动申请的大块数据</td>
+<td>程序员管理</td>
+<td>灵活，但容易泄漏</td>
+</tr>
+<tr class="odd">
+<td>全局区</td>
+<td>全局变量、<code>static</code> 变量</td>
+<td>程序启动到结束</td>
+<td>生命周期长</td>
+</tr>
+<tr class="even">
+<td>常量区</td>
+<td>字符串字面量、只读数据</td>
+<td>编译器和系统管理</td>
+<td>通常不允许修改</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>这只是入门模型。不同系统和编译器的真实内存布局会更复杂，但这个模型足够帮助理解指针。</p>
+</blockquote>
+<h3 id="栈内存">📦 栈内存</h3>
+<h4 id="局部变量生命周期">局部变量生命周期</h4>
+<p>在函数里定义的普通局部变量，通常位于栈上。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> result = a + b;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>a</code>、<code>b</code>、<code>result</code>
+都和这次函数调用绑定。函数开始时它们被创建，函数结束时它们被销毁。</p>
+<p>可以这样理解：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">调用 add(3, 5)</span><br><span class="line">  |</span><br><span class="line">  v</span><br><span class="line">创建 a、b、result</span><br><span class="line">  |</span><br><span class="line">  v</span><br><span class="line">return result</span><br><span class="line">  |</span><br><span class="line">  v</span><br><span class="line">函数结束，局部变量销毁</span><br></pre></td></tr></table></figure>
+<h4 id="函数结束自动销毁">函数结束自动销毁</h4>
+<p>看一个危险例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span>* <span class="title">bad</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">return</span> &amp;x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>x</code>
+是局部变量，函数结束后就没了。<code>return &amp;x;</code>
+返回的是一个已经失效的地址。</p>
+<p>初学阶段先记住：<strong>不要返回局部变量的地址</strong>。</p>
+<h3 id="堆内存">🧱 堆内存</h3>
+<h4 id="手动分配">手动分配</h4>
+<p>堆内存的生命周期不受函数作用域直接限制。C++ 里可以用 <code>new</code>
+申请，用 <code>delete</code> 释放。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>* p = <span class="keyword">new</span> <span class="type">int</span>;</span><br><span class="line">*p = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">delete</span> p;</span><br><span class="line">p = <span class="literal">nullptr</span>;</span><br></pre></td></tr></table></figure>
+<p>这段代码做了几件事：</p>
+<table>
+<thead>
+<tr class="header">
+<th>代码</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>new int</code></td>
+<td>在堆上申请一个 <code>int</code> 空间</td>
+</tr>
+<tr class="even">
+<td><code>int* p</code></td>
+<td>用指针 <code>p</code> 保存这块空间的地址</td>
+</tr>
+<tr class="odd">
+<td><code>*p = 10;</code></td>
+<td>通过地址把值写进去</td>
+</tr>
+<tr class="even">
+<td><code>delete p;</code></td>
+<td>释放这块堆内存</td>
+</tr>
+<tr class="odd">
+<td><code>p = nullptr;</code></td>
+<td>避免指针继续保存旧地址</td>
+</tr>
+</tbody>
+</table>
+<h4 id="生命周期不受函数限制">生命周期不受函数限制</h4>
+<p>下面这个函数返回堆内存地址是可以的：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span>* <span class="title">createNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>* p = <span class="keyword">new</span> <span class="type">int</span>;</span><br><span class="line">    *p = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span>* value = <span class="built_in">createNumber</span>();</span><br><span class="line">    cout &lt;&lt; *value &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">delete</span> value;</span><br><span class="line">    value = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为 <code>new int</code> 申请的是堆内存，不会随着
+<code>createNumber</code> 函数结束自动销毁。</p>
+<p>但代价是：<strong>谁申请，谁负责释放</strong>。忘记
+<code>delete</code> 会造成内存泄漏。</p>
+<h3 id="地址取地址与解引用">📍 地址、取地址与解引用</h3>
+<h4 id="地址">地址</h4>
+<p>每个变量都存放在内存中的某个位置，这个位置可以理解为地址。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line">cout &lt;&lt; &amp;x &lt;&lt; endl;</span><br></pre></td></tr></table></figure>
+<p><code>&amp;x</code> 表示取变量 <code>x</code> 的地址。</p>
+<h4 id="指针变量">指针变量</h4>
+<p>指针变量专门用来保存地址。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line"><span class="type">int</span>* p = &amp;x;</span><br></pre></td></tr></table></figure>
+<p>读法：</p>
+<table>
+<thead>
+<tr class="header">
+<th>代码</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int x = 10;</code></td>
+<td>创建一个整数变量</td>
+</tr>
+<tr class="even">
+<td><code>&amp;x</code></td>
+<td>得到 <code>x</code> 的地址</td>
+</tr>
+<tr class="odd">
+<td><code>int* p</code></td>
+<td>创建一个指向 <code>int</code> 的指针</td>
+</tr>
+<tr class="even">
+<td><code>p = &amp;x</code></td>
+<td>让 <code>p</code> 保存 <code>x</code> 的地址</td>
+</tr>
+</tbody>
+</table>
+<h4 id="解引用">解引用</h4>
+<p><code>*p</code> 表示通过指针 <code>p</code>
+保存的地址，访问那个地址上的值。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line"><span class="type">int</span>* p = &amp;x;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; *p &lt;&lt; endl;  <span class="comment">// 10</span></span><br><span class="line"></span><br><span class="line">*p = <span class="number">20</span>;</span><br><span class="line">cout &lt;&lt; x &lt;&lt; endl;   <span class="comment">// 20</span></span><br></pre></td></tr></table></figure>
+<p>可以粗略理解为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">x: 10</span><br><span class="line">^</span><br><span class="line">|</span><br><span class="line">p 保存 x 的地址</span><br><span class="line"></span><br><span class="line">*p 表示沿着地址找到 x</span><br></pre></td></tr></table></figure>
+<h4 id="的两个常见含义"><code>*</code> 的两个常见含义</h4>
+<p><code>*</code> 在不同位置含义不同：</p>
+<table>
+<thead>
+<tr class="header">
+<th>写法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int* p</code></td>
+<td>定义一个指针变量</td>
+</tr>
+<tr class="even">
+<td><code>*p = 20</code></td>
+<td>解引用，通过指针访问目标值</td>
+</tr>
+</tbody>
+</table>
+<p>这也是指针语法容易让新手混乱的地方。</p>
+<h3 id="nullptr">🕳️ <code>nullptr</code></h3>
+<h4 id="空指针">空指针</h4>
+<p>如果一个指针暂时不指向任何有效对象，应该让它等于
+<code>nullptr</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>* p = <span class="literal">nullptr</span>;</span><br></pre></td></tr></table></figure>
+<p><code>nullptr</code> 的意思是：这个指针现在不保存有效地址。</p>
+<h4 id="判空">判空</h4>
+<p>使用指针前，常见做法是先判断它是否为空：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>* p = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (p != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">    cout &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也可以简写：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (p) &#123;</span><br><span class="line">    cout &lt;&lt; *p &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>初学阶段建议写清楚 <code>p != nullptr</code>，可读性更好。</p>
+<h4 id="避免和-null-混用">避免和 <code>NULL</code> 混用</h4>
+<p>C 语言里常见 <code>NULL</code>，现代 C++ 更推荐
+<code>nullptr</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>* p1 = <span class="literal">nullptr</span>;  <span class="comment">// 推荐</span></span><br><span class="line"><span class="type">int</span>* p2 = <span class="literal">NULL</span>;     <span class="comment">// 旧写法，不推荐混用</span></span><br></pre></td></tr></table></figure>
+<p>原因是 <code>nullptr</code> 有明确的空指针类型，更适合 C++
+的类型检查。</p>
+<h3 id="指针做函数参数">🔧 指针做函数参数</h3>
+<h4 id="修改外部变量">修改外部变量</h4>
+<p>值传递只能修改副本：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">change</span><span class="params">(<span class="type">int</span> x)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    x = <span class="number">100</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>指针参数可以修改外部变量：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">change</span><span class="params">(<span class="type">int</span>* p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (p != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">        *p = <span class="number">100</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line">    <span class="built_in">change</span>(&amp;x);</span><br><span class="line">    cout &lt;&lt; x &lt;&lt; endl;  <span class="comment">// 100</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用 <code>change(&amp;x)</code> 时，传进去的是 <code>x</code>
+的地址。函数内部用 <code>*p</code> 找到原来的变量并修改它。</p>
+<h4 id="传数组">传数组</h4>
+<p>数组作为函数参数时，通常会退化成指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">printArray</span><span class="params">(<span class="type">int</span>* arr, <span class="type">int</span> length)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        cout &lt;&lt; arr[i] &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> nums[<span class="number">3</span>] = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;;</span><br><span class="line">    <span class="built_in">printArray</span>(nums, <span class="number">3</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>arr</code> 可以理解为指向数组第一个元素的指针。</p>
+<h4 id="传缓冲区">传缓冲区</h4>
+<p>指针也常用来传一段可写缓冲区。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">fillZero</span><span class="params">(<span class="type">int</span>* buffer, <span class="type">int</span> length)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        buffer[i] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> data[<span class="number">5</span>] = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</span><br><span class="line">    <span class="built_in">fillZero</span>(data, <span class="number">5</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>传缓冲区时，通常要同时传长度。只传指针，函数不知道后面有多少个元素。</p>
+<h3 id="指针与数组">🧮 指针与数组</h3>
+<h4 id="数组名退化">数组名退化</h4>
+<p>很多表达式里，数组名会退化为指向首元素的指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> nums[<span class="number">3</span>] = &#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span>* p = nums;</span><br><span class="line">cout &lt;&lt; *p &lt;&lt; endl;  <span class="comment">// 10</span></span><br></pre></td></tr></table></figure>
+<p><code>nums</code> 在这里相当于 <code>&amp;nums[0]</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cout &lt;&lt; nums &lt;&lt; endl;</span><br><span class="line">cout &lt;&lt; &amp;nums[<span class="number">0</span>] &lt;&lt; endl;</span><br></pre></td></tr></table></figure>
+<p>这两个输出通常会看到相同的地址。</p>
+<h4 id="指针遍历数组">指针遍历数组</h4>
+<p>可以通过指针移动遍历数组：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> nums[<span class="number">3</span>] = &#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>&#125;;</span><br><span class="line"><span class="type">int</span>* p = nums;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">    cout &lt;&lt; *(p + i) &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>p + i</code> 不是简单加 <code>i</code> 个字节，而是向后移动
+<code>i</code> 个 <code>int</code> 的位置。</p>
+<p>也可以写成更常见的数组下标：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">    cout &lt;&lt; p[i] &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>p[i]</code> 本质上可以理解为 <code>*(p + i)</code>。</p>
+<h4 id="越界风险">越界风险</h4>
+<p>指针不会自动知道数组长度。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> nums[<span class="number">3</span>] = &#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>&#125;;</span><br><span class="line"><span class="type">int</span>* p = nums;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; p[<span class="number">3</span>] &lt;&lt; endl;  <span class="comment">// 错误示例：越界</span></span><br></pre></td></tr></table></figure>
+<p><code>p[3]</code> 访问的是第 4 个元素，但数组只有 3
+个元素。越界访问可能输出奇怪值，也可能直接崩溃。</p>
+<p>初学阶段写数组函数时，尽量把指针和长度一起传：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">printArray</span><span class="params">(<span class="type">int</span>* arr, <span class="type">int</span> length)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">        cout &lt;&lt; arr[i] &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="指针数组字符指针数组指针">🧷 指针数组、字符指针、数组指针</h3>
+<p>这三个名字很像，但含义不同。</p>
+<h4 id="指针数组">指针数组</h4>
+<p><strong>指针数组</strong>本质上是数组，数组里的每个元素都是指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line"><span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line"><span class="type">int</span> c = <span class="number">30</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span>* arr[<span class="number">3</span>] = &#123;&amp;a, &amp;b, &amp;c&#125;;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; *arr[<span class="number">0</span>] &lt;&lt; endl;  <span class="comment">// 10</span></span><br><span class="line">cout &lt;&lt; *arr[<span class="number">1</span>] &lt;&lt; endl;  <span class="comment">// 20</span></span><br><span class="line">cout &lt;&lt; *arr[<span class="number">2</span>] &lt;&lt; endl;  <span class="comment">// 30</span></span><br></pre></td></tr></table></figure>
+<p>读法：<code>arr</code> 是一个数组，里面放了 3 个
+<code>int*</code>。</p>
+<h4 id="字符指针">字符指针</h4>
+<p>字符指针常用来指向字符串字面量：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">char</span>* text = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; text &lt;&lt; endl;</span><br><span class="line">cout &lt;&lt; text[<span class="number">0</span>] &lt;&lt; endl;  <span class="comment">// h</span></span><br></pre></td></tr></table></figure>
+<p>这里建议写
+<code>const char*</code>，因为字符串字面量通常位于只读区域，不应该被修改。</p>
+<p>不要这样写：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span>* text = <span class="string">&quot;hello&quot;</span>;  <span class="comment">// 不推荐</span></span><br></pre></td></tr></table></figure>
+<p>如果需要可修改的字符数组，应写成数组：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">char</span> text[] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">text[<span class="number">0</span>] = <span class="string">&#x27;H&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="数组指针">数组指针</h4>
+<p><strong>数组指针</strong>本质上是指针，它指向一个数组。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> nums[<span class="number">3</span>] = &#123;<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">int</span> (*p)[<span class="number">3</span>] = &amp;nums;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; (*p)[<span class="number">0</span>] &lt;&lt; endl;  <span class="comment">// 10</span></span><br><span class="line">cout &lt;&lt; (*p)[<span class="number">1</span>] &lt;&lt; endl;  <span class="comment">// 20</span></span><br></pre></td></tr></table></figure>
+<p><code>int (*p)[3]</code> 的读法是：<code>p</code>
+是一个指针，指向一个包含 3 个 <code>int</code> 的数组。</p>
+<p>注意括号很关键：</p>
+<table>
+<thead>
+<tr class="header">
+<th>写法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>int* arr[3]</code></td>
+<td>指针数组：数组里有 3 个 <code>int*</code></td>
+</tr>
+<tr class="even">
+<td><code>int (*p)[3]</code></td>
+<td>数组指针：指向含 3 个 <code>int</code> 的数组</td>
+</tr>
+</tbody>
+</table>
+<h3 id="野指针与悬空指针">⚠️ 野指针与悬空指针</h3>
+<h4 id="未初始化指针">未初始化指针</h4>
+<p>未初始化指针保存的是不确定地址。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>* p;</span><br><span class="line"><span class="comment">// cout &lt;&lt; *p &lt;&lt; endl;  // 错误示例：p 没有初始化</span></span><br></pre></td></tr></table></figure>
+<p>正确做法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>* p = <span class="literal">nullptr</span>;</span><br></pre></td></tr></table></figure>
+<p>指针定义时，如果暂时没有明确指向，就先设为 <code>nullptr</code>。</p>
+<h4 id="释放后继续使用">释放后继续使用</h4>
+<p>释放堆内存后，指针里的旧地址还在，但那块内存已经不属于你。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>* p = <span class="keyword">new</span> <span class="type">int</span>;</span><br><span class="line">*p = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">delete</span> p;</span><br><span class="line"></span><br><span class="line"><span class="comment">// cout &lt;&lt; *p &lt;&lt; endl;  // 错误示例：释放后继续使用</span></span><br></pre></td></tr></table></figure>
+<p>释放后建议立刻置空：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">delete</span> p;</span><br><span class="line">p = <span class="literal">nullptr</span>;</span><br></pre></td></tr></table></figure>
+<p>这样后续可以通过判空避免继续使用旧地址。</p>
+<h4 id="栈内存销毁后指针残留">栈内存销毁后指针残留</h4>
+<p>下面这个例子会产生悬空指针：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span>* <span class="title">bad</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">return</span> &amp;x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>函数结束后，<code>x</code>
+已经销毁，但外面拿到的指针还残留着原来的地址。</p>
+<p>这种指针看起来像有值，实际上已经不能安全使用。</p>
+<h4 id="常见危险总结">常见危险总结</h4>
+<table>
+<thead>
+<tr class="header">
+<th>问题</th>
+<th>示例</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>未初始化</td>
+<td><code>int* p;</code></td>
+<td>指向未知位置</td>
+</tr>
+<tr class="even">
+<td>空指针解引用</td>
+<td><code>*nullptr</code></td>
+<td>程序崩溃风险</td>
+</tr>
+<tr class="odd">
+<td>释放后使用</td>
+<td><code>delete p; *p</code></td>
+<td>使用已释放内存</td>
+</tr>
+<tr class="even">
+<td>返回局部变量地址</td>
+<td><code>return &amp;x;</code></td>
+<td>指向已销毁栈对象</td>
+</tr>
+<tr class="odd">
+<td>数组越界</td>
+<td><code>arr[100]</code></td>
+<td>访问不属于自己的内存</td>
+</tr>
+</tbody>
+</table>
+<h3 id="指针使用最小准则">✅ 指针使用最小准则</h3>
+<table>
+<thead>
+<tr class="header">
+<th>准则</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>指针定义时初始化</td>
+<td>避免野指针</td>
+</tr>
+<tr class="even">
+<td>不知道指向哪里就用 <code>nullptr</code></td>
+<td>明确表示空</td>
+</tr>
+<tr class="odd">
+<td>解引用前先确认有效</td>
+<td>避免崩溃</td>
+</tr>
+<tr class="even">
+<td><code>new</code> 后要 <code>delete</code></td>
+<td>避免内存泄漏</td>
+</tr>
+<tr class="odd">
+<td><code>delete</code> 后置为 <code>nullptr</code></td>
+<td>避免悬空指针误用</td>
+</tr>
+<tr class="even">
+<td>数组指针参数同时传长度</td>
+<td>避免越界</td>
+</tr>
+<tr class="odd">
+<td>不返回局部变量地址</td>
+<td>栈内存函数结束会失效</td>
+</tr>
+</tbody>
+</table>
+<h3 id="总结">✅ 总结</h3>
+<blockquote>
+<p>指针的本质是地址；学指针，就是学会通过地址间接访问和管理内存。</p>
+</blockquote>
+<p>先把三件事分清：<code>&amp;</code>
+取地址、指针保存地址、<code>*</code>
+通过地址访问值。再逐步理解栈、堆、数组退化和悬空指针，指针就不会只是一堆符号。</p>
+<p>Happy Hacking! 🎉</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/" rel="tag"># 编程入门</a>
+              <a href="/tags/%E6%8C%87%E9%92%88/" rel="tag"># 指针</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/f3c9a8d6/" rel="prev" title="C&#x2F;C++ 入门：函数">
+                  <i class="fa fa-angle-left"></i> C/C++ 入门：函数
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zihao Li</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">286k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">8:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
