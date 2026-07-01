@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/video-game.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/video-game.ico">
+  <link rel="mask-icon" href="/images/video-game.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"supermarkli.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.23.2","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"agate","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"show_result":true,"style":"default"},"fold":{"enable":false,"height":500}},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":5,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="变量只能保存一个值，结构体可以把一组相关数据打包成一个整体。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C&#x2F;C++ 入门：结构体">
+<meta property="og:url" content="https://supermarkli.github.io/posts/b2e7c4d5/index.html">
+<meta property="og:site_name" content="Zihao Li">
+<meta property="og:description" content="变量只能保存一个值，结构体可以把一组相关数据打包成一个整体。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-07-01T03:00:17.000Z">
+<meta property="article:modified_time" content="2026-07-01T02:11:34.285Z">
+<meta property="article:author" content="Zihao Li">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="编程入门">
+<meta property="article:tag" content="结构体">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://supermarkli.github.io/posts/b2e7c4d5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://supermarkli.github.io/posts/b2e7c4d5/","path":"posts/b2e7c4d5/","title":"C/C++ 入门：结构体"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>C/C++ 入门：结构体 | Zihao Li</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.7.0/mermaid.min.js","integrity":"sha256-4+IKDqhZ/sXjc8Wtl2/MsxI4e0s1KpEVdbEP7V/Lz8U="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","mhchem":false,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Zihao Li" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Zihao Li</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">好记性不如烂笔头</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-blog"><a href="/blog/" rel="section"><i class="fa fa-book fa-fw"></i>Blog</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E9%80%9F%E8%AF%BB"><span class="nav-number">1.</span> <span class="nav-text">📚 基本概念速读</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">🧩 结构体的基本模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E5%AE%9A%E4%B9%89"><span class="nav-number">3.</span> <span class="nav-text">🧱 结构体定义</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%97%E6%AE%B5"><span class="nav-number">3.1.</span> <span class="nav-text">字段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.2.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%88%90%E5%91%98%E8%AE%BF%E9%97%AE"><span class="nav-number">3.3.</span> <span class="nav-text">成员访问</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E5%8F%98%E9%87%8F%E4%B8%8E%E7%BB%93%E6%9E%84%E4%BD%93%E6%95%B0%E7%BB%84"><span class="nav-number">4.</span> <span class="nav-text">📦 结构体变量与结构体数组</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E5%8F%98%E9%87%8F"><span class="nav-number">4.1.</span> <span class="nav-text">结构体变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E4%B9%8B%E9%97%B4%E5%8F%AF%E4%BB%A5%E8%B5%8B%E5%80%BC"><span class="nav-number">4.2.</span> <span class="nav-text">结构体之间可以赋值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E6%95%B0%E7%BB%84"><span class="nav-number">4.3.</span> <span class="nav-text">结构体数组</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E6%8C%87%E9%92%88"><span class="nav-number">5.</span> <span class="nav-text">📍 结构体指针</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E6%8C%87%E9%92%88%E4%BF%9D%E5%AD%98%E7%BB%93%E6%9E%84%E4%BD%93%E5%9C%B0%E5%9D%80"><span class="nav-number">5.1.</span> <span class="nav-text">用指针保存结构体地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%88%90%E5%91%98%E8%AE%BF%E9%97%AE-1"><span class="nav-number">5.2.</span> <span class="nav-text">-&gt; 成员访问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E4%BC%A0%E5%8F%82"><span class="nav-number">5.3.</span> <span class="nav-text">指针传参</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E6%8C%87%E9%92%88%E9%A3%8E%E9%99%A9"><span class="nav-number">5.4.</span> <span class="nav-text">空指针风险</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E4%BD%93%E5%BC%95%E7%94%A8"><span class="nav-number">6.</span> <span class="nav-text">🔗 结构体引用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E6%8B%B7%E8%B4%9D"><span class="nav-number">6.1.</span> <span class="nav-text">避免拷贝</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E6%88%90%E5%91%98"><span class="nav-number">6.2.</span> <span class="nav-text">修改成员</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E9%92%88%E5%8F%82%E6%95%B0%E5%92%8C%E5%BC%95%E7%94%A8%E5%8F%82%E6%95%B0%E6%80%8E%E4%B9%88%E9%80%89"><span class="nav-number">6.3.</span> <span class="nav-text">指针参数和引用参数怎么选</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#struct-%E4%B8%8E-class"><span class="nav-number">7.</span> <span class="nav-text">🆚 struct 与 class</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%BB%98%E8%AE%A4%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90"><span class="nav-number">7.1.</span> <span class="nav-text">默认访问权限</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E4%B9%A0%E6%83%AF"><span class="nav-number">7.2.</span> <span class="nav-text">使用习惯</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E8%AF%AF%E5%8C%BA"><span class="nav-number">8.</span> <span class="nav-text">⚠️ 常见误区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Zihao Li"
+      src="/images/tkd.jpg">
+  <p class="site-author-name" itemprop="name">Zihao Li</p>
+  <div class="site-description" itemprop="description">一些乱七八糟的笔记</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">142</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/supermarkli" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;supermarkli" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:12110504@mail.sustech.edu.cn" title="E-Mail → mailto:12110504@mail.sustech.edu.cn" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://supermarkli.github.io/posts/b2e7c4d5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/tkd.jpg">
+      <meta itemprop="name" content="Zihao Li">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Zihao Li">
+      <meta itemprop="description" content="一些乱七八糟的笔记">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="C&#x2F;C++ 入门：结构体 | Zihao Li">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C/C++ 入门：结构体
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2026-07-01 11:00:17 / Modified: 10:11:34" itemprop="dateCreated datePublished" datetime="2026-07-01T11:00:17+08:00">2026-07-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">编程基础</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80/C-C/" itemprop="url" rel="index"><span itemprop="name">C/C++</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="Word count in article">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">Word count in article: </span>
+      <span>5.1k</span>
+    </span>
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>9 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>变量只能保存一个值，结构体可以把一组相关数据打包成一个整体。</p>
+<span id="more"></span>
+<h3 id="基本概念速读">📚 基本概念速读</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>名称</th>
+<th>定义</th>
+<th>省流</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>结构体</td>
+<td>把多个字段组合成一个自定义类型</td>
+<td>数据打包</td>
+</tr>
+<tr class="even">
+<td>字段</td>
+<td>结构体里的成员变量</td>
+<td>对象的一部分</td>
+</tr>
+<tr class="odd">
+<td>成员访问</td>
+<td>通过 <code>.</code> 或 <code>-&gt;</code> 访问字段</td>
+<td>拿里面的数据</td>
+</tr>
+<tr class="even">
+<td>结构体变量</td>
+<td>按结构体类型创建出的对象</td>
+<td>一个具体数据包</td>
+</tr>
+<tr class="odd">
+<td>结构体数组</td>
+<td>元素类型是结构体的数组</td>
+<td>一组数据包</td>
+</tr>
+<tr class="even">
+<td>结构体指针</td>
+<td>保存结构体对象地址的指针</td>
+<td>指向数据包</td>
+</tr>
+<tr class="odd">
+<td>结构体引用</td>
+<td>结构体对象的别名</td>
+<td>不拷贝地操作对象</td>
+</tr>
+<tr class="even">
+<td>默认访问权限</td>
+<td>不写 <code>public</code>、<code>private</code> 时的默认规则</td>
+<td><code>struct</code> 默认公开</td>
+</tr>
+</tbody>
+</table>
+<h3 id="结构体的基本模型">🧩 结构体的基本模型</h3>
+<p>结构体的核心作用是：把属于同一个概念的数据放在一起。</p>
+<p>比如一个学生有姓名、年龄和分数。单独写变量会变散：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">string name = <span class="string">&quot;Alice&quot;</span>;</span><br><span class="line"><span class="type">int</span> age = <span class="number">18</span>;</span><br><span class="line"><span class="type">double</span> score = <span class="number">92.5</span>;</span><br></pre></td></tr></table></figure>
+<p>写成结构体后，这些字段就属于同一个对象：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">double</span> score;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>可以这样理解：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Student</span><br><span class="line">+----------------+</span><br><span class="line">| name  = Alice  |</span><br><span class="line">| age   = 18     |</span><br><span class="line">| score = 92.5   |</span><br><span class="line">+----------------+</span><br></pre></td></tr></table></figure>
+<p>结构体让代码从“散落的变量”变成“有名字的数据模型”。</p>
+<pre>
+<code class="mermaid">
+
+flowchart LR
+    A[多个相关变量] --&gt; B[struct 类型]
+    B --&gt; C[结构体变量]
+    C --&gt; D[通过成员访问读写字段]
+</code>
+</pre>
+<h3 id="结构体定义">🧱 结构体定义</h3>
+<h4 id="字段">字段</h4>
+<p>结构体定义的一般形式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> 类型名 &#123;</span><br><span class="line">    字段类型 字段名;</span><br><span class="line">    字段类型 字段名;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Student</span> &#123;</span><br><span class="line">    string name;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line">    <span class="type">double</span> score;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>Student</code>
+是一个新类型，里面有三个字段：<code>name</code>、<code>age</code>、<code>score</code>。</p>
+<blockquote>
+<p>结构体定义末尾的分号不能省略。</p>
+</blockquote>
+<h4 id="初始化">初始化</h4>
+<p>定义好结构体类型后，就可以创建结构体变量。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Student s1 = &#123;<span class="string">&quot;Alice&quot;</span>, <span class="number">18</span>, <span class="number">92.5</span>&#125;;</span><br></pre></td></tr></table></figure>
+<p>这叫聚合初始化。初始化值会按字段定义顺序依次填进去：</p>
+<table>
+<thead>
+<tr class="header">
+<th>字段</th>
+<th>初始化值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>name</code></td>
+<td><code>"Alice"</code></td>
+</tr>
+<tr class="even">
+<td><code>age</code></td>
+<td><code>18</code></td>
+</tr>
+<tr class="odd">
+<td><code>score</code></td>
+<td><code>92.5</code></td>
+</tr>
+</tbody>
+</table>
+<p>C++ 里也可以使用 <code>&#123;&#125;</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Student s2&#123;<span class="string">&quot;Bob&quot;</span>, <span class="number">19</span>, <span class="number">88.0</span>&#125;;</span><br></pre></td></tr></table></figure>
+<p>如果想先创建，再逐个赋值，也可以：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Student s3;</span><br><span class="line">s<span class="number">3.</span>name = <span class="string">&quot;Carol&quot;</span>;</span><br><span class="line">s<span class="number">3.</span>age = <span class="number">20</span>;</span><br><span class="line">s<span class="number">3.</span>score = <span class="number">95.0</span>;</span><br></pre></td></tr></table></figure>
+<p>初学阶段建议优先使用初始化写法，让对象一创建就处于完整状态。</p>
+<h4 id="成员访问">成员访问</h4>
+<p>普通结构体变量使用 <code>.</code> 访问成员。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Student s&#123;<span class="string">&quot;Alice&quot;</span>, <span class="number">18</span>, <span class="number">92.5</span>&#125;;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; s.name &lt;&lt; endl;</span><br><span class="line">cout &lt;&lt; s.age &lt;&lt; endl;</span><br><span class="line">cout &lt;&lt; s.score &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">s.score = <span class="number">96.0</span>;</span><br><span class="line">cout &lt;&lt; s.score &lt;&lt; endl;</span><br></pre></td></tr></table></figure>
+<p><code>s.score = 96.0;</code> 的意思是：修改 <code>s</code>
+这个学生对象里的 <code>score</code> 字段。</p>
+<h3 id="结构体变量与结构体数组">📦 结构体变量与结构体数组</h3>
+<h4 id="结构体变量">结构体变量</h4>
+<p>结构体变量和普通变量一样，有类型、有名字、有自己的生命周期。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">Point</span> &#123;</span><br><span class="line">    <span class="type">int</span> x;</span><br><span class="line">    <span class="type">int</span> y;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Point p&#123;<span class="number">3</span>, <span class="number">4</span>&#125;;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; p.x &lt;&lt; endl;  <span class="comment">// 3</span></span><br><span class="line">    cout &lt;&lt; p.y &lt;&lt; endl;  <span class="comment">// 4</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>p</code> 是一个 <code>Point</code>
+类型变量，它内部有两个整数成员。</p>
+<h4 id="结构体之间可以赋值">结构体之间可以赋值</h4>
+<p>同类型结构体变量之间可以直接赋值。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Point a&#123;<span class="number">1</span>, <span class="number">2</span>&#125;;</span><br><span class="line">Point b&#123;<span class="number">3</span>, <span class="number">4</span>&#125;;</span><br><span class="line"></span><br><span class="line">b = a;</span><br><span class="line"></span><br><span class="line">cout &lt;&lt; b.x &lt;&lt; endl;  <span class="comment">// 1</span></span><br><span class="line">cout &lt;&lt; b.y &lt;&lt; endl;  <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+<p>这会把 <code>a</code> 的字段值复制给
+<code>b</code>。赋值之后，<code>a</code> 和 <code>b</code>
+仍然是两个独立对象。</p>
+<h4 id="结构体数组">结构体数组</h4>
+<p>如果要保存多个同类型对象，可以使用结构体数组。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Student students[<span class="number">3</span>] = &#123;</span><br><span class="line">    &#123;<span class="string">&quot;Alice&quot;</span>, <span class="number">18</span>, <span class="number">92.5</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;Bob&quot;</span>, <span class="number">19</span>, <span class="number">88.0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;Carol&quot;</span>, <span class="number">20</span>, <span class="number">95.0</span>&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">    cout &lt;&lt; students[i].name &lt;&lt; <span class="string">&quot; &quot;</span></span><br><span class="line">         &lt;&lt; students[i].score &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>students[i]</code> 是数组里的一个 <code>Student</code>
+对象，所以继续用 <code>.</code> 访问它的字段。</p>
+<p>也可以修改数组中某个结构体的成员：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">students[<span class="number">1</span>].score = <span class="number">90.0</span>;</span><br></pre></td></tr></table></figure>
+<p>这只会修改数组下标为 <code>1</code> 的那个学生。</p>
+<h3 id="结构体指针">📍 结构体指针</h3>
+<h4 id="用指针保存结构体地址">用指针保存结构体地址</h4>
+<p>结构体变量也有地址，可以用指针保存。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Student s&#123;<span class="string">&quot;Alice&quot;</span>, <span class="number">18</span>, <span class="number">92.5</span>&#125;;</span><br><span class="line">Student* p = &amp;s;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>p</code> 保存的是 <code>s</code> 的地址。</p>
+<h4 id="成员访问-1"><code>-&gt;</code> 成员访问</h4>
+<p>通过结构体指针访问成员，常用 <code>-&gt;</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cout &lt;&lt; p-&gt;name &lt;&lt; endl;</span><br><span class="line">cout &lt;&lt; p-&gt;age &lt;&lt; endl;</span><br><span class="line"></span><br><span class="line">p-&gt;score = <span class="number">96.0</span>;</span><br><span class="line">cout &lt;&lt; s.score &lt;&lt; endl;  <span class="comment">// 96</span></span><br></pre></td></tr></table></figure>
+<p><code>p-&gt;score</code> 等价于 <code>(*p).score</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(*p).score = <span class="number">97.0</span>;</span><br></pre></td></tr></table></figure>
+<p>因为 <code>.</code> 的优先级比 <code>*</code> 高，所以必须写成
+<code>(*p).score</code>，不能写成 <code>*p.score</code>。</p>
+<table>
+<thead>
+<tr class="header">
+<th>写法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>s.score</code></td>
+<td>通过结构体变量访问字段</td>
+</tr>
+<tr class="even">
+<td><code>p-&gt;score</code></td>
+<td>通过结构体指针访问字段</td>
+</tr>
+<tr class="odd">
+<td><code>(*p).score</code></td>
+<td>先解引用指针，再访问字段</td>
+</tr>
+</tbody>
+</table>
+<h4 id="指针传参">指针传参</h4>
+<p>结构体指针可以作为函数参数，让函数修改外部结构体对象。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">updateScore</span><span class="params">(Student* student, <span class="type">double</span> newScore)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (student != <span class="literal">nullptr</span>) &#123;</span><br><span class="line">        student-&gt;score = newScore;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Student s&#123;<span class="string">&quot;Alice&quot;</span>, <span class="number">18</span>, <span class="number">92.5</span>&#125;;</span><br><span class="line">    <span class="built_in">updateScore</span>(&amp;s, <span class="number">96.0</span>);</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; s.score &lt;&lt; endl;  <span class="comment">// 96</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用时写 <code>&amp;s</code>，表示把 <code>s</code>
+的地址传进去。</p>
+<h4 id="空指针风险">空指针风险</h4>
+<p>结构体指针可以是 <code>nullptr</code>，所以使用前要考虑空指针。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Student* p = <span class="literal">nullptr</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// cout &lt;&lt; p-&gt;name &lt;&lt; endl;  // 危险：空指针不能访问成员</span></span><br></pre></td></tr></table></figure>
+<p>如果函数参数允许传空指针，就必须检查：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">printStudent</span><span class="params">(<span class="type">const</span> Student* student)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (student == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; student-&gt;name &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果函数要求一定传入有效对象，结构体引用通常更直接。</p>
+<h3 id="结构体引用">🔗 结构体引用</h3>
+<h4 id="避免拷贝">避免拷贝</h4>
+<p>结构体可能包含多个字段，值传递会复制整个对象。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">printStudent</span><span class="params">(Student student)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; student.name &lt;&lt; <span class="string">&quot; &quot;</span></span><br><span class="line">         &lt;&lt; student.age &lt;&lt; <span class="string">&quot; &quot;</span></span><br><span class="line">         &lt;&lt; student.score &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果只是读取，建议使用 <code>const</code> 引用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">printStudent</span><span class="params">(<span class="type">const</span> Student&amp; student)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    cout &lt;&lt; student.name &lt;&lt; <span class="string">&quot; &quot;</span></span><br><span class="line">         &lt;&lt; student.age &lt;&lt; <span class="string">&quot; &quot;</span></span><br><span class="line">         &lt;&lt; student.score &lt;&lt; endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>const Student&amp;</code>
+表示：不拷贝整个结构体，也不会通过这个参数修改实参。</p>
+<h4 id="修改成员">修改成员</h4>
+<p>如果函数需要修改结构体成员，可以使用普通引用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">updateScore</span><span class="params">(Student&amp; student, <span class="type">double</span> newScore)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    student.score = newScore;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Student s&#123;<span class="string">&quot;Alice&quot;</span>, <span class="number">18</span>, <span class="number">92.5</span>&#125;;</span><br><span class="line">    <span class="built_in">updateScore</span>(s, <span class="number">96.0</span>);</span><br><span class="line"></span><br><span class="line">    cout &lt;&lt; s.score &lt;&lt; endl;  <span class="comment">// 96</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>引用版本调用时直接传 <code>s</code>，不需要写
+<code>&amp;s</code>，也不需要在函数内部检查 <code>nullptr</code>。</p>
+<h4 id="指针参数和引用参数怎么选">指针参数和引用参数怎么选</h4>
+<p>可以先按语义选择：</p>
+<table>
+<thead>
+<tr class="header">
+<th>需求</th>
+<th>推荐写法</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>只读结构体</td>
+<td><code>const Student&amp;</code></td>
+<td>避免拷贝，表达不会修改</td>
+</tr>
+<tr class="even">
+<td>必须修改结构体</td>
+<td><code>Student&amp;</code></td>
+<td>直接修改实参，语义清楚</td>
+</tr>
+<tr class="odd">
+<td>参数可能为空</td>
+<td><code>Student*</code></td>
+<td>可以用 <code>nullptr</code> 表达没有对象</td>
+</tr>
+<tr class="even">
+<td>需要和 C 接口交互</td>
+<td><code>Student*</code></td>
+<td>C 语言没有引用</td>
+</tr>
+</tbody>
+</table>
+<p>如果不存在“没有对象”的情况，引用通常比指针更适合做函数参数。</p>
+<h3 id="struct-与-class">🆚 struct 与 class</h3>
+<h4 id="默认访问权限">默认访问权限</h4>
+<p>C++ 里的 <code>struct</code> 和 <code>class</code>
+很像，都可以有字段和函数。最重要的默认差异是访问权限。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">StudentStruct</span> &#123;</span><br><span class="line">    string name;  <span class="comment">// 默认 public</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StudentClass</span> &#123;</span><br><span class="line">    string name;  <span class="comment">// 默认 private</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>struct</code> 成员默认是
+<code>public</code>，外部可以直接访问：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">StudentStruct a;</span><br><span class="line">a.name = <span class="string">&quot;Alice&quot;</span>;  <span class="comment">// 正确</span></span><br></pre></td></tr></table></figure>
+<p><code>class</code> 成员默认是
+<code>private</code>，外部不能直接访问：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">StudentClass b;</span><br><span class="line"><span class="comment">// b.name = &quot;Bob&quot;;  // 错误：name 默认是 private</span></span><br></pre></td></tr></table></figure>
+<p>如果显式写访问权限，两者可以写出很接近的代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">StudentA</span> &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    string name;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">setName</span><span class="params">(string value)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        name = value;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">StudentB</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    string name;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h4 id="使用习惯">使用习惯</h4>
+<p>实际写 C++ 时，一般习惯这样区分：</p>
+<table>
+<thead>
+<tr class="header">
+<th>类型</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>struct</code></td>
+<td>更偏简单数据聚合，字段通常直接公开</td>
+</tr>
+<tr class="even">
+<td><code>class</code></td>
+<td>更偏封装行为和不变量，成员通常受访问控制保护</td>
+</tr>
+</tbody>
+</table>
+<p>这不是语法强制要求，而是代码风格和设计习惯。</p>
+<h3 id="常见误区">⚠️ 常见误区</h3>
+<table>
+<thead>
+<tr class="header">
+<th>误区</th>
+<th>正解</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>结构体只是 C 语言里的东西</td>
+<td>C++ 也有 <code>struct</code>，而且可以有成员函数</td>
+</tr>
+<tr class="even">
+<td>结构体变量和字段是同一个东西</td>
+<td>结构体变量是整体，字段是整体的一部分</td>
+</tr>
+<tr class="odd">
+<td>结构体指针可以直接用 <code>.</code></td>
+<td>指针访问成员通常用 <code>-&gt;</code></td>
+</tr>
+<tr class="even">
+<td><code>p-&gt;x</code> 和 <code>*p.x</code> 一样</td>
+<td><code>p-&gt;x</code> 等价于 <code>(*p).x</code></td>
+</tr>
+<tr class="odd">
+<td>指针传参一定比引用传参好</td>
+<td>如果对象必定存在，引用更清楚</td>
+</tr>
+<tr class="even">
+<td><code>struct</code> 和 <code>class</code> 完全不同</td>
+<td>C++ 中主要默认访问权限不同</td>
+</tr>
+</tbody>
+</table>
+<h3 id="总结">✅ 总结</h3>
+<blockquote>
+<p>结构体把一组相关字段组织成一个自定义类型，普通对象用 <code>.</code>
+访问成员，指针用
+<code>-&gt;</code>，函数传参优先按“是否可空、是否修改、是否避免拷贝”选择指针或引用。</p>
+</blockquote>
+<p>学完结构体后，变量、数组、指针、引用和函数参数就能组合起来表达更真实的数据模型。</p>
+<p>Happy Hacking! 🎉</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8/" rel="tag"># 编程入门</a>
+              <a href="/tags/%E7%BB%93%E6%9E%84%E4%BD%93/" rel="tag"># 结构体</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/a1f6b3c4/" rel="prev" title="C&#x2F;C++ 入门：引用">
+                  <i class="fa fa-angle-left"></i> C/C++ 入门：引用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/c3f8d5e6/" rel="next" title="C&#x2F;C++ 入门：类与对象">
+                  C/C++ 入门：类与对象 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-headphones"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Zihao Li</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Word count total">302k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">9:10</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
